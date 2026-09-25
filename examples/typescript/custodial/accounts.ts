@@ -9,6 +9,9 @@
 // Requires CDP_API_KEY_ID and CDP_API_KEY_SECRET in the env (the custodial APIs
 // don't need CDP_WALLET_SECRET — that's only for wallet/account signing).
 // CdpClient reads them automatically; see .env.example.
+// Set CDP_CUSTODY_ACCOUNT_OWNER to a customer ID (customer_<uuid>) to create a
+// customer-owned account. Omit it to create an entity-owned account.
+// The customer must have custodyCrypto, custodyFiat, and custodyStablecoin enabled.
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { randomUUID } from "node:crypto";
@@ -25,6 +28,7 @@ const name = `example-${randomUUID().slice(0, 8)}`;
 const created = await cdp.accounts.createAccount({
   idempotencyKey: randomUUID(),
   name,
+  owner: process.env.CDP_CUSTODY_ACCOUNT_OWNER || undefined,
 });
 console.log("Created account:");
 safePrettyPrint(created);

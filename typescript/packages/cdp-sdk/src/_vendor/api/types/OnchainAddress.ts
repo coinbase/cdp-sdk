@@ -15,7 +15,7 @@ export interface OnchainAddress {
      * - XRP address: rhccc5p23aKiCGFcEqqnjEfLRZ6xEvfy3s
      */
     address: CoinbaseApi.BlockchainAddress;
-    network: CoinbaseApi.Network;
+    network: CoinbaseApi.PaymentNetwork;
     /**
      * The destination tag of the onchain address. Destination tags are used by certain networks
      * (primarily XRP/Ripple) to identify specific recipients when multiple users share a single address.
@@ -28,6 +28,6 @@ export interface OnchainAddress {
      * Note: Most networks (Ethereum, Bitcoin, Solana) do not use destination tags.
      */
     destinationTag?: string | undefined;
-    /** Asset symbol of the payment received by the recipient. */
+    /** Asset symbol of the payment received by the recipient. Supported values are `usdc` and `eurc`. */
     asset: CoinbaseApi.Asset;
 }

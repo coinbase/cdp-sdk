@@ -29,15 +29,26 @@ class SignSolanaTransactionWithEndUserAccountRequest(BaseModel):
     SignSolanaTransactionWithEndUserAccountRequest
     """ # noqa: E501
     address: Annotated[str, Field(strict=True)] = Field(description="The base58 encoded address of the Solana account belonging to the end user.")
+    network: Optional[StrictStr] = Field(default=None, description="The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.")
     transaction: StrictStr = Field(description="The base64 encoded transaction to sign.")
     wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
-    __properties: ClassVar[List[str]] = ["address", "transaction", "walletSecretId"]
+    __properties: ClassVar[List[str]] = ["address", "network", "transaction", "walletSecretId"]
 
     @field_validator('address')
     def address_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
             raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
+        return value
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['solana', 'solana-devnet']):
+            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
         return value
 
     @field_validator('wallet_secret_id')
@@ -102,6 +113,7 @@ class SignSolanaTransactionWithEndUserAccountRequest(BaseModel):
 
         _obj = cls.model_validate({
             "address": obj.get("address"),
+            "network": obj.get("network"),
             "transaction": obj.get("transaction"),
             "walletSecretId": obj.get("walletSecretId")
         })

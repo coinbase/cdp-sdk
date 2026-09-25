@@ -5,6 +5,7 @@
 package com.coinbase.cdp.resources.solanaaccounts.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
+import com.coinbase.cdp.resources.solanaaccounts.types.SignSolanaTransactionRequestNetwork;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
@@ -28,13 +30,17 @@ import org.jetbrains.annotations.NotNull;
 public final class SignSolanaTransactionRequest {
   private final Optional<String> idempotencyKey;
 
+  private final Optional<SignSolanaTransactionRequestNetwork> network;
+
   private final String transaction;
 
   private final Map<String, Object> additionalProperties;
 
-  private SignSolanaTransactionRequest(Optional<String> idempotencyKey, String transaction,
+  private SignSolanaTransactionRequest(Optional<String> idempotencyKey,
+      Optional<SignSolanaTransactionRequestNetwork> network, String transaction,
       Map<String, Object> additionalProperties) {
     this.idempotencyKey = idempotencyKey;
+    this.network = network;
     this.transaction = transaction;
     this.additionalProperties = additionalProperties;
   }
@@ -47,6 +53,14 @@ public final class SignSolanaTransactionRequest {
   @JsonIgnore
   public Optional<String> getIdempotencyKey() {
     return idempotencyKey;
+  }
+
+  /**
+   * @return The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+   */
+  @JsonProperty("network")
+  public Optional<SignSolanaTransactionRequestNetwork> getNetwork() {
+    return network;
   }
 
   /**
@@ -69,12 +83,12 @@ public final class SignSolanaTransactionRequest {
   }
 
   private boolean equalTo(SignSolanaTransactionRequest other) {
-    return idempotencyKey.equals(other.idempotencyKey) && transaction.equals(other.transaction);
+    return idempotencyKey.equals(other.idempotencyKey) && network.equals(other.network) && transaction.equals(other.transaction);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.idempotencyKey, this.transaction);
+    return Objects.hash(this.idempotencyKey, this.network, this.transaction);
   }
 
   @java.lang.Override
@@ -110,6 +124,13 @@ public final class SignSolanaTransactionRequest {
     _FinalStage idempotencyKey(Optional<String> idempotencyKey);
 
     _FinalStage idempotencyKey(String idempotencyKey);
+
+    /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     */
+    _FinalStage network(Optional<SignSolanaTransactionRequestNetwork> network);
+
+    _FinalStage network(SignSolanaTransactionRequestNetwork network);
   }
 
   @JsonIgnoreProperties(
@@ -117,6 +138,8 @@ public final class SignSolanaTransactionRequest {
   )
   public static final class Builder implements TransactionStage, _FinalStage {
     private String transaction;
+
+    private Optional<SignSolanaTransactionRequestNetwork> network = Optional.empty();
 
     private Optional<String> idempotencyKey = Optional.empty();
 
@@ -129,6 +152,7 @@ public final class SignSolanaTransactionRequest {
     @java.lang.Override
     public Builder from(SignSolanaTransactionRequest other) {
       idempotencyKey(other.getIdempotencyKey());
+      network(other.getNetwork());
       transaction(other.getTransaction());
       return this;
     }
@@ -142,6 +166,29 @@ public final class SignSolanaTransactionRequest {
     @JsonSetter("transaction")
     public _FinalStage transaction(@NotNull String transaction) {
       this.transaction = Objects.requireNonNull(transaction, "transaction must not be null");
+      return this;
+    }
+
+    /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage network(SignSolanaTransactionRequestNetwork network) {
+      this.network = Optional.ofNullable(network);
+      return this;
+    }
+
+    /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "network",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage network(Optional<SignSolanaTransactionRequestNetwork> network) {
+      this.network = network;
       return this;
     }
 
@@ -170,7 +217,7 @@ public final class SignSolanaTransactionRequest {
 
     @java.lang.Override
     public SignSolanaTransactionRequest build() {
-      return new SignSolanaTransactionRequest(idempotencyKey, transaction, additionalProperties);
+      return new SignSolanaTransactionRequest(idempotencyKey, network, transaction, additionalProperties);
     }
 
     @java.lang.Override

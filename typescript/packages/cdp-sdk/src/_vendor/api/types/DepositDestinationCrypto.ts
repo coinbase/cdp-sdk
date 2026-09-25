@@ -6,6 +6,6 @@ import type * as CoinbaseApi from "../index.js";
  * Crypto-specific deposit destination details. In responses, this object is always present. Contains the network and address for the deposit destination.
  */
 export interface DepositDestinationCrypto {
-    network: CoinbaseApi.Network;
+    network: CoinbaseApi.PaymentNetwork;
     address: CoinbaseApi.BlockchainAddress;
 }

@@ -2,11 +2,15 @@
 
 import type * as CoinbaseApi from "../index.js";
 
+/**
+ * Request to create a new crypto deposit destination. Provide the crypto-specific details.
+ */
 export interface CreateCryptoDepositDestinationRequest {
     /** The ID of the Account, which is a UUID prefixed by the string `account_`, that owns the deposit destination. */
     accountId: CoinbaseApi.AccountId;
     target?: CoinbaseApi.DepositDestinationTarget | undefined;
     metadata?: CoinbaseApi.Metadata | undefined;
+    compliance?: CoinbaseApi.Compliance | undefined;
     /** Crypto-specific details. Required when `type` is `crypto`. */
     crypto: CoinbaseApi.CreateDepositDestinationCrypto;
 }

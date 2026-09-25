@@ -5,6 +5,7 @@
 package com.coinbase.cdp.resources.solanaaccounts.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
+import com.coinbase.cdp.resources.solanaaccounts.types.SignSolanaMessageRequestEncoding;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
@@ -30,12 +32,16 @@ public final class SignSolanaMessageRequest {
 
   private final String message;
 
+  private final Optional<SignSolanaMessageRequestEncoding> encoding;
+
   private final Map<String, Object> additionalProperties;
 
   private SignSolanaMessageRequest(Optional<String> idempotencyKey, String message,
+      Optional<SignSolanaMessageRequestEncoding> encoding,
       Map<String, Object> additionalProperties) {
     this.idempotencyKey = idempotencyKey;
     this.message = message;
+    this.encoding = encoding;
     this.additionalProperties = additionalProperties;
   }
 
@@ -57,6 +63,14 @@ public final class SignSolanaMessageRequest {
     return message;
   }
 
+  /**
+   * @return The encoding of the message. Use <code>utf8</code> to sign the literal UTF-8 bytes of the message, or <code>base64</code> to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard <code>+</code> and <code>/</code> alphabet with <code>=</code> padding where required. If omitted, the message is interpreted as UTF-8.
+   */
+  @JsonProperty("encoding")
+  public Optional<SignSolanaMessageRequestEncoding> getEncoding() {
+    return encoding;
+  }
+
   @java.lang.Override
   public boolean equals(Object other) {
     if (this == other) return true;
@@ -69,12 +83,12 @@ public final class SignSolanaMessageRequest {
   }
 
   private boolean equalTo(SignSolanaMessageRequest other) {
-    return idempotencyKey.equals(other.idempotencyKey) && message.equals(other.message);
+    return idempotencyKey.equals(other.idempotencyKey) && message.equals(other.message) && encoding.equals(other.encoding);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.idempotencyKey, this.message);
+    return Objects.hash(this.idempotencyKey, this.message, this.encoding);
   }
 
   @java.lang.Override
@@ -110,6 +124,13 @@ public final class SignSolanaMessageRequest {
     _FinalStage idempotencyKey(Optional<String> idempotencyKey);
 
     _FinalStage idempotencyKey(String idempotencyKey);
+
+    /**
+     * <p>The encoding of the message. Use <code>utf8</code> to sign the literal UTF-8 bytes of the message, or <code>base64</code> to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard <code>+</code> and <code>/</code> alphabet with <code>=</code> padding where required. If omitted, the message is interpreted as UTF-8.</p>
+     */
+    _FinalStage encoding(Optional<SignSolanaMessageRequestEncoding> encoding);
+
+    _FinalStage encoding(SignSolanaMessageRequestEncoding encoding);
   }
 
   @JsonIgnoreProperties(
@@ -117,6 +138,8 @@ public final class SignSolanaMessageRequest {
   )
   public static final class Builder implements MessageStage, _FinalStage {
     private String message;
+
+    private Optional<SignSolanaMessageRequestEncoding> encoding = Optional.empty();
 
     private Optional<String> idempotencyKey = Optional.empty();
 
@@ -130,6 +153,7 @@ public final class SignSolanaMessageRequest {
     public Builder from(SignSolanaMessageRequest other) {
       idempotencyKey(other.getIdempotencyKey());
       message(other.getMessage());
+      encoding(other.getEncoding());
       return this;
     }
 
@@ -142,6 +166,29 @@ public final class SignSolanaMessageRequest {
     @JsonSetter("message")
     public _FinalStage message(@NotNull String message) {
       this.message = Objects.requireNonNull(message, "message must not be null");
+      return this;
+    }
+
+    /**
+     * <p>The encoding of the message. Use <code>utf8</code> to sign the literal UTF-8 bytes of the message, or <code>base64</code> to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard <code>+</code> and <code>/</code> alphabet with <code>=</code> padding where required. If omitted, the message is interpreted as UTF-8.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage encoding(SignSolanaMessageRequestEncoding encoding) {
+      this.encoding = Optional.ofNullable(encoding);
+      return this;
+    }
+
+    /**
+     * <p>The encoding of the message. Use <code>utf8</code> to sign the literal UTF-8 bytes of the message, or <code>base64</code> to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard <code>+</code> and <code>/</code> alphabet with <code>=</code> padding where required. If omitted, the message is interpreted as UTF-8.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "encoding",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage encoding(Optional<SignSolanaMessageRequestEncoding> encoding) {
+      this.encoding = encoding;
       return this;
     }
 
@@ -170,7 +217,7 @@ public final class SignSolanaMessageRequest {
 
     @java.lang.Override
     public SignSolanaMessageRequest build() {
-      return new SignSolanaMessageRequest(idempotencyKey, message, additionalProperties);
+      return new SignSolanaMessageRequest(idempotencyKey, message, encoding, additionalProperties);
     }
 
     @java.lang.Override

@@ -5,10 +5,23 @@ import type * as CoinbaseApi from "../index.js";
 /**
  * Request to create a new deposit destination. Provide the type-specific details matching the chosen `type`.
  */
-export type CreateDepositDestinationRequest = CoinbaseApi.CreateDepositDestinationRequest.Crypto;
+export type CreateDepositDestinationRequest =
+    | CoinbaseApi.CreateDepositDestinationRequest.Crypto
+    | CoinbaseApi.CreateDepositDestinationRequest.Fiat;
 
 export namespace CreateDepositDestinationRequest {
     export interface Crypto extends CoinbaseApi.CreateCryptoDepositDestinationRequest {
         type: "crypto";
     }
+
+    export interface Fiat extends CoinbaseApi.CreateFiatDepositDestinationRequest {
+        type: "fiat";
+    }
+
+    /**
+     * Request to create a new deposit destination. Provide the type-specific details matching the chosen `type`.
+     */
+    export type Response =
+        | CoinbaseApi.CreateDepositDestinationRequest.Crypto
+        | CoinbaseApi.CreateDepositDestinationRequest.Fiat;
 }

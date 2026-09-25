@@ -8,11 +8,13 @@ import com.coinbase.cdp.core.CdpClientApiException;
 import com.coinbase.cdp.core.CdpClientException;
 import com.coinbase.cdp.core.CdpClientHttpResponse;
 import com.coinbase.cdp.core.ClientOptions;
+import com.coinbase.cdp.core.EndpointMetadata;
 import com.coinbase.cdp.core.MediaTypes;
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.core.QueryStringMapper;
 import com.coinbase.cdp.core.RequestOptions;
 import com.coinbase.cdp.errors.BadRequestError;
+import com.coinbase.cdp.errors.ConflictError;
 import com.coinbase.cdp.errors.ForbiddenError;
 import com.coinbase.cdp.errors.InternalServerError;
 import com.coinbase.cdp.errors.NotFoundError;
@@ -38,6 +40,7 @@ import java.lang.Object;
 import java.lang.Override;
 import java.lang.RuntimeException;
 import java.lang.String;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import okhttp3.Call;
@@ -51,10 +54,10 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.jetbrains.annotations.NotNull;
 
-public class AsyncRawAccountsClient {
+public class AsyncWithRawResponseAccountsClient {
   protected final ClientOptions clientOptions;
 
-  public AsyncRawAccountsClient(ClientOptions clientOptions) {
+  AsyncWithRawResponseAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
   }
 
@@ -108,6 +111,7 @@ public class AsyncRawAccountsClient {
       Request.Builder _requestBuilder = new Request.Builder()
         .url(httpUrl.build())
         .method("GET", null)
+        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
         .headers(Headers.of(clientOptions.headers(requestOptions)))
         .addHeader("Accept", "application/json");
       Request okhttpRequest = _requestBuilder.build();
@@ -137,6 +141,9 @@ public class AsyncRawAccountsClient {
             Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
             future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
             return;
+          }
+          catch (JsonProcessingException e) {
+            future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
           }
           catch (IOException e) {
             future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -248,6 +255,7 @@ public class AsyncRawAccountsClient {
         Request.Builder _requestBuilder = new Request.Builder()
           .url(httpUrl.build())
           .method("POST", body)
+          .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
           .headers(Headers.of(clientOptions.headers(requestOptions)))
           .addHeader("Content-Type", "application/json")
           .addHeader("Accept", "application/json");
@@ -287,6 +295,9 @@ public class AsyncRawAccountsClient {
               Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
               future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
               return;
+            }
+            catch (JsonProcessingException e) {
+              future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
             }
             catch (IOException e) {
               future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -340,6 +351,7 @@ public class AsyncRawAccountsClient {
           Request.Builder _requestBuilder = new Request.Builder()
             .url(httpUrl.build())
             .method("GET", null)
+            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
             .headers(Headers.of(clientOptions.headers(requestOptions)))
             .addHeader("Accept", "application/json");
           Request okhttpRequest = _requestBuilder.build();
@@ -371,6 +383,9 @@ public class AsyncRawAccountsClient {
                 Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                 future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                 return;
+              }
+              catch (JsonProcessingException e) {
+                future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
               }
               catch (IOException e) {
                 future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -432,6 +447,7 @@ public class AsyncRawAccountsClient {
             Request.Builder _requestBuilder = new Request.Builder()
               .url(httpUrl.build())
               .method("GET", null)
+              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
               .headers(Headers.of(clientOptions.headers(requestOptions)))
               .addHeader("Accept", "application/json");
             Request okhttpRequest = _requestBuilder.build();
@@ -457,6 +473,8 @@ public class AsyncRawAccountsClient {
                       return;
                       case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                       return;
+                      case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                      return;
                       case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                       return;
                       case 503:future.completeExceptionally(new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -469,6 +487,9 @@ public class AsyncRawAccountsClient {
                   Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                   future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                   return;
+                }
+                catch (JsonProcessingException e) {
+                  future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
                 }
                 catch (IOException e) {
                   future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
@@ -526,6 +547,7 @@ public class AsyncRawAccountsClient {
               Request.Builder _requestBuilder = new Request.Builder()
                 .url(httpUrl.build())
                 .method("GET", null)
+                .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                 .headers(Headers.of(clientOptions.headers(requestOptions)))
                 .addHeader("Accept", "application/json");
               Request okhttpRequest = _requestBuilder.build();
@@ -563,6 +585,9 @@ public class AsyncRawAccountsClient {
                     Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                     future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
                     return;
+                  }
+                  catch (JsonProcessingException e) {
+                    future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
                   }
                   catch (IOException e) {
                     future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));

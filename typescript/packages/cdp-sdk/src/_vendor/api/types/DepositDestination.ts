@@ -5,10 +5,14 @@ import type * as CoinbaseApi from "../index.js";
 /**
  * A deposit destination for receiving funds to an account.
  */
-export type DepositDestination = CoinbaseApi.DepositDestination.Crypto;
+export type DepositDestination = CoinbaseApi.DepositDestination.Crypto | CoinbaseApi.DepositDestination.Fiat;
 
 export namespace DepositDestination {
     export interface Crypto extends CoinbaseApi.CryptoDepositDestination {
         type: "crypto";
+    }
+
+    export interface Fiat extends CoinbaseApi.FiatDepositDestination {
+        type: "fiat";
     }
 }

@@ -2,8 +2,14 @@
 
 /**
  * The Owner ID of the Account.
+ *
  * Owner IDs are UUIDs prefixed with the Owner Type as follows:
+ *
  * * **Entity**: `entity_` - If the Owner is your Entity, e.g. `entity_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
- * Support for Customer-owned accounts (`customer_` prefix) is in development.
+ *
+ * * **Customer**: `customer_` - If the Owner is one of your Customers,
+ *   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`. Customer ownership requires the
+ *   Customer to have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+ *   capabilities enabled.
  */
 export type Owner = string;

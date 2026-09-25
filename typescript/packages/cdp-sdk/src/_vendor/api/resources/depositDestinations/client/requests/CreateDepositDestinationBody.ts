@@ -22,6 +22,26 @@ import type * as CoinbaseApi from "../../../../index.js";
  *     }
  * }
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
+ *     type: "fiat",
+ *     accountId: "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *     target: {
+ *         accountId: "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *         asset: "usdc"
+ *     },
+ *     metadata: {
+ *         "customer_id": "123e4567-e89b-12d3-a456-426614174000",
+ *         "reference": "order-12345"
+ *     },
+ *     fiat: {
+ *         currency: "usd"
+ *     }
+ * }
+ * ```
  */
 export type CreateDepositDestinationBody = {
     idempotencyKey?: string;

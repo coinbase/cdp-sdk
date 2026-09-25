@@ -8,11 +8,13 @@ import com.coinbase.cdp.core.CdpClientApiException;
 import com.coinbase.cdp.core.CdpClientException;
 import com.coinbase.cdp.core.CdpClientHttpResponse;
 import com.coinbase.cdp.core.ClientOptions;
+import com.coinbase.cdp.core.EndpointMetadata;
 import com.coinbase.cdp.core.MediaTypes;
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.core.QueryStringMapper;
 import com.coinbase.cdp.core.RequestOptions;
 import com.coinbase.cdp.errors.BadRequestError;
+import com.coinbase.cdp.errors.ConflictError;
 import com.coinbase.cdp.errors.ForbiddenError;
 import com.coinbase.cdp.errors.InternalServerError;
 import com.coinbase.cdp.errors.NotFoundError;
@@ -37,6 +39,7 @@ import java.lang.Exception;
 import java.lang.Object;
 import java.lang.RuntimeException;
 import java.lang.String;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -46,10 +49,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class RawAccountsClient {
+public class WithRawResponseAccountsClient {
   protected final ClientOptions clientOptions;
 
-  public RawAccountsClient(ClientOptions clientOptions) {
+  WithRawResponseAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
   }
 
@@ -101,6 +104,7 @@ public class RawAccountsClient {
       Request.Builder _requestBuilder = new Request.Builder()
         .url(httpUrl.build())
         .method("GET", null)
+        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
         .headers(Headers.of(clientOptions.headers(requestOptions)))
         .addHeader("Accept", "application/json");
       Request okhttpRequest = _requestBuilder.build();
@@ -124,6 +128,9 @@ public class RawAccountsClient {
         }
         Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
         throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+      }
+      catch (JsonProcessingException e) {
+        throw new CdpClientException("Failed to decode HTTP response", e);
       }
       catch (IOException e) {
         throw new CdpClientException("Network error executing HTTP request", e);
@@ -225,6 +232,7 @@ public class RawAccountsClient {
         Request.Builder _requestBuilder = new Request.Builder()
           .url(httpUrl.build())
           .method("POST", body)
+          .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
           .headers(Headers.of(clientOptions.headers(requestOptions)))
           .addHeader("Content-Type", "application/json")
           .addHeader("Accept", "application/json");
@@ -255,6 +263,9 @@ public class RawAccountsClient {
           }
           Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
           throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+        }
+        catch (JsonProcessingException e) {
+          throw new CdpClientException("Failed to decode HTTP response", e);
         }
         catch (IOException e) {
           throw new CdpClientException("Network error executing HTTP request", e);
@@ -300,6 +311,7 @@ public class RawAccountsClient {
           Request.Builder _requestBuilder = new Request.Builder()
             .url(httpUrl.build())
             .method("GET", null)
+            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
             .headers(Headers.of(clientOptions.headers(requestOptions)))
             .addHeader("Accept", "application/json");
           Request okhttpRequest = _requestBuilder.build();
@@ -324,6 +336,9 @@ public class RawAccountsClient {
             }
             Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
             throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+          }
+          catch (JsonProcessingException e) {
+            throw new CdpClientException("Failed to decode HTTP response", e);
           }
           catch (IOException e) {
             throw new CdpClientException("Network error executing HTTP request", e);
@@ -376,6 +391,7 @@ public class RawAccountsClient {
             Request.Builder _requestBuilder = new Request.Builder()
               .url(httpUrl.build())
               .method("GET", null)
+              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
               .headers(Headers.of(clientOptions.headers(requestOptions)))
               .addHeader("Accept", "application/json");
             Request okhttpRequest = _requestBuilder.build();
@@ -394,6 +410,7 @@ public class RawAccountsClient {
                   case 400:throw new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
                   case 401:throw new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
                   case 404:throw new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                  case 409:throw new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
                   case 500:throw new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
                   case 503:throw new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
                 }
@@ -403,6 +420,9 @@ public class RawAccountsClient {
               }
               Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
               throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+            }
+            catch (JsonProcessingException e) {
+              throw new CdpClientException("Failed to decode HTTP response", e);
             }
             catch (IOException e) {
               throw new CdpClientException("Network error executing HTTP request", e);
@@ -451,6 +471,7 @@ public class RawAccountsClient {
               Request.Builder _requestBuilder = new Request.Builder()
                 .url(httpUrl.build())
                 .method("GET", null)
+                .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                 .headers(Headers.of(clientOptions.headers(requestOptions)))
                 .addHeader("Accept", "application/json");
               Request okhttpRequest = _requestBuilder.build();
@@ -478,6 +499,9 @@ public class RawAccountsClient {
                 }
                 Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
                 throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+              }
+              catch (JsonProcessingException e) {
+                throw new CdpClientException("Failed to decode HTTP response", e);
               }
               catch (IOException e) {
                 throw new CdpClientException("Network error executing HTTP request", e);

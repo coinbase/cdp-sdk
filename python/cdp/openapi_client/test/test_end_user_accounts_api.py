@@ -27,6 +27,27 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_adjust_borrow_position_with_end_user_account(self) -> None:
+        """Test case for adjust_borrow_position_with_end_user_account
+
+        Adjust a borrow position for an end user smart account
+        """
+        pass
+
+    async def test_close_borrow_position_with_end_user_account(self) -> None:
+        """Test case for close_borrow_position_with_end_user_account
+
+        Close a borrow position for an end user smart account
+        """
+        pass
+
+    async def test_create_borrow_position_with_end_user_account(self) -> None:
+        """Test case for create_borrow_position_with_end_user_account
+
+        Create a borrow position for an end user smart account
+        """
+        pass
+
     async def test_create_delegation_for_end_user_account(self) -> None:
         """Test case for create_delegation_for_end_user_account
 
@@ -52,6 +73,34 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
         """Test case for get_delegation_for_end_user_account
 
         Get account-scoped delegation for end user
+        """
+        pass
+
+    async def test_get_evm_borrow_product(self) -> None:
+        """Test case for get_evm_borrow_product
+
+        Get a borrow product
+        """
+        pass
+
+    async def test_get_user_operation_with_end_user_account(self) -> None:
+        """Test case for get_user_operation_with_end_user_account
+
+        Get a user operation for end user EVM Smart Account
+        """
+        pass
+
+    async def test_list_borrow_positions_with_end_user_account(self) -> None:
+        """Test case for list_borrow_positions_with_end_user_account
+
+        List borrow positions for an end user smart account
+        """
+        pass
+
+    async def test_list_evm_borrow_products(self) -> None:
+        """Test case for list_evm_borrow_products
+
+        List borrow products
         """
         pass
 

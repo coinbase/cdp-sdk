@@ -5,6 +5,7 @@
 package com.coinbase.cdp.resources.enduseraccounts.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
+import com.coinbase.cdp.resources.enduseraccounts.types.SignSolanaTransactionWithEndUserAccountRequestNetwork;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,6 +36,8 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
 
   private final String address;
 
+  private final Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> network;
+
   private final String transaction;
 
   private final Optional<String> walletSecretId;
@@ -43,12 +46,13 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
 
   private SignSolanaTransactionWithEndUserAccountRequest(Optional<String> idempotencyKey,
       Optional<String> developerAuth, Optional<String> projectId, String address,
-      String transaction, Optional<String> walletSecretId,
-      Map<String, Object> additionalProperties) {
+      Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> network, String transaction,
+      Optional<String> walletSecretId, Map<String, Object> additionalProperties) {
     this.idempotencyKey = idempotencyKey;
     this.developerAuth = developerAuth;
     this.projectId = projectId;
     this.address = address;
+    this.network = network;
     this.transaction = transaction;
     this.walletSecretId = walletSecretId;
     this.additionalProperties = additionalProperties;
@@ -91,6 +95,14 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
   }
 
   /**
+   * @return The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+   */
+  @JsonProperty("network")
+  public Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> getNetwork() {
+    return network;
+  }
+
+  /**
    * @return The base64 encoded transaction to sign.
    */
   @JsonProperty("transaction")
@@ -118,12 +130,12 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
   }
 
   private boolean equalTo(SignSolanaTransactionWithEndUserAccountRequest other) {
-    return idempotencyKey.equals(other.idempotencyKey) && developerAuth.equals(other.developerAuth) && projectId.equals(other.projectId) && address.equals(other.address) && transaction.equals(other.transaction) && walletSecretId.equals(other.walletSecretId);
+    return idempotencyKey.equals(other.idempotencyKey) && developerAuth.equals(other.developerAuth) && projectId.equals(other.projectId) && address.equals(other.address) && network.equals(other.network) && transaction.equals(other.transaction) && walletSecretId.equals(other.walletSecretId);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.idempotencyKey, this.developerAuth, this.projectId, this.address, this.transaction, this.walletSecretId);
+    return Objects.hash(this.idempotencyKey, this.developerAuth, this.projectId, this.address, this.network, this.transaction, this.walletSecretId);
   }
 
   @java.lang.Override
@@ -184,6 +196,13 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
     _FinalStage projectId(String projectId);
 
     /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     */
+    _FinalStage network(Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> network);
+
+    _FinalStage network(SignSolanaTransactionWithEndUserAccountRequestNetwork network);
+
+    /**
      * <p>Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.</p>
      */
     _FinalStage walletSecretId(Optional<String> walletSecretId);
@@ -200,6 +219,8 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
     private String transaction;
 
     private Optional<String> walletSecretId = Optional.empty();
+
+    private Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> network = Optional.empty();
 
     private Optional<String> projectId = Optional.empty();
 
@@ -219,6 +240,7 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
       developerAuth(other.getDeveloperAuth());
       projectId(other.getProjectId());
       address(other.getAddress());
+      network(other.getNetwork());
       transaction(other.getTransaction());
       walletSecretId(other.getWalletSecretId());
       return this;
@@ -268,6 +290,30 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
     )
     public _FinalStage walletSecretId(Optional<String> walletSecretId) {
       this.walletSecretId = walletSecretId;
+      return this;
+    }
+
+    /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage network(SignSolanaTransactionWithEndUserAccountRequestNetwork network) {
+      this.network = Optional.ofNullable(network);
+      return this;
+    }
+
+    /**
+     * <p>The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "network",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage network(
+        Optional<SignSolanaTransactionWithEndUserAccountRequestNetwork> network) {
+      this.network = network;
       return this;
     }
 
@@ -342,7 +388,7 @@ public final class SignSolanaTransactionWithEndUserAccountRequest {
 
     @java.lang.Override
     public SignSolanaTransactionWithEndUserAccountRequest build() {
-      return new SignSolanaTransactionWithEndUserAccountRequest(idempotencyKey, developerAuth, projectId, address, transaction, walletSecretId, additionalProperties);
+      return new SignSolanaTransactionWithEndUserAccountRequest(idempotencyKey, developerAuth, projectId, address, network, transaction, walletSecretId, additionalProperties);
     }
 
     @java.lang.Override

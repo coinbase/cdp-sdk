@@ -105,7 +105,7 @@ describe("CdpClient inherits the generated resource clients", () => {
   });
 });
 
-describe("forwards idempotencyKey as the X-Idempotency-Key header", () => {
+describe("custodial request bodies and idempotency headers", () => {
   const idempotencyKey = "8e03978e-40d5-43e8-bc93-6894a57f9324";
 
   beforeEach(() => {
@@ -134,6 +134,37 @@ describe("forwards idempotencyKey as the X-Idempotency-Key header", () => {
     expect(cfg.method).toBe("POST");
     expect(cfg.url).toContain("/v2/accounts");
     expect(cfg.headers["x-idempotency-key"]).toBe(idempotencyKey);
+  });
+
+  it("sends the customer owner when creating a custodial account", async () => {
+    const cdp = newClient();
+    const owner = "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114";
+    const name = "ABC XYZ Customer Account";
+
+    await cdp.accounts.createAccount({ owner, name, idempotencyKey });
+
+    expect(request).toHaveBeenCalledTimes(1);
+    const cfg = request.mock.calls[0][0];
+    expect(cfg.method).toBe("POST");
+    expect(cfg.url).toBe("/v2/accounts");
+    expect(cfg.data).toEqual({ owner, name });
+    expect(cfg.headers["x-idempotency-key"]).toBe(idempotencyKey);
+  });
+
+  it("omits owner when creating an entity-owned account", async () => {
+    const cdp = newClient();
+
+    await cdp.accounts.createAccount({ name: "My Business Account" });
+
+    expect(request.mock.calls[0][0].data).toEqual({ name: "My Business Account" });
+  });
+
+  it("still allows creating an entity-owned account without a request", async () => {
+    const cdp = newClient();
+
+    await cdp.accounts.createAccount();
+
+    expect(request.mock.calls[0][0].data).toEqual({});
   });
 
   it("sends X-Idempotency-Key when transfers.createTransfer is given an idempotencyKey", async () => {

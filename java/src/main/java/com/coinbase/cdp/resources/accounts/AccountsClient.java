@@ -21,17 +21,17 @@ import com.coinbase.cdp.types.Balance;
 public class AccountsClient {
   protected final ClientOptions clientOptions;
 
-  private final RawAccountsClient rawClient;
+  private final WithRawResponseAccountsClient rawClient;
 
   public AccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
-    this.rawClient = new RawAccountsClient(clientOptions);
+    this.rawClient = new WithRawResponseAccountsClient(clientOptions);
   }
 
   /**
    * Get responses with HTTP metadata like headers
    */
-  public RawAccountsClient withRawResponse() {
+  public WithRawResponseAccountsClient withRawResponse() {
     return this.rawClient;
   }
 

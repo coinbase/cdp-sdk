@@ -9,8 +9,10 @@ import type {
   CreateCustomerRequest,
   Customer,
   CustomerId,
+  GetCustomerRequirementsParams,
   ListCustomers200,
   ListCustomersParams,
+  RequirementsMap,
   UpdateCustomerRequest,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -55,6 +57,35 @@ export const listCustomers = (
   options?: SecondParameter<typeof cdpApiClient<ListCustomers200>>,
 ) => {
   return cdpApiClient<ListCustomers200>({ url: `/v2/customers`, method: "GET", params }, options);
+};
+/**
+ * Preview the requirements a hypothetical customer of the given
+`customerType` and jurisdiction would need to satisfy to enable the
+requested `capabilities`, without creating a customer record.
+Partner onboarding UIs can use this to render the collection flow
+before any customer state exists.
+
+Today this endpoint only previews the Terms of Service requirement:
+the response's `RequirementsMap` will only ever contain a `tos` key.
+Other requirement families (PII / CDD inputs) are not yet available
+through this endpoint; use `POST /v2/customers` or
+`PUT /v2/customers/{customerId}` to discover those via
+`Customer.requirements`.
+
+Only `customerType: individual` customers resident in or citizens
+of the US are currently supported; every other combination returns
+`400 invalid_request`.
+
+ * @summary Get customer requirements
+ */
+export const getCustomerRequirements = (
+  params: GetCustomerRequirementsParams,
+  options?: SecondParameter<typeof cdpApiClient<RequirementsMap>>,
+) => {
+  return cdpApiClient<RequirementsMap>(
+    { url: `/v2/customers/requirements`, method: "GET", params },
+    options,
+  );
 };
 /**
  * Get a customer by their ID. Returns the full customer object.
@@ -104,6 +135,9 @@ export const updateCustomerById = (
 };
 export type CreateCustomerResult = NonNullable<Awaited<ReturnType<typeof createCustomer>>>;
 export type ListCustomersResult = NonNullable<Awaited<ReturnType<typeof listCustomers>>>;
+export type GetCustomerRequirementsResult = NonNullable<
+  Awaited<ReturnType<typeof getCustomerRequirements>>
+>;
 export type GetCustomerByIdResult = NonNullable<Awaited<ReturnType<typeof getCustomerById>>>;
 export type DeleteCustomerByIdResult = NonNullable<Awaited<ReturnType<typeof deleteCustomerById>>>;
 export type UpdateCustomerByIdResult = NonNullable<Awaited<ReturnType<typeof updateCustomerById>>>;

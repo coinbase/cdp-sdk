@@ -7,13 +7,24 @@
  * Transfers group. Hand-maintained partition of ../_vendor/api/types — a type
  * absent from every vendored.types.* barrel is dropped from the docs.
  */
+export * from "../_vendor/api/types/AchDepositSource.js";
 export * from "../_vendor/api/types/BlockchainAddress.js";
 export * from "../_vendor/api/types/CreateTransferSource.js";
 export * from "../_vendor/api/types/DateOfBirth.js";
+export * from "../_vendor/api/types/FedwireDepositSource.js";
+export * from "../_vendor/api/types/IsIntermediary.js";
 export * from "../_vendor/api/types/Metadata.js";
-export * from "../_vendor/api/types/Network.js";
+export * from "../_vendor/api/types/PaymentNetwork.js";
+export * from "../_vendor/api/types/PaymentsTransfersCompletedEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersExpiredEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersFailedEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersProcessingEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersQuotedEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersTravelRuleCompletedEvent.js";
+export * from "../_vendor/api/types/PaymentsTransfersTravelRuleIncompleteEvent.js";
 export * from "../_vendor/api/types/OnchainAddress.js";
 export * from "../_vendor/api/types/PhysicalAddress.js";
+export * from "../_vendor/api/types/PositiveDecimal.js";
 export * from "../_vendor/api/types/Transfer.js";
 export * from "../_vendor/api/types/TransferDetails.js";
 export * from "../_vendor/api/types/TransferEstimate.js";

@@ -16,6 +16,7 @@ export * from "../_vendor/api/types/SepaDetails.js";
 export * from "../_vendor/api/types/SepaPaymentMethod.js";
 export * from "../_vendor/api/types/SwiftDetails.js";
 export * from "../_vendor/api/types/SwiftPaymentMethod.js";
-export * from "../_vendor/api/types/OriginatingBankAccountUs.js";
+export * from "../_vendor/api/types/BankAccountUs.js";
+export * from "../_vendor/api/types/FiatAccountNumber.js";
 export * from "../_vendor/api/types/Email.js";
 export * from "../_vendor/api/types/EmailInstrument.js";

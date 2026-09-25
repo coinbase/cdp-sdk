@@ -9,13 +9,15 @@ export interface DepositTravelRuleOriginator {
     /** Full name of the originator. */
     name?: string | undefined;
     address?: CoinbaseApi.PhysicalAddress | undefined;
-    /** The type of the originator's wallet. */
-    walletType?: DepositTravelRuleOriginator.WalletType | undefined;
+    /** Name of the financial institution. */
+    financialInstitution?: string | undefined;
     virtualAssetServiceProvider?: CoinbaseApi.DepositTravelRuleVasp | undefined;
     /** Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier). */
     personalId?: string | undefined;
     /** Date of birth of the originator. */
     dateOfBirth?: CoinbaseApi.DateOfBirth | undefined;
+    /** The type of the originator's wallet. */
+    walletType?: DepositTravelRuleOriginator.WalletType | undefined;
 }
 
 export namespace DepositTravelRuleOriginator {

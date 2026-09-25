@@ -10,6 +10,15 @@ import type * as CoinbaseApi from "../../../../index.js";
  *     name: "My Business Account"
  * }
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
+ *     owner: "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *     name: "ABC XYZ Customer Account"
+ * }
+ * ```
  */
 export interface CreateAccountRequest {
     /**
@@ -18,5 +27,18 @@ export interface CreateAccountRequest {
      * Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
      */
     idempotencyKey?: string;
+    /**
+     * The Owner of the Account to create.
+     * * If omitted, the account will be owned by the Entity making the request.
+     * * If the account is for a customer, the value will be a Customer ID,
+     *   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`.
+     *
+     * * Further, the corresponding Customer must have all of the following capabilities enabled:
+     *   - `custodyCrypto`
+     *   - `custodyFiat`
+     *   - `custodyStablecoin`.
+     */
+    owner?: CoinbaseApi.Owner;
     name?: CoinbaseApi.AccountName;
+    compliance?: CoinbaseApi.Compliance;
 }

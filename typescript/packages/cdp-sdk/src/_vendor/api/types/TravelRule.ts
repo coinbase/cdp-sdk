@@ -8,32 +8,13 @@ import type * as CoinbaseApi from "../index.js";
 export interface TravelRule {
     /** Indicates whether the user attests that the receiving wallet belongs to them. */
     isSelf?: boolean | undefined;
+    isIntermediary?: CoinbaseApi.IsIntermediary | undefined;
     /**
-     * Indicates whether Coinbase is being used as an intermediary Virtual Asset Service Provider (VASP) to send crypto on behalf of your customer.
+     * When `true`, you attest that the beneficiary's wallet ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this transfer.
      *
-     * **Background:**
-     *
-     * The Travel Rule (FATF Recommendation 16) requires VASPs to share originator and beneficiary information for virtual asset transfers. When Coinbase acts as an intermediary, additional Travel Rule data must be provided to satisfy compliance requirements.
-     *
-     * **Set to `true` when:**
-     *
-     * - Your organization is a VASP using Coinbase to send crypto **on behalf of your end customer**
-     * - In this scenario, Coinbase acts as an intermediary in the transfer chain and handles Travel Rule data exchange with the beneficiary VASP
-     *
-     * **Set to `false` (or omit) when:**
-     *
-     * - You are transferring funds directly from your own Coinbase account, where **Coinbase is your primary VASP** rather than an intermediary for another institution
-     *
-     * **Impact on required fields:**
-     *
-     * When `isIntermediary` is `true`, you must provide the `originator` object with details about the **original sender**, including:
-     * - Originator name
-     * - Originator address
-     * - Your VASP information (`virtualAssetServiceProvider` object with `name`, `address`, and `identifier`)
-     *
-     * For jurisdictions that require them (such as Coinbase Luxembourg), `personalIdentification` and `dateOfBirth` must also reflect the **original sender's** identity — not the intermediary's. These fields will not be auto-populated from any internal KYC data when `isIntermediary` is `true`.
+     * **Only valid when `isIntermediary` is `true`.** You can only attest to the beneficiary's wallet ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted.
      */
-    isIntermediary?: boolean | undefined;
+    attestVerifiedWalletOwnership?: boolean | undefined;
     originator?: CoinbaseApi.TravelRuleOriginator | undefined;
     beneficiary?: CoinbaseApi.TravelRuleBeneficiary | undefined;
 }

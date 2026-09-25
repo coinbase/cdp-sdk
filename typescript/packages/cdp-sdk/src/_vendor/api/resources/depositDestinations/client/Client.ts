@@ -24,13 +24,13 @@ export declare namespace DepositDestinationsClient {
  *
  * ## Crypto Deposit Destinations
  *
- * Crypto deposit destinations are cryptocurrency addresses that you can generate and fetch via the API. Once created, these addresses can receive cryptocurrency payments on their specified network and will settle in your account balance.
+ * Crypto deposit destinations are cryptocurrency addresses that you can generate and fetch via the API. Once created, these addresses can receive cryptocurrency payments on their specified network. By default, incoming funds are credited to your account balance (`target.accountId`); you can instead route funds directly to an external onchain address by setting `target` to an onchain address (`target.address`, `target.network`, `target.asset`, and optionally `target.destinationTag`).
  *
  * **Metadata:**
  * You can attach metadata to any deposit destination you create to track the purpose or source of deposits.
  *
  *
- * **Example:**
+ * **Example (target: account balance):**
  * ```json
  * {
  *   "depositDestinationId": "depositDestination_123",
@@ -51,7 +51,62 @@ export declare namespace DepositDestinationsClient {
  *   }
  * }
  * ```
+ * **Example (target: onchain address):**
+ * ```json
+ * {
+ *   "depositDestinationId": "depositDestination_123",
+ *   "accountId": "account_456",
+ *   "type": "crypto",
+ *   "crypto": {
+ *     "network": "base",
+ *     "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+ *   },
+ *   "target": {
+ *     "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+ *     "network": "base",
+ *     "asset": "usdc"
+ *   },
+ *   "status": "active",
+ *   "metadata": {
+ *     "customer_id": "cust_789",
+ *     "reference": "order-12345"
+ *   }
+ * }
+ * ```
  * Use the list endpoint to retrieve all deposit destinations.
+ *
+ * ## Fiat Deposit Destinations
+ *
+ * <Warning>
+ * Fiat deposit destinations are currently in **private beta** and require account enablement. Contact your Coinbase representative for access. Fields and behavior may change before general availability.
+ * </Warning>
+ *
+ * Fiat deposit destinations are bank accounts provisioned on your behalf that let an account receive USD deposits over a supported payment rail (for example, ACH). Each fiat deposit destination represents a single bank account at a single banking partner and is keyed by `accountType` (for example, `us_bank`).
+ *
+ * **Example:**
+ * ```json
+ * {
+ *   "depositDestinationId": "depositDestination_cf4958d2-b068-6bf9-da01-eee44f157336",
+ *   "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *   "type": "fiat",
+ *   "status": "pending",
+ *   "fiat": {
+ *     "accountType": "us_bank",
+ *     "currency": "usd",
+ *     "bankName": "Citibank, N.A.",
+ *     "beneficiaryName": "John Smith",
+ *     "routingNumber": "987654321",
+ *     "accountNumber": "123456789",
+ *     "bankAddress": "399 Park Avenue, New York, NY 10022",
+ *     "supportedRails": ["ach", "fedwire"]
+ *   },
+ *   "target": {
+ *     "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *     "asset": "usdc"
+ *   }
+ * }
+ * ```
+ * Use the create endpoint to provision a fiat deposit destination for an account.
  */
 export class DepositDestinationsClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<DepositDestinationsClient.Options>;
@@ -177,14 +232,42 @@ export class DepositDestinationsClient {
     }
 
     /**
-     * Create a new deposit destination for an account. A deposit destination is a cryptocurrency address that can be used to receive funds. The address will be generated for the specified network.
+     * Create a new deposit destination for an account. Two types are supported:
+     *
+     * - `crypto` (public): provisions a cryptocurrency address on the requested
+     *   network. The returned `crypto.address` is the deposit address; funds
+     *   sent to it are credited to the `target` account in the specified asset.
+     *   For Customer-owned accounts, the Customer must have the `custodyCrypto`
+     *   and `custodyStablecoin` capabilities enabled.
+     *
+     *
+     * - `fiat` (private-beta): provisions a bank
+     *   account at a CDP banking partner. The server picks the account type
+     *   (e.g. `us_bank`) and supported payment rails based on the account's
+     *   eligibility; pass `fiat.paymentRail` to influence partner selection.
+     *   The returned `fiat` object contains the bank account details the
+     *   depositor needs to send funds. For Customer-owned accounts, the Customer
+     *   must have the `custodyFiat` capability enabled. Requires account
+     *   enablement — contact your Coinbase representative for access. Fields
+     *   and behavior may change before general availability.
+     *
+     *
+     * For Customer-owned accounts not authorized for the required capabilities,
+     * the request is rejected with `customer_not_authorized` (HTTP 403).
+     *
+     *
+     * The created destination's `status` starts as `pending` for fiat (it
+     * becomes `active` once the partner provisioning callback completes) and
+     * `active` for crypto.
      *
      * @param {CoinbaseApi.CreateDepositDestinationBody} request
      * @param {DepositDestinationsClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws CoinbaseApi.BadRequestError
      * @throws CoinbaseApi.UnauthorizedError
+     * @throws CoinbaseApi.ForbiddenError
      * @throws CoinbaseApi.NotFoundError
+     * @throws CoinbaseApi.ConflictError
      * @throws CoinbaseApi.UnprocessableEntityError
      * @throws CoinbaseApi.InternalServerError
      * @throws CoinbaseApi.ServiceUnavailableError
@@ -205,6 +288,26 @@ export class DepositDestinationsClient {
      *     },
      *     crypto: {
      *         network: "base"
+     *     }
+     * })
+     * ```
+     *
+     * @example
+     * ```ts
+     * await client.depositDestinations.createDepositDestination({
+     *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
+     *     type: "fiat",
+     *     accountId: "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+     *     target: {
+     *         accountId: "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+     *         asset: "usdc"
+     *     },
+     *     metadata: {
+     *         "customer_id": "123e4567-e89b-12d3-a456-426614174000",
+     *         "reference": "order-12345"
+     *     },
+     *     fiat: {
+     *         currency: "usd"
      *     }
      * })
      * ```
@@ -278,8 +381,18 @@ export class DepositDestinationsClient {
                         _response.error.body as CoinbaseApi.Error_,
                         _response.rawResponse,
                     );
+                case 403:
+                    throw new CoinbaseApi.ForbiddenError(
+                        _response.error.body as CoinbaseApi.Error_,
+                        _response.rawResponse,
+                    );
                 case 404:
                     throw new CoinbaseApi.NotFoundError(
+                        _response.error.body as CoinbaseApi.Error_,
+                        _response.rawResponse,
+                    );
+                case 409:
+                    throw new CoinbaseApi.ConflictError(
                         _response.error.body as CoinbaseApi.Error_,
                         _response.rawResponse,
                     );

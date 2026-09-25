@@ -6,11 +6,11 @@ import type * as CoinbaseApi from "../index.js";
  * Beneficiary (receiver) party.
  */
 export interface TravelRuleBeneficiary {
-    /** Name of the financial institution. */
-    financialInstitution?: string | undefined;
     /** Full name of the party. */
     name?: string | undefined;
     address?: CoinbaseApi.PhysicalAddress | undefined;
+    /** Name of the financial institution. */
+    financialInstitution?: string | undefined;
     /** The type of the beneficiary's wallet. */
     walletType?: TravelRuleBeneficiary.WalletType | undefined;
 }

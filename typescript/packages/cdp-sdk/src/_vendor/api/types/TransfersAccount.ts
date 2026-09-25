@@ -7,6 +7,7 @@ import type * as CoinbaseApi from "../index.js";
  */
 export interface TransfersAccount {
     /** The ID of the Account. */
-    accountId: string;
+    accountId: CoinbaseApi.AccountId;
+    /** The asset symbol. Supported values are `usdc`, `eurc`, `usd`, and `eur`. */
     asset: CoinbaseApi.Asset;
 }

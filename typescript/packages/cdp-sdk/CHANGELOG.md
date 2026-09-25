@@ -1,5 +1,24 @@
 # CDP SDK Changelog
 
+## 1.57.0
+
+### Minor Changes
+
+- 31ab7a9: Regenerate the clients from the latest CDP API spec, including the optional `owner` field on `accounts.createAccount` for customer-owned accounts. Omitting `owner` continues to create an entity-owned account.
+
+  Generated API migration notes:
+  - `Network` is replaced by `PaymentNetwork`. Custodial payment-network values no longer include `aptos`, `arbitrum-sepolia`, `polygon`, `world`, or `world-sepolia`; new values include `monad`, `sui`, `avacchain`, and `tempo`.
+  - `CreateTransferSource` now accepts only `TransfersAccount`, not `PaymentMethod`.
+  - `OriginatingBankAccountUs` is removed; transfer responses use `AchDepositSource` and `FedwireDepositSource` instead. These have different fields, so this is not a type-only rename.
+  - Deposit-destination responses can now be fiat or crypto, and targets can be accounts or onchain addresses. Narrow the union before reading variant-specific fields.
+  - Generated webhook label aliases are now `WebhookRequestLabels` and `WebhookResponseLabels`; webhook request metadata uses `WebhookMetadata` (1–50 characters per key/value, at most 10 pairs) rather than generic `Metadata`.
+
+  No compatibility shims are applied to the regenerated API contract.
+
+### Patch Changes
+
+- d6114c7: Raised the maximum number of rules per policy from 10 to 100 to match the server limit.
+
 ## 1.56.0
 
 ### Minor Changes

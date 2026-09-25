@@ -93,6 +93,7 @@ export class TransfersClient {
      * **Asset Filtering**: Filter by source or target asset symbol:
      * * `?sourceAsset=usd` - Transfers funded from a USD account.
      * * `?targetAsset=usdc` - Transfers delivering USDC to the target.
+     * Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.
      *
      * **Other Filters**:
      * * `?sourceAddress=0x...` - Transfers from a specific on-chain source address.
@@ -270,8 +271,8 @@ export class TransfersClient {
      *     travelRule: {
      *         isSelf: false,
      *         isIntermediary: true,
+     *         attestVerifiedWalletOwnership: true,
      *         originator: {
-     *             financialInstitution: "PayPal, Inc.",
      *             name: "John Doe",
      *             address: {
      *                 line1: "123 Main St",
@@ -280,6 +281,19 @@ export class TransfersClient {
      *                 state: "California",
      *                 postCode: "94105",
      *                 countryCode: "US"
+     *             },
+     *             financialInstitution: "PayPal, Inc.",
+     *             virtualAssetServiceProvider: {
+     *                 identifier: "5493001KJTIIGC8Y1R17",
+     *                 name: "Fidelity Digital Asset Services, LLC",
+     *                 address: {
+     *                     line1: "123 Market St",
+     *                     line2: "Suite 400",
+     *                     city: "San Francisco",
+     *                     state: "California",
+     *                     postCode: "94105",
+     *                     countryCode: "US"
+     *                 }
      *             },
      *             personalId: "123-45-6789",
      *             dateOfBirth: {
@@ -633,6 +647,9 @@ export class TransfersClient {
      * await client.transfers.submitDepositTravelRule({
      *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
      *     transferId: "transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+     *     isSelf: false,
+     *     isIntermediary: true,
+     *     attestVerifiedWalletOwnership: true,
      *     originator: {
      *         name: "John Doe",
      *         address: {
@@ -641,12 +658,23 @@ export class TransfersClient {
      *             state: "CA",
      *             postCode: "94105",
      *             countryCode: "US"
-     *         }
+     *         },
+     *         financialInstitution: "PayPal, Inc.",
+     *         virtualAssetServiceProvider: {
+     *             identifier: "5493001KJTIIGC8Y1R17",
+     *             name: "Fidelity Digital Asset Services, LLC"
+     *         },
+     *         personalId: "123-45-6789",
+     *         dateOfBirth: {
+     *             day: "15",
+     *             month: "08",
+     *             year: "1990"
+     *         },
+     *         walletType: "custodial"
      *     },
      *     beneficiary: {
      *         name: "Jane Smith"
-     *     },
-     *     isSelf: false
+     *     }
      * })
      * ```
      */

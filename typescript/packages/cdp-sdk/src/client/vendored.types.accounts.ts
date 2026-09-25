@@ -17,6 +17,7 @@ export * from "../_vendor/api/types/Asset.js";
 export * from "../_vendor/api/types/AssetType.js";
 export * from "../_vendor/api/types/Balance.js";
 export * from "../_vendor/api/types/BalancesAsset.js";
+export * from "../_vendor/api/types/Compliance.js";
 export * from "../_vendor/api/types/Owner.js";
 
 /*

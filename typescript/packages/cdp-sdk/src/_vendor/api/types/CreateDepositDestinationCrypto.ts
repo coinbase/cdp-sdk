@@ -6,5 +6,5 @@ import type * as CoinbaseApi from "../index.js";
  * Crypto-specific details for creating a deposit destination.
  */
 export interface CreateDepositDestinationCrypto {
-    network: CoinbaseApi.Network;
+    network: CoinbaseApi.PaymentNetwork;
 }

@@ -6,7 +6,7 @@ package com.coinbase.cdp.resources.policyengine.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.resources.policyengine.types.CreatePolicyRequestScope;
-import com.coinbase.cdp.types.Rule;
+import com.coinbase.cdp.types.PolicyRules;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,9 +18,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,12 +35,12 @@ public final class CreatePolicyRequest {
 
   private final Optional<String> description;
 
-  private final List<Rule> rules;
+  private final PolicyRules rules;
 
   private final Map<String, Object> additionalProperties;
 
   private CreatePolicyRequest(Optional<String> idempotencyKey, CreatePolicyRequestScope scope,
-      Optional<String> description, List<Rule> rules, Map<String, Object> additionalProperties) {
+      Optional<String> description, PolicyRules rules, Map<String, Object> additionalProperties) {
     this.idempotencyKey = idempotencyKey;
     this.scope = scope;
     this.description = description;
@@ -77,11 +75,8 @@ public final class CreatePolicyRequest {
     return description;
   }
 
-  /**
-   * @return A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-   */
   @JsonProperty("rules")
-  public List<Rule> getRules() {
+  public PolicyRules getRules() {
     return rules;
   }
 
@@ -118,9 +113,13 @@ public final class CreatePolicyRequest {
     /**
      * <p>The scope of the policy.</p>
      */
-    _FinalStage scope(@NotNull CreatePolicyRequestScope scope);
+    RulesStage scope(@NotNull CreatePolicyRequestScope scope);
 
     Builder from(CreatePolicyRequest other);
+  }
+
+  public interface RulesStage {
+    _FinalStage rules(@NotNull PolicyRules rules);
   }
 
   public interface _FinalStage {
@@ -146,24 +145,15 @@ public final class CreatePolicyRequest {
     _FinalStage description(Optional<String> description);
 
     _FinalStage description(String description);
-
-    /**
-     * <p>A list of rules that comprise the policy. There is a limit of 10 rules per policy.</p>
-     */
-    _FinalStage rules(List<Rule> rules);
-
-    _FinalStage addRules(Rule rules);
-
-    _FinalStage addAllRules(List<Rule> rules);
   }
 
   @JsonIgnoreProperties(
       ignoreUnknown = true
   )
-  public static final class Builder implements ScopeStage, _FinalStage {
+  public static final class Builder implements ScopeStage, RulesStage, _FinalStage {
     private CreatePolicyRequestScope scope;
 
-    private List<Rule> rules = new ArrayList<>();
+    private PolicyRules rules;
 
     private Optional<String> description = Optional.empty();
 
@@ -191,46 +181,15 @@ public final class CreatePolicyRequest {
      */
     @java.lang.Override
     @JsonSetter("scope")
-    public _FinalStage scope(@NotNull CreatePolicyRequestScope scope) {
+    public RulesStage scope(@NotNull CreatePolicyRequestScope scope) {
       this.scope = Objects.requireNonNull(scope, "scope must not be null");
       return this;
     }
 
-    /**
-     * <p>A list of rules that comprise the policy. There is a limit of 10 rules per policy.</p>
-     * @return Reference to {@code this} so that method calls can be chained together.
-     */
     @java.lang.Override
-    public _FinalStage addAllRules(List<Rule> rules) {
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy. There is a limit of 10 rules per policy.</p>
-     * @return Reference to {@code this} so that method calls can be chained together.
-     */
-    @java.lang.Override
-    public _FinalStage addRules(Rule rules) {
-      this.rules.add(rules);
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy. There is a limit of 10 rules per policy.</p>
-     */
-    @java.lang.Override
-    @JsonSetter(
-        value = "rules",
-        nulls = Nulls.SKIP
-    )
-    public _FinalStage rules(List<Rule> rules) {
-      this.rules.clear();
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
+    @JsonSetter("rules")
+    public _FinalStage rules(@NotNull PolicyRules rules) {
+      this.rules = Objects.requireNonNull(rules, "rules must not be null");
       return this;
     }
 

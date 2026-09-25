@@ -15,9 +15,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,7 +32,7 @@ public final class Policy {
 
   private final PolicyScope scope;
 
-  private final List<Rule> rules;
+  private final PolicyRules rules;
 
   private final String createdAt;
 
@@ -42,7 +40,7 @@ public final class Policy {
 
   private final Map<String, Object> additionalProperties;
 
-  private Policy(String id, Optional<String> description, PolicyScope scope, List<Rule> rules,
+  private Policy(String id, Optional<String> description, PolicyScope scope, PolicyRules rules,
       String createdAt, String updatedAt, Map<String, Object> additionalProperties) {
     this.id = id;
     this.description = description;
@@ -78,11 +76,8 @@ public final class Policy {
     return scope;
   }
 
-  /**
-   * @return A list of rules that comprise the policy.
-   */
   @JsonProperty("rules")
-  public List<Rule> getRules() {
+  public PolicyRules getRules() {
     return rules;
   }
 
@@ -144,7 +139,11 @@ public final class Policy {
     /**
      * <p>The scope of the policy. Only one project-level policy can exist at any time.</p>
      */
-    CreatedAtStage scope(@NotNull PolicyScope scope);
+    RulesStage scope(@NotNull PolicyScope scope);
+  }
+
+  public interface RulesStage {
+    CreatedAtStage rules(@NotNull PolicyRules rules);
   }
 
   public interface CreatedAtStage {
@@ -175,30 +174,21 @@ public final class Policy {
     _FinalStage description(Optional<String> description);
 
     _FinalStage description(String description);
-
-    /**
-     * <p>A list of rules that comprise the policy.</p>
-     */
-    _FinalStage rules(List<Rule> rules);
-
-    _FinalStage addRules(Rule rules);
-
-    _FinalStage addAllRules(List<Rule> rules);
   }
 
   @JsonIgnoreProperties(
       ignoreUnknown = true
   )
-  public static final class Builder implements IdStage, ScopeStage, CreatedAtStage, UpdatedAtStage, _FinalStage {
+  public static final class Builder implements IdStage, ScopeStage, RulesStage, CreatedAtStage, UpdatedAtStage, _FinalStage {
     private String id;
 
     private PolicyScope scope;
 
+    private PolicyRules rules;
+
     private String createdAt;
 
     private String updatedAt;
-
-    private List<Rule> rules = new ArrayList<>();
 
     private Optional<String> description = Optional.empty();
 
@@ -238,8 +228,15 @@ public final class Policy {
      */
     @java.lang.Override
     @JsonSetter("scope")
-    public CreatedAtStage scope(@NotNull PolicyScope scope) {
+    public RulesStage scope(@NotNull PolicyScope scope) {
       this.scope = Objects.requireNonNull(scope, "scope must not be null");
+      return this;
+    }
+
+    @java.lang.Override
+    @JsonSetter("rules")
+    public CreatedAtStage rules(@NotNull PolicyRules rules) {
+      this.rules = Objects.requireNonNull(rules, "rules must not be null");
       return this;
     }
 
@@ -264,44 +261,6 @@ public final class Policy {
     @JsonSetter("updatedAt")
     public _FinalStage updatedAt(@NotNull String updatedAt) {
       this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt must not be null");
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy.</p>
-     * @return Reference to {@code this} so that method calls can be chained together.
-     */
-    @java.lang.Override
-    public _FinalStage addAllRules(List<Rule> rules) {
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy.</p>
-     * @return Reference to {@code this} so that method calls can be chained together.
-     */
-    @java.lang.Override
-    public _FinalStage addRules(Rule rules) {
-      this.rules.add(rules);
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy.</p>
-     */
-    @java.lang.Override
-    @JsonSetter(
-        value = "rules",
-        nulls = Nulls.SKIP
-    )
-    public _FinalStage rules(List<Rule> rules) {
-      this.rules.clear();
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
       return this;
     }
 

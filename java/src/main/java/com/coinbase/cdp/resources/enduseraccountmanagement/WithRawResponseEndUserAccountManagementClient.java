@@ -47,6 +47,7 @@ import java.lang.String;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -101,7 +102,7 @@ public class WithRawResponseEndUserAccountManagementClient {
         QueryStringMapper.addQueryParameter(httpUrl, "pageToken", request.getPageToken().get(), false);
       }
       if (request.getSort().isPresent()) {
-        QueryStringMapper.addQueryParameter(httpUrl, "sort", request.getSort().get(), true);
+        QueryStringMapper.addQueryParameter(httpUrl, "sort", request.getSort().get().stream().map(String::valueOf).collect(Collectors.joining(",")), false);
       }
       if (requestOptions != null) {
         requestOptions.getQueryParameters().forEach((_key, _value) -> {

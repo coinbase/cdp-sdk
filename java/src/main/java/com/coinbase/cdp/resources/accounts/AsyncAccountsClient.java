@@ -22,17 +22,17 @@ import java.util.concurrent.CompletableFuture;
 public class AsyncAccountsClient {
   protected final ClientOptions clientOptions;
 
-  private final AsyncRawAccountsClient rawClient;
+  private final AsyncWithRawResponseAccountsClient rawClient;
 
   public AsyncAccountsClient(ClientOptions clientOptions) {
     this.clientOptions = clientOptions;
-    this.rawClient = new AsyncRawAccountsClient(clientOptions);
+    this.rawClient = new AsyncWithRawResponseAccountsClient(clientOptions);
   }
 
   /**
    * Get responses with HTTP metadata like headers
    */
-  public AsyncRawAccountsClient withRawResponse() {
+  public AsyncWithRawResponseAccountsClient withRawResponse() {
     return this.rawClient;
   }
 

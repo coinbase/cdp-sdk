@@ -5,7 +5,7 @@
 package com.coinbase.cdp.resources.policyengine.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
-import com.coinbase.cdp.types.Rule;
+import com.coinbase.cdp.types.PolicyRules;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,12 +17,11 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(
@@ -33,12 +32,12 @@ public final class UpdatePolicyRequest {
 
   private final Optional<String> description;
 
-  private final List<Rule> rules;
+  private final PolicyRules rules;
 
   private final Map<String, Object> additionalProperties;
 
   private UpdatePolicyRequest(Optional<String> idempotencyKey, Optional<String> description,
-      List<Rule> rules, Map<String, Object> additionalProperties) {
+      PolicyRules rules, Map<String, Object> additionalProperties) {
     this.idempotencyKey = idempotencyKey;
     this.description = description;
     this.rules = rules;
@@ -64,11 +63,8 @@ public final class UpdatePolicyRequest {
     return description;
   }
 
-  /**
-   * @return A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-   */
   @JsonProperty("rules")
-  public List<Rule> getRules() {
+  public PolicyRules getRules() {
     return rules;
   }
 
@@ -97,19 +93,50 @@ public final class UpdatePolicyRequest {
     return ObjectMappers.stringify(this);
   }
 
-  public static Builder builder() {
+  public static RulesStage builder() {
     return new Builder();
+  }
+
+  public interface RulesStage {
+    _FinalStage rules(@NotNull PolicyRules rules);
+
+    Builder from(UpdatePolicyRequest other);
+  }
+
+  public interface _FinalStage {
+    UpdatePolicyRequest build();
+
+    _FinalStage additionalProperty(String key, Object value);
+
+    _FinalStage additionalProperties(Map<String, Object> additionalProperties);
+
+    /**
+     * <p>An optional string request header for making requests safely retryable.
+     * When included, duplicate requests with the same key will return identical responses.
+     * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
+     */
+    _FinalStage idempotencyKey(Optional<String> idempotencyKey);
+
+    _FinalStage idempotencyKey(String idempotencyKey);
+
+    /**
+     * <p>An optional human-readable description for the policy.
+     * Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.</p>
+     */
+    _FinalStage description(Optional<String> description);
+
+    _FinalStage description(String description);
   }
 
   @JsonIgnoreProperties(
       ignoreUnknown = true
   )
-  public static final class Builder {
-    private Optional<String> idempotencyKey = Optional.empty();
+  public static final class Builder implements RulesStage, _FinalStage {
+    private PolicyRules rules;
 
     private Optional<String> description = Optional.empty();
 
-    private List<Rule> rules = new ArrayList<>();
+    private Optional<String> idempotencyKey = Optional.empty();
 
     @JsonAnySetter
     private Map<String, Object> additionalProperties = new HashMap<>();
@@ -117,10 +144,55 @@ public final class UpdatePolicyRequest {
     private Builder() {
     }
 
+    @java.lang.Override
     public Builder from(UpdatePolicyRequest other) {
       idempotencyKey(other.getIdempotencyKey());
       description(other.getDescription());
       rules(other.getRules());
+      return this;
+    }
+
+    @java.lang.Override
+    @JsonSetter("rules")
+    public _FinalStage rules(@NotNull PolicyRules rules) {
+      this.rules = Objects.requireNonNull(rules, "rules must not be null");
+      return this;
+    }
+
+    /**
+     * <p>An optional human-readable description for the policy.
+     * Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage description(String description) {
+      this.description = Optional.ofNullable(description);
+      return this;
+    }
+
+    /**
+     * <p>An optional human-readable description for the policy.
+     * Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "description",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage description(Optional<String> description) {
+      this.description = description;
+      return this;
+    }
+
+    /**
+     * <p>An optional string request header for making requests safely retryable.
+     * When included, duplicate requests with the same key will return identical responses.
+     * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage idempotencyKey(String idempotencyKey) {
+      this.idempotencyKey = Optional.ofNullable(idempotencyKey);
       return this;
     }
 
@@ -129,70 +201,24 @@ public final class UpdatePolicyRequest {
      * When included, duplicate requests with the same key will return identical responses.
      * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
      */
-    public Builder idempotencyKey(Optional<String> idempotencyKey) {
+    @java.lang.Override
+    public _FinalStage idempotencyKey(Optional<String> idempotencyKey) {
       this.idempotencyKey = idempotencyKey;
       return this;
     }
 
-    public Builder idempotencyKey(String idempotencyKey) {
-      this.idempotencyKey = Optional.ofNullable(idempotencyKey);
-      return this;
-    }
-
-    /**
-     * <p>An optional human-readable description for the policy.
-     * Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.</p>
-     */
-    @JsonSetter(
-        value = "description",
-        nulls = Nulls.SKIP
-    )
-    public Builder description(Optional<String> description) {
-      this.description = description;
-      return this;
-    }
-
-    public Builder description(String description) {
-      this.description = Optional.ofNullable(description);
-      return this;
-    }
-
-    /**
-     * <p>A list of rules that comprise the policy. There is a limit of 10 rules per policy.</p>
-     */
-    @JsonSetter(
-        value = "rules",
-        nulls = Nulls.SKIP
-    )
-    public Builder rules(List<Rule> rules) {
-      this.rules.clear();
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
-      return this;
-    }
-
-    public Builder addRules(Rule rules) {
-      this.rules.add(rules);
-      return this;
-    }
-
-    public Builder addAllRules(List<Rule> rules) {
-      if (rules != null) {
-        this.rules.addAll(rules);
-      }
-      return this;
-    }
-
+    @java.lang.Override
     public UpdatePolicyRequest build() {
       return new UpdatePolicyRequest(idempotencyKey, description, rules, additionalProperties);
     }
 
+    @java.lang.Override
     public Builder additionalProperty(String key, Object value) {
       this.additionalProperties.put(key, value);
       return this;
     }
 
+    @java.lang.Override
     public Builder additionalProperties(Map<String, Object> additionalProperties) {
       this.additionalProperties.putAll(additionalProperties);
       return this;

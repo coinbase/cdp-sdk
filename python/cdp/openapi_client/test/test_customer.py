@@ -39,7 +39,7 @@ class TestCustomer(unittest.TestCase):
                 customer_id = 'customer_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 type = 'individual',
                 capabilities = {custodyCrypto={requested=true, status=active}, custodyFiat={requested=false, status=unrequested}, custodyStablecoin={requested=false, status=unrequested}, tradeCrypto={requested=false, status=unrequested}, tradeStablecoin={requested=false, status=unrequested}, transferCrypto={requested=true, status=active}, transferFiat={requested=false, status=unrequested}, transferStablecoin={requested=false, status=unrequested}},
-                requirements = {firstName={status=due, impact=[custodyCrypto, transferCrypto]}, fullSsn={status=rejected, impact=[custodyCrypto]}, ssnLast4={status=pending, impact=[custodyCrypto]}, sourceOfFunds={status=due}, citizenship={status=due}, tos={status=due, impact=[transferFiat], tosVersions=[{versionId=us_individual_2026-05-29, languages=[en], url=https://docs.cdp.coinbase.com/legal/terms/us_individual}]}, taxAttestation={status=due, impact=[transferFiat], taxForms=[us_w9]}},
+                requirements = {firstName={status=due, impact=[custodyCrypto, transferCrypto]}, fullSsn={status=rejected, impact=[custodyCrypto]}, ssnLast4={status=pending, impact=[custodyCrypto]}, sourceOfFunds={status=due}, citizenship={status=due}, tos={status=due, impact=[transferFiat], tosVersions=[{versionId=us_individual_2026-05-29, languages=[en], url=https://www.coinbase.com/legal/user-agreements-third-party-provider}]}, taxAttestation={status=due, impact=[transferFiat], taxForms=[us_w9]}},
                 created_at = '2026-01-10T14:25:00Z',
                 updated_at = '2026-01-10T14:30:00Z',
                 individual = {firstName=Jane, lastName=Doe, email=jane.doe@example.com},
@@ -51,7 +51,7 @@ class TestCustomer(unittest.TestCase):
                 customer_id = 'customer_af2937b0-9846-4fe7-bfe9-ccc22d935114',
                 type = 'individual',
                 capabilities = {custodyCrypto={requested=true, status=active}, custodyFiat={requested=false, status=unrequested}, custodyStablecoin={requested=false, status=unrequested}, tradeCrypto={requested=false, status=unrequested}, tradeStablecoin={requested=false, status=unrequested}, transferCrypto={requested=true, status=active}, transferFiat={requested=false, status=unrequested}, transferStablecoin={requested=false, status=unrequested}},
-                requirements = {firstName={status=due, impact=[custodyCrypto, transferCrypto]}, fullSsn={status=rejected, impact=[custodyCrypto]}, ssnLast4={status=pending, impact=[custodyCrypto]}, sourceOfFunds={status=due}, citizenship={status=due}, tos={status=due, impact=[transferFiat], tosVersions=[{versionId=us_individual_2026-05-29, languages=[en], url=https://docs.cdp.coinbase.com/legal/terms/us_individual}]}, taxAttestation={status=due, impact=[transferFiat], taxForms=[us_w9]}},
+                requirements = {firstName={status=due, impact=[custodyCrypto, transferCrypto]}, fullSsn={status=rejected, impact=[custodyCrypto]}, ssnLast4={status=pending, impact=[custodyCrypto]}, sourceOfFunds={status=due}, citizenship={status=due}, tos={status=due, impact=[transferFiat], tosVersions=[{versionId=us_individual_2026-05-29, languages=[en], url=https://www.coinbase.com/legal/user-agreements-third-party-provider}]}, taxAttestation={status=due, impact=[transferFiat], taxForms=[us_w9]}},
         )
         """
 

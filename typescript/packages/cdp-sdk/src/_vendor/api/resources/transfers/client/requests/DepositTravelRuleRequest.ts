@@ -8,6 +8,9 @@ import type * as CoinbaseApi from "../../../../index.js";
  * {
  *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
  *     transferId: "transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+ *     isSelf: false,
+ *     isIntermediary: true,
+ *     attestVerifiedWalletOwnership: true,
  *     originator: {
  *         name: "John Doe",
  *         address: {
@@ -16,12 +19,23 @@ import type * as CoinbaseApi from "../../../../index.js";
  *             state: "CA",
  *             postCode: "94105",
  *             countryCode: "US"
- *         }
+ *         },
+ *         financialInstitution: "PayPal, Inc.",
+ *         virtualAssetServiceProvider: {
+ *             identifier: "5493001KJTIIGC8Y1R17",
+ *             name: "Fidelity Digital Asset Services, LLC"
+ *         },
+ *         personalId: "123-45-6789",
+ *         dateOfBirth: {
+ *             day: "15",
+ *             month: "08",
+ *             year: "1990"
+ *         },
+ *         walletType: "custodial"
  *     },
  *     beneficiary: {
  *         name: "Jane Smith"
- *     },
- *     isSelf: false
+ *     }
  * }
  * ```
  */
@@ -34,10 +48,17 @@ export interface DepositTravelRuleRequest {
      * Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
      */
     idempotencyKey?: string;
+    /** Indicates whether the user attests that the originating wallet belongs to them. */
+    isSelf?: boolean;
+    isIntermediary?: CoinbaseApi.IsIntermediary;
+    /**
+     * When `true`, you attest that the originating wallet's ownership has been verified out-of-band. Instructs Coinbase to skip the wallet verification check for this travel-rule submission.
+     *
+     * **Only valid when `isIntermediary` is `true`.** You can only attest to the originating wallet's ownership when your organization is acting as the originating VASP on behalf of your end customer, and Coinbase is acting as the intermediary VASP. Returns a `400` error if set to `true` when `isIntermediary` is `false` or omitted.
+     */
+    attestVerifiedWalletOwnership?: boolean;
     /** Originator information for the travel rule submission. */
     originator?: CoinbaseApi.DepositTravelRuleOriginator;
     /** Beneficiary information for the travel rule submission. */
     beneficiary?: CoinbaseApi.DepositTravelRuleBeneficiary;
-    /** Indicates whether the user attests that the originating wallet belongs to them. */
-    isSelf?: boolean;
 }

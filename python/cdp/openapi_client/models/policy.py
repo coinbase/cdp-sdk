@@ -32,7 +32,7 @@ class Policy(BaseModel):
     id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier for the policy.")
     description: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional human-readable description of the policy. Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.")
     scope: StrictStr = Field(description="The scope of the policy. Only one project-level policy can exist at any time.")
-    rules: List[Rule] = Field(description="A list of rules that comprise the policy.")
+    rules: List[Rule] = Field(description="A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.")
     created_at: StrictStr = Field(description="The ISO 8601 timestamp at which the Policy was created.", alias="createdAt")
     updated_at: StrictStr = Field(description="The ISO 8601 timestamp at which the Policy was last updated.", alias="updatedAt")
     __properties: ClassVar[List[str]] = ["id", "description", "scope", "rules", "createdAt", "updatedAt"]

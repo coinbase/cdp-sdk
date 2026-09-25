@@ -5411,6 +5411,530 @@ pub mod types {
                 })
         }
     }
+    /**A request to adjust an existing borrow position for an end user's smart account on the specified borrow product.
+    The request can supply collateral, withdraw collateral, repay debt, and/or borrow more of the loan asset, broadcasting a user operation to apply the changes onchain.
+    A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to adjust an existing borrow position for an end user's smart account on the specified borrow product.\nThe request can supply collateral, withdraw collateral, repay debt, and/or borrow more of the loan asset, broadcasting a user operation to apply the changes onchain.\nA single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.",
+    ///  "examples": [
+    ///    {
+    ///      "addCollateralAmount": "1",
+    ///      "borrowLoanAmount": "100",
+    ///      "borrowProductId": "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df",
+    ///      "paymasterContext": {
+    ///        "policyId": "962b252c-a726-4a37-8d86-333ce0a07299"
+    ///      },
+    ///      "paymasterUrl": "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456",
+    ///      "useCdpPaymaster": false,
+    ///      "walletSecretId": "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "borrowProductId",
+    ///    "useCdpPaymaster",
+    ///    "walletSecretId"
+    ///  ],
+    ///  "properties": {
+    ///    "addCollateralAmount": {
+    ///      "description": "The amount of collateral to add to the position, as a decimal string in standard unit denomination of the collateral token (i.e. \"1\" for 1 cbBTC). Must not be combined with `removeCollateralAmount` or `repayLoanAmount`.",
+    ///      "examples": [
+    ///        "1"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "borrowLoanAmount": {
+    ///      "description": "The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. \"100\" for 100 USDC).  Must not be combined with `repayLoanAmount` or `removeCollateralAmount`.",
+    ///      "examples": [
+    ///        "100"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "borrowProductId": {
+    ///      "$ref": "#/components/schemas/BorrowProductId"
+    ///    },
+    ///    "paymasterContext": {
+    ///      "description": "Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.",
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymasterContext"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "paymasterUrl": {
+    ///      "description": "Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.\nIf `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.",
+    ///      "examples": [
+    ///        "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "removeCollateralAmount": {
+    ///      "description": "The amount of collateral to withdraw from the position, as a decimal string in standard unit denomination of the collateral token (i.e. \"1\" for 1 cbBTC).  Must not be combined with `addCollateralAmount` or `borrowLoanAmount`.",
+    ///      "examples": [
+    ///        "1"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "repayLoanAmount": {
+    ///      "description": "The amount of the loan token to repay, as a decimal string in standard unit denomination of the loan token (i.e. \"100\" for 100 USDC).  Must not be combined with `borrowLoanAmount` or `addCollateralAmount`.",
+    ///      "examples": [
+    ///        "100"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "useCdpPaymaster": {
+    ///      "description": "Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AdjustBorrowPositionRequest {
+        ///The amount of collateral to add to the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC). Must not be combined with `removeCollateralAmount` or `repayLoanAmount`.
+        #[serde(
+            rename = "addCollateralAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub add_collateral_amount: ::std::option::Option<PositiveDecimal>,
+        ///The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `repayLoanAmount` or `removeCollateralAmount`.
+        #[serde(
+            rename = "borrowLoanAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub borrow_loan_amount: ::std::option::Option<PositiveDecimal>,
+        #[serde(rename = "borrowProductId")]
+        pub borrow_product_id: BorrowProductId,
+        ///Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+        #[serde(
+            rename = "paymasterContext",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_context: ::std::option::Option<PaymasterContext>,
+        /**Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+        If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.*/
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<Url>,
+        ///The amount of collateral to withdraw from the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).  Must not be combined with `addCollateralAmount` or `borrowLoanAmount`.
+        #[serde(
+            rename = "removeCollateralAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub remove_collateral_amount: ::std::option::Option<PositiveDecimal>,
+        ///The amount of the loan token to repay, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `borrowLoanAmount` or `addCollateralAmount`.
+        #[serde(
+            rename = "repayLoanAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub repay_loan_amount: ::std::option::Option<PositiveDecimal>,
+        ///Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+        #[serde(rename = "useCdpPaymaster")]
+        pub use_cdp_paymaster: bool,
+        ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+        #[serde(rename = "walletSecretId")]
+        pub wallet_secret_id: AdjustBorrowPositionRequestWalletSecretId,
+    }
+    impl ::std::convert::From<&AdjustBorrowPositionRequest> for AdjustBorrowPositionRequest {
+        fn from(value: &AdjustBorrowPositionRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl AdjustBorrowPositionRequest {
+        pub fn builder() -> builder::AdjustBorrowPositionRequest {
+            Default::default()
+        }
+    }
+    ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AdjustBorrowPositionRequestWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for AdjustBorrowPositionRequestWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AdjustBorrowPositionRequestWalletSecretId> for ::std::string::String {
+        fn from(value: AdjustBorrowPositionRequestWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AdjustBorrowPositionRequestWalletSecretId>
+        for AdjustBorrowPositionRequestWalletSecretId
+    {
+        fn from(value: &AdjustBorrowPositionRequestWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AdjustBorrowPositionRequestWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AdjustBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AdjustBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AdjustBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AdjustBorrowPositionRequestWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AdjustBorrowPositionWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AdjustBorrowPositionWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for AdjustBorrowPositionWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AdjustBorrowPositionWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: AdjustBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AdjustBorrowPositionWithEndUserAccountAddress>
+        for AdjustBorrowPositionWithEndUserAccountAddress
+    {
+        fn from(value: &AdjustBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AdjustBorrowPositionWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AdjustBorrowPositionWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AdjustBorrowPositionWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AdjustBorrowPositionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AdjustBorrowPositionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for AdjustBorrowPositionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AdjustBorrowPositionWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: AdjustBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AdjustBorrowPositionWithEndUserAccountProjectId>
+        for AdjustBorrowPositionWithEndUserAccountProjectId
+    {
+        fn from(value: &AdjustBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AdjustBorrowPositionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AdjustBorrowPositionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AdjustBorrowPositionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`AdjustBorrowPositionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AdjustBorrowPositionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for AdjustBorrowPositionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AdjustBorrowPositionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: AdjustBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AdjustBorrowPositionWithEndUserAccountUserId>
+        for AdjustBorrowPositionWithEndUserAccountUserId
+    {
+        fn from(value: &AdjustBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AdjustBorrowPositionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AdjustBorrowPositionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AdjustBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AdjustBorrowPositionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///Available and total amounts for a specific currency.
     ///
     /// <details><summary>JSON schema</summary>
@@ -6591,7 +7115,8 @@ pub mod types {
     ///      "currency": "usd",
     ///      "routingNumber": "987654321",
     ///      "supportedRails": [
-    ///        "ach"
+    ///        "ach",
+    ///        "fedwire"
     ///      ]
     ///    }
     ///  ],
@@ -6607,12 +7132,7 @@ pub mod types {
     ///  ],
     ///  "properties": {
     ///    "accountNumber": {
-    ///      "description": "The bank account number.",
-    ///      "examples": [
-    ///        "123456789"
-    ///      ],
-    ///      "type": "string",
-    ///      "pattern": "^[0-9]{4,17}$"
+    ///      "$ref": "#/components/schemas/FiatAccountNumber"
     ///    },
     ///    "accountType": {
     ///      "description": "The type of bank account, based on the account identification scheme (e.g., `us_bank`).",
@@ -6674,7 +7194,8 @@ pub mod types {
     ///      "description": "The payment rails this account can receive deposits on.",
     ///      "examples": [
     ///        [
-    ///          "ach"
+    ///          "ach",
+    ///          "fedwire"
     ///        ]
     ///      ],
     ///      "type": "array",
@@ -6688,9 +7209,8 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct BankAccountUs {
-        ///The bank account number.
         #[serde(rename = "accountNumber")]
-        pub account_number: BankAccountUsAccountNumber,
+        pub account_number: FiatAccountNumber,
         ///The type of bank account, based on the account identification scheme (e.g., `us_bank`).
         #[serde(rename = "accountType")]
         pub account_type: BankAccountUsAccountType,
@@ -6731,85 +7251,6 @@ pub mod types {
     impl BankAccountUs {
         pub fn builder() -> builder::BankAccountUs {
             Default::default()
-        }
-    }
-    ///The bank account number.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The bank account number.",
-    ///  "examples": [
-    ///    "123456789"
-    ///  ],
-    ///  "type": "string",
-    ///  "pattern": "^[0-9]{4,17}$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct BankAccountUsAccountNumber(::std::string::String);
-    impl ::std::ops::Deref for BankAccountUsAccountNumber {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<BankAccountUsAccountNumber> for ::std::string::String {
-        fn from(value: BankAccountUsAccountNumber) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&BankAccountUsAccountNumber> for BankAccountUsAccountNumber {
-        fn from(value: &BankAccountUsAccountNumber) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for BankAccountUsAccountNumber {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{4,17}$").unwrap());
-            if PATTERN.find(value).is_none() {
-                return Err("doesn't match pattern \"^[0-9]{4,17}$\"".into());
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for BankAccountUsAccountNumber {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for BankAccountUsAccountNumber {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for BankAccountUsAccountNumber {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for BankAccountUsAccountNumber {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
         }
     }
     ///The type of bank account, based on the account identification scheme (e.g., `us_bank`).
@@ -7113,6 +7554,1924 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for BlockchainAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///A borrow position held by a smart account in a borrow product, together with its live onchain state read at a point-in-time snapshot.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A borrow position held by a smart account in a borrow product, together with its live onchain state read at a point-in-time snapshot.",
+    ///  "examples": [
+    ///    {
+    ///      "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///      "borrowProductId": "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df",
+    ///      "network": "base",
+    ///      "onchainState": {
+    ///        "collateral": [
+    ///          {
+    ///            "amount": "5000",
+    ///            "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///            "token": {
+    ///              "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///              "decimals": 18,
+    ///              "symbol": "mGLO"
+    ///            }
+    ///          }
+    ///        ],
+    ///        "currentLtvBps": 5000,
+    ///        "debt": [
+    ///          {
+    ///            "amount": "1003.5",
+    ///            "assetId": "bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef",
+    ///            "borrowApyBps": 525,
+    ///            "token": {
+    ///              "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///              "decimals": 6,
+    ///              "symbol": "USDC"
+    ///            }
+    ///          }
+    ///        ],
+    ///        "healthFactor": "1.79",
+    ///        "healthStatus": "healthy",
+    ///        "liquidationThresholdBps": 8250,
+    ///        "type": "morpho_blue"
+    ///      },
+    ///      "snapshot": {
+    ///        "blockHash": "0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c",
+    ///        "blockNumber": 49573788,
+    ///        "blockTimestamp": 1785936923,
+    ///        "observedAt": "2026-08-10T20:37:34Z"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "borrowProductId",
+    ///    "network",
+    ///    "onchainState",
+    ///    "snapshot"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The smart account address that owns the borrow position.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "borrowProductId": {
+    ///      "$ref": "#/components/schemas/BorrowProductId"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/BorrowProductNetwork"
+    ///    },
+    ///    "onchainState": {
+    ///      "$ref": "#/components/schemas/BorrowPositionOnchainState"
+    ///    },
+    ///    "snapshot": {
+    ///      "$ref": "#/components/schemas/BorrowProductSnapshot"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowPosition {
+        ///The smart account address that owns the borrow position.
+        pub address: BorrowPositionAddress,
+        #[serde(rename = "borrowProductId")]
+        pub borrow_product_id: BorrowProductId,
+        pub network: BorrowProductNetwork,
+        #[serde(rename = "onchainState")]
+        pub onchain_state: BorrowPositionOnchainState,
+        pub snapshot: BorrowProductSnapshot,
+    }
+    impl ::std::convert::From<&BorrowPosition> for BorrowPosition {
+        fn from(value: &BorrowPosition) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowPosition {
+        pub fn builder() -> builder::BorrowPosition {
+            Default::default()
+        }
+    }
+    ///The smart account address that owns the borrow position.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The smart account address that owns the borrow position.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowPositionAddress(::std::string::String);
+    impl ::std::ops::Deref for BorrowPositionAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowPositionAddress> for ::std::string::String {
+        fn from(value: BorrowPositionAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowPositionAddress> for BorrowPositionAddress {
+        fn from(value: &BorrowPositionAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowPositionAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowPositionAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowPositionAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowPositionAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowPositionAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The balance of either the collateral or debt token for a borrow position, as a decimal string in the token's standard unit denomination.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The balance of either the collateral or debt token for a borrow position, as a decimal string in the token's standard unit denomination.",
+    ///  "examples": [
+    ///    {
+    ///      "amount": "5000",
+    ///      "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///      "token": {
+    ///        "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///        "decimals": 18,
+    ///        "symbol": "mGLO"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "assetId",
+    ///    "token"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The token balance as a decimal string in the token's standard unit denomination (i.e. \"5000\" for 5000 mGLO).",
+    ///      "examples": [
+    ///        "5000"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "assetId": {
+    ///      "description": "The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.",
+    ///      "examples": [
+    ///        "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^bp_asset_[a-f0-9-]{36}$"
+    ///    },
+    ///    "token": {
+    ///      "$ref": "#/components/schemas/BorrowProductToken"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowPositionAssetAmount {
+        ///The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO).
+        pub amount: PositiveDecimal,
+        ///The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+        #[serde(rename = "assetId")]
+        pub asset_id: BorrowPositionAssetAmountAssetId,
+        pub token: BorrowProductToken,
+    }
+    impl ::std::convert::From<&BorrowPositionAssetAmount> for BorrowPositionAssetAmount {
+        fn from(value: &BorrowPositionAssetAmount) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowPositionAssetAmount {
+        pub fn builder() -> builder::BorrowPositionAssetAmount {
+            Default::default()
+        }
+    }
+    ///The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.",
+    ///  "examples": [
+    ///    "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^bp_asset_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowPositionAssetAmountAssetId(::std::string::String);
+    impl ::std::ops::Deref for BorrowPositionAssetAmountAssetId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowPositionAssetAmountAssetId> for ::std::string::String {
+        fn from(value: BorrowPositionAssetAmountAssetId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowPositionAssetAmountAssetId> for BorrowPositionAssetAmountAssetId {
+        fn from(value: &BorrowPositionAssetAmountAssetId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowPositionAssetAmountAssetId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^bp_asset_[a-f0-9-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^bp_asset_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowPositionAssetAmountAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowPositionAssetAmountAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowPositionAssetAmountAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowPositionAssetAmountAssetId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The debt balance for a borrow position, including accrued interest, plus its current borrow rate.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The debt balance for a borrow position, including accrued interest, plus its current borrow rate.",
+    ///  "examples": [
+    ///    {
+    ///      "amount": "1003.5",
+    ///      "assetId": "bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef",
+    ///      "borrowApyBps": 525,
+    ///      "token": {
+    ///        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///        "decimals": 6,
+    ///        "symbol": "USDC"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/BorrowPositionAssetAmount"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "borrowApyBps": {
+    ///          "description": "The current annualized borrow rate for the debt, expressed in basis points. For example, `525` represents a borrow APY of 5.25%. Omitted when the rate is unavailable.",
+    ///          "examples": [
+    ///            525
+    ///          ],
+    ///          "type": "integer",
+    ///          "minimum": 0.0
+    ///        }
+    ///      }
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowPositionDebt {
+        ///The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO).
+        pub amount: PositiveDecimal,
+        ///The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+        #[serde(rename = "assetId")]
+        pub asset_id: BorrowPositionDebtAssetId,
+        ///The current annualized borrow rate for the debt, expressed in basis points. For example, `525` represents a borrow APY of 5.25%. Omitted when the rate is unavailable.
+        #[serde(
+            rename = "borrowApyBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub borrow_apy_bps: ::std::option::Option<u64>,
+        pub token: BorrowProductToken,
+    }
+    impl ::std::convert::From<&BorrowPositionDebt> for BorrowPositionDebt {
+        fn from(value: &BorrowPositionDebt) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowPositionDebt {
+        pub fn builder() -> builder::BorrowPositionDebt {
+            Default::default()
+        }
+    }
+    ///The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.",
+    ///  "examples": [
+    ///    "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^bp_asset_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowPositionDebtAssetId(::std::string::String);
+    impl ::std::ops::Deref for BorrowPositionDebtAssetId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowPositionDebtAssetId> for ::std::string::String {
+        fn from(value: BorrowPositionDebtAssetId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowPositionDebtAssetId> for BorrowPositionDebtAssetId {
+        fn from(value: &BorrowPositionDebtAssetId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowPositionDebtAssetId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^bp_asset_[a-f0-9-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^bp_asset_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowPositionDebtAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowPositionDebtAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowPositionDebtAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowPositionDebtAssetId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**The aggregate health of a borrow position.
+
+    - `no_debt`: the position has no outstanding debt.
+    - `healthy`: the position has debt and is above its liquidation threshold.
+    - `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The aggregate health of a borrow position.\n\n- `no_debt`: the position has no outstanding debt.\n- `healthy`: the position has debt and is above its liquidation threshold.\n- `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.",
+    ///  "examples": [
+    ///    "healthy"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "no_debt",
+    ///    "healthy",
+    ///    "undercollateralized"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum BorrowPositionHealthStatus {
+        #[serde(rename = "no_debt")]
+        NoDebt,
+        #[serde(rename = "healthy")]
+        Healthy,
+        #[serde(rename = "undercollateralized")]
+        Undercollateralized,
+    }
+    impl ::std::convert::From<&Self> for BorrowPositionHealthStatus {
+        fn from(value: &BorrowPositionHealthStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for BorrowPositionHealthStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::NoDebt => f.write_str("no_debt"),
+                Self::Healthy => f.write_str("healthy"),
+                Self::Undercollateralized => f.write_str("undercollateralized"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for BorrowPositionHealthStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "no_debt" => Ok(Self::NoDebt),
+                "healthy" => Ok(Self::Healthy),
+                "undercollateralized" => Ok(Self::Undercollateralized),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowPositionHealthStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowPositionHealthStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowPositionHealthStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.",
+    ///  "examples": [
+    ///    {
+    ///      "collateral": [
+    ///        {
+    ///          "amount": "5000",
+    ///          "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///          "token": {
+    ///            "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///            "decimals": 18,
+    ///            "symbol": "mGLO"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "currentLtvBps": 5000,
+    ///      "debt": [
+    ///        {
+    ///          "amount": "1003.5",
+    ///          "assetId": "bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef",
+    ///          "borrowApyBps": 525,
+    ///          "token": {
+    ///            "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///            "decimals": 6,
+    ///            "symbol": "USDC"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "healthFactor": "1.79",
+    ///      "healthStatus": "healthy",
+    ///      "liquidationThresholdBps": 8250,
+    ///      "type": "morpho_blue"
+    ///    }
+    ///  ],
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MorphoBlueOnchainState"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct BorrowPositionOnchainState(pub MorphoBlueOnchainState);
+    impl ::std::ops::Deref for BorrowPositionOnchainState {
+        type Target = MorphoBlueOnchainState;
+        fn deref(&self) -> &MorphoBlueOnchainState {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowPositionOnchainState> for MorphoBlueOnchainState {
+        fn from(value: BorrowPositionOnchainState) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowPositionOnchainState> for BorrowPositionOnchainState {
+        fn from(value: &BorrowPositionOnchainState) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<MorphoBlueOnchainState> for BorrowPositionOnchainState {
+        fn from(value: MorphoBlueOnchainState) -> Self {
+            Self(value)
+        }
+    }
+    /**A borrow product on an EVM network, operated by a lending protocol such as Morpho Blue.
+    A borrow product is a protocol-native representation of a borrowable market,  describing the venue that hosts it, the assets that are borrowed or borrowed against  in it, a point-in-time snapshot of its onchain state, and the protocol-specific  immutable parameters that uniquely define it.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A borrow product on an EVM network, operated by a lending protocol such as Morpho Blue. \nA borrow product is a protocol-native representation of a borrowable market,  describing the venue that hosts it, the assets that are borrowed or borrowed against  in it, a point-in-time snapshot of its onchain state, and the protocol-specific  immutable parameters that uniquely define it.",
+    ///  "examples": [
+    ///    {
+    ///      "assets": [
+    ///        {
+    ///          "assetId": "bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef",
+    ///          "capabilities": [
+    ///            {
+    ///              "enabled": true,
+    ///              "type": "debt"
+    ///            }
+    ///          ],
+    ///          "token": {
+    ///            "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///            "decimals": 6,
+    ///            "symbol": "USDC"
+    ///          }
+    ///        },
+    ///        {
+    ///          "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///          "capabilities": [
+    ///            {
+    ///              "enabled": true,
+    ///              "type": "collateral"
+    ///            }
+    ///          ],
+    ///          "token": {
+    ///            "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///            "decimals": 18,
+    ///            "symbol": "mGLO"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "borrowProductId": "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df",
+    ///      "name": "mGLO / USDC",
+    ///      "network": "base",
+    ///      "protocolDetails": {
+    ///        "marketParams": {
+    ///          "collateralToken": {
+    ///            "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///            "decimals": 18,
+    ///            "symbol": "mGLO"
+    ///          },
+    ///          "interestRateModelAddress": "0x46415998764c29ab2a25cbea6254146d50d22687",
+    ///          "lltvBps": 9150,
+    ///          "loanToken": {
+    ///            "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///            "decimals": 6,
+    ///            "symbol": "USDC"
+    ///          },
+    ///          "onchainMarketId": "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b",
+    ///          "oracleAddress": "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///        },
+    ///        "type": "morpho_blue"
+    ///      },
+    ///      "snapshot": {
+    ///        "blockHash": "0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c",
+    ///        "blockNumber": 49573788,
+    ///        "blockTimestamp": 1785936923,
+    ///        "observedAt": "2026-08-10T20:37:34Z"
+    ///      },
+    ///      "venue": {
+    ///        "entrypointAddress": "0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb",
+    ///        "name": "Morpho Blue base-mainnet",
+    ///        "venueId": "bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "assets",
+    ///    "borrowProductId",
+    ///    "name",
+    ///    "network",
+    ///    "protocolDetails",
+    ///    "snapshot",
+    ///    "venue"
+    ///  ],
+    ///  "properties": {
+    ///    "assets": {
+    ///      "description": "The assets available to be borrowed or borrowed against in this market.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/BorrowProductAsset"
+    ///      }
+    ///    },
+    ///    "borrowProductId": {
+    ///      "$ref": "#/components/schemas/BorrowProductId"
+    ///    },
+    ///    "name": {
+    ///      "description": "A human-readable name for the product, typically derived from its loan and collateral tokens.",
+    ///      "examples": [
+    ///        "mGLO / USDC"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/BorrowProductNetwork"
+    ///    },
+    ///    "protocolDetails": {
+    ///      "$ref": "#/components/schemas/BorrowProductProtocolDetails"
+    ///    },
+    ///    "snapshot": {
+    ///      "$ref": "#/components/schemas/BorrowProductSnapshot"
+    ///    },
+    ///    "venue": {
+    ///      "$ref": "#/components/schemas/BorrowProductVenue"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProduct {
+        ///The assets available to be borrowed or borrowed against in this market.
+        pub assets: ::std::vec::Vec<BorrowProductAsset>,
+        #[serde(rename = "borrowProductId")]
+        pub borrow_product_id: BorrowProductId,
+        ///A human-readable name for the product, typically derived from its loan and collateral tokens.
+        pub name: ::std::string::String,
+        pub network: BorrowProductNetwork,
+        #[serde(rename = "protocolDetails")]
+        pub protocol_details: BorrowProductProtocolDetails,
+        pub snapshot: BorrowProductSnapshot,
+        pub venue: BorrowProductVenue,
+    }
+    impl ::std::convert::From<&BorrowProduct> for BorrowProduct {
+        fn from(value: &BorrowProduct) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProduct {
+        pub fn builder() -> builder::BorrowProduct {
+            Default::default()
+        }
+    }
+    ///The assets available to be borrowed or borrowed against in this market, together with the capabilities (collateral and/or debt) they provide.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The assets available to be borrowed or borrowed against in this market, together with the capabilities (collateral and/or debt) they provide.",
+    ///  "examples": [
+    ///    {
+    ///      "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///      "capabilities": [
+    ///        {
+    ///          "enabled": true,
+    ///          "type": "collateral"
+    ///        }
+    ///      ],
+    ///      "token": {
+    ///        "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///        "decimals": 18,
+    ///        "symbol": "mGLO"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "assetId",
+    ///    "capabilities",
+    ///    "token"
+    ///  ],
+    ///  "properties": {
+    ///    "assetId": {
+    ///      "description": "A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.",
+    ///      "examples": [
+    ///        "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^bp_asset_[a-f0-9-]{36}$"
+    ///    },
+    ///    "capabilities": {
+    ///      "description": "The capabilities this asset provides within the borrow product. An asset may be used as collateral and/or debt.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/BorrowProductAssetCapability"
+    ///      },
+    ///      "minItems": 1
+    ///    },
+    ///    "token": {
+    ///      "$ref": "#/components/schemas/BorrowProductToken"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProductAsset {
+        ///A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.
+        #[serde(rename = "assetId")]
+        pub asset_id: BorrowProductAssetAssetId,
+        ///The capabilities this asset provides within the borrow product. An asset may be used as collateral and/or debt.
+        pub capabilities: ::std::vec::Vec<BorrowProductAssetCapability>,
+        pub token: BorrowProductToken,
+    }
+    impl ::std::convert::From<&BorrowProductAsset> for BorrowProductAsset {
+        fn from(value: &BorrowProductAsset) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProductAsset {
+        pub fn builder() -> builder::BorrowProductAsset {
+            Default::default()
+        }
+    }
+    ///A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.",
+    ///  "examples": [
+    ///    "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^bp_asset_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductAssetAssetId(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductAssetAssetId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductAssetAssetId> for ::std::string::String {
+        fn from(value: BorrowProductAssetAssetId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductAssetAssetId> for BorrowProductAssetAssetId {
+        fn from(value: &BorrowProductAssetAssetId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductAssetAssetId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^bp_asset_[a-f0-9-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^bp_asset_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductAssetAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductAssetAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductAssetAssetId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductAssetAssetId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///A capability an asset provides within a borrow product, describing the role the asset plays, either as collateral or debt, and whether that capability is currently active.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A capability an asset provides within a borrow product, describing the role the asset plays, either as collateral or debt, and whether that capability is currently active.",
+    ///  "examples": [
+    ///    {
+    ///      "enabled": true,
+    ///      "type": "collateral"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "enabled",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "enabled": {
+    ///      "description": "Whether this capability is currently active. For example, an asset with a `collateral` capability and `enabled: false` cannot currently be borrowed against.\nSome venues may temporarily disable an asset's capability, which will be  reflected in the `enabled` field. This would not affect any user's existing  borrow positions.",
+    ///      "examples": [
+    ///        true
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "type": {
+    ///      "description": "The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.",
+    ///      "examples": [
+    ///        "collateral"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "collateral",
+    ///        "debt"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProductAssetCapability {
+        /**Whether this capability is currently active. For example, an asset with a `collateral` capability and `enabled: false` cannot currently be borrowed against.
+        Some venues may temporarily disable an asset's capability, which will be  reflected in the `enabled` field. This would not affect any user's existing  borrow positions.*/
+        pub enabled: bool,
+        ///The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+        #[serde(rename = "type")]
+        pub type_: BorrowProductAssetCapabilityType,
+    }
+    impl ::std::convert::From<&BorrowProductAssetCapability> for BorrowProductAssetCapability {
+        fn from(value: &BorrowProductAssetCapability) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProductAssetCapability {
+        pub fn builder() -> builder::BorrowProductAssetCapability {
+            Default::default()
+        }
+    }
+    ///The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.",
+    ///  "examples": [
+    ///    "collateral"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "collateral",
+    ///    "debt"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum BorrowProductAssetCapabilityType {
+        #[serde(rename = "collateral")]
+        Collateral,
+        #[serde(rename = "debt")]
+        Debt,
+    }
+    impl ::std::convert::From<&Self> for BorrowProductAssetCapabilityType {
+        fn from(value: &BorrowProductAssetCapabilityType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for BorrowProductAssetCapabilityType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Collateral => f.write_str("collateral"),
+                Self::Debt => f.write_str("debt"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductAssetCapabilityType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "collateral" => Ok(Self::Collateral),
+                "debt" => Ok(Self::Debt),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductAssetCapabilityType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductAssetCapabilityType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductAssetCapabilityType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.",
+    ///  "examples": [
+    ///    "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^bp_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductId(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductId> for ::std::string::String {
+        fn from(value: BorrowProductId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductId> for BorrowProductId {
+        fn from(value: &BorrowProductId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^bp_[a-f0-9-]{36}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^bp_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The name of the EVM network that a borrow product is deployed on.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The name of the EVM network that a borrow product is deployed on.",
+    ///  "examples": [
+    ///    "base"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum BorrowProductNetwork {
+        #[serde(rename = "base")]
+        Base,
+    }
+    impl ::std::convert::From<&Self> for BorrowProductNetwork {
+        fn from(value: &BorrowProductNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for BorrowProductNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Base => f.write_str("base"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base" => Ok(Self::Base),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The lending protocol that operates the borrow product.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The lending protocol that operates the borrow product.",
+    ///  "examples": [
+    ///    "morpho_blue"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "morpho_blue"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum BorrowProductProtocol {
+        #[serde(rename = "morpho_blue")]
+        MorphoBlue,
+    }
+    impl ::std::convert::From<&Self> for BorrowProductProtocol {
+        fn from(value: &BorrowProductProtocol) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for BorrowProductProtocol {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::MorphoBlue => f.write_str("morpho_blue"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductProtocol {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "morpho_blue" => Ok(Self::MorphoBlue),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductProtocol {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductProtocol {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductProtocol {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.",
+    ///  "examples": [
+    ///    {
+    ///      "marketParams": {
+    ///        "collateralToken": {
+    ///          "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///          "decimals": 18,
+    ///          "symbol": "mGLO"
+    ///        },
+    ///        "interestRateModelAddress": "0x46415998764c29ab2a25cbea6254146d50d22687",
+    ///        "lltvBps": 9150,
+    ///        "loanToken": {
+    ///          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "decimals": 6,
+    ///          "symbol": "USDC"
+    ///        },
+    ///        "onchainMarketId": "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b",
+    ///        "oracleAddress": "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///      },
+    ///      "type": "morpho_blue"
+    ///    }
+    ///  ],
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MorphoBlueProtocolDetails"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct BorrowProductProtocolDetails(pub MorphoBlueProtocolDetails);
+    impl ::std::ops::Deref for BorrowProductProtocolDetails {
+        type Target = MorphoBlueProtocolDetails;
+        fn deref(&self) -> &MorphoBlueProtocolDetails {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductProtocolDetails> for MorphoBlueProtocolDetails {
+        fn from(value: BorrowProductProtocolDetails) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductProtocolDetails> for BorrowProductProtocolDetails {
+        fn from(value: &BorrowProductProtocolDetails) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<MorphoBlueProtocolDetails> for BorrowProductProtocolDetails {
+        fn from(value: MorphoBlueProtocolDetails) -> Self {
+            Self(value)
+        }
+    }
+    ///The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.",
+    ///  "examples": [
+    ///    {
+    ///      "blockHash": "0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c",
+    ///      "blockNumber": 49573788,
+    ///      "blockTimestamp": 1785936923,
+    ///      "observedAt": "2026-08-10T20:37:34Z"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "blockHash",
+    ///    "blockNumber",
+    ///    "blockTimestamp",
+    ///    "observedAt"
+    ///  ],
+    ///  "properties": {
+    ///    "blockHash": {
+    ///      "description": "The hash of the block at which the state was observed.",
+    ///      "examples": [
+    ///        "0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    },
+    ///    "blockNumber": {
+    ///      "description": "The block number at which the state was observed.",
+    ///      "examples": [
+    ///        49573788
+    ///      ],
+    ///      "type": "integer",
+    ///      "format": "int64"
+    ///    },
+    ///    "blockTimestamp": {
+    ///      "description": "The onchain block timestamp at which the state was observed in Unix seconds.",
+    ///      "examples": [
+    ///        1785936923
+    ///      ],
+    ///      "type": "integer",
+    ///      "format": "int64"
+    ///    },
+    ///    "observedAt": {
+    ///      "description": "The timestamp at which the state was observed.",
+    ///      "examples": [
+    ///        "2026-08-10T20:37:34Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProductSnapshot {
+        ///The hash of the block at which the state was observed.
+        #[serde(rename = "blockHash")]
+        pub block_hash: BorrowProductSnapshotBlockHash,
+        ///The block number at which the state was observed.
+        #[serde(rename = "blockNumber")]
+        pub block_number: i64,
+        ///The onchain block timestamp at which the state was observed in Unix seconds.
+        #[serde(rename = "blockTimestamp")]
+        pub block_timestamp: i64,
+        ///The timestamp at which the state was observed.
+        #[serde(rename = "observedAt")]
+        pub observed_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&BorrowProductSnapshot> for BorrowProductSnapshot {
+        fn from(value: &BorrowProductSnapshot) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProductSnapshot {
+        pub fn builder() -> builder::BorrowProductSnapshot {
+            Default::default()
+        }
+    }
+    ///The hash of the block at which the state was observed.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the block at which the state was observed.",
+    ///  "examples": [
+    ///    "0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductSnapshotBlockHash(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductSnapshotBlockHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductSnapshotBlockHash> for ::std::string::String {
+        fn from(value: BorrowProductSnapshotBlockHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductSnapshotBlockHash> for BorrowProductSnapshotBlockHash {
+        fn from(value: &BorrowProductSnapshotBlockHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductSnapshotBlockHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductSnapshotBlockHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductSnapshotBlockHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductSnapshotBlockHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductSnapshotBlockHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///A token on an EVM borrow product network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A token on an EVM borrow product network.",
+    ///  "examples": [
+    ///    {
+    ///      "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///      "decimals": 6,
+    ///      "symbol": "USDC"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "decimals",
+    ///    "symbol"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The contract address of the token.",
+    ///      "examples": [
+    ///        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "decimals": {
+    ///      "description": "The number of decimal places used by the token.",
+    ///      "examples": [
+    ///        6
+    ///      ],
+    ///      "type": "integer",
+    ///      "format": "int64"
+    ///    },
+    ///    "symbol": {
+    ///      "description": "The symbol of the token (e.g. USDC, WETH).",
+    ///      "examples": [
+    ///        "USDC"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProductToken {
+        ///The contract address of the token.
+        pub address: BorrowProductTokenAddress,
+        ///The number of decimal places used by the token.
+        pub decimals: i64,
+        ///The symbol of the token (e.g. USDC, WETH).
+        pub symbol: ::std::string::String,
+    }
+    impl ::std::convert::From<&BorrowProductToken> for BorrowProductToken {
+        fn from(value: &BorrowProductToken) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProductToken {
+        pub fn builder() -> builder::BorrowProductToken {
+            Default::default()
+        }
+    }
+    ///The contract address of the token.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The contract address of the token.",
+    ///  "examples": [
+    ///    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductTokenAddress(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductTokenAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductTokenAddress> for ::std::string::String {
+        fn from(value: BorrowProductTokenAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductTokenAddress> for BorrowProductTokenAddress {
+        fn from(value: &BorrowProductTokenAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductTokenAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductTokenAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductTokenAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductTokenAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductTokenAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.",
+    ///  "examples": [
+    ///    {
+    ///      "entrypointAddress": "0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb",
+    ///      "name": "Morpho Blue base-mainnet",
+    ///      "venueId": "bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "entrypointAddress",
+    ///    "name",
+    ///    "venueId"
+    ///  ],
+    ///  "properties": {
+    ///    "entrypointAddress": {
+    ///      "description": "The contract address of the venue's entrypoint.",
+    ///      "examples": [
+    ///        "0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "name": {
+    ///      "description": "A human-readable name for the venue.",
+    ///      "examples": [
+    ///        "Morpho Blue base-mainnet"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "venueId": {
+    ///      "description": "A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.",
+    ///      "examples": [
+    ///        "bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^bp_venue_[a-f0-9-]{36}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct BorrowProductVenue {
+        ///The contract address of the venue's entrypoint.
+        #[serde(rename = "entrypointAddress")]
+        pub entrypoint_address: BorrowProductVenueEntrypointAddress,
+        ///A human-readable name for the venue.
+        pub name: ::std::string::String,
+        ///A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
+        #[serde(rename = "venueId")]
+        pub venue_id: BorrowProductVenueVenueId,
+    }
+    impl ::std::convert::From<&BorrowProductVenue> for BorrowProductVenue {
+        fn from(value: &BorrowProductVenue) -> Self {
+            value.clone()
+        }
+    }
+    impl BorrowProductVenue {
+        pub fn builder() -> builder::BorrowProductVenue {
+            Default::default()
+        }
+    }
+    ///The contract address of the venue's entrypoint.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The contract address of the venue's entrypoint.",
+    ///  "examples": [
+    ///    "0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductVenueEntrypointAddress(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductVenueEntrypointAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductVenueEntrypointAddress> for ::std::string::String {
+        fn from(value: BorrowProductVenueEntrypointAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductVenueEntrypointAddress>
+        for BorrowProductVenueEntrypointAddress
+    {
+        fn from(value: &BorrowProductVenueEntrypointAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductVenueEntrypointAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductVenueEntrypointAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductVenueEntrypointAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductVenueEntrypointAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductVenueEntrypointAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.",
+    ///  "examples": [
+    ///    "bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^bp_venue_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct BorrowProductVenueVenueId(::std::string::String);
+    impl ::std::ops::Deref for BorrowProductVenueVenueId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<BorrowProductVenueVenueId> for ::std::string::String {
+        fn from(value: BorrowProductVenueVenueId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&BorrowProductVenueVenueId> for BorrowProductVenueVenueId {
+        fn from(value: &BorrowProductVenueVenueId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for BorrowProductVenueVenueId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^bp_venue_[a-f0-9-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^bp_venue_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for BorrowProductVenueVenueId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for BorrowProductVenueVenueId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for BorrowProductVenueVenueId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for BorrowProductVenueVenueId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -8302,6 +10661,455 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for CapturePaymentSessionXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**A request to close an end user smart account's borrow position for the specified borrow product.
+    Closing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to close an end user smart account's borrow position for the specified borrow product.\nClosing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.",
+    ///  "examples": [
+    ///    {
+    ///      "borrowProductId": "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df",
+    ///      "paymasterContext": {
+    ///        "policyId": "962b252c-a726-4a37-8d86-333ce0a07299"
+    ///      },
+    ///      "paymasterUrl": "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456",
+    ///      "useCdpPaymaster": false,
+    ///      "walletSecretId": "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "borrowProductId",
+    ///    "useCdpPaymaster",
+    ///    "walletSecretId"
+    ///  ],
+    ///  "properties": {
+    ///    "borrowProductId": {
+    ///      "$ref": "#/components/schemas/BorrowProductId"
+    ///    },
+    ///    "paymasterContext": {
+    ///      "description": "Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.",
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymasterContext"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "paymasterUrl": {
+    ///      "description": "Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.\nIf `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.",
+    ///      "examples": [
+    ///        "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "useCdpPaymaster": {
+    ///      "description": "Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CloseBorrowPositionRequest {
+        #[serde(rename = "borrowProductId")]
+        pub borrow_product_id: BorrowProductId,
+        ///Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+        #[serde(
+            rename = "paymasterContext",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_context: ::std::option::Option<PaymasterContext>,
+        /**Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+        If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.*/
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<Url>,
+        ///Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+        #[serde(rename = "useCdpPaymaster")]
+        pub use_cdp_paymaster: bool,
+        ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+        #[serde(rename = "walletSecretId")]
+        pub wallet_secret_id: CloseBorrowPositionRequestWalletSecretId,
+    }
+    impl ::std::convert::From<&CloseBorrowPositionRequest> for CloseBorrowPositionRequest {
+        fn from(value: &CloseBorrowPositionRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl CloseBorrowPositionRequest {
+        pub fn builder() -> builder::CloseBorrowPositionRequest {
+            Default::default()
+        }
+    }
+    ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CloseBorrowPositionRequestWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for CloseBorrowPositionRequestWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CloseBorrowPositionRequestWalletSecretId> for ::std::string::String {
+        fn from(value: CloseBorrowPositionRequestWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CloseBorrowPositionRequestWalletSecretId>
+        for CloseBorrowPositionRequestWalletSecretId
+    {
+        fn from(value: &CloseBorrowPositionRequestWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CloseBorrowPositionRequestWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CloseBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CloseBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CloseBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CloseBorrowPositionRequestWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CloseBorrowPositionWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CloseBorrowPositionWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for CloseBorrowPositionWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CloseBorrowPositionWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: CloseBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CloseBorrowPositionWithEndUserAccountAddress>
+        for CloseBorrowPositionWithEndUserAccountAddress
+    {
+        fn from(value: &CloseBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CloseBorrowPositionWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CloseBorrowPositionWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CloseBorrowPositionWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CloseBorrowPositionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CloseBorrowPositionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for CloseBorrowPositionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CloseBorrowPositionWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: CloseBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CloseBorrowPositionWithEndUserAccountProjectId>
+        for CloseBorrowPositionWithEndUserAccountProjectId
+    {
+        fn from(value: &CloseBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CloseBorrowPositionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CloseBorrowPositionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CloseBorrowPositionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CloseBorrowPositionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CloseBorrowPositionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for CloseBorrowPositionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CloseBorrowPositionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: CloseBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CloseBorrowPositionWithEndUserAccountUserId>
+        for CloseBorrowPositionWithEndUserAccountUserId
+    {
+        fn from(value: &CloseBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CloseBorrowPositionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CloseBorrowPositionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CloseBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CloseBorrowPositionWithEndUserAccountUserId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -10034,6 +12842,487 @@ pub mod types {
             Default::default()
         }
     }
+    /**A request to create a borrow position for an end user's smart account for the specified borrow product.
+    The smart account posts collateral and borrows against it, broadcasting a user operation  to open the position onchain.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to create a borrow position for an end user's smart account for the specified borrow product. \nThe smart account posts collateral and borrows against it, broadcasting a user operation  to open the position onchain.",
+    ///  "examples": [
+    ///    {
+    ///      "borrowProductId": "bp_07fb56c0-9afe-5440-8ff2-5b0e115458df",
+    ///      "collateralAmount": "1",
+    ///      "loanAmount": "100",
+    ///      "paymasterContext": {
+    ///        "policyId": "962b252c-a726-4a37-8d86-333ce0a07299"
+    ///      },
+    ///      "paymasterUrl": "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456",
+    ///      "useCdpPaymaster": false,
+    ///      "walletSecretId": "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "borrowProductId",
+    ///    "collateralAmount",
+    ///    "loanAmount",
+    ///    "useCdpPaymaster",
+    ///    "walletSecretId"
+    ///  ],
+    ///  "properties": {
+    ///    "borrowProductId": {
+    ///      "$ref": "#/components/schemas/BorrowProductId"
+    ///    },
+    ///    "collateralAmount": {
+    ///      "description": "The amount of collateral to post, as a decimal string in standard unit denomination of the collateral token (i.e. \"1\" for 1 cbBTC).",
+    ///      "examples": [
+    ///        "1"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "loanAmount": {
+    ///      "description": "The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. \"100\" for 100 USDC).",
+    ///      "examples": [
+    ///        "100"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PositiveDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "paymasterContext": {
+    ///      "description": "Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.",
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymasterContext"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "paymasterUrl": {
+    ///      "description": "Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.\nIf `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.",
+    ///      "examples": [
+    ///        "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "useCdpPaymaster": {
+    ///      "description": "Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.",
+    ///      "examples": [
+    ///        false
+    ///      ],
+    ///      "type": "boolean"
+    ///    },
+    ///    "walletSecretId": {
+    ///      "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateBorrowPositionRequest {
+        #[serde(rename = "borrowProductId")]
+        pub borrow_product_id: BorrowProductId,
+        ///The amount of collateral to post, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).
+        #[serde(rename = "collateralAmount")]
+        pub collateral_amount: PositiveDecimal,
+        ///The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).
+        #[serde(rename = "loanAmount")]
+        pub loan_amount: PositiveDecimal,
+        ///Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.
+        #[serde(
+            rename = "paymasterContext",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_context: ::std::option::Option<PaymasterContext>,
+        /**Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+        If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.*/
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<Url>,
+        ///Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+        #[serde(rename = "useCdpPaymaster")]
+        pub use_cdp_paymaster: bool,
+        ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+        #[serde(rename = "walletSecretId")]
+        pub wallet_secret_id: CreateBorrowPositionRequestWalletSecretId,
+    }
+    impl ::std::convert::From<&CreateBorrowPositionRequest> for CreateBorrowPositionRequest {
+        fn from(value: &CreateBorrowPositionRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateBorrowPositionRequest {
+        pub fn builder() -> builder::CreateBorrowPositionRequest {
+            Default::default()
+        }
+    }
+    ///The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateBorrowPositionRequestWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for CreateBorrowPositionRequestWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateBorrowPositionRequestWalletSecretId> for ::std::string::String {
+        fn from(value: CreateBorrowPositionRequestWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateBorrowPositionRequestWalletSecretId>
+        for CreateBorrowPositionRequestWalletSecretId
+    {
+        fn from(value: &CreateBorrowPositionRequestWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateBorrowPositionRequestWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CreateBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateBorrowPositionRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateBorrowPositionRequestWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateBorrowPositionWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateBorrowPositionWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for CreateBorrowPositionWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateBorrowPositionWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: CreateBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateBorrowPositionWithEndUserAccountAddress>
+        for CreateBorrowPositionWithEndUserAccountAddress
+    {
+        fn from(value: &CreateBorrowPositionWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateBorrowPositionWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateBorrowPositionWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateBorrowPositionWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateBorrowPositionWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateBorrowPositionWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for CreateBorrowPositionWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateBorrowPositionWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: CreateBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateBorrowPositionWithEndUserAccountProjectId>
+        for CreateBorrowPositionWithEndUserAccountProjectId
+    {
+        fn from(value: &CreateBorrowPositionWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateBorrowPositionWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateBorrowPositionWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateBorrowPositionWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`CreateBorrowPositionWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateBorrowPositionWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for CreateBorrowPositionWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateBorrowPositionWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: CreateBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateBorrowPositionWithEndUserAccountUserId>
+        for CreateBorrowPositionWithEndUserAccountUserId
+    {
+        fn from(value: &CreateBorrowPositionWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateBorrowPositionWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateBorrowPositionWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for CreateBorrowPositionWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateBorrowPositionWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///A request to create a capture for a payment session.
     ///
     /// <details><summary>JSON schema</summary>
@@ -10132,13 +13421,14 @@ pub mod types {
             Default::default()
         }
     }
-    ///`CreateCryptoDepositDestinationRequest`
+    ///Request to create a new crypto deposit destination. Provide the crypto-specific details.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
     ///  "title": "Crypto",
+    ///  "description": "Request to create a new crypto deposit destination. Provide the crypto-specific details.",
     ///  "examples": [
     ///    {
     ///      "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
@@ -14440,8 +17730,7 @@ pub mod types {
     ///    {
     ///      "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
     ///      "fiat": {
-    ///        "currency": "usd",
-    ///        "paymentRail": "ach"
+    ///        "currency": "usd"
     ///      },
     ///      "metadata": {
     ///        "customer_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -14752,7 +18041,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "partnerUserRef": {
-    ///      "description": "A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.\n\nThis value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.",
+    ///      "description": "A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with \"sandbox-\" (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.\n\nThis value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.",
     ///      "examples": [
     ///        "user-1234"
     ///      ],
@@ -14874,9 +18163,9 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub partner_order_ref: ::std::option::Option<::std::string::String>,
-        /**A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+        /**A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
 
-        This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.*/
+        This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.*/
         #[serde(rename = "partnerUserRef")]
         pub partner_user_ref: ::std::string::String,
         ///A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.
@@ -15449,11 +18738,7 @@ pub mod types {
     ///      "pattern": "^[A-Za-z0-9 ,.]{1,50}$"
     ///    },
     ///    "rules": {
-    ///      "description": "A list of rules that comprise the policy. There is a limit of 10 rules per policy.",
-    ///      "type": "array",
-    ///      "items": {
-    ///        "$ref": "#/components/schemas/Rule"
-    ///      }
+    ///      "$ref": "#/components/schemas/PolicyRules"
     ///    },
     ///    "scope": {
     ///      "description": "The scope of the policy.",
@@ -15476,8 +18761,7 @@ pub mod types {
         Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.*/
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub description: ::std::option::Option<CreatePolicyBodyDescription>,
-        ///A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-        pub rules: ::std::vec::Vec<Rule>,
+        pub rules: PolicyRules,
         ///The scope of the policy.
         pub scope: CreatePolicyBodyScope,
     }
@@ -25045,6 +28329,46 @@ pub mod types {
                 })
         }
     }
+    ///Server-injected labels returned for entity-scoped subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Server-injected labels returned for entity-scoped subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "entity"
+    ///  ],
+    ///  "properties": {
+    ///    "entity": {
+    ///      "description": "Authenticated entity that owns the subscription.",
+    ///      "examples": [
+    ///        "entity_123e4567-e89b-12d3-a456-426614174000"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct EntityWebhookResponseLabels {
+        ///Authenticated entity that owns the subscription.
+        pub entity: ::std::string::String,
+    }
+    impl ::std::convert::From<&EntityWebhookResponseLabels> for EntityWebhookResponseLabels {
+        fn from(value: &EntityWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl EntityWebhookResponseLabels {
+        pub fn builder() -> builder::EntityWebhookResponseLabels {
+            Default::default()
+        }
+    }
     ///An ERC-20 approval transaction payload. The payer must send `data` as an EVM transaction via `eth_sendTransaction` and return the resulting transaction hash.
     ///
     /// <details><summary>JSON schema</summary>
@@ -25600,6 +28924,7 @@ pub mod types {
     ///    "invalid_signature",
     ///    "malformed_transaction",
     ///    "not_found",
+    ///    "operation_in_progress",
     ///    "payment_method_required",
     ///    "payment_required",
     ///    "settlement_failed",
@@ -25648,6 +28973,7 @@ pub mod types {
     ///    "asset_mismatch",
     ///    "mfa_already_enrolled",
     ///    "mfa_invalid_code",
+    ///    "mfa_challenge_not_found",
     ///    "mfa_flow_expired",
     ///    "mfa_required",
     ///    "mfa_not_enrolled",
@@ -25716,6 +29042,7 @@ pub mod types {
     ///    "metadata_too_many_entries": "This error occurs when the transfer metadata contains more entries than allowed.\n\n**Steps to resolve:**\n1. Reduce the number of metadata entries (maximum 10 allowed)\n2. Consolidate related data into fewer keys\n3. Store additional data externally and reference it with a single metadata entry\n\n**Limits:**\n- Maximum entries: 10",
     ///    "metadata_value_too_long": "This error occurs when a metadata value exceeds the maximum allowed length.\n\n**Steps to resolve:**\n1. Shorten the metadata value to 500 characters or less\n2. Store longer data externally and reference it with a shorter identifier\n3. Consider compressing or encoding the data if appropriate\n\n**Limits:**\n- Maximum value length: 500 characters",
     ///    "mfa_already_enrolled": "This error occurs when attempting to enroll in an MFA method that the user has already enrolled in.\n\n**Steps to resolve:**\n1. Check if the user is already enrolled in the MFA method before initiating enrollment\n2. To update or reset MFA, remove the existing enrollment first (if supported)\n3. Use a different MFA method if multiple options are available",
+    ///    "mfa_challenge_not_found": "This error occurs when the challenge named by `X-Mfa-Challenge-Id` is unknown to the server or was already consumed by a failed submit attempt. This is distinct from `mfa_flow_expired`, which indicates the flow timed out.\n\n**Possible resolutions**\n- Pass the exact challenge ID from the `X-Mfa-Challenge-Id` header of the prior `403 mfa_required` response\n- If the user failed MFA verification (e.g. by entering the wrong OTP), re-initiate the MFA flow to obtain a fresh challenge\n\n**Common causes:**\n- Reusing a challenge after a failed submit attempt\n- A client bug sending a challenge from a different flow or user",
     ///    "mfa_flow_expired": "This error occurs when the MFA enrollment or verification session has expired.\n\n**Steps to resolve:**\n1. Restart the MFA enrollment or verification flow\n2. Complete the flow within the allowed time window (typically 5 minutes)\n3. Ensure the user doesn't leave the flow idle for extended periods\n\n**Note:** MFA sessions expire automatically for security purposes.",
     ///    "mfa_invalid_code": "This error occurs when the MFA code provided is incorrect or has already been used.\n\n**Steps to resolve:**\n1. Verify the user entered the correct code from their authenticator app\n2. Ensure the code is current (TOTP codes expire after 30 seconds)\n3. Check that the device time is synchronized correctly\n4. Ask the user to generate a new code and try again\n\n**Common causes:**\n- Typing errors in the 6-digit code\n- Using an expired TOTP code\n- Device clock drift on user's authenticator app\n- Attempting to reuse a previously submitted code",
     ///    "mfa_not_enrolled": "This error occurs when attempting to verify MFA for a user who has not enrolled in any MFA method.\n\n**Steps to resolve:**\n1. Check if the user has enrolled in MFA before attempting verification\n2. Guide the user through MFA enrollment first using the `/mfa/enroll/{mfaMethod}/init` endpoint\n3. Complete enrollment before requiring MFA verification",
@@ -25727,6 +29054,7 @@ pub mod types {
     ///    "no_refundable_balance": "This error occurs when the payment session has no captured amount available to refund.\n\n**Steps to resolve:**\n1. Verify the payment session has been previously captured\n2. Check that the session has not already been fully refunded",
     ///    "no_voidable_balance": "This error occurs when there is no held balance remaining to void on the payment session.\n\n**Steps to resolve:**\n1. Verify the payment session has an authorized but uncaptured balance\n2. Check whether the session has already been fully captured or voided",
     ///    "not_found": "This error occurs when the resource specified in your request doesn't exist or you don't have access to it.\n\n**Steps to resolve:**\n1. Verify the resource ID/address/account exists\n2. Check your permissions to access the resource\n3. Ensure you're using the correct network/environment\n4. Confirm the resource hasn't been deleted\n\n**Common causes:**\n- Mistyped addresses\n- Accessing resources from the wrong CDP project\n- Resource was deleted or hasn't been created yet",
+    ///    "operation_in_progress": "This error occurs when another operation of the same kind is already in progress for\nthe resource, and the request must wait for it to complete.\n\n**Steps to resolve:**\n1. Wait for the in-progress operation to complete (typically under 30 seconds)\n2. Once complete, use the resource's GET endpoint to read its state instead of\n   retrying the create\n\n**Common causes:**\n- Retrying a create whose previous attempt is still being processed\n- Concurrent duplicate requests for the same resource",
     ///    "order_already_canceled": "This error occurs when attempting to cancel or execute an order that has already been canceled.\n\n**Steps to resolve:**\n1. Check the current status of the order using `GET /v2/orders/{orderId}`.\n2. Create a new order if you still want to trade.",
     ///    "order_already_filled": "This error occurs when attempting to cancel or modify an order that has already been filled.\n\n**Steps to resolve:**\n1. Check the current status of the order using `GET /v2/orders/{orderId}`.\n2. A filled order cannot be canceled or re-executed.",
     ///    "order_quote_expired": "This error occurs when attempting to execute an order whose quote has expired.\n\n**Steps to resolve:**\n1. Create a new order with `execute: false` to get an updated quote.\n2. Execute the new order before the quote expires (check the `expiresAt` field).\n3. Alternatively, create a new order with `execute: true` to skip the quote step and execute immediately.",
@@ -25817,6 +29145,8 @@ pub mod types {
         MalformedTransaction,
         #[serde(rename = "not_found")]
         NotFound,
+        #[serde(rename = "operation_in_progress")]
+        OperationInProgress,
         #[serde(rename = "payment_method_required")]
         PaymentMethodRequired,
         #[serde(rename = "payment_required")]
@@ -25913,6 +29243,8 @@ pub mod types {
         MfaAlreadyEnrolled,
         #[serde(rename = "mfa_invalid_code")]
         MfaInvalidCode,
+        #[serde(rename = "mfa_challenge_not_found")]
+        MfaChallengeNotFound,
         #[serde(rename = "mfa_flow_expired")]
         MfaFlowExpired,
         #[serde(rename = "mfa_required")]
@@ -25994,6 +29326,7 @@ pub mod types {
                 Self::InvalidSignature => f.write_str("invalid_signature"),
                 Self::MalformedTransaction => f.write_str("malformed_transaction"),
                 Self::NotFound => f.write_str("not_found"),
+                Self::OperationInProgress => f.write_str("operation_in_progress"),
                 Self::PaymentMethodRequired => f.write_str("payment_method_required"),
                 Self::PaymentRequired => f.write_str("payment_required"),
                 Self::SettlementFailed => f.write_str("settlement_failed"),
@@ -26048,6 +29381,7 @@ pub mod types {
                 Self::AssetMismatch => f.write_str("asset_mismatch"),
                 Self::MfaAlreadyEnrolled => f.write_str("mfa_already_enrolled"),
                 Self::MfaInvalidCode => f.write_str("mfa_invalid_code"),
+                Self::MfaChallengeNotFound => f.write_str("mfa_challenge_not_found"),
                 Self::MfaFlowExpired => f.write_str("mfa_flow_expired"),
                 Self::MfaRequired => f.write_str("mfa_required"),
                 Self::MfaNotEnrolled => f.write_str("mfa_not_enrolled"),
@@ -26107,6 +29441,7 @@ pub mod types {
                 "invalid_signature" => Ok(Self::InvalidSignature),
                 "malformed_transaction" => Ok(Self::MalformedTransaction),
                 "not_found" => Ok(Self::NotFound),
+                "operation_in_progress" => Ok(Self::OperationInProgress),
                 "payment_method_required" => Ok(Self::PaymentMethodRequired),
                 "payment_required" => Ok(Self::PaymentRequired),
                 "settlement_failed" => Ok(Self::SettlementFailed),
@@ -26157,6 +29492,7 @@ pub mod types {
                 "asset_mismatch" => Ok(Self::AssetMismatch),
                 "mfa_already_enrolled" => Ok(Self::MfaAlreadyEnrolled),
                 "mfa_invalid_code" => Ok(Self::MfaInvalidCode),
+                "mfa_challenge_not_found" => Ok(Self::MfaChallengeNotFound),
                 "mfa_flow_expired" => Ok(Self::MfaFlowExpired),
                 "mfa_required" => Ok(Self::MfaRequired),
                 "mfa_not_enrolled" => Ok(Self::MfaNotEnrolled),
@@ -32900,6 +36236,86 @@ pub mod types {
             value.parse()
         }
     }
+    ///The bank account number.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The bank account number.",
+    ///  "examples": [
+    ///    "123456789"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9]{4,17}$",
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct FiatAccountNumber(::std::string::String);
+    impl ::std::ops::Deref for FiatAccountNumber {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<FiatAccountNumber> for ::std::string::String {
+        fn from(value: FiatAccountNumber) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&FiatAccountNumber> for FiatAccountNumber {
+        fn from(value: &FiatAccountNumber) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for FiatAccountNumber {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[0-9]{4,17}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[0-9]{4,17}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for FiatAccountNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for FiatAccountNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for FiatAccountNumber {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for FiatAccountNumber {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///A fiat deposit destination. Represents a single bank account provisioned at a single banking partner. Each deposit destination has one status and one lifecycle. The `fiat` object contains the bank account details, keyed by account type.
     ///
     /// <details><summary>JSON schema</summary>
@@ -32922,7 +36338,8 @@ pub mod types {
     ///        "currency": "usd",
     ///        "routingNumber": "987654321",
     ///        "supportedRails": [
-    ///          "ach"
+    ///          "ach",
+    ///          "fedwire"
     ///        ]
     ///      },
     ///      "metadata": {
@@ -33904,6 +37321,92 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for GetEvmAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetEvmBorrowProductProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetEvmBorrowProductProjectId(::std::string::String);
+    impl ::std::ops::Deref for GetEvmBorrowProductProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetEvmBorrowProductProjectId> for ::std::string::String {
+        fn from(value: GetEvmBorrowProductProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetEvmBorrowProductProjectId> for GetEvmBorrowProductProjectId {
+        fn from(value: &GetEvmBorrowProductProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetEvmBorrowProductProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetEvmBorrowProductProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetEvmBorrowProductProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetEvmBorrowProductProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetEvmBorrowProductProjectId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -35592,6 +39095,342 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for GetUserOperationUserOpHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetUserOperationWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetUserOperationWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for GetUserOperationWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetUserOperationWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: GetUserOperationWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetUserOperationWithEndUserAccountAddress>
+        for GetUserOperationWithEndUserAccountAddress
+    {
+        fn from(value: &GetUserOperationWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetUserOperationWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetUserOperationWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetUserOperationWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetUserOperationWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetUserOperationWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetUserOperationWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetUserOperationWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for GetUserOperationWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetUserOperationWithEndUserAccountProjectId> for ::std::string::String {
+        fn from(value: GetUserOperationWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetUserOperationWithEndUserAccountProjectId>
+        for GetUserOperationWithEndUserAccountProjectId
+    {
+        fn from(value: &GetUserOperationWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetUserOperationWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetUserOperationWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for GetUserOperationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for GetUserOperationWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetUserOperationWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetUserOperationWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetUserOperationWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for GetUserOperationWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetUserOperationWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: GetUserOperationWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetUserOperationWithEndUserAccountUserId>
+        for GetUserOperationWithEndUserAccountUserId
+    {
+        fn from(value: &GetUserOperationWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetUserOperationWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for GetUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for GetUserOperationWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetUserOperationWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`GetUserOperationWithEndUserAccountUserOpHash`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct GetUserOperationWithEndUserAccountUserOpHash(::std::string::String);
+    impl ::std::ops::Deref for GetUserOperationWithEndUserAccountUserOpHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<GetUserOperationWithEndUserAccountUserOpHash> for ::std::string::String {
+        fn from(value: GetUserOperationWithEndUserAccountUserOpHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&GetUserOperationWithEndUserAccountUserOpHash>
+        for GetUserOperationWithEndUserAccountUserOpHash
+    {
+        fn from(value: &GetUserOperationWithEndUserAccountUserOpHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for GetUserOperationWithEndUserAccountUserOpHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for GetUserOperationWithEndUserAccountUserOpHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for GetUserOperationWithEndUserAccountUserOpHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for GetUserOperationWithEndUserAccountUserOpHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for GetUserOperationWithEndUserAccountUserOpHash {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -37444,6 +41283,100 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///Labels accepted for `health.*` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Labels accepted for `health.*` subscriptions.",
+    ///  "examples": [
+    ///    {
+    ///      "service": "webhooks"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "maxProperties": 20,
+    ///  "required": [
+    ///    "service"
+    ///  ],
+    ///  "properties": {
+    ///    "service": {
+    ///      "description": "Service whose health events should be delivered.",
+    ///      "examples": [
+    ///        "webhooks"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/HealthService"
+    ///        }
+    ///      ]
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct HealthWebhookLabels {
+        ///Service whose health events should be delivered.
+        pub service: HealthService,
+    }
+    impl ::std::convert::From<&HealthWebhookLabels> for HealthWebhookLabels {
+        fn from(value: &HealthWebhookLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl HealthWebhookLabels {
+        pub fn builder() -> builder::HealthWebhookLabels {
+            Default::default()
+        }
+    }
+    ///Effective labels returned for `health.*` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Effective labels returned for `health.*` subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "service"
+    ///  ],
+    ///  "properties": {
+    ///    "service": {
+    ///      "description": "Service whose health events are delivered.",
+    ///      "examples": [
+    ///        "webhooks"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/HealthService"
+    ///        }
+    ///      ]
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct HealthWebhookResponseLabels {
+        ///Service whose health events are delivered.
+        pub service: HealthService,
+    }
+    impl ::std::convert::From<&HealthWebhookResponseLabels> for HealthWebhookResponseLabels {
+        fn from(value: &HealthWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl HealthWebhookResponseLabels {
+        pub fn builder() -> builder::HealthWebhookResponseLabels {
+            Default::default()
         }
     }
     ///A valid HTTPS URL.
@@ -41380,6 +45313,324 @@ pub mod types {
             Default::default()
         }
     }
+    ///`ListBorrowPositionsWithEndUserAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ListBorrowPositionsWithEndUserAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for ListBorrowPositionsWithEndUserAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ListBorrowPositionsWithEndUserAccountAddress> for ::std::string::String {
+        fn from(value: ListBorrowPositionsWithEndUserAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ListBorrowPositionsWithEndUserAccountAddress>
+        for ListBorrowPositionsWithEndUserAccountAddress
+    {
+        fn from(value: &ListBorrowPositionsWithEndUserAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ListBorrowPositionsWithEndUserAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ListBorrowPositionsWithEndUserAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ListBorrowPositionsWithEndUserAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`ListBorrowPositionsWithEndUserAccountProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ListBorrowPositionsWithEndUserAccountProjectId(::std::string::String);
+    impl ::std::ops::Deref for ListBorrowPositionsWithEndUserAccountProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ListBorrowPositionsWithEndUserAccountProjectId>
+        for ::std::string::String
+    {
+        fn from(value: ListBorrowPositionsWithEndUserAccountProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ListBorrowPositionsWithEndUserAccountProjectId>
+        for ListBorrowPositionsWithEndUserAccountProjectId
+    {
+        fn from(value: &ListBorrowPositionsWithEndUserAccountProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ListBorrowPositionsWithEndUserAccountProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ListBorrowPositionsWithEndUserAccountProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ListBorrowPositionsWithEndUserAccountProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`ListBorrowPositionsWithEndUserAccountResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "description": "Response containing a list of borrow positions.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "borrowPositions"
+    ///      ],
+    ///      "properties": {
+    ///        "borrowPositions": {
+    ///          "description": "The borrow positions held by the smart account.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/BorrowPosition"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListBorrowPositionsWithEndUserAccountResponse {
+        ///The borrow positions held by the smart account.
+        #[serde(rename = "borrowPositions")]
+        pub borrow_positions: ::std::vec::Vec<BorrowPosition>,
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&ListBorrowPositionsWithEndUserAccountResponse>
+        for ListBorrowPositionsWithEndUserAccountResponse
+    {
+        fn from(value: &ListBorrowPositionsWithEndUserAccountResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListBorrowPositionsWithEndUserAccountResponse {
+        pub fn builder() -> builder::ListBorrowPositionsWithEndUserAccountResponse {
+            Default::default()
+        }
+    }
+    ///`ListBorrowPositionsWithEndUserAccountUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ListBorrowPositionsWithEndUserAccountUserId(::std::string::String);
+    impl ::std::ops::Deref for ListBorrowPositionsWithEndUserAccountUserId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ListBorrowPositionsWithEndUserAccountUserId> for ::std::string::String {
+        fn from(value: ListBorrowPositionsWithEndUserAccountUserId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ListBorrowPositionsWithEndUserAccountUserId>
+        for ListBorrowPositionsWithEndUserAccountUserId
+    {
+        fn from(value: &ListBorrowPositionsWithEndUserAccountUserId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ListBorrowPositionsWithEndUserAccountUserId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ListBorrowPositionsWithEndUserAccountUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for ListBorrowPositionsWithEndUserAccountUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ListBorrowPositionsWithEndUserAccountUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`ListCustomersResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -41901,6 +46152,145 @@ pub mod types {
     }
     impl ListEvmAccountsResponse {
         pub fn builder() -> builder::ListEvmAccountsResponse {
+            Default::default()
+        }
+    }
+    ///`ListEvmBorrowProductsProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ListEvmBorrowProductsProjectId(::std::string::String);
+    impl ::std::ops::Deref for ListEvmBorrowProductsProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ListEvmBorrowProductsProjectId> for ::std::string::String {
+        fn from(value: ListEvmBorrowProductsProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ListEvmBorrowProductsProjectId> for ListEvmBorrowProductsProjectId {
+        fn from(value: &ListEvmBorrowProductsProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ListEvmBorrowProductsProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ListEvmBorrowProductsProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ListEvmBorrowProductsProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ListEvmBorrowProductsProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ListEvmBorrowProductsProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`ListEvmBorrowProductsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "description": "Response containing a list of borrow products.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "borrowProducts"
+    ///      ],
+    ///      "properties": {
+    ///        "borrowProducts": {
+    ///          "description": "The list of borrow products, optionally filtered by the supplied network and/or protocol.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/BorrowProduct"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListEvmBorrowProductsResponse {
+        ///The list of borrow products, optionally filtered by the supplied network and/or protocol.
+        #[serde(rename = "borrowProducts")]
+        pub borrow_products: ::std::vec::Vec<BorrowProduct>,
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&ListEvmBorrowProductsResponse> for ListEvmBorrowProductsResponse {
+        fn from(value: &ListEvmBorrowProductsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListEvmBorrowProductsResponse {
+        pub fn builder() -> builder::ListEvmBorrowProductsResponse {
             Default::default()
         }
     }
@@ -44742,6 +49132,656 @@ pub mod types {
             Default::default()
         }
     }
+    ///Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.",
+    ///  "examples": [
+    ///    {
+    ///      "collateralToken": {
+    ///        "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///        "decimals": 18,
+    ///        "symbol": "mGLO"
+    ///      },
+    ///      "interestRateModelAddress": "0x46415998764c29ab2a25cbea6254146d50d22687",
+    ///      "lltvBps": 9150,
+    ///      "loanToken": {
+    ///        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///        "decimals": 6,
+    ///        "symbol": "USDC"
+    ///      },
+    ///      "onchainMarketId": "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b",
+    ///      "oracleAddress": "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "collateralToken",
+    ///    "interestRateModelAddress",
+    ///    "lltvBps",
+    ///    "loanToken",
+    ///    "onchainMarketId",
+    ///    "oracleAddress"
+    ///  ],
+    ///  "properties": {
+    ///    "collateralToken": {
+    ///      "$ref": "#/components/schemas/BorrowProductToken"
+    ///    },
+    ///    "interestRateModelAddress": {
+    ///      "description": "The contract address of the interest rate model that governs the product's borrow rate.",
+    ///      "examples": [
+    ///        "0x46415998764c29ab2a25cbea6254146d50d22687"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "lltvBps": {
+    ///      "description": "The liquidation loan-to-value of the product, expressed in basis points. For example, `9150` represents an LLTV of 91.5%.",
+    ///      "examples": [
+    ///        9150
+    ///      ],
+    ///      "type": "integer",
+    ///      "maximum": 10000.0,
+    ///      "minimum": 0.0
+    ///    },
+    ///    "loanToken": {
+    ///      "$ref": "#/components/schemas/BorrowProductToken"
+    ///    },
+    ///    "onchainMarketId": {
+    ///      "description": "The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.",
+    ///      "examples": [
+    ///        "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    },
+    ///    "oracleAddress": {
+    ///      "description": "The contract address of the oracle used to price the collateral token against the loan token.",
+    ///      "examples": [
+    ///        "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MorphoBlueMarketParams {
+        #[serde(rename = "collateralToken")]
+        pub collateral_token: BorrowProductToken,
+        ///The contract address of the interest rate model that governs the product's borrow rate.
+        #[serde(rename = "interestRateModelAddress")]
+        pub interest_rate_model_address: MorphoBlueMarketParamsInterestRateModelAddress,
+        ///The liquidation loan-to-value of the product, expressed in basis points. For example, `9150` represents an LLTV of 91.5%.
+        #[serde(rename = "lltvBps")]
+        pub lltv_bps: i64,
+        #[serde(rename = "loanToken")]
+        pub loan_token: BorrowProductToken,
+        ///The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.
+        #[serde(rename = "onchainMarketId")]
+        pub onchain_market_id: MorphoBlueMarketParamsOnchainMarketId,
+        ///The contract address of the oracle used to price the collateral token against the loan token.
+        #[serde(rename = "oracleAddress")]
+        pub oracle_address: MorphoBlueMarketParamsOracleAddress,
+    }
+    impl ::std::convert::From<&MorphoBlueMarketParams> for MorphoBlueMarketParams {
+        fn from(value: &MorphoBlueMarketParams) -> Self {
+            value.clone()
+        }
+    }
+    impl MorphoBlueMarketParams {
+        pub fn builder() -> builder::MorphoBlueMarketParams {
+            Default::default()
+        }
+    }
+    ///The contract address of the interest rate model that governs the product's borrow rate.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The contract address of the interest rate model that governs the product's borrow rate.",
+    ///  "examples": [
+    ///    "0x46415998764c29ab2a25cbea6254146d50d22687"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MorphoBlueMarketParamsInterestRateModelAddress(::std::string::String);
+    impl ::std::ops::Deref for MorphoBlueMarketParamsInterestRateModelAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MorphoBlueMarketParamsInterestRateModelAddress>
+        for ::std::string::String
+    {
+        fn from(value: MorphoBlueMarketParamsInterestRateModelAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MorphoBlueMarketParamsInterestRateModelAddress>
+        for MorphoBlueMarketParamsInterestRateModelAddress
+    {
+        fn from(value: &MorphoBlueMarketParamsInterestRateModelAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MorphoBlueMarketParamsInterestRateModelAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MorphoBlueMarketParamsInterestRateModelAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for MorphoBlueMarketParamsInterestRateModelAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for MorphoBlueMarketParamsInterestRateModelAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MorphoBlueMarketParamsInterestRateModelAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.",
+    ///  "examples": [
+    ///    "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MorphoBlueMarketParamsOnchainMarketId(::std::string::String);
+    impl ::std::ops::Deref for MorphoBlueMarketParamsOnchainMarketId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MorphoBlueMarketParamsOnchainMarketId> for ::std::string::String {
+        fn from(value: MorphoBlueMarketParamsOnchainMarketId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MorphoBlueMarketParamsOnchainMarketId>
+        for MorphoBlueMarketParamsOnchainMarketId
+    {
+        fn from(value: &MorphoBlueMarketParamsOnchainMarketId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MorphoBlueMarketParamsOnchainMarketId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MorphoBlueMarketParamsOnchainMarketId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MorphoBlueMarketParamsOnchainMarketId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MorphoBlueMarketParamsOnchainMarketId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MorphoBlueMarketParamsOnchainMarketId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The contract address of the oracle used to price the collateral token against the loan token.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The contract address of the oracle used to price the collateral token against the loan token.",
+    ///  "examples": [
+    ///    "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MorphoBlueMarketParamsOracleAddress(::std::string::String);
+    impl ::std::ops::Deref for MorphoBlueMarketParamsOracleAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MorphoBlueMarketParamsOracleAddress> for ::std::string::String {
+        fn from(value: MorphoBlueMarketParamsOracleAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MorphoBlueMarketParamsOracleAddress>
+        for MorphoBlueMarketParamsOracleAddress
+    {
+        fn from(value: &MorphoBlueMarketParamsOracleAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MorphoBlueMarketParamsOracleAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MorphoBlueMarketParamsOracleAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MorphoBlueMarketParamsOracleAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MorphoBlueMarketParamsOracleAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MorphoBlueMarketParamsOracleAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The live onchain state of a Morpho Blue borrow position, read at the block described by the position's snapshot.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The live onchain state of a Morpho Blue borrow position, read at the block described by the position's snapshot.",
+    ///  "examples": [
+    ///    {
+    ///      "collateral": [
+    ///        {
+    ///          "amount": "5000",
+    ///          "assetId": "bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79",
+    ///          "token": {
+    ///            "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///            "decimals": 18,
+    ///            "symbol": "mGLO"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "currentLtvBps": 5000,
+    ///      "debt": [
+    ///        {
+    ///          "amount": "1003.5",
+    ///          "assetId": "bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef",
+    ///          "borrowApyBps": 525,
+    ///          "token": {
+    ///            "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///            "decimals": 6,
+    ///            "symbol": "USDC"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "healthFactor": "1.79",
+    ///      "healthStatus": "healthy",
+    ///      "liquidationThresholdBps": 8250,
+    ///      "type": "morpho_blue"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "collateral",
+    ///    "debt",
+    ///    "healthStatus",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "collateral": {
+    ///      "description": "The non-zero collateral balances securing the position.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/BorrowPositionAssetAmount"
+    ///      }
+    ///    },
+    ///    "currentLtvBps": {
+    ///      "description": "The position's current loan-to-value, expressed in basis points. For example, `5000` represents a current LTV of 50%. Omitted when the position has no debt.",
+    ///      "examples": [
+    ///        5000
+    ///      ],
+    ///      "type": "integer",
+    ///      "minimum": 0.0
+    ///    },
+    ///    "debt": {
+    ///      "description": "The non-zero debt balances owed by the position.",
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/BorrowPositionDebt"
+    ///      }
+    ///    },
+    ///    "healthFactor": {
+    ///      "description": "The position's liquidation headroom as a decimal string, where `1.0` is the liquidation boundary and higher is safer. For example, `1.79` means the position's weighted collateral is 1.79x its debt. Omitted when the position has no debt.",
+    ///      "examples": [
+    ///        "1.79"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "healthStatus": {
+    ///      "$ref": "#/components/schemas/BorrowPositionHealthStatus"
+    ///    },
+    ///    "liquidationThresholdBps": {
+    ///      "description": "The loan-to-value at which the position becomes eligible for liquidation, expressed in basis points. For example, `8250` represents 82.5%. Omitted when the position has no debt.",
+    ///      "examples": [
+    ///        8250
+    ///      ],
+    ///      "type": "integer",
+    ///      "maximum": 10000.0,
+    ///      "minimum": 0.0
+    ///    },
+    ///    "type": {
+    ///      "description": "The protocol type, used to discriminate the onchain state schema.",
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BorrowProductProtocol"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MorphoBlueOnchainState {
+        ///The non-zero collateral balances securing the position.
+        pub collateral: ::std::vec::Vec<BorrowPositionAssetAmount>,
+        ///The position's current loan-to-value, expressed in basis points. For example, `5000` represents a current LTV of 50%. Omitted when the position has no debt.
+        #[serde(
+            rename = "currentLtvBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub current_ltv_bps: ::std::option::Option<u64>,
+        ///The non-zero debt balances owed by the position.
+        pub debt: ::std::vec::Vec<BorrowPositionDebt>,
+        ///The position's liquidation headroom as a decimal string, where `1.0` is the liquidation boundary and higher is safer. For example, `1.79` means the position's weighted collateral is 1.79x its debt. Omitted when the position has no debt.
+        #[serde(
+            rename = "healthFactor",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub health_factor: ::std::option::Option<::std::string::String>,
+        #[serde(rename = "healthStatus")]
+        pub health_status: BorrowPositionHealthStatus,
+        ///The loan-to-value at which the position becomes eligible for liquidation, expressed in basis points. For example, `8250` represents 82.5%. Omitted when the position has no debt.
+        #[serde(
+            rename = "liquidationThresholdBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub liquidation_threshold_bps: ::std::option::Option<i64>,
+        ///The protocol type, used to discriminate the onchain state schema.
+        #[serde(rename = "type")]
+        pub type_: BorrowProductProtocol,
+    }
+    impl ::std::convert::From<&MorphoBlueOnchainState> for MorphoBlueOnchainState {
+        fn from(value: &MorphoBlueOnchainState) -> Self {
+            value.clone()
+        }
+    }
+    impl MorphoBlueOnchainState {
+        pub fn builder() -> builder::MorphoBlueOnchainState {
+            Default::default()
+        }
+    }
+    ///Morpho Blue-specific immutable onchain protocol details that uniquely define a borrow product.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Morpho Blue-specific immutable onchain protocol details that uniquely define a borrow product.",
+    ///  "examples": [
+    ///    {
+    ///      "marketParams": {
+    ///        "collateralToken": {
+    ///          "address": "0xfcc9cc1209651ed8867332d6f664cf82743a2584",
+    ///          "decimals": 18,
+    ///          "symbol": "mGLO"
+    ///        },
+    ///        "interestRateModelAddress": "0x46415998764c29ab2a25cbea6254146d50d22687",
+    ///        "lltvBps": 9150,
+    ///        "loanToken": {
+    ///          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "decimals": 6,
+    ///          "symbol": "USDC"
+    ///        },
+    ///        "onchainMarketId": "0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b",
+    ///        "oracleAddress": "0x182e072f2c9c58c6f19f144c97986f7496c6a109"
+    ///      },
+    ///      "type": "morpho_blue"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "marketParams",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "marketParams": {
+    ///      "$ref": "#/components/schemas/MorphoBlueMarketParams"
+    ///    },
+    ///    "type": {
+    ///      "description": "The protocol type, used to discriminate the protocol details schema.",
+    ///      "examples": [
+    ///        "morpho_blue"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "morpho_blue"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MorphoBlueProtocolDetails {
+        #[serde(rename = "marketParams")]
+        pub market_params: MorphoBlueMarketParams,
+        ///The protocol type, used to discriminate the protocol details schema.
+        #[serde(rename = "type")]
+        pub type_: MorphoBlueProtocolDetailsType,
+    }
+    impl ::std::convert::From<&MorphoBlueProtocolDetails> for MorphoBlueProtocolDetails {
+        fn from(value: &MorphoBlueProtocolDetails) -> Self {
+            value.clone()
+        }
+    }
+    impl MorphoBlueProtocolDetails {
+        pub fn builder() -> builder::MorphoBlueProtocolDetails {
+            Default::default()
+        }
+    }
+    ///The protocol type, used to discriminate the protocol details schema.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The protocol type, used to discriminate the protocol details schema.",
+    ///  "examples": [
+    ///    "morpho_blue"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "morpho_blue"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum MorphoBlueProtocolDetailsType {
+        #[serde(rename = "morpho_blue")]
+        MorphoBlue,
+    }
+    impl ::std::convert::From<&Self> for MorphoBlueProtocolDetailsType {
+        fn from(value: &MorphoBlueProtocolDetailsType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for MorphoBlueProtocolDetailsType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::MorphoBlue => f.write_str("morpho_blue"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for MorphoBlueProtocolDetailsType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "morpho_blue" => Ok(Self::MorphoBlue),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MorphoBlueProtocolDetailsType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MorphoBlueProtocolDetailsType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MorphoBlueProtocolDetailsType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
     ///
     /// <details><summary>JSON schema</summary>
@@ -46268,6 +51308,370 @@ pub mod types {
             value: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         ) -> Self {
             Self(value)
+        }
+    }
+    ///Labels accepted for `onchain.activity.detected` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Labels accepted for `onchain.activity.detected` subscriptions.",
+    ///  "examples": [
+    ///    {
+    ///      "contract_address": "0xcd1f9777571493aeacb7eae45cd30a226d3e612d",
+    ///      "event_name": "Burn",
+    ///      "network": "base-mainnet"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "maxProperties": 20,
+    ///  "required": [
+    ///    "contract_address"
+    ///  ],
+    ///  "properties": {
+    ///    "contract_address": {
+    ///      "description": "Smart contract address to monitor.",
+    ///      "examples": [
+    ///        "0xcd1f9777571493aeacb7eae45cd30a226d3e612d"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "event_name": {
+    ///      "description": "Decoded contract event name to match.",
+    ///      "examples": [
+    ///        "Burn"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "event_signature": {
+    ///      "description": "Canonical event signature to match.",
+    ///      "examples": [
+    ///        "Transfer(address,address,uint256)"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "network": {
+    ///      "description": "Blockchain network to monitor.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "transaction_from": {
+    ///      "description": "Transaction sender address to match.",
+    ///      "examples": [
+    ///        "0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "transaction_to": {
+    ///      "description": "Transaction recipient address to match.",
+    ///      "examples": [
+    ///        "0x61040E143A77F165Ba44543AF4A079F2C809D14b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct OnchainActivityWebhookLabels {
+        ///Smart contract address to monitor.
+        pub contract_address: ::std::string::String,
+        ///Decoded contract event name to match.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub event_name: ::std::option::Option<::std::string::String>,
+        ///Canonical event signature to match.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub event_signature: ::std::option::Option<::std::string::String>,
+        ///Blockchain network to monitor.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub network: ::std::option::Option<OnchainActivityWebhookLabelsNetwork>,
+        ///Transaction sender address to match.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub transaction_from: ::std::option::Option<::std::string::String>,
+        ///Transaction recipient address to match.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub transaction_to: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&OnchainActivityWebhookLabels> for OnchainActivityWebhookLabels {
+        fn from(value: &OnchainActivityWebhookLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl OnchainActivityWebhookLabels {
+        pub fn builder() -> builder::OnchainActivityWebhookLabels {
+            Default::default()
+        }
+    }
+    ///Blockchain network to monitor.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network to monitor.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum OnchainActivityWebhookLabelsNetwork {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for OnchainActivityWebhookLabelsNetwork {
+        fn from(value: &OnchainActivityWebhookLabelsNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for OnchainActivityWebhookLabelsNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for OnchainActivityWebhookLabelsNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for OnchainActivityWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for OnchainActivityWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for OnchainActivityWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Effective labels returned for `onchain.activity.detected` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Effective labels returned for `onchain.activity.detected` subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "contract_address",
+    ///    "network"
+    ///  ],
+    ///  "properties": {
+    ///    "contract_address": {
+    ///      "description": "Smart contract address being monitored.",
+    ///      "examples": [
+    ///        "0xcd1f9777571493aeacb7eae45cd30a226d3e612d"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "event_name": {
+    ///      "description": "Decoded contract event name being matched.",
+    ///      "examples": [
+    ///        "Burn"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "event_signature": {
+    ///      "description": "Canonical event signature being matched.",
+    ///      "examples": [
+    ///        "Transfer(address,address,uint256)"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "network": {
+    ///      "description": "Blockchain network being monitored.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "transaction_from": {
+    ///      "description": "Transaction sender address being matched.",
+    ///      "examples": [
+    ///        "0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "transaction_to": {
+    ///      "description": "Transaction recipient address being matched.",
+    ///      "examples": [
+    ///        "0x61040E143A77F165Ba44543AF4A079F2C809D14b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct OnchainActivityWebhookResponseLabels {
+        ///Smart contract address being monitored.
+        pub contract_address: ::std::string::String,
+        ///Decoded contract event name being matched.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub event_name: ::std::option::Option<::std::string::String>,
+        ///Canonical event signature being matched.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub event_signature: ::std::option::Option<::std::string::String>,
+        ///Blockchain network being monitored.
+        pub network: OnchainActivityWebhookResponseLabelsNetwork,
+        ///Transaction sender address being matched.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub transaction_from: ::std::option::Option<::std::string::String>,
+        ///Transaction recipient address being matched.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub transaction_to: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&OnchainActivityWebhookResponseLabels>
+        for OnchainActivityWebhookResponseLabels
+    {
+        fn from(value: &OnchainActivityWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl OnchainActivityWebhookResponseLabels {
+        pub fn builder() -> builder::OnchainActivityWebhookResponseLabels {
+            Default::default()
+        }
+    }
+    ///Blockchain network being monitored.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network being monitored.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum OnchainActivityWebhookResponseLabelsNetwork {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for OnchainActivityWebhookResponseLabelsNetwork {
+        fn from(value: &OnchainActivityWebhookResponseLabelsNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for OnchainActivityWebhookResponseLabelsNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for OnchainActivityWebhookResponseLabelsNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for OnchainActivityWebhookResponseLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for OnchainActivityWebhookResponseLabelsNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for OnchainActivityWebhookResponseLabelsNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///The target of the payment is an onchain address.
@@ -55983,6 +61387,33 @@ pub mod types {
     ///
     /// ```json
     ///{
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "createdAt": "2026-01-01T00:00:00Z",
+    ///        "failureReason": "Insufficient balance to complete this transfer.",
+    ///        "source": {
+    ///          "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///          "asset": "usd"
+    ///        },
+    ///        "sourceAmount": "103.50",
+    ///        "sourceAsset": "usd",
+    ///        "status": "failed",
+    ///        "target": {
+    ///          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        },
+    ///        "targetAmount": "100.00",
+    ///        "targetAsset": "usdc",
+    ///        "transferId": "transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///        "updatedAt": "2026-01-01T00:05:00Z"
+    ///      },
+    ///      "eventID": "123e4567-e89b-12d3-a456-426614174000",
+    ///      "eventType": "payments.transfers.failed",
+    ///      "timestamp": "2026-01-01T00:05:00Z"
+    ///    }
+    ///  ],
     ///  "allOf": [
     ///    {
     ///      "$ref": "#/components/schemas/PaymentsTransfersEventBase"
@@ -57282,47 +62713,7 @@ pub mod types {
     ///      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     ///    },
     ///    "rules": {
-    ///      "description": "A list of rules that comprise the policy.",
-    ///      "examples": [
-    ///        [
-    ///          {
-    ///            "action": "accept",
-    ///            "criteria": [
-    ///              {
-    ///                "ethValue": "1000000000000000000",
-    ///                "operator": "<=",
-    ///                "type": "ethValue"
-    ///              },
-    ///              {
-    ///                "addresses": [
-    ///                  "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///                  "0x1234567890123456789012345678901234567890"
-    ///                ],
-    ///                "operator": "in",
-    ///                "type": "evmAddress"
-    ///              }
-    ///            ],
-    ///            "operation": "signEvmTransaction"
-    ///          },
-    ///          {
-    ///            "action": "accept",
-    ///            "criteria": [
-    ///              {
-    ///                "addresses": [
-    ///                  "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
-    ///                ],
-    ///                "operator": "in",
-    ///                "type": "solAddress"
-    ///              }
-    ///            ],
-    ///            "operation": "signSolTransaction"
-    ///          }
-    ///        ]
-    ///      ],
-    ///      "type": "array",
-    ///      "items": {
-    ///        "$ref": "#/components/schemas/Rule"
-    ///      }
+    ///      "$ref": "#/components/schemas/PolicyRules"
     ///    },
     ///    "scope": {
     ///      "description": "The scope of the policy. Only one project-level policy can exist at any time.",
@@ -57357,8 +62748,7 @@ pub mod types {
         pub description: ::std::option::Option<PolicyDescription>,
         ///The unique identifier for the policy.
         pub id: PolicyId,
-        ///A list of rules that comprise the policy.
-        pub rules: ::std::vec::Vec<Rule>,
+        pub rules: PolicyRules,
         ///The scope of the policy. Only one project-level policy can exist at any time.
         pub scope: PolicyScope,
         ///The ISO 8601 timestamp at which the Policy was last updated.
@@ -57543,6 +62933,80 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.",
+    ///  "examples": [
+    ///    [
+    ///      {
+    ///        "action": "accept",
+    ///        "criteria": [
+    ///          {
+    ///            "ethValue": "1000000000000000000",
+    ///            "operator": "<=",
+    ///            "type": "ethValue"
+    ///          },
+    ///          {
+    ///            "addresses": [
+    ///              "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///              "0x1234567890123456789012345678901234567890"
+    ///            ],
+    ///            "operator": "in",
+    ///            "type": "evmAddress"
+    ///          }
+    ///        ],
+    ///        "operation": "signEvmTransaction"
+    ///      },
+    ///      {
+    ///        "action": "accept",
+    ///        "criteria": [
+    ///          {
+    ///            "addresses": [
+    ///              "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///            ],
+    ///            "operator": "in",
+    ///            "type": "solAddress"
+    ///          }
+    ///        ],
+    ///        "operation": "signSolTransaction"
+    ///      }
+    ///    ]
+    ///  ],
+    ///  "type": "array",
+    ///  "items": {
+    ///    "$ref": "#/components/schemas/Rule"
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct PolicyRules(pub ::std::vec::Vec<Rule>);
+    impl ::std::ops::Deref for PolicyRules {
+        type Target = ::std::vec::Vec<Rule>;
+        fn deref(&self) -> &::std::vec::Vec<Rule> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<PolicyRules> for ::std::vec::Vec<Rule> {
+        fn from(value: PolicyRules) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&PolicyRules> for PolicyRules {
+        fn from(value: &PolicyRules) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<::std::vec::Vec<Rule>> for PolicyRules {
+        fn from(value: ::std::vec::Vec<Rule>) -> Self {
+            Self(value)
         }
     }
     ///The scope of the policy. Only one project-level policy can exist at any time.
@@ -58922,6 +64386,46 @@ pub mod types {
             self.0.fmt(f)
         }
     }
+    ///Server-injected labels returned for project-scoped subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Server-injected labels returned for project-scoped subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "project"
+    ///  ],
+    ///  "properties": {
+    ///    "project": {
+    ///      "description": "Authenticated project that owns the subscription.",
+    ///      "examples": [
+    ///        "project_123e4567-e89b-12d3-a456-426614174000"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct ProjectWebhookResponseLabels {
+        ///Authenticated project that owns the subscription.
+        pub project: ::std::string::String,
+    }
+    impl ::std::convert::From<&ProjectWebhookResponseLabels> for ProjectWebhookResponseLabels {
+        fn from(value: &ProjectWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl ProjectWebhookResponseLabels {
+        pub fn builder() -> builder::ProjectWebhookResponseLabels {
+            Default::default()
+        }
+    }
     /**Enables control over how often queries need to be fully re-executed on the backing store.
     This can be useful in scenarios where API calls might be made frequently, API latency is critical, and some freshness lag (ex: 750ms, 2s, 5s) is tolerable.
     By default, each query result is returned from cache so long as the result is from an identical query and less than 500ms old. This freshness tolerance can be modified upwards, to a maximum of 900000ms (i.e. 900s, 15m).
@@ -60158,7 +65662,7 @@ pub mod types {
     ///            "languages": [
     ///              "en"
     ///            ],
-    ///            "url": "https://docs.cdp.coinbase.com/legal/terms/us_individual",
+    ///            "url": "https://www.coinbase.com/legal/user-agreements-third-party-provider",
     ///            "versionId": "us_individual_2026-05-29"
     ///          }
     ///        ]
@@ -60402,7 +65906,7 @@ pub mod types {
     ///            "languages": [
     ///              "en"
     ///            ],
-    ///            "url": "https://docs.cdp.coinbase.com/legal/terms/us_individual",
+    ///            "url": "https://www.coinbase.com/legal/user-agreements-third-party-provider",
     ///            "versionId": "us_individual_2026-05-29"
     ///          }
     ///        ]
@@ -76988,6 +82492,17 @@ pub mod types {
     ///    "message"
     ///  ],
     ///  "properties": {
+    ///    "encoding": {
+    ///      "description": "The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.",
+    ///      "examples": [
+    ///        "utf8"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "utf8",
+    ///        "base64"
+    ///      ]
+    ///    },
     ///    "message": {
     ///      "description": "The arbitrary message to sign.",
     ///      "examples": [
@@ -77001,6 +82516,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct SignSolanaMessageBody {
+        ///The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub encoding: ::std::option::Option<SignSolanaMessageBodyEncoding>,
         ///The arbitrary message to sign.
         pub message: ::std::string::String,
     }
@@ -77012,6 +82530,87 @@ pub mod types {
     impl SignSolanaMessageBody {
         pub fn builder() -> builder::SignSolanaMessageBody {
             Default::default()
+        }
+    }
+    ///The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.",
+    ///  "examples": [
+    ///    "utf8"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "utf8",
+    ///    "base64"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignSolanaMessageBodyEncoding {
+        #[serde(rename = "utf8")]
+        Utf8,
+        #[serde(rename = "base64")]
+        Base64,
+    }
+    impl ::std::convert::From<&Self> for SignSolanaMessageBodyEncoding {
+        fn from(value: &SignSolanaMessageBodyEncoding) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignSolanaMessageBodyEncoding {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Utf8 => f.write_str("utf8"),
+                Self::Base64 => f.write_str("base64"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaMessageBodyEncoding {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "utf8" => Ok(Self::Utf8),
+                "base64" => Ok(Self::Base64),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaMessageBodyEncoding {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignSolanaMessageBodyEncoding {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignSolanaMessageBodyEncoding {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///`SignSolanaMessageResponse`
@@ -77758,6 +83357,17 @@ pub mod types {
     ///    "transaction"
     ///  ],
     ///  "properties": {
+    ///    "network": {
+    ///      "description": "The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.",
+    ///      "examples": [
+    ///        "solana-devnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solana",
+    ///        "solana-devnet"
+    ///      ]
+    ///    },
     ///    "transaction": {
     ///      "description": "The base64 encoded transaction to sign.",
     ///      "examples": [
@@ -77771,6 +83381,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct SignSolanaTransactionBody {
+        ///The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub network: ::std::option::Option<SignSolanaTransactionBodyNetwork>,
         ///The base64 encoded transaction to sign.
         pub transaction: ::std::string::String,
     }
@@ -77782,6 +83395,87 @@ pub mod types {
     impl SignSolanaTransactionBody {
         pub fn builder() -> builder::SignSolanaTransactionBody {
             Default::default()
+        }
+    }
+    ///The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.",
+    ///  "examples": [
+    ///    "solana-devnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana",
+    ///    "solana-devnet"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignSolanaTransactionBodyNetwork {
+        #[serde(rename = "solana")]
+        Solana,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+    }
+    impl ::std::convert::From<&Self> for SignSolanaTransactionBodyNetwork {
+        fn from(value: &SignSolanaTransactionBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignSolanaTransactionBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Solana => f.write_str("solana"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana" => Ok(Self::Solana),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignSolanaTransactionBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignSolanaTransactionBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///`SignSolanaTransactionResponse`
@@ -77842,6 +83536,17 @@ pub mod types {
     ///      "type": "string",
     ///      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
     ///    },
+    ///    "network": {
+    ///      "description": "The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.",
+    ///      "examples": [
+    ///        "solana-devnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solana",
+    ///        "solana-devnet"
+    ///      ]
+    ///    },
     ///    "transaction": {
     ///      "description": "The base64 encoded transaction to sign.",
     ///      "examples": [
@@ -77865,6 +83570,9 @@ pub mod types {
     pub struct SignSolanaTransactionWithEndUserAccountBody {
         ///The base58 encoded address of the Solana account belonging to the end user.
         pub address: SignSolanaTransactionWithEndUserAccountBodyAddress,
+        ///The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub network: ::std::option::Option<SignSolanaTransactionWithEndUserAccountBodyNetwork>,
         ///The base64 encoded transaction to sign.
         pub transaction: ::std::string::String,
         ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
@@ -77975,6 +83683,91 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.",
+    ///  "examples": [
+    ///    "solana-devnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana",
+    ///    "solana-devnet"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignSolanaTransactionWithEndUserAccountBodyNetwork {
+        #[serde(rename = "solana")]
+        Solana,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+    }
+    impl ::std::convert::From<&Self> for SignSolanaTransactionWithEndUserAccountBodyNetwork {
+        fn from(value: &SignSolanaTransactionWithEndUserAccountBodyNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignSolanaTransactionWithEndUserAccountBodyNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Solana => f.write_str("solana"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignSolanaTransactionWithEndUserAccountBodyNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana" => Ok(Self::Solana),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolanaTransactionWithEndUserAccountBodyNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SignSolanaTransactionWithEndUserAccountBodyNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///Required when not using delegated signing. The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
@@ -84814,7 +90607,7 @@ pub mod types {
     ///      "languages": [
     ///        "en"
     ///      ],
-    ///      "url": "https://docs.cdp.coinbase.com/legal/terms/us_individual",
+    ///      "url": "https://www.coinbase.com/legal/user-agreements-third-party-provider",
     ///      "versionId": "us_individual_2026-05-29"
     ///    }
     ///  ],
@@ -84850,9 +90643,9 @@ pub mod types {
     ///      "minItems": 1
     ///    },
     ///    "url": {
-    ///      "description": "Canonical, language-agnostic URL where the Terms of Service\ndocument is hosted (for example,\n`https://docs.cdp.coinbase.com/legal/terms/us_individual`).\nAppend `?lang=<tag>` (where `<tag>` is one of `languages`) to\nretrieve a specific translation; without the parameter, the\ndocumentation site renders a default translation.\n",
+    ///      "description": "Canonical, language-agnostic URL where the Terms of Service\ndocument is hosted (for example,\n`https://www.coinbase.com/legal/user-agreements-third-party-provider`).\nAppend `?lang=<tag>` (where `<tag>` is one of `languages`) to\nretrieve a specific translation; without the parameter, the\ndocumentation site renders a default translation.\n",
     ///      "examples": [
-    ///        "https://docs.cdp.coinbase.com/legal/terms/us_individual"
+    ///        "https://www.coinbase.com/legal/user-agreements-third-party-provider"
     ///      ],
     ///      "allOf": [
     ///        {
@@ -84892,7 +90685,7 @@ pub mod types {
         pub languages: ::std::vec::Vec<::std::string::String>,
         /**Canonical, language-agnostic URL where the Terms of Service
         document is hosted (for example,
-        `https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+        `https://www.coinbase.com/legal/user-agreements-third-party-provider`).
         Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
         retrieve a specific translation; without the parameter, the
         documentation site renders a default translation.
@@ -86902,7 +92695,8 @@ pub mod types {
     ///    {
     ///      "$ref": "#/components/schemas/FedwireDepositSource"
     ///    }
-    ///  ]
+    ///  ],
+    ///  "x-oneof-no-discriminator": "Field-presence union: each variant is identified by its own required fields; the account and deposit-source variants share no discriminator property."
     ///}
     /// ```
     /// </details>
@@ -88537,11 +94331,7 @@ pub mod types {
     ///      "pattern": "^[A-Za-z0-9 ,.]{1,50}$"
     ///    },
     ///    "rules": {
-    ///      "description": "A list of rules that comprise the policy. There is a limit of 10 rules per policy.",
-    ///      "type": "array",
-    ///      "items": {
-    ///        "$ref": "#/components/schemas/Rule"
-    ///      }
+    ///      "$ref": "#/components/schemas/PolicyRules"
     ///    }
     ///  }
     ///}
@@ -88553,8 +94343,7 @@ pub mod types {
         Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.*/
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub description: ::std::option::Option<UpdatePolicyBodyDescription>,
-        ///A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-        pub rules: ::std::vec::Vec<Rule>,
+        pub rules: PolicyRules,
     }
     impl ::std::convert::From<&UpdatePolicyBody> for UpdatePolicyBody {
         fn from(value: &UpdatePolicyBody) -> Self {
@@ -89898,6 +95687,141 @@ pub mod types {
                 })
         }
     }
+    ///Server-injected labels returned for user-scoped subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Server-injected labels returned for user-scoped subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "sandbox",
+    ///    "user_uuid"
+    ///  ],
+    ///  "properties": {
+    ///    "sandbox": {
+    ///      "description": "Stringified boolean indicating whether the subscription receives sandbox user events.",
+    ///      "examples": [
+    ///        "false"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "true",
+    ///        "false"
+    ///      ]
+    ///    },
+    ///    "user_uuid": {
+    ///      "description": "Authenticated user whose events are delivered.",
+    ///      "examples": [
+    ///        "123e4567-e89b-12d3-a456-426614174000"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct UserWebhookResponseLabels {
+        ///Stringified boolean indicating whether the subscription receives sandbox user events.
+        pub sandbox: UserWebhookResponseLabelsSandbox,
+        ///Authenticated user whose events are delivered.
+        pub user_uuid: ::std::string::String,
+    }
+    impl ::std::convert::From<&UserWebhookResponseLabels> for UserWebhookResponseLabels {
+        fn from(value: &UserWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl UserWebhookResponseLabels {
+        pub fn builder() -> builder::UserWebhookResponseLabels {
+            Default::default()
+        }
+    }
+    ///Stringified boolean indicating whether the subscription receives sandbox user events.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Stringified boolean indicating whether the subscription receives sandbox user events.",
+    ///  "examples": [
+    ///    "false"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "true",
+    ///    "false"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum UserWebhookResponseLabelsSandbox {
+        #[serde(rename = "true")]
+        True,
+        #[serde(rename = "false")]
+        False,
+    }
+    impl ::std::convert::From<&Self> for UserWebhookResponseLabelsSandbox {
+        fn from(value: &UserWebhookResponseLabelsSandbox) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for UserWebhookResponseLabelsSandbox {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::True => f.write_str("true"),
+                Self::False => f.write_str("false"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for UserWebhookResponseLabelsSandbox {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "true" => Ok(Self::True),
+                "false" => Ok(Self::False),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for UserWebhookResponseLabelsSandbox {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for UserWebhookResponseLabelsSandbox {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for UserWebhookResponseLabelsSandbox {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///The request body for a developer to verify an end user's access token.
     ///
     /// <details><summary>JSON schema</summary>
@@ -90580,6 +96504,506 @@ pub mod types {
             value.parse()
         }
     }
+    ///Labels accepted for `wallet.activity.detected` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Labels accepted for `wallet.activity.detected` subscriptions.",
+    ///  "examples": [
+    ///    {
+    ///      "network": "base-mainnet",
+    ///      "params.from": "0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "anyOf": [
+    ///    {
+    ///      "required": [
+    ///        "params.to"
+    ///      ]
+    ///    },
+    ///    {
+    ///      "required": [
+    ///        "params.from"
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "maxProperties": 20,
+    ///  "properties": {
+    ///    "network": {
+    ///      "description": "Blockchain network to monitor.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "params.from": {
+    ///      "description": "Transaction sender address to match.",
+    ///      "examples": [
+    ///        "0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "params.to": {
+    ///      "description": "Transaction recipient address to match.",
+    ///      "examples": [
+    ///        "0x61040E143A77F165Ba44543AF4A079F2C809D14b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged, deny_unknown_fields)]
+    pub enum WalletActivityDetectedWebhookLabels {
+        Variant0 {
+            ///Blockchain network to monitor.
+            #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+            network: ::std::option::Option<WalletActivityDetectedWebhookLabelsVariant0Network>,
+            ///Transaction recipient address to match.
+            #[serde(rename = "params.to")]
+            params_to: ::std::string::String,
+        },
+        Variant1 {
+            ///Blockchain network to monitor.
+            #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+            network: ::std::option::Option<WalletActivityDetectedWebhookLabelsVariant1Network>,
+            ///Transaction sender address to match.
+            #[serde(rename = "params.from")]
+            params_from: ::std::string::String,
+        },
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookLabels {
+        fn from(value: &WalletActivityDetectedWebhookLabels) -> Self {
+            value.clone()
+        }
+    }
+    ///Blockchain network to monitor.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network to monitor.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityDetectedWebhookLabelsVariant0Network {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookLabelsVariant0Network {
+        fn from(value: &WalletActivityDetectedWebhookLabelsVariant0Network) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityDetectedWebhookLabelsVariant0Network {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityDetectedWebhookLabelsVariant0Network {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityDetectedWebhookLabelsVariant0Network {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityDetectedWebhookLabelsVariant0Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityDetectedWebhookLabelsVariant0Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Blockchain network to monitor.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network to monitor.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityDetectedWebhookLabelsVariant1Network {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookLabelsVariant1Network {
+        fn from(value: &WalletActivityDetectedWebhookLabelsVariant1Network) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityDetectedWebhookLabelsVariant1Network {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityDetectedWebhookLabelsVariant1Network {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityDetectedWebhookLabelsVariant1Network {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityDetectedWebhookLabelsVariant1Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityDetectedWebhookLabelsVariant1Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Effective labels returned for `wallet.activity.detected` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Effective labels returned for `wallet.activity.detected` subscriptions.",
+    ///  "type": "object",
+    ///  "anyOf": [
+    ///    {
+    ///      "required": [
+    ///        "params.to"
+    ///      ]
+    ///    },
+    ///    {
+    ///      "required": [
+    ///        "params.from"
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "required": [
+    ///    "network"
+    ///  ],
+    ///  "properties": {
+    ///    "network": {
+    ///      "description": "Blockchain network being monitored.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "params.from": {
+    ///      "description": "Transaction sender address being matched.",
+    ///      "examples": [
+    ///        "0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "params.to": {
+    ///      "description": "Transaction recipient address being matched.",
+    ///      "examples": [
+    ///        "0x61040E143A77F165Ba44543AF4A079F2C809D14b"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged, deny_unknown_fields)]
+    pub enum WalletActivityDetectedWebhookResponseLabels {
+        Variant0 {
+            ///Blockchain network being monitored.
+            network: WalletActivityDetectedWebhookResponseLabelsVariant0Network,
+            ///Transaction recipient address being matched.
+            #[serde(rename = "params.to")]
+            params_to: ::std::string::String,
+        },
+        Variant1 {
+            ///Blockchain network being monitored.
+            network: WalletActivityDetectedWebhookResponseLabelsVariant1Network,
+            ///Transaction sender address being matched.
+            #[serde(rename = "params.from")]
+            params_from: ::std::string::String,
+        },
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookResponseLabels {
+        fn from(value: &WalletActivityDetectedWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    ///Blockchain network being monitored.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network being monitored.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityDetectedWebhookResponseLabelsVariant0Network {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookResponseLabelsVariant0Network {
+        fn from(value: &WalletActivityDetectedWebhookResponseLabelsVariant0Network) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityDetectedWebhookResponseLabelsVariant0Network {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityDetectedWebhookResponseLabelsVariant0Network {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityDetectedWebhookResponseLabelsVariant0Network {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityDetectedWebhookResponseLabelsVariant0Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityDetectedWebhookResponseLabelsVariant0Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Blockchain network being monitored.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network being monitored.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityDetectedWebhookResponseLabelsVariant1Network {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityDetectedWebhookResponseLabelsVariant1Network {
+        fn from(value: &WalletActivityDetectedWebhookResponseLabelsVariant1Network) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityDetectedWebhookResponseLabelsVariant1Network {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityDetectedWebhookResponseLabelsVariant1Network {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityDetectedWebhookResponseLabelsVariant1Network {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityDetectedWebhookResponseLabelsVariant1Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityDetectedWebhookResponseLabelsVariant1Network
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///Common fields included in every wallet activity webhook event payload.
     ///
     /// <details><summary>JSON schema</summary>
@@ -90760,6 +97184,391 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String> for WalletActivityMultiEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Labels accepted for `wallet.activity.multi` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Labels accepted for `wallet.activity.multi` subscriptions.",
+    ///  "examples": [
+    ///    {
+    ///      "network": "base-mainnet",
+    ///      "wallet_addresses": "0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "maxProperties": 20,
+    ///  "required": [
+    ///    "wallet_addresses"
+    ///  ],
+    ///  "properties": {
+    ///    "network": {
+    ///      "description": "Blockchain network to monitor.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "wallet_addresses": {
+    ///      "description": "Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.",
+    ///      "examples": [
+    ///        "0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd,0x61040e143a77f165ba44543af4a079f2c809d14b"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 4299,
+    ///      "minLength": 42,
+    ///      "pattern": "^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct WalletActivityMultiWebhookLabels {
+        ///Blockchain network to monitor.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub network: ::std::option::Option<WalletActivityMultiWebhookLabelsNetwork>,
+        ///Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.
+        pub wallet_addresses: WalletActivityMultiWebhookLabelsWalletAddresses,
+    }
+    impl ::std::convert::From<&WalletActivityMultiWebhookLabels> for WalletActivityMultiWebhookLabels {
+        fn from(value: &WalletActivityMultiWebhookLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletActivityMultiWebhookLabels {
+        pub fn builder() -> builder::WalletActivityMultiWebhookLabels {
+            Default::default()
+        }
+    }
+    ///Blockchain network to monitor.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network to monitor.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityMultiWebhookLabelsNetwork {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityMultiWebhookLabelsNetwork {
+        fn from(value: &WalletActivityMultiWebhookLabelsNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityMultiWebhookLabelsNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityMultiWebhookLabelsNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityMultiWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for WalletActivityMultiWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for WalletActivityMultiWebhookLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.",
+    ///  "examples": [
+    ///    "0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd,0x61040e143a77f165ba44543af4a079f2c809d14b"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 4299,
+    ///  "minLength": 42,
+    ///  "pattern": "^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WalletActivityMultiWebhookLabelsWalletAddresses(::std::string::String);
+    impl ::std::ops::Deref for WalletActivityMultiWebhookLabelsWalletAddresses {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WalletActivityMultiWebhookLabelsWalletAddresses>
+        for ::std::string::String
+    {
+        fn from(value: WalletActivityMultiWebhookLabelsWalletAddresses) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WalletActivityMultiWebhookLabelsWalletAddresses>
+        for WalletActivityMultiWebhookLabelsWalletAddresses
+    {
+        fn from(value: &WalletActivityMultiWebhookLabelsWalletAddresses) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityMultiWebhookLabelsWalletAddresses {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 4299usize {
+                return Err("longer than 4299 characters".into());
+            }
+            if value.chars().count() < 42usize {
+                return Err("shorter than 42 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$\"".into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityMultiWebhookLabelsWalletAddresses {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityMultiWebhookLabelsWalletAddresses
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityMultiWebhookLabelsWalletAddresses
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WalletActivityMultiWebhookLabelsWalletAddresses {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Effective labels returned for `wallet.activity.multi` subscriptions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Effective labels returned for `wallet.activity.multi` subscriptions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "network",
+    ///    "wallet_addresses"
+    ///  ],
+    ///  "properties": {
+    ///    "network": {
+    ///      "description": "Blockchain network being monitored.",
+    ///      "examples": [
+    ///        "base-mainnet"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-mainnet",
+    ///        "base-sepolia"
+    ///      ]
+    ///    },
+    ///    "wallet_addresses": {
+    ///      "description": "Comma-separated EVM wallet addresses being monitored.",
+    ///      "examples": [
+    ///        "0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  },
+    ///  "additionalProperties": false
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(deny_unknown_fields)]
+    pub struct WalletActivityMultiWebhookResponseLabels {
+        ///Blockchain network being monitored.
+        pub network: WalletActivityMultiWebhookResponseLabelsNetwork,
+        ///Comma-separated EVM wallet addresses being monitored.
+        pub wallet_addresses: ::std::string::String,
+    }
+    impl ::std::convert::From<&WalletActivityMultiWebhookResponseLabels>
+        for WalletActivityMultiWebhookResponseLabels
+    {
+        fn from(value: &WalletActivityMultiWebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletActivityMultiWebhookResponseLabels {
+        pub fn builder() -> builder::WalletActivityMultiWebhookResponseLabels {
+            Default::default()
+        }
+    }
+    ///Blockchain network being monitored.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Blockchain network being monitored.",
+    ///  "examples": [
+    ///    "base-mainnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-mainnet",
+    ///    "base-sepolia"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum WalletActivityMultiWebhookResponseLabelsNetwork {
+        #[serde(rename = "base-mainnet")]
+        BaseMainnet,
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+    }
+    impl ::std::convert::From<&Self> for WalletActivityMultiWebhookResponseLabelsNetwork {
+        fn from(value: &WalletActivityMultiWebhookResponseLabelsNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for WalletActivityMultiWebhookResponseLabelsNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseMainnet => f.write_str("base-mainnet"),
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for WalletActivityMultiWebhookResponseLabelsNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-mainnet" => Ok(Self::BaseMainnet),
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WalletActivityMultiWebhookResponseLabelsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WalletActivityMultiWebhookResponseLabelsNetwork
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WalletActivityMultiWebhookResponseLabelsNetwork
+    {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -94089,6 +100898,259 @@ pub mod types {
             value.parse()
         }
     }
+    ///Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.",
+    ///  "examples": [
+    ///    {
+    ///      "baz": "qux",
+    ///      "foo": "bar"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "maxProperties": 10,
+    ///  "additionalProperties": {
+    ///    "type": "string",
+    ///    "maxLength": 50,
+    ///    "minLength": 1
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct WebhookMetadata(
+        pub ::std::collections::HashMap<::std::string::String, WebhookMetadataValue>,
+    );
+    impl ::std::ops::Deref for WebhookMetadata {
+        type Target = ::std::collections::HashMap<::std::string::String, WebhookMetadataValue>;
+        fn deref(
+            &self,
+        ) -> &::std::collections::HashMap<::std::string::String, WebhookMetadataValue> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WebhookMetadata>
+        for ::std::collections::HashMap<::std::string::String, WebhookMetadataValue>
+    {
+        fn from(value: WebhookMetadata) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WebhookMetadata> for WebhookMetadata {
+        fn from(value: &WebhookMetadata) -> Self {
+            value.clone()
+        }
+    }
+    impl
+        ::std::convert::From<
+            ::std::collections::HashMap<::std::string::String, WebhookMetadataValue>,
+        > for WebhookMetadata
+    {
+        fn from(
+            value: ::std::collections::HashMap<::std::string::String, WebhookMetadataValue>,
+        ) -> Self {
+            Self(value)
+        }
+    }
+    ///`WebhookMetadataValue`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 50,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WebhookMetadataValue(::std::string::String);
+    impl ::std::ops::Deref for WebhookMetadataValue {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WebhookMetadataValue> for ::std::string::String {
+        fn from(value: WebhookMetadataValue) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WebhookMetadataValue> for WebhookMetadataValue {
+        fn from(value: &WebhookMetadataValue) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WebhookMetadataValue {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 50usize {
+                return Err("longer than 50 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WebhookMetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for WebhookMetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for WebhookMetadataValue {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WebhookMetadataValue {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**String-valued filters supplied when creating or updating a webhook subscription.
+    The subscription's `eventTypes` determine whether labels are required and which
+    label keys are accepted. A subscription accepts at most 20 client-supplied labels.
+
+    #### Label Behavior
+
+    An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "String-valued filters supplied when creating or updating a webhook subscription.\nThe subscription's `eventTypes` determine whether labels are required and which\nlabel keys are accepted. A subscription accepts at most 20 client-supplied labels.\n\n#### Label Behavior\n\nAn event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.\n",
+    ///  "type": "object",
+    ///  "additionalProperties": {
+    ///    "type": "string"
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct WebhookRequestLabels(
+        pub ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+    );
+    impl ::std::ops::Deref for WebhookRequestLabels {
+        type Target = ::std::collections::HashMap<::std::string::String, ::std::string::String>;
+        fn deref(
+            &self,
+        ) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WebhookRequestLabels>
+        for ::std::collections::HashMap<::std::string::String, ::std::string::String>
+    {
+        fn from(value: WebhookRequestLabels) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WebhookRequestLabels> for WebhookRequestLabels {
+        fn from(value: &WebhookRequestLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl
+        ::std::convert::From<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        > for WebhookRequestLabels
+    {
+        fn from(
+            value: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        ) -> Self {
+            Self(value)
+        }
+    }
+    /**Effective filters stored on the webhook subscription. The response includes
+    client-supplied labels plus labels defaulted or injected by the server.
+
+    * `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`
+      include `network`. It defaults to `base-mainnet` when omitted from the request.
+    * `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.
+    * `health.*` includes the requested `service`.
+    * Project-scoped events include the authenticated `project`.
+    * Entity-scoped events include the authenticated `entity`.
+    * User-scoped events include the authenticated `user_uuid` and a `sandbox` value.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Effective filters stored on the webhook subscription. The response includes\nclient-supplied labels plus labels defaulted or injected by the server.\n\n* `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`\n  include `network`. It defaults to `base-mainnet` when omitted from the request.\n* `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.\n* `health.*` includes the requested `service`.\n* Project-scoped events include the authenticated `project`.\n* Entity-scoped events include the authenticated `entity`.\n* User-scoped events include the authenticated `user_uuid` and a `sandbox` value.\n",
+    ///  "type": "object",
+    ///  "additionalProperties": {
+    ///    "type": "string"
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct WebhookResponseLabels(
+        pub ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+    );
+    impl ::std::ops::Deref for WebhookResponseLabels {
+        type Target = ::std::collections::HashMap<::std::string::String, ::std::string::String>;
+        fn deref(
+            &self,
+        ) -> &::std::collections::HashMap<::std::string::String, ::std::string::String> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WebhookResponseLabels>
+        for ::std::collections::HashMap<::std::string::String, ::std::string::String>
+    {
+        fn from(value: WebhookResponseLabels) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WebhookResponseLabels> for WebhookResponseLabels {
+        fn from(value: &WebhookResponseLabels) -> Self {
+            value.clone()
+        }
+    }
+    impl
+        ::std::convert::From<
+            ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        > for WebhookResponseLabels
+    {
+        fn from(
+            value: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        ) -> Self {
+            Self(value)
+        }
+    }
     ///`WebhookSubscriptionListResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -94179,14 +101241,10 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labels": {
-    ///      "description": "Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching. Omit to receive all events for the selected event types.\n\n**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).\n\n**Allowed labels for `onchain.activity.detected`** (all in snake_case format):\n- `network` (required) — Blockchain network\n- `contract_address` — Smart contract address\n- `event_name` — Event name (e.g., \"Transfer\", \"Burn\")\n- `event_signature` — Event signature hash\n- `transaction_from` — Transaction sender address\n- `transaction_to` — Transaction recipient address\n- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)\n",
-    ///      "type": "object",
-    ///      "additionalProperties": {
-    ///        "type": "string"
-    ///      }
+    ///      "$ref": "#/components/schemas/WebhookRequestLabels"
     ///    },
     ///    "metadata": {
-    ///      "$ref": "#/components/schemas/Metadata"
+    ///      "$ref": "#/components/schemas/WebhookMetadata"
     ///    },
     ///    "target": {
     ///      "$ref": "#/components/schemas/WebhookTarget"
@@ -94209,28 +101267,10 @@ pub mod types {
         ///Whether the subscription is enabled.
         #[serde(rename = "isEnabled")]
         pub is_enabled: bool,
-        /**Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-        an event contains ALL the key-value pairs specified here. Additional labels on
-        the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
-
-        **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-        **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-        - `network` (required) — Blockchain network
-        - `contract_address` — Smart contract address
-        - `event_name` — Event name (e.g., "Transfer", "Burn")
-        - `event_signature` — Event signature hash
-        - `transaction_from` — Transaction sender address
-        - `transaction_to` — Transaction recipient address
-        - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-        */
-        #[serde(
-            default,
-            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-        )]
-        pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        pub metadata: ::std::option::Option<Metadata>,
+        pub labels: ::std::option::Option<WebhookRequestLabels>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<WebhookMetadata>,
         pub target: WebhookTarget,
     }
     impl ::std::convert::From<&WebhookSubscriptionRequest> for WebhookSubscriptionRequest {
@@ -94316,18 +101356,7 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.\nPresent when subscription uses multi-label format.\n",
-    ///      "examples": [
-    ///        {
-    ///          "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///          "env": "dev",
-    ///          "team": "payments"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "additionalProperties": {
-    ///        "type": "string"
-    ///      }
+    ///      "$ref": "#/components/schemas/WebhookResponseLabels"
     ///    },
     ///    "metadata": {
     ///      "description": "Additional metadata for the subscription.",
@@ -94403,14 +101432,8 @@ pub mod types {
         ///Whether the subscription is enabled.
         #[serde(rename = "isEnabled")]
         pub is_enabled: bool,
-        /**Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
-        Present when subscription uses multi-label format.
-        */
-        #[serde(
-            default,
-            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-        )]
-        pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub labels: ::std::option::Option<WebhookResponseLabels>,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub metadata: ::std::option::Option<WebhookSubscriptionResponseMetadata>,
         ///Secret for webhook signature validation.
@@ -94610,14 +101633,10 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labels": {
-    ///      "description": "Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.\nOmit to receive all events for the selected event types.\n\n**Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).\n\n**Allowed labels for `onchain.activity.detected`** (all in snake_case format):\n- `network` (required) — Blockchain network\n- `contract_address` — Smart contract address\n- `event_name` — Event name (e.g., \"Transfer\", \"Burn\")\n- `event_signature` — Event signature hash\n- `transaction_from` — Transaction sender address\n- `transaction_to` — Transaction recipient address\n- `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)\n",
-    ///      "type": "object",
-    ///      "additionalProperties": {
-    ///        "type": "string"
-    ///      }
+    ///      "$ref": "#/components/schemas/WebhookRequestLabels"
     ///    },
     ///    "metadata": {
-    ///      "$ref": "#/components/schemas/Metadata"
+    ///      "$ref": "#/components/schemas/WebhookMetadata"
     ///    },
     ///    "target": {
     ///      "$ref": "#/components/schemas/WebhookTarget"
@@ -94638,27 +101657,10 @@ pub mod types {
         ///Whether the subscription is enabled.
         #[serde(rename = "isEnabled")]
         pub is_enabled: bool,
-        /**Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-        Omit to receive all events for the selected event types.
-
-        **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-        **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-        - `network` (required) — Blockchain network
-        - `contract_address` — Smart contract address
-        - `event_name` — Event name (e.g., "Transfer", "Burn")
-        - `event_signature` — Event signature hash
-        - `transaction_from` — Transaction sender address
-        - `transaction_to` — Transaction recipient address
-        - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-        */
-        #[serde(
-            default,
-            skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-        )]
-        pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        pub metadata: ::std::option::Option<Metadata>,
+        pub labels: ::std::option::Option<WebhookRequestLabels>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<WebhookMetadata>,
         pub target: WebhookTarget,
     }
     impl ::std::convert::From<&WebhookSubscriptionUpdateRequest> for WebhookSubscriptionUpdateRequest {
@@ -111897,6 +118899,201 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct AdjustBorrowPositionRequest {
+            add_collateral_amount: ::std::result::Result<
+                ::std::option::Option<super::PositiveDecimal>,
+                ::std::string::String,
+            >,
+            borrow_loan_amount: ::std::result::Result<
+                ::std::option::Option<super::PositiveDecimal>,
+                ::std::string::String,
+            >,
+            borrow_product_id: ::std::result::Result<super::BorrowProductId, ::std::string::String>,
+            paymaster_context: ::std::result::Result<
+                ::std::option::Option<super::PaymasterContext>,
+                ::std::string::String,
+            >,
+            paymaster_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            remove_collateral_amount: ::std::result::Result<
+                ::std::option::Option<super::PositiveDecimal>,
+                ::std::string::String,
+            >,
+            repay_loan_amount: ::std::result::Result<
+                ::std::option::Option<super::PositiveDecimal>,
+                ::std::string::String,
+            >,
+            use_cdp_paymaster: ::std::result::Result<bool, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                super::AdjustBorrowPositionRequestWalletSecretId,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AdjustBorrowPositionRequest {
+            fn default() -> Self {
+                Self {
+                    add_collateral_amount: Ok(Default::default()),
+                    borrow_loan_amount: Ok(Default::default()),
+                    borrow_product_id: Err("no value supplied for borrow_product_id".to_string()),
+                    paymaster_context: Ok(Default::default()),
+                    paymaster_url: Ok(Default::default()),
+                    remove_collateral_amount: Ok(Default::default()),
+                    repay_loan_amount: Ok(Default::default()),
+                    use_cdp_paymaster: Err("no value supplied for use_cdp_paymaster".to_string()),
+                    wallet_secret_id: Err("no value supplied for wallet_secret_id".to_string()),
+                }
+            }
+        }
+        impl AdjustBorrowPositionRequest {
+            pub fn add_collateral_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PositiveDecimal>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.add_collateral_amount = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for add_collateral_amount: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn borrow_loan_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PositiveDecimal>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_loan_amount = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_loan_amount: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn borrow_product_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_product_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_product_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_context<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymasterContext>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_context = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for paymaster_context: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn remove_collateral_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PositiveDecimal>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.remove_collateral_amount = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for remove_collateral_amount: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn repay_loan_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PositiveDecimal>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.repay_loan_amount = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for repay_loan_amount: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AdjustBorrowPositionRequestWalletSecretId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AdjustBorrowPositionRequest> for super::AdjustBorrowPositionRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AdjustBorrowPositionRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    add_collateral_amount: value.add_collateral_amount?,
+                    borrow_loan_amount: value.borrow_loan_amount?,
+                    borrow_product_id: value.borrow_product_id?,
+                    paymaster_context: value.paymaster_context?,
+                    paymaster_url: value.paymaster_url?,
+                    remove_collateral_amount: value.remove_collateral_amount?,
+                    repay_loan_amount: value.repay_loan_amount?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AdjustBorrowPositionRequest> for AdjustBorrowPositionRequest {
+            fn from(value: super::AdjustBorrowPositionRequest) -> Self {
+                Self {
+                    add_collateral_amount: Ok(value.add_collateral_amount),
+                    borrow_loan_amount: Ok(value.borrow_loan_amount),
+                    borrow_product_id: Ok(value.borrow_product_id),
+                    paymaster_context: Ok(value.paymaster_context),
+                    paymaster_url: Ok(value.paymaster_url),
+                    remove_collateral_amount: Ok(value.remove_collateral_amount),
+                    repay_loan_amount: Ok(value.repay_loan_amount),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct AmountDetail {
             available: ::std::result::Result<::std::string::String, ::std::string::String>,
             total: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -112399,8 +119596,7 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct BankAccountUs {
-            account_number:
-                ::std::result::Result<super::BankAccountUsAccountNumber, ::std::string::String>,
+            account_number: ::std::result::Result<super::FiatAccountNumber, ::std::string::String>,
             account_type:
                 ::std::result::Result<super::BankAccountUsAccountType, ::std::string::String>,
             bank_address: ::std::result::Result<
@@ -112439,7 +119635,7 @@ pub mod types {
         impl BankAccountUs {
             pub fn account_number<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::BankAccountUsAccountNumber>,
+                T: ::std::convert::TryInto<super::FiatAccountNumber>,
                 T::Error: ::std::fmt::Display,
             {
                 self.account_number = value.try_into().map_err(|e| {
@@ -112561,6 +119757,753 @@ pub mod types {
                     reference_code: Ok(value.reference_code),
                     routing_number: Ok(value.routing_number),
                     supported_rails: Ok(value.supported_rails),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowPosition {
+            address: ::std::result::Result<super::BorrowPositionAddress, ::std::string::String>,
+            borrow_product_id: ::std::result::Result<super::BorrowProductId, ::std::string::String>,
+            network: ::std::result::Result<super::BorrowProductNetwork, ::std::string::String>,
+            onchain_state:
+                ::std::result::Result<super::BorrowPositionOnchainState, ::std::string::String>,
+            snapshot: ::std::result::Result<super::BorrowProductSnapshot, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowPosition {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    borrow_product_id: Err("no value supplied for borrow_product_id".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    onchain_state: Err("no value supplied for onchain_state".to_string()),
+                    snapshot: Err("no value supplied for snapshot".to_string()),
+                }
+            }
+        }
+        impl BorrowPosition {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowPositionAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn borrow_product_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_product_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_product_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn onchain_state<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowPositionOnchainState>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.onchain_state = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for onchain_state: {}", e)
+                });
+                self
+            }
+            pub fn snapshot<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductSnapshot>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.snapshot = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for snapshot: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowPosition> for super::BorrowPosition {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowPosition,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    borrow_product_id: value.borrow_product_id?,
+                    network: value.network?,
+                    onchain_state: value.onchain_state?,
+                    snapshot: value.snapshot?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowPosition> for BorrowPosition {
+            fn from(value: super::BorrowPosition) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    borrow_product_id: Ok(value.borrow_product_id),
+                    network: Ok(value.network),
+                    onchain_state: Ok(value.onchain_state),
+                    snapshot: Ok(value.snapshot),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowPositionAssetAmount {
+            amount: ::std::result::Result<super::PositiveDecimal, ::std::string::String>,
+            asset_id: ::std::result::Result<
+                super::BorrowPositionAssetAmountAssetId,
+                ::std::string::String,
+            >,
+            token: ::std::result::Result<super::BorrowProductToken, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowPositionAssetAmount {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    asset_id: Err("no value supplied for asset_id".to_string()),
+                    token: Err("no value supplied for token".to_string()),
+                }
+            }
+        }
+        impl BorrowPositionAssetAmount {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PositiveDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn asset_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowPositionAssetAmountAssetId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset_id: {}", e));
+                self
+            }
+            pub fn token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductToken>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.token = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for token: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowPositionAssetAmount> for super::BorrowPositionAssetAmount {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowPositionAssetAmount,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    asset_id: value.asset_id?,
+                    token: value.token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowPositionAssetAmount> for BorrowPositionAssetAmount {
+            fn from(value: super::BorrowPositionAssetAmount) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    asset_id: Ok(value.asset_id),
+                    token: Ok(value.token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowPositionDebt {
+            amount: ::std::result::Result<super::PositiveDecimal, ::std::string::String>,
+            asset_id:
+                ::std::result::Result<super::BorrowPositionDebtAssetId, ::std::string::String>,
+            borrow_apy_bps:
+                ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
+            token: ::std::result::Result<super::BorrowProductToken, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowPositionDebt {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    asset_id: Err("no value supplied for asset_id".to_string()),
+                    borrow_apy_bps: Ok(Default::default()),
+                    token: Err("no value supplied for token".to_string()),
+                }
+            }
+        }
+        impl BorrowPositionDebt {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PositiveDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn asset_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowPositionDebtAssetId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset_id: {}", e));
+                self
+            }
+            pub fn borrow_apy_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<u64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_apy_bps = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for borrow_apy_bps: {}", e)
+                });
+                self
+            }
+            pub fn token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductToken>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.token = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for token: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowPositionDebt> for super::BorrowPositionDebt {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowPositionDebt,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    asset_id: value.asset_id?,
+                    borrow_apy_bps: value.borrow_apy_bps?,
+                    token: value.token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowPositionDebt> for BorrowPositionDebt {
+            fn from(value: super::BorrowPositionDebt) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    asset_id: Ok(value.asset_id),
+                    borrow_apy_bps: Ok(value.borrow_apy_bps),
+                    token: Ok(value.token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProduct {
+            assets: ::std::result::Result<
+                ::std::vec::Vec<super::BorrowProductAsset>,
+                ::std::string::String,
+            >,
+            borrow_product_id: ::std::result::Result<super::BorrowProductId, ::std::string::String>,
+            name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            network: ::std::result::Result<super::BorrowProductNetwork, ::std::string::String>,
+            protocol_details:
+                ::std::result::Result<super::BorrowProductProtocolDetails, ::std::string::String>,
+            snapshot: ::std::result::Result<super::BorrowProductSnapshot, ::std::string::String>,
+            venue: ::std::result::Result<super::BorrowProductVenue, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowProduct {
+            fn default() -> Self {
+                Self {
+                    assets: Err("no value supplied for assets".to_string()),
+                    borrow_product_id: Err("no value supplied for borrow_product_id".to_string()),
+                    name: Err("no value supplied for name".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    protocol_details: Err("no value supplied for protocol_details".to_string()),
+                    snapshot: Err("no value supplied for snapshot".to_string()),
+                    venue: Err("no value supplied for venue".to_string()),
+                }
+            }
+        }
+        impl BorrowProduct {
+            pub fn assets<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowProductAsset>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.assets = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for assets: {}", e));
+                self
+            }
+            pub fn borrow_product_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_product_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_product_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for name: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn protocol_details<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductProtocolDetails>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.protocol_details = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for protocol_details: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn snapshot<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductSnapshot>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.snapshot = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for snapshot: {}", e));
+                self
+            }
+            pub fn venue<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductVenue>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.venue = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for venue: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProduct> for super::BorrowProduct {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProduct,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    assets: value.assets?,
+                    borrow_product_id: value.borrow_product_id?,
+                    name: value.name?,
+                    network: value.network?,
+                    protocol_details: value.protocol_details?,
+                    snapshot: value.snapshot?,
+                    venue: value.venue?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProduct> for BorrowProduct {
+            fn from(value: super::BorrowProduct) -> Self {
+                Self {
+                    assets: Ok(value.assets),
+                    borrow_product_id: Ok(value.borrow_product_id),
+                    name: Ok(value.name),
+                    network: Ok(value.network),
+                    protocol_details: Ok(value.protocol_details),
+                    snapshot: Ok(value.snapshot),
+                    venue: Ok(value.venue),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProductAsset {
+            asset_id:
+                ::std::result::Result<super::BorrowProductAssetAssetId, ::std::string::String>,
+            capabilities: ::std::result::Result<
+                ::std::vec::Vec<super::BorrowProductAssetCapability>,
+                ::std::string::String,
+            >,
+            token: ::std::result::Result<super::BorrowProductToken, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowProductAsset {
+            fn default() -> Self {
+                Self {
+                    asset_id: Err("no value supplied for asset_id".to_string()),
+                    capabilities: Err("no value supplied for capabilities".to_string()),
+                    token: Err("no value supplied for token".to_string()),
+                }
+            }
+        }
+        impl BorrowProductAsset {
+            pub fn asset_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductAssetAssetId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset_id: {}", e));
+                self
+            }
+            pub fn capabilities<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowProductAssetCapability>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.capabilities = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for capabilities: {}", e)
+                });
+                self
+            }
+            pub fn token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductToken>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.token = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for token: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProductAsset> for super::BorrowProductAsset {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProductAsset,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    asset_id: value.asset_id?,
+                    capabilities: value.capabilities?,
+                    token: value.token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProductAsset> for BorrowProductAsset {
+            fn from(value: super::BorrowProductAsset) -> Self {
+                Self {
+                    asset_id: Ok(value.asset_id),
+                    capabilities: Ok(value.capabilities),
+                    token: Ok(value.token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProductAssetCapability {
+            enabled: ::std::result::Result<bool, ::std::string::String>,
+            type_: ::std::result::Result<
+                super::BorrowProductAssetCapabilityType,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for BorrowProductAssetCapability {
+            fn default() -> Self {
+                Self {
+                    enabled: Err("no value supplied for enabled".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl BorrowProductAssetCapability {
+            pub fn enabled<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enabled = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for enabled: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductAssetCapabilityType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProductAssetCapability> for super::BorrowProductAssetCapability {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProductAssetCapability,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enabled: value.enabled?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProductAssetCapability> for BorrowProductAssetCapability {
+            fn from(value: super::BorrowProductAssetCapability) -> Self {
+                Self {
+                    enabled: Ok(value.enabled),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProductSnapshot {
+            block_hash:
+                ::std::result::Result<super::BorrowProductSnapshotBlockHash, ::std::string::String>,
+            block_number: ::std::result::Result<i64, ::std::string::String>,
+            block_timestamp: ::std::result::Result<i64, ::std::string::String>,
+            observed_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for BorrowProductSnapshot {
+            fn default() -> Self {
+                Self {
+                    block_hash: Err("no value supplied for block_hash".to_string()),
+                    block_number: Err("no value supplied for block_number".to_string()),
+                    block_timestamp: Err("no value supplied for block_timestamp".to_string()),
+                    observed_at: Err("no value supplied for observed_at".to_string()),
+                }
+            }
+        }
+        impl BorrowProductSnapshot {
+            pub fn block_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductSnapshotBlockHash>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.block_hash = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for block_hash: {}", e));
+                self
+            }
+            pub fn block_number<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.block_number = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for block_number: {}", e)
+                });
+                self
+            }
+            pub fn block_timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.block_timestamp = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for block_timestamp: {}", e)
+                });
+                self
+            }
+            pub fn observed_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.observed_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for observed_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProductSnapshot> for super::BorrowProductSnapshot {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProductSnapshot,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    block_hash: value.block_hash?,
+                    block_number: value.block_number?,
+                    block_timestamp: value.block_timestamp?,
+                    observed_at: value.observed_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProductSnapshot> for BorrowProductSnapshot {
+            fn from(value: super::BorrowProductSnapshot) -> Self {
+                Self {
+                    block_hash: Ok(value.block_hash),
+                    block_number: Ok(value.block_number),
+                    block_timestamp: Ok(value.block_timestamp),
+                    observed_at: Ok(value.observed_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProductToken {
+            address: ::std::result::Result<super::BorrowProductTokenAddress, ::std::string::String>,
+            decimals: ::std::result::Result<i64, ::std::string::String>,
+            symbol: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowProductToken {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    decimals: Err("no value supplied for decimals".to_string()),
+                    symbol: Err("no value supplied for symbol".to_string()),
+                }
+            }
+        }
+        impl BorrowProductToken {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductTokenAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn decimals<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.decimals = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for decimals: {}", e));
+                self
+            }
+            pub fn symbol<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.symbol = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for symbol: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProductToken> for super::BorrowProductToken {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProductToken,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    decimals: value.decimals?,
+                    symbol: value.symbol?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProductToken> for BorrowProductToken {
+            fn from(value: super::BorrowProductToken) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    decimals: Ok(value.decimals),
+                    symbol: Ok(value.symbol),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct BorrowProductVenue {
+            entrypoint_address: ::std::result::Result<
+                super::BorrowProductVenueEntrypointAddress,
+                ::std::string::String,
+            >,
+            name: ::std::result::Result<::std::string::String, ::std::string::String>,
+            venue_id:
+                ::std::result::Result<super::BorrowProductVenueVenueId, ::std::string::String>,
+        }
+        impl ::std::default::Default for BorrowProductVenue {
+            fn default() -> Self {
+                Self {
+                    entrypoint_address: Err("no value supplied for entrypoint_address".to_string()),
+                    name: Err("no value supplied for name".to_string()),
+                    venue_id: Err("no value supplied for venue_id".to_string()),
+                }
+            }
+        }
+        impl BorrowProductVenue {
+            pub fn entrypoint_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductVenueEntrypointAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.entrypoint_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for entrypoint_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for name: {}", e));
+                self
+            }
+            pub fn venue_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductVenueVenueId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.venue_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for venue_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<BorrowProductVenue> for super::BorrowProductVenue {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: BorrowProductVenue,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    entrypoint_address: value.entrypoint_address?,
+                    name: value.name?,
+                    venue_id: value.venue_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::BorrowProductVenue> for BorrowProductVenue {
+            fn from(value: super::BorrowProductVenue) -> Self {
+                Self {
+                    entrypoint_address: Ok(value.entrypoint_address),
+                    name: Ok(value.name),
+                    venue_id: Ok(value.venue_id),
                 }
             }
         }
@@ -113290,6 +121233,121 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct CloseBorrowPositionRequest {
+            borrow_product_id: ::std::result::Result<super::BorrowProductId, ::std::string::String>,
+            paymaster_context: ::std::result::Result<
+                ::std::option::Option<super::PaymasterContext>,
+                ::std::string::String,
+            >,
+            paymaster_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            use_cdp_paymaster: ::std::result::Result<bool, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                super::CloseBorrowPositionRequestWalletSecretId,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CloseBorrowPositionRequest {
+            fn default() -> Self {
+                Self {
+                    borrow_product_id: Err("no value supplied for borrow_product_id".to_string()),
+                    paymaster_context: Ok(Default::default()),
+                    paymaster_url: Ok(Default::default()),
+                    use_cdp_paymaster: Err("no value supplied for use_cdp_paymaster".to_string()),
+                    wallet_secret_id: Err("no value supplied for wallet_secret_id".to_string()),
+                }
+            }
+        }
+        impl CloseBorrowPositionRequest {
+            pub fn borrow_product_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_product_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_product_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_context<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymasterContext>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_context = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for paymaster_context: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::CloseBorrowPositionRequestWalletSecretId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CloseBorrowPositionRequest> for super::CloseBorrowPositionRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CloseBorrowPositionRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    borrow_product_id: value.borrow_product_id?,
+                    paymaster_context: value.paymaster_context?,
+                    paymaster_url: value.paymaster_url?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CloseBorrowPositionRequest> for CloseBorrowPositionRequest {
+            fn from(value: super::CloseBorrowPositionRequest) -> Self {
+                Self {
+                    borrow_product_id: Ok(value.borrow_product_id),
+                    paymaster_context: Ok(value.paymaster_context),
+                    paymaster_url: Ok(value.paymaster_url),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct CoinbaseAuthorizationRequest {
             customer_display: ::std::result::Result<
                 ::std::option::Option<super::OperationCustomerDisplay>,
@@ -113949,6 +122007,152 @@ pub mod types {
                     compliance: Ok(value.compliance),
                     name: Ok(value.name),
                     owner: Ok(value.owner),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateBorrowPositionRequest {
+            borrow_product_id: ::std::result::Result<super::BorrowProductId, ::std::string::String>,
+            collateral_amount: ::std::result::Result<super::PositiveDecimal, ::std::string::String>,
+            loan_amount: ::std::result::Result<super::PositiveDecimal, ::std::string::String>,
+            paymaster_context: ::std::result::Result<
+                ::std::option::Option<super::PaymasterContext>,
+                ::std::string::String,
+            >,
+            paymaster_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            use_cdp_paymaster: ::std::result::Result<bool, ::std::string::String>,
+            wallet_secret_id: ::std::result::Result<
+                super::CreateBorrowPositionRequestWalletSecretId,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateBorrowPositionRequest {
+            fn default() -> Self {
+                Self {
+                    borrow_product_id: Err("no value supplied for borrow_product_id".to_string()),
+                    collateral_amount: Err("no value supplied for collateral_amount".to_string()),
+                    loan_amount: Err("no value supplied for loan_amount".to_string()),
+                    paymaster_context: Ok(Default::default()),
+                    paymaster_url: Ok(Default::default()),
+                    use_cdp_paymaster: Err("no value supplied for use_cdp_paymaster".to_string()),
+                    wallet_secret_id: Err("no value supplied for wallet_secret_id".to_string()),
+                }
+            }
+        }
+        impl CreateBorrowPositionRequest {
+            pub fn borrow_product_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_product_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_product_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn collateral_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PositiveDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.collateral_amount = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for collateral_amount: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn loan_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PositiveDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.loan_amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for loan_amount: {}", e));
+                self
+            }
+            pub fn paymaster_context<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymasterContext>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_context = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for paymaster_context: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<bool>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::CreateBorrowPositionRequestWalletSecretId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_secret_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_secret_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateBorrowPositionRequest> for super::CreateBorrowPositionRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateBorrowPositionRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    borrow_product_id: value.borrow_product_id?,
+                    collateral_amount: value.collateral_amount?,
+                    loan_amount: value.loan_amount?,
+                    paymaster_context: value.paymaster_context?,
+                    paymaster_url: value.paymaster_url?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    wallet_secret_id: value.wallet_secret_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateBorrowPositionRequest> for CreateBorrowPositionRequest {
+            fn from(value: super::CreateBorrowPositionRequest) -> Self {
+                Self {
+                    borrow_product_id: Ok(value.borrow_product_id),
+                    collateral_amount: Ok(value.collateral_amount),
+                    loan_amount: Ok(value.loan_amount),
+                    paymaster_context: Ok(value.paymaster_context),
+                    paymaster_url: Ok(value.paymaster_url),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    wallet_secret_id: Ok(value.wallet_secret_id),
                 }
             }
         }
@@ -116515,7 +124719,7 @@ pub mod types {
                 ::std::option::Option<super::CreatePolicyBodyDescription>,
                 ::std::string::String,
             >,
-            rules: ::std::result::Result<::std::vec::Vec<super::Rule>, ::std::string::String>,
+            rules: ::std::result::Result<super::PolicyRules, ::std::string::String>,
             scope: ::std::result::Result<super::CreatePolicyBodyScope, ::std::string::String>,
         }
         impl ::std::default::Default for CreatePolicyBody {
@@ -116542,7 +124746,7 @@ pub mod types {
             }
             pub fn rules<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::vec::Vec<super::Rule>>,
+                T: ::std::convert::TryInto<super::PolicyRules>,
                 T::Error: ::std::fmt::Display,
             {
                 self.rules = value
@@ -120741,6 +128945,46 @@ pub mod types {
                     created_at: Ok(value.created_at),
                     ejected_at: Ok(value.ejected_at),
                     exported_at: Ok(value.exported_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EntityWebhookResponseLabels {
+            entity: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for EntityWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    entity: Err("no value supplied for entity".to_string()),
+                }
+            }
+        }
+        impl EntityWebhookResponseLabels {
+            pub fn entity<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.entity = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for entity: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EntityWebhookResponseLabels> for super::EntityWebhookResponseLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EntityWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    entity: value.entity?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EntityWebhookResponseLabels> for EntityWebhookResponseLabels {
+            fn from(value: super::EntityWebhookResponseLabels) -> Self {
+                Self {
+                    entity: Ok(value.entity),
                 }
             }
         }
@@ -124967,6 +133211,86 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct HealthWebhookLabels {
+            service: ::std::result::Result<super::HealthService, ::std::string::String>,
+        }
+        impl ::std::default::Default for HealthWebhookLabels {
+            fn default() -> Self {
+                Self {
+                    service: Err("no value supplied for service".to_string()),
+                }
+            }
+        }
+        impl HealthWebhookLabels {
+            pub fn service<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::HealthService>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.service = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for service: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<HealthWebhookLabels> for super::HealthWebhookLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: HealthWebhookLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    service: value.service?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::HealthWebhookLabels> for HealthWebhookLabels {
+            fn from(value: super::HealthWebhookLabels) -> Self {
+                Self {
+                    service: Ok(value.service),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct HealthWebhookResponseLabels {
+            service: ::std::result::Result<super::HealthService, ::std::string::String>,
+        }
+        impl ::std::default::Default for HealthWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    service: Err("no value supplied for service".to_string()),
+                }
+            }
+        }
+        impl HealthWebhookResponseLabels {
+            pub fn service<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::HealthService>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.service = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for service: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<HealthWebhookResponseLabels> for super::HealthWebhookResponseLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: HealthWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    service: value.service?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::HealthWebhookResponseLabels> for HealthWebhookResponseLabels {
+            fn from(value: super::HealthWebhookResponseLabels) -> Self {
+                Self {
+                    service: Ok(value.service),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct Idl {
             address: ::std::result::Result<::std::string::String, ::std::string::String>,
             instructions: ::std::result::Result<
@@ -126286,6 +134610,73 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct ListBorrowPositionsWithEndUserAccountResponse {
+            borrow_positions: ::std::result::Result<
+                ::std::vec::Vec<super::BorrowPosition>,
+                ::std::string::String,
+            >,
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ListBorrowPositionsWithEndUserAccountResponse {
+            fn default() -> Self {
+                Self {
+                    borrow_positions: Err("no value supplied for borrow_positions".to_string()),
+                    next_page_token: Ok(Default::default()),
+                }
+            }
+        }
+        impl ListBorrowPositionsWithEndUserAccountResponse {
+            pub fn borrow_positions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowPosition>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_positions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for borrow_positions: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListBorrowPositionsWithEndUserAccountResponse>
+            for super::ListBorrowPositionsWithEndUserAccountResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListBorrowPositionsWithEndUserAccountResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    borrow_positions: value.borrow_positions?,
+                    next_page_token: value.next_page_token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListBorrowPositionsWithEndUserAccountResponse>
+            for ListBorrowPositionsWithEndUserAccountResponse
+        {
+            fn from(value: super::ListBorrowPositionsWithEndUserAccountResponse) -> Self {
+                Self {
+                    borrow_positions: Ok(value.borrow_positions),
+                    next_page_token: Ok(value.next_page_token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct ListCustomersResponse {
             customers:
                 ::std::result::Result<::std::vec::Vec<super::Customer>, ::std::string::String>,
@@ -126642,6 +135033,66 @@ pub mod types {
             fn from(value: super::ListEvmAccountsResponse) -> Self {
                 Self {
                     accounts: Ok(value.accounts),
+                    next_page_token: Ok(value.next_page_token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListEvmBorrowProductsResponse {
+            borrow_products:
+                ::std::result::Result<::std::vec::Vec<super::BorrowProduct>, ::std::string::String>,
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ListEvmBorrowProductsResponse {
+            fn default() -> Self {
+                Self {
+                    borrow_products: Err("no value supplied for borrow_products".to_string()),
+                    next_page_token: Ok(Default::default()),
+                }
+            }
+        }
+        impl ListEvmBorrowProductsResponse {
+            pub fn borrow_products<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowProduct>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.borrow_products = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for borrow_products: {}", e)
+                });
+                self
+            }
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListEvmBorrowProductsResponse>
+            for super::ListEvmBorrowProductsResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListEvmBorrowProductsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    borrow_products: value.borrow_products?,
+                    next_page_token: value.next_page_token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListEvmBorrowProductsResponse> for ListEvmBorrowProductsResponse {
+            fn from(value: super::ListEvmBorrowProductsResponse) -> Self {
+                Self {
+                    borrow_products: Ok(value.borrow_products),
                     next_page_token: Ok(value.next_page_token),
                 }
             }
@@ -128054,6 +136505,332 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct MorphoBlueMarketParams {
+            collateral_token:
+                ::std::result::Result<super::BorrowProductToken, ::std::string::String>,
+            interest_rate_model_address: ::std::result::Result<
+                super::MorphoBlueMarketParamsInterestRateModelAddress,
+                ::std::string::String,
+            >,
+            lltv_bps: ::std::result::Result<i64, ::std::string::String>,
+            loan_token: ::std::result::Result<super::BorrowProductToken, ::std::string::String>,
+            onchain_market_id: ::std::result::Result<
+                super::MorphoBlueMarketParamsOnchainMarketId,
+                ::std::string::String,
+            >,
+            oracle_address: ::std::result::Result<
+                super::MorphoBlueMarketParamsOracleAddress,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MorphoBlueMarketParams {
+            fn default() -> Self {
+                Self {
+                    collateral_token: Err("no value supplied for collateral_token".to_string()),
+                    interest_rate_model_address: Err(
+                        "no value supplied for interest_rate_model_address".to_string(),
+                    ),
+                    lltv_bps: Err("no value supplied for lltv_bps".to_string()),
+                    loan_token: Err("no value supplied for loan_token".to_string()),
+                    onchain_market_id: Err("no value supplied for onchain_market_id".to_string()),
+                    oracle_address: Err("no value supplied for oracle_address".to_string()),
+                }
+            }
+        }
+        impl MorphoBlueMarketParams {
+            pub fn collateral_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductToken>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.collateral_token = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for collateral_token: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn interest_rate_model_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MorphoBlueMarketParamsInterestRateModelAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.interest_rate_model_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for interest_rate_model_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn lltv_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.lltv_bps = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for lltv_bps: {}", e));
+                self
+            }
+            pub fn loan_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductToken>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.loan_token = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for loan_token: {}", e));
+                self
+            }
+            pub fn onchain_market_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MorphoBlueMarketParamsOnchainMarketId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.onchain_market_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for onchain_market_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn oracle_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MorphoBlueMarketParamsOracleAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.oracle_address = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for oracle_address: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MorphoBlueMarketParams> for super::MorphoBlueMarketParams {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MorphoBlueMarketParams,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    collateral_token: value.collateral_token?,
+                    interest_rate_model_address: value.interest_rate_model_address?,
+                    lltv_bps: value.lltv_bps?,
+                    loan_token: value.loan_token?,
+                    onchain_market_id: value.onchain_market_id?,
+                    oracle_address: value.oracle_address?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MorphoBlueMarketParams> for MorphoBlueMarketParams {
+            fn from(value: super::MorphoBlueMarketParams) -> Self {
+                Self {
+                    collateral_token: Ok(value.collateral_token),
+                    interest_rate_model_address: Ok(value.interest_rate_model_address),
+                    lltv_bps: Ok(value.lltv_bps),
+                    loan_token: Ok(value.loan_token),
+                    onchain_market_id: Ok(value.onchain_market_id),
+                    oracle_address: Ok(value.oracle_address),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MorphoBlueOnchainState {
+            collateral: ::std::result::Result<
+                ::std::vec::Vec<super::BorrowPositionAssetAmount>,
+                ::std::string::String,
+            >,
+            current_ltv_bps:
+                ::std::result::Result<::std::option::Option<u64>, ::std::string::String>,
+            debt: ::std::result::Result<
+                ::std::vec::Vec<super::BorrowPositionDebt>,
+                ::std::string::String,
+            >,
+            health_factor: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            health_status:
+                ::std::result::Result<super::BorrowPositionHealthStatus, ::std::string::String>,
+            liquidation_threshold_bps:
+                ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            type_: ::std::result::Result<super::BorrowProductProtocol, ::std::string::String>,
+        }
+        impl ::std::default::Default for MorphoBlueOnchainState {
+            fn default() -> Self {
+                Self {
+                    collateral: Err("no value supplied for collateral".to_string()),
+                    current_ltv_bps: Ok(Default::default()),
+                    debt: Err("no value supplied for debt".to_string()),
+                    health_factor: Ok(Default::default()),
+                    health_status: Err("no value supplied for health_status".to_string()),
+                    liquidation_threshold_bps: Ok(Default::default()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl MorphoBlueOnchainState {
+            pub fn collateral<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowPositionAssetAmount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.collateral = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for collateral: {}", e));
+                self
+            }
+            pub fn current_ltv_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<u64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.current_ltv_bps = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for current_ltv_bps: {}", e)
+                });
+                self
+            }
+            pub fn debt<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::BorrowPositionDebt>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.debt = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for debt: {}", e));
+                self
+            }
+            pub fn health_factor<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.health_factor = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for health_factor: {}", e)
+                });
+                self
+            }
+            pub fn health_status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowPositionHealthStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.health_status = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for health_status: {}", e)
+                });
+                self
+            }
+            pub fn liquidation_threshold_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.liquidation_threshold_bps = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for liquidation_threshold_bps: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BorrowProductProtocol>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MorphoBlueOnchainState> for super::MorphoBlueOnchainState {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MorphoBlueOnchainState,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    collateral: value.collateral?,
+                    current_ltv_bps: value.current_ltv_bps?,
+                    debt: value.debt?,
+                    health_factor: value.health_factor?,
+                    health_status: value.health_status?,
+                    liquidation_threshold_bps: value.liquidation_threshold_bps?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MorphoBlueOnchainState> for MorphoBlueOnchainState {
+            fn from(value: super::MorphoBlueOnchainState) -> Self {
+                Self {
+                    collateral: Ok(value.collateral),
+                    current_ltv_bps: Ok(value.current_ltv_bps),
+                    debt: Ok(value.debt),
+                    health_factor: Ok(value.health_factor),
+                    health_status: Ok(value.health_status),
+                    liquidation_threshold_bps: Ok(value.liquidation_threshold_bps),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MorphoBlueProtocolDetails {
+            market_params:
+                ::std::result::Result<super::MorphoBlueMarketParams, ::std::string::String>,
+            type_:
+                ::std::result::Result<super::MorphoBlueProtocolDetailsType, ::std::string::String>,
+        }
+        impl ::std::default::Default for MorphoBlueProtocolDetails {
+            fn default() -> Self {
+                Self {
+                    market_params: Err("no value supplied for market_params".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl MorphoBlueProtocolDetails {
+            pub fn market_params<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MorphoBlueMarketParams>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.market_params = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for market_params: {}", e)
+                });
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MorphoBlueProtocolDetailsType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MorphoBlueProtocolDetails> for super::MorphoBlueProtocolDetails {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MorphoBlueProtocolDetails,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    market_params: value.market_params?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MorphoBlueProtocolDetails> for MorphoBlueProtocolDetails {
+            fn from(value: super::MorphoBlueProtocolDetails) -> Self {
+                Self {
+                    market_params: Ok(value.market_params),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct NetUsdChangeCriterion {
             change_cents: ::std::result::Result<i64, ::std::string::String>,
             operator:
@@ -128933,6 +137710,274 @@ pub mod types {
                     log_index: Ok(value.log_index),
                     network: Ok(value.network),
                     transaction_hash: Ok(value.transaction_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnchainActivityWebhookLabels {
+            contract_address: ::std::result::Result<::std::string::String, ::std::string::String>,
+            event_name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            event_signature: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<
+                ::std::option::Option<super::OnchainActivityWebhookLabelsNetwork>,
+                ::std::string::String,
+            >,
+            transaction_from: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            transaction_to: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnchainActivityWebhookLabels {
+            fn default() -> Self {
+                Self {
+                    contract_address: Err("no value supplied for contract_address".to_string()),
+                    event_name: Ok(Default::default()),
+                    event_signature: Ok(Default::default()),
+                    network: Ok(Default::default()),
+                    transaction_from: Ok(Default::default()),
+                    transaction_to: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnchainActivityWebhookLabels {
+            pub fn contract_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.contract_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for contract_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn event_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_name: {}", e));
+                self
+            }
+            pub fn event_signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_signature = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for event_signature: {}", e)
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::OnchainActivityWebhookLabelsNetwork>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn transaction_from<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_from = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_from: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn transaction_to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_to = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for transaction_to: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnchainActivityWebhookLabels> for super::OnchainActivityWebhookLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnchainActivityWebhookLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    contract_address: value.contract_address?,
+                    event_name: value.event_name?,
+                    event_signature: value.event_signature?,
+                    network: value.network?,
+                    transaction_from: value.transaction_from?,
+                    transaction_to: value.transaction_to?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnchainActivityWebhookLabels> for OnchainActivityWebhookLabels {
+            fn from(value: super::OnchainActivityWebhookLabels) -> Self {
+                Self {
+                    contract_address: Ok(value.contract_address),
+                    event_name: Ok(value.event_name),
+                    event_signature: Ok(value.event_signature),
+                    network: Ok(value.network),
+                    transaction_from: Ok(value.transaction_from),
+                    transaction_to: Ok(value.transaction_to),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnchainActivityWebhookResponseLabels {
+            contract_address: ::std::result::Result<::std::string::String, ::std::string::String>,
+            event_name: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            event_signature: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<
+                super::OnchainActivityWebhookResponseLabelsNetwork,
+                ::std::string::String,
+            >,
+            transaction_from: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            transaction_to: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for OnchainActivityWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    contract_address: Err("no value supplied for contract_address".to_string()),
+                    event_name: Ok(Default::default()),
+                    event_signature: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    transaction_from: Ok(Default::default()),
+                    transaction_to: Ok(Default::default()),
+                }
+            }
+        }
+        impl OnchainActivityWebhookResponseLabels {
+            pub fn contract_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.contract_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for contract_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn event_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_name: {}", e));
+                self
+            }
+            pub fn event_signature<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_signature = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for event_signature: {}", e)
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnchainActivityWebhookResponseLabelsNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn transaction_from<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_from = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_from: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn transaction_to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_to = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for transaction_to: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnchainActivityWebhookResponseLabels>
+            for super::OnchainActivityWebhookResponseLabels
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnchainActivityWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    contract_address: value.contract_address?,
+                    event_name: value.event_name?,
+                    event_signature: value.event_signature?,
+                    network: value.network?,
+                    transaction_from: value.transaction_from?,
+                    transaction_to: value.transaction_to?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnchainActivityWebhookResponseLabels>
+            for OnchainActivityWebhookResponseLabels
+        {
+            fn from(value: super::OnchainActivityWebhookResponseLabels) -> Self {
+                Self {
+                    contract_address: Ok(value.contract_address),
+                    event_name: Ok(value.event_name),
+                    event_signature: Ok(value.event_signature),
+                    network: Ok(value.network),
+                    transaction_from: Ok(value.transaction_from),
+                    transaction_to: Ok(value.transaction_to),
                 }
             }
         }
@@ -135458,7 +144503,7 @@ pub mod types {
                 ::std::string::String,
             >,
             id: ::std::result::Result<super::PolicyId, ::std::string::String>,
-            rules: ::std::result::Result<::std::vec::Vec<super::Rule>, ::std::string::String>,
+            rules: ::std::result::Result<super::PolicyRules, ::std::string::String>,
             scope: ::std::result::Result<super::PolicyScope, ::std::string::String>,
             updated_at: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
@@ -135507,7 +144552,7 @@ pub mod types {
             }
             pub fn rules<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::vec::Vec<super::Rule>>,
+                T: ::std::convert::TryInto<super::PolicyRules>,
                 T::Error: ::std::fmt::Display,
             {
                 self.rules = value
@@ -135908,6 +144953,46 @@ pub mod types {
                     operator: Ok(value.operator),
                     program_ids: Ok(value.program_ids),
                     type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ProjectWebhookResponseLabels {
+            project: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for ProjectWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    project: Err("no value supplied for project".to_string()),
+                }
+            }
+        }
+        impl ProjectWebhookResponseLabels {
+            pub fn project<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.project = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for project: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ProjectWebhookResponseLabels> for super::ProjectWebhookResponseLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ProjectWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    project: value.project?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ProjectWebhookResponseLabels> for ProjectWebhookResponseLabels {
+            fn from(value: super::ProjectWebhookResponseLabels) -> Self {
+                Self {
+                    project: Ok(value.project),
                 }
             }
         }
@@ -140747,16 +149832,33 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct SignSolanaMessageBody {
+            encoding: ::std::result::Result<
+                ::std::option::Option<super::SignSolanaMessageBodyEncoding>,
+                ::std::string::String,
+            >,
             message: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
         impl ::std::default::Default for SignSolanaMessageBody {
             fn default() -> Self {
                 Self {
+                    encoding: Ok(Default::default()),
                     message: Err("no value supplied for message".to_string()),
                 }
             }
         }
         impl SignSolanaMessageBody {
+            pub fn encoding<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::SignSolanaMessageBodyEncoding>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.encoding = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for encoding: {}", e));
+                self
+            }
             pub fn message<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::string::String>,
@@ -140774,6 +149876,7 @@ pub mod types {
                 value: SignSolanaMessageBody,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    encoding: value.encoding?,
                     message: value.message?,
                 })
             }
@@ -140781,6 +149884,7 @@ pub mod types {
         impl ::std::convert::From<super::SignSolanaMessageBody> for SignSolanaMessageBody {
             fn from(value: super::SignSolanaMessageBody) -> Self {
                 Self {
+                    encoding: Ok(value.encoding),
                     message: Ok(value.message),
                 }
             }
@@ -140956,16 +150060,33 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct SignSolanaTransactionBody {
+            network: ::std::result::Result<
+                ::std::option::Option<super::SignSolanaTransactionBodyNetwork>,
+                ::std::string::String,
+            >,
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
         }
         impl ::std::default::Default for SignSolanaTransactionBody {
             fn default() -> Self {
                 Self {
+                    network: Ok(Default::default()),
                     transaction: Err("no value supplied for transaction".to_string()),
                 }
             }
         }
         impl SignSolanaTransactionBody {
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::SignSolanaTransactionBodyNetwork>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
             pub fn transaction<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::string::String>,
@@ -140983,6 +150104,7 @@ pub mod types {
                 value: SignSolanaTransactionBody,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    network: value.network?,
                     transaction: value.transaction?,
                 })
             }
@@ -140990,6 +150112,7 @@ pub mod types {
         impl ::std::convert::From<super::SignSolanaTransactionBody> for SignSolanaTransactionBody {
             fn from(value: super::SignSolanaTransactionBody) -> Self {
                 Self {
+                    network: Ok(value.network),
                     transaction: Ok(value.transaction),
                 }
             }
@@ -141045,6 +150168,10 @@ pub mod types {
                 super::SignSolanaTransactionWithEndUserAccountBodyAddress,
                 ::std::string::String,
             >,
+            network: ::std::result::Result<
+                ::std::option::Option<super::SignSolanaTransactionWithEndUserAccountBodyNetwork>,
+                ::std::string::String,
+            >,
             transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
             wallet_secret_id: ::std::result::Result<
                 ::std::option::Option<
@@ -141057,6 +150184,7 @@ pub mod types {
             fn default() -> Self {
                 Self {
                     address: Err("no value supplied for address".to_string()),
+                    network: Ok(Default::default()),
                     transaction: Err("no value supplied for transaction".to_string()),
                     wallet_secret_id: Ok(Default::default()),
                 }
@@ -141073,6 +150201,20 @@ pub mod types {
                 self.address = value
                     .try_into()
                     .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<
+                        super::SignSolanaTransactionWithEndUserAccountBodyNetwork,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
                 self
             }
             pub fn transaction<T>(mut self, value: T) -> Self
@@ -141112,6 +150254,7 @@ pub mod types {
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     address: value.address?,
+                    network: value.network?,
                     transaction: value.transaction?,
                     wallet_secret_id: value.wallet_secret_id?,
                 })
@@ -141123,6 +150266,7 @@ pub mod types {
             fn from(value: super::SignSolanaTransactionWithEndUserAccountBody) -> Self {
                 Self {
                     address: Ok(value.address),
+                    network: Ok(value.network),
                     transaction: Ok(value.transaction),
                     wallet_secret_id: Ok(value.wallet_secret_id),
                 }
@@ -145398,7 +154542,7 @@ pub mod types {
                 ::std::option::Option<super::UpdatePolicyBodyDescription>,
                 ::std::string::String,
             >,
-            rules: ::std::result::Result<::std::vec::Vec<super::Rule>, ::std::string::String>,
+            rules: ::std::result::Result<super::PolicyRules, ::std::string::String>,
         }
         impl ::std::default::Default for UpdatePolicyBody {
             fn default() -> Self {
@@ -145423,7 +154567,7 @@ pub mod types {
             }
             pub fn rules<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::vec::Vec<super::Rule>>,
+                T: ::std::convert::TryInto<super::PolicyRules>,
                 T::Error: ::std::fmt::Display,
             {
                 self.rules = value
@@ -145777,6 +154921,63 @@ pub mod types {
                 Self {
                     data: Ok(value.data),
                     message: Ok(value.message),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct UserWebhookResponseLabels {
+            sandbox: ::std::result::Result<
+                super::UserWebhookResponseLabelsSandbox,
+                ::std::string::String,
+            >,
+            user_uuid: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for UserWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    sandbox: Err("no value supplied for sandbox".to_string()),
+                    user_uuid: Err("no value supplied for user_uuid".to_string()),
+                }
+            }
+        }
+        impl UserWebhookResponseLabels {
+            pub fn sandbox<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::UserWebhookResponseLabelsSandbox>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.sandbox = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for sandbox: {}", e));
+                self
+            }
+            pub fn user_uuid<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_uuid = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for user_uuid: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<UserWebhookResponseLabels> for super::UserWebhookResponseLabels {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: UserWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    sandbox: value.sandbox?,
+                    user_uuid: value.user_uuid?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::UserWebhookResponseLabels> for UserWebhookResponseLabels {
+            fn from(value: super::UserWebhookResponseLabels) -> Self {
+                Self {
+                    sandbox: Ok(value.sandbox),
+                    user_uuid: Ok(value.user_uuid),
                 }
             }
         }
@@ -146475,6 +155676,139 @@ pub mod types {
                     event_id: Ok(value.event_id),
                     event_type: Ok(value.event_type),
                     timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletActivityMultiWebhookLabels {
+            network: ::std::result::Result<
+                ::std::option::Option<super::WalletActivityMultiWebhookLabelsNetwork>,
+                ::std::string::String,
+            >,
+            wallet_addresses: ::std::result::Result<
+                super::WalletActivityMultiWebhookLabelsWalletAddresses,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WalletActivityMultiWebhookLabels {
+            fn default() -> Self {
+                Self {
+                    network: Ok(Default::default()),
+                    wallet_addresses: Err("no value supplied for wallet_addresses".to_string()),
+                }
+            }
+        }
+        impl WalletActivityMultiWebhookLabels {
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::WalletActivityMultiWebhookLabelsNetwork>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn wallet_addresses<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::WalletActivityMultiWebhookLabelsWalletAddresses>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_addresses = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_addresses: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletActivityMultiWebhookLabels>
+            for super::WalletActivityMultiWebhookLabels
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletActivityMultiWebhookLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    network: value.network?,
+                    wallet_addresses: value.wallet_addresses?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletActivityMultiWebhookLabels>
+            for WalletActivityMultiWebhookLabels
+        {
+            fn from(value: super::WalletActivityMultiWebhookLabels) -> Self {
+                Self {
+                    network: Ok(value.network),
+                    wallet_addresses: Ok(value.wallet_addresses),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletActivityMultiWebhookResponseLabels {
+            network: ::std::result::Result<
+                super::WalletActivityMultiWebhookResponseLabelsNetwork,
+                ::std::string::String,
+            >,
+            wallet_addresses: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for WalletActivityMultiWebhookResponseLabels {
+            fn default() -> Self {
+                Self {
+                    network: Err("no value supplied for network".to_string()),
+                    wallet_addresses: Err("no value supplied for wallet_addresses".to_string()),
+                }
+            }
+        }
+        impl WalletActivityMultiWebhookResponseLabels {
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::WalletActivityMultiWebhookResponseLabelsNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn wallet_addresses<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.wallet_addresses = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for wallet_addresses: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletActivityMultiWebhookResponseLabels>
+            for super::WalletActivityMultiWebhookResponseLabels
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletActivityMultiWebhookResponseLabels,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    network: value.network?,
+                    wallet_addresses: value.wallet_addresses?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletActivityMultiWebhookResponseLabels>
+            for WalletActivityMultiWebhookResponseLabels
+        {
+            fn from(value: super::WalletActivityMultiWebhookResponseLabels) -> Self {
+                Self {
+                    network: Ok(value.network),
+                    wallet_addresses: Ok(value.wallet_addresses),
                 }
             }
         }
@@ -148448,11 +157782,11 @@ pub mod types {
                 ::std::result::Result<::std::vec::Vec<super::EventType>, ::std::string::String>,
             is_enabled: ::std::result::Result<bool, ::std::string::String>,
             labels: ::std::result::Result<
-                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                ::std::option::Option<super::WebhookRequestLabels>,
                 ::std::string::String,
             >,
             metadata: ::std::result::Result<
-                ::std::option::Option<super::Metadata>,
+                ::std::option::Option<super::WebhookMetadata>,
                 ::std::string::String,
             >,
             target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
@@ -148502,9 +157836,7 @@ pub mod types {
             }
             pub fn labels<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-                >,
+                T: ::std::convert::TryInto<::std::option::Option<super::WebhookRequestLabels>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.labels = value
@@ -148514,7 +157846,7 @@ pub mod types {
             }
             pub fn metadata<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::WebhookMetadata>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.metadata = value
@@ -148574,7 +157906,7 @@ pub mod types {
                 ::std::result::Result<::std::vec::Vec<super::EventType>, ::std::string::String>,
             is_enabled: ::std::result::Result<bool, ::std::string::String>,
             labels: ::std::result::Result<
-                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                ::std::option::Option<super::WebhookResponseLabels>,
                 ::std::string::String,
             >,
             metadata: ::std::result::Result<
@@ -148648,9 +157980,7 @@ pub mod types {
             }
             pub fn labels<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-                >,
+                T: ::std::convert::TryInto<::std::option::Option<super::WebhookResponseLabels>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.labels = value
@@ -148828,11 +158158,11 @@ pub mod types {
                 ::std::result::Result<::std::vec::Vec<super::EventType>, ::std::string::String>,
             is_enabled: ::std::result::Result<bool, ::std::string::String>,
             labels: ::std::result::Result<
-                ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+                ::std::option::Option<super::WebhookRequestLabels>,
                 ::std::string::String,
             >,
             metadata: ::std::result::Result<
-                ::std::option::Option<super::Metadata>,
+                ::std::option::Option<super::WebhookMetadata>,
                 ::std::string::String,
             >,
             target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
@@ -148882,9 +158212,7 @@ pub mod types {
             }
             pub fn labels<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<
-                    ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-                >,
+                T: ::std::convert::TryInto<::std::option::Option<super::WebhookRequestLabels>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.labels = value
@@ -148894,7 +158222,7 @@ pub mod types {
             }
             pub fn metadata<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::WebhookMetadata>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.metadata = value
@@ -154063,6 +163391,53 @@ impl Client {
     pub fn create_customer(&self) -> builder::CreateCustomer<'_> {
         builder::CreateCustomer::new(self)
     }
+    /**Get customer requirements
+
+    Preview the requirements a hypothetical customer of the given
+    `customerType` and jurisdiction would need to satisfy to enable the
+    requested `capabilities`, without creating a customer record.
+    Partner onboarding UIs can use this to render the collection flow
+    before any customer state exists.
+
+    Today this endpoint only previews the Terms of Service requirement:
+    the response's `RequirementsMap` will only ever contain a `tos` key.
+    Other requirement families (PII / CDD inputs) are not yet available
+    through this endpoint; use `POST /v2/customers` or
+    `PUT /v2/customers/{customerId}` to discover those via
+    `Customer.requirements`.
+
+    Only `customerType: individual` customers resident in or citizens
+    of the US are currently supported; every other combination returns
+    `400 invalid_request`.
+
+
+    Sends a `GET` request to `/v2/customers/requirements`
+
+    Arguments:
+    - `capabilities`: The capabilities the hypothetical customer would request.
+    Repeat the parameter to specify multiple capabilities, for
+    example `capabilities=custodyCrypto&capabilities=transferCrypto`.
+
+    - `citizenship`: The hypothetical customer's citizenship. At least one of
+    `countryCode` or `citizenship` is required.
+
+    - `country_code`: The hypothetical customer's country of residence. At least one
+    of `countryCode` or `citizenship` is required. When both are
+    present, `countryCode` takes precedence.
+
+    - `customer_type`: The type of the hypothetical customer.
+    ```ignore
+    let response = client.get_customer_requirements()
+        .capabilities(capabilities)
+        .citizenship(citizenship)
+        .country_code(country_code)
+        .customer_type(customer_type)
+        .send()
+        .await;
+    ```*/
+    pub fn get_customer_requirements(&self) -> builder::GetCustomerRequirements<'_> {
+        builder::GetCustomerRequirements::new(self)
+    }
     /**Get a customer
 
     Get a customer by their ID. Returns the full customer object.
@@ -154329,22 +163704,7 @@ impl Client {
     }
     /**Create webhook subscription
 
-    Subscribe to real-time events across CDP products.
-
-    ### Filtering
-
-    Onchain events can utilize multi-label filtering to only receive events that match all the specified labels.
-
-    Allows labels are:
-    - `network` (required) — Blockchain network
-    - `contract_address` — Smart contract address
-    - `event_name` — Event name (e.g., "Transfer", "Burn")
-    - `event_signature` — Event signature (e.g., "Transfer(address,address,uint256)")
-    - `transaction_from` — Transaction sender address
-    - `transaction_to` — Transaction recipient address
-    - `params.*` — Any event parameter from the log event (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-
-    For webhook types that aren't `onchain.*`, labels are ignored.
+    Subscribe to real-time events across CDP products. A webhook subscription provides a `targetURL` and other relevant endpoint configuration to enable receiving webhooks when events occur.
 
     ### Webhook Signature Verification
 
@@ -155028,6 +164388,131 @@ impl Client {
     ) -> builder::SignEvmTypedDataWithEndUserAccount<'_> {
         builder::SignEvmTypedDataWithEndUserAccount::new(self)
     }
+    /**List borrow positions for an end user smart account
+
+    Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+    A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the EVM Smart Account to list borrow positions for.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    ```ignore
+    let response = client.list_borrow_positions_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .page_size(page_size)
+        .page_token(page_token)
+        .project_id(project_id)
+        .send()
+        .await;
+    ```*/
+    pub fn list_borrow_positions_with_end_user_account(
+        &self,
+    ) -> builder::ListBorrowPositionsWithEndUserAccount<'_> {
+        builder::ListBorrowPositionsWithEndUserAccount::new(self)
+    }
+    /**Create a borrow position for an end user smart account
+
+    Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+    A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+    A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the EVM Smart Account to open the borrow position from.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.create_borrow_position_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_borrow_position_with_end_user_account(
+        &self,
+    ) -> builder::CreateBorrowPositionWithEndUserAccount<'_> {
+        builder::CreateBorrowPositionWithEndUserAccount::new(self)
+    }
+    /**Adjust a borrow position for an end user smart account
+
+    Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+    The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+    A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+    A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/adjust`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the EVM Smart Account to adjust the borrow position for.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.adjust_borrow_position_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn adjust_borrow_position_with_end_user_account(
+        &self,
+    ) -> builder::AdjustBorrowPositionWithEndUserAccount<'_> {
+        builder::AdjustBorrowPositionWithEndUserAccount::new(self)
+    }
+    /**Close a borrow position for an end user smart account
+
+    Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+    A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead.
+    A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/close`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the EVM Smart Account that holds the borrow position.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.close_borrow_position_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn close_borrow_position_with_end_user_account(
+        &self,
+    ) -> builder::CloseBorrowPositionWithEndUserAccount<'_> {
+        builder::CloseBorrowPositionWithEndUserAccount::new(self)
+    }
     /**Send user operation for end user Smart Account
 
     Prepares, signs, and sends a user operation for an end user's Smart Account.
@@ -155067,6 +164552,31 @@ impl Client {
         &self,
     ) -> builder::SendUserOperationWithEndUserAccount<'_> {
         builder::SendUserOperationWithEndUserAccount::new(self)
+    }
+    /**Get a user operation for end user EVM Smart Account
+
+    Gets a user operation by its hash for an end user's EVM Smart Account.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/user-operations/{userOpHash}`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The address of the Smart Account the user operation belongs to.
+    - `user_op_hash`: The hash of the user operation to fetch.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    ```ignore
+    let response = client.get_user_operation_with_end_user_account()
+        .user_id(user_id)
+        .address(address)
+        .user_op_hash(user_op_hash)
+        .project_id(project_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_user_operation_with_end_user_account(
+        &self,
+    ) -> builder::GetUserOperationWithEndUserAccount<'_> {
+        builder::GetUserOperationWithEndUserAccount::new(self)
     }
     /**Send USDC on EVM
 
@@ -155329,6 +164839,52 @@ impl Client {
         &self,
     ) -> builder::SendSolanaAssetWithEndUserAccount<'_> {
         builder::SendSolanaAssetWithEndUserAccount::new(self)
+    }
+    /**List borrow products
+
+    Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+    A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/evm/borrow-products`
+
+    Arguments:
+    - `network`: The EVM network name to list borrow products for.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `protocol`: The lending protocol whose borrow products to list.
+    ```ignore
+    let response = client.list_evm_borrow_products()
+        .network(network)
+        .page_size(page_size)
+        .page_token(page_token)
+        .project_id(project_id)
+        .protocol(protocol)
+        .send()
+        .await;
+    ```*/
+    pub fn list_evm_borrow_products(&self) -> builder::ListEvmBorrowProducts<'_> {
+        builder::ListEvmBorrowProducts::new(self)
+    }
+    /**Get a borrow product
+
+    Gets a single borrow product by its ID.
+    The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+
+    Sends a `GET` request to `/v2/embedded-wallet-api/evm/borrow-products/{borrowProductId}`
+
+    Arguments:
+    - `borrow_product_id`: The globally unique ID of the borrow product.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    ```ignore
+    let response = client.get_evm_borrow_product()
+        .borrow_product_id(borrow_product_id)
+        .project_id(project_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_evm_borrow_product(&self) -> builder::GetEvmBorrowProduct<'_> {
+        builder::GetEvmBorrowProduct::new(self)
     }
     /**List end users
 
@@ -156744,7 +166300,7 @@ impl Client {
     Arguments:
     - `payment_session_id`: The unique identifier of the payment session.
     - `addresses`: The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.
-    - `asset`: Optional filter to restrict options to a specific asset.
+    - `asset`: Filter options by asset. Currently, only `usdc` and `usdt` return results.
     - `network`: Optional filter to restrict options to a specific blockchain network.
     ```ignore
     let response = client.get_wallet_authorization_options()
@@ -158296,6 +167852,9 @@ pub mod builder {
                 404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
                 500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
@@ -158651,6 +168210,141 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_customer_requirements`]
+
+    [`Client::get_customer_requirements`]: super::Client::get_customer_requirements*/
+    #[derive(Debug, Clone)]
+    pub struct GetCustomerRequirements<'a> {
+        client: &'a super::Client,
+        capabilities: Result<::std::vec::Vec<types::CapabilityName>, String>,
+        citizenship: Result<Option<types::CountryCode>, String>,
+        country_code: Result<Option<types::CountryCode>, String>,
+        customer_type: Result<types::CustomerType, String>,
+    }
+    impl<'a> GetCustomerRequirements<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                capabilities: Err("capabilities was not initialized".to_string()),
+                citizenship: Ok(None),
+                country_code: Ok(None),
+                customer_type: Err("customer_type was not initialized".to_string()),
+            }
+        }
+        pub fn capabilities<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::vec::Vec<types::CapabilityName>>,
+        {
+            self.capabilities = value.try_into().map_err(|_| {
+                "conversion to `:: std :: vec :: Vec < CapabilityName >` for capabilities failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn citizenship<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CountryCode>,
+        {
+            self.citizenship = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `CountryCode` for citizenship failed".to_string());
+            self
+        }
+        pub fn country_code<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CountryCode>,
+        {
+            self.country_code = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `CountryCode` for country_code failed".to_string());
+            self
+        }
+        pub fn customer_type<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CustomerType>,
+        {
+            self.customer_type = value
+                .try_into()
+                .map_err(|_| "conversion to `CustomerType` for customer_type failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/customers/requirements`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::RequirementsMap>, Error<types::Error>> {
+            let Self {
+                client,
+                capabilities,
+                citizenship,
+                country_code,
+                customer_type,
+            } = self;
+            let capabilities = capabilities.map_err(Error::InvalidRequest)?;
+            let citizenship = citizenship.map_err(Error::InvalidRequest)?;
+            let country_code = country_code.map_err(Error::InvalidRequest)?;
+            let customer_type = customer_type.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/customers/requirements", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "capabilities",
+                    &capabilities,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "citizenship",
+                    &citizenship,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "countryCode",
+                    &country_code,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "customerType",
+                    &customer_type,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_customer_requirements",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
@@ -160294,6 +169988,9 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
@@ -162563,6 +172260,684 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::list_borrow_positions_with_end_user_account`]
+
+    [`Client::list_borrow_positions_with_end_user_account`]: super::Client::list_borrow_positions_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct ListBorrowPositionsWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::ListBorrowPositionsWithEndUserAccountUserId, String>,
+        address: Result<types::ListBorrowPositionsWithEndUserAccountAddress, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+        project_id: Result<Option<types::ListBorrowPositionsWithEndUserAccountProjectId>, String>,
+    }
+    impl<'a> ListBorrowPositionsWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                page_size: Ok(None),
+                page_token: Ok(None),
+                project_id: Ok(None),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ListBorrowPositionsWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `ListBorrowPositionsWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ListBorrowPositionsWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `ListBorrowPositionsWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ListBorrowPositionsWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `ListBorrowPositionsWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions`
+        pub async fn send(
+            self,
+        ) -> Result<
+            ResponseValue<types::ListBorrowPositionsWithEndUserAccountResponse>,
+            Error<types::Error>,
+        > {
+            let Self {
+                client,
+                user_id,
+                address,
+                page_size,
+                page_token,
+                project_id,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/borrow-positions",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_borrow_positions_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_borrow_position_with_end_user_account`]
+
+    [`Client::create_borrow_position_with_end_user_account`]: super::Client::create_borrow_position_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct CreateBorrowPositionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::CreateBorrowPositionWithEndUserAccountUserId, String>,
+        address: Result<types::CreateBorrowPositionWithEndUserAccountAddress, String>,
+        project_id: Result<Option<types::CreateBorrowPositionWithEndUserAccountProjectId>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::CreateBorrowPositionRequest, String>,
+    }
+    impl<'a> CreateBorrowPositionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateBorrowPositionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `CreateBorrowPositionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateBorrowPositionWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `CreateBorrowPositionWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateBorrowPositionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CreateBorrowPositionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateBorrowPositionRequest>,
+            <V as std::convert::TryInto<types::CreateBorrowPositionRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CreateBorrowPositionRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateBorrowPositionRequest,
+            ) -> types::builder::CreateBorrowPositionRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmUserOperation>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::CreateBorrowPositionRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/borrow-positions",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_borrow_position_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::adjust_borrow_position_with_end_user_account`]
+
+    [`Client::adjust_borrow_position_with_end_user_account`]: super::Client::adjust_borrow_position_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct AdjustBorrowPositionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::AdjustBorrowPositionWithEndUserAccountUserId, String>,
+        address: Result<types::AdjustBorrowPositionWithEndUserAccountAddress, String>,
+        project_id: Result<Option<types::AdjustBorrowPositionWithEndUserAccountProjectId>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::AdjustBorrowPositionRequest, String>,
+    }
+    impl<'a> AdjustBorrowPositionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AdjustBorrowPositionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `AdjustBorrowPositionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AdjustBorrowPositionWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `AdjustBorrowPositionWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AdjustBorrowPositionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `AdjustBorrowPositionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AdjustBorrowPositionRequest>,
+            <V as std::convert::TryInto<types::AdjustBorrowPositionRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `AdjustBorrowPositionRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::AdjustBorrowPositionRequest,
+            ) -> types::builder::AdjustBorrowPositionRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/adjust`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmUserOperation>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::AdjustBorrowPositionRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/borrow-positions/adjust",
+                client.baseurl, encode_path(& user_id.to_string()), encode_path(& address
+                .to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "adjust_borrow_position_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::close_borrow_position_with_end_user_account`]
+
+    [`Client::close_borrow_position_with_end_user_account`]: super::Client::close_borrow_position_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct CloseBorrowPositionWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::CloseBorrowPositionWithEndUserAccountUserId, String>,
+        address: Result<types::CloseBorrowPositionWithEndUserAccountAddress, String>,
+        project_id: Result<Option<types::CloseBorrowPositionWithEndUserAccountProjectId>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::CloseBorrowPositionRequest, String>,
+    }
+    impl<'a> CloseBorrowPositionWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CloseBorrowPositionWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `CloseBorrowPositionWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CloseBorrowPositionWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `CloseBorrowPositionWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CloseBorrowPositionWithEndUserAccountProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `CloseBorrowPositionWithEndUserAccountProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CloseBorrowPositionRequest>,
+            <V as std::convert::TryInto<types::CloseBorrowPositionRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CloseBorrowPositionRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CloseBorrowPositionRequest,
+            ) -> types::builder::CloseBorrowPositionRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/close`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmUserOperation>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::CloseBorrowPositionRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/borrow-positions/close",
+                client.baseurl, encode_path(& user_id.to_string()), encode_path(& address
+                .to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "close_borrow_position_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::send_user_operation_with_end_user_account`]
 
     [`Client::send_user_operation_with_end_user_account`]: super::Client::send_user_operation_with_end_user_account*/
@@ -162762,6 +173137,140 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_user_operation_with_end_user_account`]
+
+    [`Client::get_user_operation_with_end_user_account`]: super::Client::get_user_operation_with_end_user_account*/
+    #[derive(Debug, Clone)]
+    pub struct GetUserOperationWithEndUserAccount<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::GetUserOperationWithEndUserAccountUserId, String>,
+        address: Result<types::GetUserOperationWithEndUserAccountAddress, String>,
+        user_op_hash: Result<types::GetUserOperationWithEndUserAccountUserOpHash, String>,
+        project_id: Result<Option<types::GetUserOperationWithEndUserAccountProjectId>, String>,
+    }
+    impl<'a> GetUserOperationWithEndUserAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                user_op_hash: Err("user_op_hash was not initialized".to_string()),
+                project_id: Ok(None),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetUserOperationWithEndUserAccountUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `GetUserOperationWithEndUserAccountUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetUserOperationWithEndUserAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `GetUserOperationWithEndUserAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn user_op_hash<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetUserOperationWithEndUserAccountUserOpHash>,
+        {
+            self.user_op_hash = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `GetUserOperationWithEndUserAccountUserOpHash` for user_op_hash failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetUserOperationWithEndUserAccountProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `GetUserOperationWithEndUserAccountProjectId` for project_id failed"
+                    .to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/user-operations/{userOpHash}`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EvmUserOperation>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                user_op_hash,
+                project_id,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let user_op_hash = user_op_hash.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let url =
+                format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/evm/smart-accounts/{}/user-operations/{}",
+                client.baseurl, encode_path(& user_id.to_string()), encode_path(& address
+                .to_string()), encode_path(& user_op_hash.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_user_operation_with_end_user_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(
@@ -164054,6 +174563,259 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_evm_borrow_products`]
+
+    [`Client::list_evm_borrow_products`]: super::Client::list_evm_borrow_products*/
+    #[derive(Debug, Clone)]
+    pub struct ListEvmBorrowProducts<'a> {
+        client: &'a super::Client,
+        network: Result<Option<types::BorrowProductNetwork>, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+        project_id: Result<Option<types::ListEvmBorrowProductsProjectId>, String>,
+        protocol: Result<Option<types::BorrowProductProtocol>, String>,
+    }
+    impl<'a> ListEvmBorrowProducts<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                network: Ok(None),
+                page_size: Ok(None),
+                page_token: Ok(None),
+                project_id: Ok(None),
+                protocol: Ok(None),
+            }
+        }
+        pub fn network<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BorrowProductNetwork>,
+        {
+            self.network = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `BorrowProductNetwork` for network failed".to_string());
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ListEvmBorrowProductsProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `ListEvmBorrowProductsProjectId` for project_id failed".to_string()
+            });
+            self
+        }
+        pub fn protocol<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BorrowProductProtocol>,
+        {
+            self.protocol = value.try_into().map(Some).map_err(|_| {
+                "conversion to `BorrowProductProtocol` for protocol failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/evm/borrow-products`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListEvmBorrowProductsResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                network,
+                page_size,
+                page_token,
+                project_id,
+                protocol,
+            } = self;
+            let network = network.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let protocol = protocol.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/evm/borrow-products",
+                client.baseurl,
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "protocol", &protocol,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_evm_borrow_products",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_evm_borrow_product`]
+
+    [`Client::get_evm_borrow_product`]: super::Client::get_evm_borrow_product*/
+    #[derive(Debug, Clone)]
+    pub struct GetEvmBorrowProduct<'a> {
+        client: &'a super::Client,
+        borrow_product_id: Result<types::BorrowProductId, String>,
+        project_id: Result<Option<types::GetEvmBorrowProductProjectId>, String>,
+    }
+    impl<'a> GetEvmBorrowProduct<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                borrow_product_id: Err("borrow_product_id was not initialized".to_string()),
+                project_id: Ok(None),
+            }
+        }
+        pub fn borrow_product_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BorrowProductId>,
+        {
+            self.borrow_product_id = value.try_into().map_err(|_| {
+                "conversion to `BorrowProductId` for borrow_product_id failed".to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::GetEvmBorrowProductProjectId>,
+        {
+            self.project_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `GetEvmBorrowProductProjectId` for project_id failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/embedded-wallet-api/evm/borrow-products/{borrowProductId}`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::BorrowProduct>, Error<types::Error>> {
+            let Self {
+                client,
+                borrow_product_id,
+                project_id,
+            } = self;
+            let borrow_product_id = borrow_product_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/evm/borrow-products/{}",
+                client.baseurl,
+                encode_path(&borrow_product_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_evm_borrow_product",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(

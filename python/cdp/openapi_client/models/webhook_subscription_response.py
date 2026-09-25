@@ -41,7 +41,7 @@ class WebhookSubscriptionResponse(BaseModel):
     secret: StrictStr = Field(description="Secret for webhook signature validation.")
     subscription_id: StrictStr = Field(description="Unique identifier for the subscription.", alias="subscriptionId")
     target: WebhookTarget
-    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs. Present when subscription uses multi-label format. ")
+    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Effective filters stored on the webhook subscription. The response includes client-supplied labels plus labels defaulted or injected by the server.  * `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`   include `network`. It defaults to `base-mainnet` when omitted from the request. * `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`. * `health.*` includes the requested `service`. * Project-scoped events include the authenticated `project`. * Entity-scoped events include the authenticated `entity`. * User-scoped events include the authenticated `user_uuid` and a `sandbox` value. ")
     __properties: ClassVar[List[str]] = ["createdAt", "updatedAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labels"]
 
     model_config = ConfigDict(
