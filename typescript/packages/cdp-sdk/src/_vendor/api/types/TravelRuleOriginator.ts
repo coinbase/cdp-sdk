@@ -6,11 +6,11 @@ import type * as CoinbaseApi from "../index.js";
  * Originator (sender) party.
  */
 export interface TravelRuleOriginator {
-    /** Name of the financial institution. */
-    financialInstitution?: string | undefined;
     /** Full name of the party. */
     name?: string | undefined;
     address?: CoinbaseApi.PhysicalAddress | undefined;
+    /** Name of the financial institution. */
+    financialInstitution?: string | undefined;
     /** Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers. */
     virtualAssetServiceProvider?: TravelRuleOriginator.VirtualAssetServiceProvider | undefined;
     /** Personal identifier for travel rule compliance. For individuals: passport number, national ID, or driver's license. For institutions: LEI (Legal Entity Identifier). */
@@ -24,11 +24,11 @@ export namespace TravelRuleOriginator {
      * Information about the originating Virtual Asset Service Provider (VASP) that handles cryptocurrency or other virtual assets on behalf of customers.
      */
     export interface VirtualAssetServiceProvider {
+        /** The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP). */
+        identifier?: string | undefined;
         /** The name of the originating Virtual Asset Service Provider (VASP). */
         name?: string | undefined;
         /** The address of the originating Virtual Asset Service Provider (VASP). */
         address?: CoinbaseApi.PhysicalAddress | undefined;
-        /** The Legal Entity Identifier of the originating Virtual Asset Service Provider (VASP). */
-        identifier?: string | undefined;
     }
 }

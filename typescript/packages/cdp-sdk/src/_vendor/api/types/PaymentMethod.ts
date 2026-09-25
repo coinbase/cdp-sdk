@@ -7,6 +7,7 @@ import type * as CoinbaseApi from "../index.js";
  */
 export interface PaymentMethod {
     /** The ID of the Payment Method. */
-    paymentMethodId: string;
+    paymentMethodId: CoinbaseApi.PaymentMethodId;
+    /** The asset symbol. Supported values are `usd` and `eur`. */
     asset: CoinbaseApi.Asset;
 }

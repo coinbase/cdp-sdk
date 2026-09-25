@@ -23,7 +23,7 @@ export namespace TransferDetails {
         export interface Item {
             /** The transaction hash. */
             transactionHash: string;
-            network: CoinbaseApi.Network;
+            network: CoinbaseApi.PaymentNetwork;
         }
     }
 

@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -108,7 +109,7 @@ public class AsyncWithRawResponseEndUserAccountManagementClient {
         QueryStringMapper.addQueryParameter(httpUrl, "pageToken", request.getPageToken().get(), false);
       }
       if (request.getSort().isPresent()) {
-        QueryStringMapper.addQueryParameter(httpUrl, "sort", request.getSort().get(), true);
+        QueryStringMapper.addQueryParameter(httpUrl, "sort", request.getSort().get().stream().map(String::valueOf).collect(Collectors.joining(",")), false);
       }
       if (requestOptions != null) {
         requestOptions.getQueryParameters().forEach((_key, _value) -> {

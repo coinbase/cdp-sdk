@@ -36,6 +36,7 @@ class TestSignSolanaTransactionRequest(unittest.TestCase):
         model = SignSolanaTransactionRequest()
         if include_optional:
             return SignSolanaTransactionRequest(
+                network = 'solana-devnet',
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA='
             )
         else:

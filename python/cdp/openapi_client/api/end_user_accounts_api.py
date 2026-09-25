@@ -17,14 +17,22 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, field_validator
+from pydantic import Field, StrictInt, StrictStr, field_validator
 from typing import Any, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.adjust_borrow_position_request import AdjustBorrowPositionRequest
+from cdp.openapi_client.models.borrow_product import BorrowProduct
+from cdp.openapi_client.models.borrow_product_network import BorrowProductNetwork
+from cdp.openapi_client.models.borrow_product_protocol import BorrowProductProtocol
+from cdp.openapi_client.models.close_borrow_position_request import CloseBorrowPositionRequest
+from cdp.openapi_client.models.create_borrow_position_request import CreateBorrowPositionRequest
 from cdp.openapi_client.models.create_delegation_for_end_user_account_request import CreateDelegationForEndUserAccountRequest
 from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account201_response import CreateEvmEip7702DelegationWithEndUserAccount201Response
 from cdp.openapi_client.models.create_evm_eip7702_delegation_with_end_user_account_request import CreateEvmEip7702DelegationWithEndUserAccountRequest
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.get_delegation_for_end_user200_response import GetDelegationForEndUser200Response
+from cdp.openapi_client.models.list_borrow_positions_with_end_user_account200_response import ListBorrowPositionsWithEndUserAccount200Response
+from cdp.openapi_client.models.list_evm_borrow_products200_response import ListEvmBorrowProducts200Response
 from cdp.openapi_client.models.revoke_delegation_for_end_user_request import RevokeDelegationForEndUserRequest
 from cdp.openapi_client.models.send_evm_asset_with_end_user_account200_response import SendEvmAssetWithEndUserAccount200Response
 from cdp.openapi_client.models.send_evm_asset_with_end_user_account_request import SendEvmAssetWithEndUserAccountRequest
@@ -63,6 +71,1089 @@ class EndUserAccountsApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    async def adjust_borrow_position_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to adjust the borrow position for.")],
+        adjust_borrow_position_request: AdjustBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmUserOperation:
+        """Adjust a borrow position for an end user smart account
+
+        Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account. The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token. A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required. A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to adjust the borrow position for. (required)
+        :type address: str
+        :param adjust_borrow_position_request: (required)
+        :type adjust_borrow_position_request: AdjustBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._adjust_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            adjust_borrow_position_request=adjust_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def adjust_borrow_position_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to adjust the borrow position for.")],
+        adjust_borrow_position_request: AdjustBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmUserOperation]:
+        """Adjust a borrow position for an end user smart account
+
+        Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account. The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token. A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required. A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to adjust the borrow position for. (required)
+        :type address: str
+        :param adjust_borrow_position_request: (required)
+        :type adjust_borrow_position_request: AdjustBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._adjust_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            adjust_borrow_position_request=adjust_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def adjust_borrow_position_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to adjust the borrow position for.")],
+        adjust_borrow_position_request: AdjustBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Adjust a borrow position for an end user smart account
+
+        Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account. The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token. A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required. A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to adjust the borrow position for. (required)
+        :type address: str
+        :param adjust_borrow_position_request: (required)
+        :type adjust_borrow_position_request: AdjustBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._adjust_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            adjust_borrow_position_request=adjust_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _adjust_borrow_position_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        adjust_borrow_position_request,
+        x_wallet_auth,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        # process the form parameters
+        # process the body parameter
+        if adjust_borrow_position_request is not None:
+            _body_params = adjust_borrow_position_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/adjust',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def close_borrow_position_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account that holds the borrow position.")],
+        close_borrow_position_request: CloseBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmUserOperation:
+        """Close a borrow position for an end user smart account
+
+        Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation. A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead. A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account that holds the borrow position. (required)
+        :type address: str
+        :param close_borrow_position_request: (required)
+        :type close_borrow_position_request: CloseBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._close_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            close_borrow_position_request=close_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def close_borrow_position_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account that holds the borrow position.")],
+        close_borrow_position_request: CloseBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmUserOperation]:
+        """Close a borrow position for an end user smart account
+
+        Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation. A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead. A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account that holds the borrow position. (required)
+        :type address: str
+        :param close_borrow_position_request: (required)
+        :type close_borrow_position_request: CloseBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._close_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            close_borrow_position_request=close_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def close_borrow_position_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account that holds the borrow position.")],
+        close_borrow_position_request: CloseBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Close a borrow position for an end user smart account
+
+        Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation. A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead. A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account that holds the borrow position. (required)
+        :type address: str
+        :param close_borrow_position_request: (required)
+        :type close_borrow_position_request: CloseBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._close_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            close_borrow_position_request=close_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _close_borrow_position_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        close_borrow_position_request,
+        x_wallet_auth,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        # process the form parameters
+        # process the body parameter
+        if close_borrow_position_request is not None:
+            _body_params = close_borrow_position_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/close',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def create_borrow_position_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to open the borrow position from.")],
+        create_borrow_position_request: CreateBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmUserOperation:
+        """Create a borrow position for an end user smart account
+
+        Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account. A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens. A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to open the borrow position from. (required)
+        :type address: str
+        :param create_borrow_position_request: (required)
+        :type create_borrow_position_request: CreateBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            create_borrow_position_request=create_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def create_borrow_position_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to open the borrow position from.")],
+        create_borrow_position_request: CreateBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmUserOperation]:
+        """Create a borrow position for an end user smart account
+
+        Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account. A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens. A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to open the borrow position from. (required)
+        :type address: str
+        :param create_borrow_position_request: (required)
+        :type create_borrow_position_request: CreateBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            create_borrow_position_request=create_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def create_borrow_position_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to open the borrow position from.")],
+        create_borrow_position_request: CreateBorrowPositionRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create a borrow position for an end user smart account
+
+        Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account. A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens. A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to open the borrow position from. (required)
+        :type address: str
+        :param create_borrow_position_request: (required)
+        :type create_borrow_position_request: CreateBorrowPositionRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_borrow_position_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            create_borrow_position_request=create_borrow_position_request,
+            x_wallet_auth=x_wallet_auth,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_borrow_position_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        create_borrow_position_request,
+        x_wallet_auth,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        # process the form parameters
+        # process the body parameter
+        if create_borrow_position_request is not None:
+            _body_params = create_borrow_position_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -1419,6 +2510,1319 @@ class EndUserAccountsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_evm_borrow_product(
+        self,
+        borrow_product_id: Annotated[str, Field(strict=True, description="The globally unique ID of the borrow product.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> BorrowProduct:
+        """Get a borrow product
+
+        Gets a single borrow product by its ID. The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+
+        :param borrow_product_id: The globally unique ID of the borrow product. (required)
+        :type borrow_product_id: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_borrow_product_serialize(
+            borrow_product_id=borrow_product_id,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "BorrowProduct",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_evm_borrow_product_with_http_info(
+        self,
+        borrow_product_id: Annotated[str, Field(strict=True, description="The globally unique ID of the borrow product.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[BorrowProduct]:
+        """Get a borrow product
+
+        Gets a single borrow product by its ID. The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+
+        :param borrow_product_id: The globally unique ID of the borrow product. (required)
+        :type borrow_product_id: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_borrow_product_serialize(
+            borrow_product_id=borrow_product_id,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "BorrowProduct",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_evm_borrow_product_without_preload_content(
+        self,
+        borrow_product_id: Annotated[str, Field(strict=True, description="The globally unique ID of the borrow product.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get a borrow product
+
+        Gets a single borrow product by its ID. The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+
+        :param borrow_product_id: The globally unique ID of the borrow product. (required)
+        :type borrow_product_id: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_borrow_product_serialize(
+            borrow_product_id=borrow_product_id,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "BorrowProduct",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_evm_borrow_product_serialize(
+        self,
+        borrow_product_id,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if borrow_product_id is not None:
+            _path_params['borrowProductId'] = borrow_product_id
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/embedded-wallet-api/evm/borrow-products/{borrowProductId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_user_operation_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the Smart Account the user operation belongs to.")],
+        user_op_hash: Annotated[str, Field(strict=True, description="The hash of the user operation to fetch.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmUserOperation:
+        """Get a user operation for end user EVM Smart Account
+
+        Gets a user operation by its hash for an end user's EVM Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the Smart Account the user operation belongs to. (required)
+        :type address: str
+        :param user_op_hash: The hash of the user operation to fetch. (required)
+        :type user_op_hash: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            user_op_hash=user_op_hash,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_user_operation_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the Smart Account the user operation belongs to.")],
+        user_op_hash: Annotated[str, Field(strict=True, description="The hash of the user operation to fetch.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmUserOperation]:
+        """Get a user operation for end user EVM Smart Account
+
+        Gets a user operation by its hash for an end user's EVM Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the Smart Account the user operation belongs to. (required)
+        :type address: str
+        :param user_op_hash: The hash of the user operation to fetch. (required)
+        :type user_op_hash: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            user_op_hash=user_op_hash,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_user_operation_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the Smart Account the user operation belongs to.")],
+        user_op_hash: Annotated[str, Field(strict=True, description="The hash of the user operation to fetch.")],
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get a user operation for end user EVM Smart Account
+
+        Gets a user operation by its hash for an end user's EVM Smart Account.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the Smart Account the user operation belongs to. (required)
+        :type address: str
+        :param user_op_hash: The hash of the user operation to fetch. (required)
+        :type user_op_hash: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_user_operation_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            user_op_hash=user_op_hash,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmUserOperation",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_user_operation_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        user_op_hash,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        if user_op_hash is not None:
+            _path_params['userOpHash'] = user_op_hash
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/user-operations/{userOpHash}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_borrow_positions_with_end_user_account(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to list borrow positions for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListBorrowPositionsWithEndUserAccount200Response:
+        """List borrow positions for an end user smart account
+
+        Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot. A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to list borrow positions for. (required)
+        :type address: str
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_borrow_positions_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            page_size=page_size,
+            page_token=page_token,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListBorrowPositionsWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_borrow_positions_with_end_user_account_with_http_info(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to list borrow positions for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListBorrowPositionsWithEndUserAccount200Response]:
+        """List borrow positions for an end user smart account
+
+        Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot. A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to list borrow positions for. (required)
+        :type address: str
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_borrow_positions_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            page_size=page_size,
+            page_token=page_token,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListBorrowPositionsWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_borrow_positions_with_end_user_account_without_preload_content(
+        self,
+        user_id: Annotated[str, Field(strict=True, description="The ID of the end user.")],
+        address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to list borrow positions for.")],
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List borrow positions for an end user smart account
+
+        Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot. A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+
+        :param user_id: The ID of the end user. (required)
+        :type user_id: str
+        :param address: The address of the EVM Smart Account to list borrow positions for. (required)
+        :type address: str
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_borrow_positions_with_end_user_account_serialize(
+            user_id=user_id,
+            address=address,
+            page_size=page_size,
+            page_token=page_token,
+            project_id=project_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListBorrowPositionsWithEndUserAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_borrow_positions_with_end_user_account_serialize(
+        self,
+        user_id,
+        address,
+        page_size,
+        page_token,
+        project_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if user_id is not None:
+            _path_params['userId'] = user_id
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        if page_size is not None:
+            
+            _query_params.append(('pageSize', page_size))
+            
+        if page_token is not None:
+            
+            _query_params.append(('pageToken', page_token))
+            
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_evm_borrow_products(
+        self,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        network: Annotated[Optional[BorrowProductNetwork], Field(description="The EVM network name to list borrow products for.")] = None,
+        protocol: Annotated[Optional[BorrowProductProtocol], Field(description="The lending protocol whose borrow products to list.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListEvmBorrowProducts200Response:
+        """List borrow products
+
+        Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param network: The EVM network name to list borrow products for.
+        :type network: BorrowProductNetwork
+        :param protocol: The lending protocol whose borrow products to list.
+        :type protocol: BorrowProductProtocol
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evm_borrow_products_serialize(
+            project_id=project_id,
+            network=network,
+            protocol=protocol,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvmBorrowProducts200Response",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_evm_borrow_products_with_http_info(
+        self,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        network: Annotated[Optional[BorrowProductNetwork], Field(description="The EVM network name to list borrow products for.")] = None,
+        protocol: Annotated[Optional[BorrowProductProtocol], Field(description="The lending protocol whose borrow products to list.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListEvmBorrowProducts200Response]:
+        """List borrow products
+
+        Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param network: The EVM network name to list borrow products for.
+        :type network: BorrowProductNetwork
+        :param protocol: The lending protocol whose borrow products to list.
+        :type protocol: BorrowProductProtocol
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evm_borrow_products_serialize(
+            project_id=project_id,
+            network=network,
+            protocol=protocol,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvmBorrowProducts200Response",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_evm_borrow_products_without_preload_content(
+        self,
+        project_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).")] = None,
+        network: Annotated[Optional[BorrowProductNetwork], Field(description="The EVM network name to list borrow products for.")] = None,
+        protocol: Annotated[Optional[BorrowProductProtocol], Field(description="The lending protocol whose borrow products to list.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List borrow products
+
+        Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+
+        :param project_id: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+        :type project_id: str
+        :param network: The EVM network name to list borrow products for.
+        :type network: BorrowProductNetwork
+        :param protocol: The lending protocol whose borrow products to list.
+        :type protocol: BorrowProductProtocol
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_evm_borrow_products_serialize(
+            project_id=project_id,
+            network=network,
+            protocol=protocol,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListEvmBorrowProducts200Response",
+            '400': "Error",
+            '401': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_evm_borrow_products_serialize(
+        self,
+        project_id,
+        network,
+        protocol,
+        page_size,
+        page_token,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if project_id is not None:
+            
+            _query_params.append(('projectID', project_id))
+            
+        if network is not None:
+            
+            _query_params.append(('network', network.value))
+            
+        if protocol is not None:
+            
+            _query_params.append(('protocol', protocol.value))
+            
+        if page_size is not None:
+            
+            _query_params.append(('pageSize', page_size))
+            
+        if page_token is not None:
+            
+            _query_params.append(('pageToken', page_token))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'endUserAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/embedded-wallet-api/evm/borrow-products',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

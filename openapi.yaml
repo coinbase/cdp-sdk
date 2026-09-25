@@ -109,7 +109,7 @@ tags:
           "routingNumber": "987654321",
           "accountNumber": "123456789",
           "bankAddress": "399 Park Avenue, New York, NY 10022",
-          "supportedRails": ["ach"]
+          "supportedRails": ["ach", "fedwire"]
         },
         "target": {
           "accountId": "account_af2937b0-9846-4fe7-bfe9-ccc22d935114",
@@ -1186,6 +1186,17 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: Account not found.
+        '409':
+          description: Account is still being provisioned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                account_not_ready:
+                  value:
+                    errorType: account_not_ready
+                    errorMessage: This account is still being provisioned. Please try again shortly.
         '500':
           description: Internal server error.
           content:
@@ -1637,7 +1648,7 @@ paths:
                           - versionId: us_individual_2026-05-29
                             languages:
                               - en
-                            url: https://docs.cdp.coinbase.com/legal/terms/us_individual
+                            url: https://www.coinbase.com/legal/user-agreements-third-party-provider
                     createdAt: '2026-01-10T14:25:00Z'
                     updatedAt: '2026-01-10T14:30:00Z'
                 nextPageToken: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
@@ -1652,6 +1663,144 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid request. Please check the request body and parameters.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/customers/requirements:
+    get:
+      summary: Get customer requirements
+      description: |
+        Preview the requirements a hypothetical customer of the given
+        `customerType` and jurisdiction would need to satisfy to enable the
+        requested `capabilities`, without creating a customer record.
+        Partner onboarding UIs can use this to render the collection flow
+        before any customer state exists.
+
+        Today this endpoint only previews the Terms of Service requirement:
+        the response's `RequirementsMap` will only ever contain a `tos` key.
+        Other requirement families (PII / CDD inputs) are not yet available
+        through this endpoint; use `POST /v2/customers` or
+        `PUT /v2/customers/{customerId}` to discover those via
+        `Customer.requirements`.
+
+        Only `customerType: individual` customers resident in or citizens
+        of the US are currently supported; every other combination returns
+        `400 invalid_request`.
+      operationId: getCustomerRequirements
+      x-audience: public
+      x-required-permissions:
+        permissions:
+          - customers:read@entity
+        enforcement: any
+      tags:
+        - Customers
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: customerType
+          in: query
+          required: true
+          description: The type of the hypothetical customer.
+          schema:
+            $ref: '#/components/schemas/CustomerType'
+          example: individual
+        - name: capabilities
+          in: query
+          required: true
+          description: |
+            The capabilities the hypothetical customer would request.
+            Repeat the parameter to specify multiple capabilities, for
+            example `capabilities=custodyCrypto&capabilities=transferCrypto`.
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            items:
+              $ref: '#/components/schemas/CapabilityName'
+          example:
+            - custodyCrypto
+            - transferCrypto
+        - name: countryCode
+          in: query
+          required: false
+          description: |
+            The hypothetical customer's country of residence. At least one
+            of `countryCode` or `citizenship` is required. When both are
+            present, `countryCode` takes precedence.
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+          example: US
+        - name: citizenship
+          in: query
+          required: false
+          description: |
+            The hypothetical customer's citizenship. At least one of
+            `countryCode` or `citizenship` is required.
+          schema:
+            $ref: '#/components/schemas/CountryCode'
+          example: US
+      responses:
+        '200':
+          description: Successfully previewed requirements.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementsMap'
+              example:
+                tos:
+                  status: due
+                  impact:
+                    - custodyCrypto
+                    - transferCrypto
+                  tosVersions:
+                    - versionId: us_individual_2026-05-29
+                      languages:
+                        - en
+                      url: https://www.coinbase.com/legal/user-agreements-third-party-provider
+        '400':
+          description: |-
+            Invalid request. Distinct causes include a missing required
+            parameter, both `countryCode` and `citizenship` omitted, an
+            unrecognized `capabilities` value, and a
+            `(customerType, jurisdiction)` combination that is not yet
+            supported (currently only `individual` customers resident in or
+            citizens of the US).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  summary: Generic invalid request
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request parameters.
+                missing_required_parameter:
+                  summary: Missing required `customerType`
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Query parameter 'customerType' is required.
+                unrecognized_capability:
+                  summary: Unrecognized `capabilities` value
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Unknown capability 'notACapability'.
+                missing_jurisdiction:
+                  summary: Neither `countryCode` nor `citizenship` provided
+                  value:
+                    errorType: invalid_request
+                    errorMessage: At least one of 'countryCode' or 'citizenship' is required.
+                unsupported_combination:
+                  summary: '`(customerType, jurisdiction)` combination is not yet supported'
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Requirements are not yet supported for customerType 'business' outside the US.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
@@ -1740,7 +1889,7 @@ paths:
                       - versionId: us_individual_2026-05-29
                         languages:
                           - en
-                        url: https://docs.cdp.coinbase.com/legal/terms/us_individual
+                        url: https://www.coinbase.com/legal/user-agreements-third-party-provider
                 createdAt: '2026-01-10T14:25:00Z'
                 updatedAt: '2026-01-10T14:30:00Z'
         '400':
@@ -2083,8 +2232,6 @@ paths:
                       - depositDestinationId: depositDestination_af2937b0-9846-4fe7-bfe9-ccc22d935114
                         accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                         type: crypto
-                        network: base
-                        address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                         crypto:
                           network: base
                           address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
@@ -2116,6 +2263,7 @@ paths:
                           bankAddress: 399 Park Avenue, New York, NY 10022
                           supportedRails:
                             - ach
+                            - fedwire
                         target:
                           accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                           asset: usdc
@@ -2226,7 +2374,6 @@ paths:
                   type: fiat
                   fiat:
                     currency: usd
-                    paymentRail: ach
                   target:
                     accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                     asset: usdc
@@ -2247,8 +2394,6 @@ paths:
                     depositDestinationId: depositDestination_af2937b0-9846-4fe7-bfe9-ccc22d935114
                     accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                     type: crypto
-                    network: base
-                    address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                     crypto:
                       network: base
                       address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
@@ -2279,6 +2424,7 @@ paths:
                       bankAddress: 399 Park Avenue, New York, NY 10022
                       supportedRails:
                         - ach
+                        - fedwire
                     target:
                       accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                       asset: usdc
@@ -2334,6 +2480,17 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: Account not found.
+        '409':
+          description: Account is still being provisioned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                account_not_ready:
+                  value:
+                    errorType: account_not_ready
+                    errorMessage: This account is still being provisioned. Please try again shortly.
         '422':
           $ref: '#/components/responses/IdempotencyError'
         '500':
@@ -2386,8 +2543,6 @@ paths:
                     depositDestinationId: depositDestination_af2937b0-9846-4fe7-bfe9-ccc22d935114
                     accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                     type: crypto
-                    network: base
-                    address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                     crypto:
                       network: base
                       address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
@@ -2418,6 +2573,7 @@ paths:
                       bankAddress: 399 Park Avenue, New York, NY 10022
                       supportedRails:
                         - ach
+                        - fedwire
                     target:
                       accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
                       asset: usdc
@@ -3699,10 +3855,16 @@ paths:
         - name: asset
           in: query
           required: false
-          description: Optional filter to restrict options to a specific asset.
+          description: Filter options by asset. Currently, only `usdc` and `usdt` return results.
           schema:
             $ref: '#/components/schemas/Asset'
-          example: usdc
+          examples:
+            usdc:
+              summary: Filter options for USDC.
+              value: usdc
+            usdt:
+              summary: Filter options for USDT.
+              value: usdt
       responses:
         '200':
           description: Successfully retrieved wallet authorization options.
@@ -6353,6 +6515,279 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/evm/borrow-products:
+    get:
+      x-audience: public
+      summary: List borrow products
+      description: |-
+        Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+        A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+      operationId: listEvmBorrowProducts
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIDOptional'
+        - name: network
+          in: query
+          required: false
+          description: The EVM network name to list borrow products for.
+          schema:
+            $ref: '#/components/schemas/BorrowProductNetwork'
+          example: base
+        - name: protocol
+          in: query
+          required: false
+          description: The lending protocol whose borrow products to list.
+          schema:
+            $ref: '#/components/schemas/BorrowProductProtocol'
+          example: morpho_blue
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
+      responses:
+        '200':
+          description: Successfully listed borrow products.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    description: Response containing a list of borrow products.
+                    required:
+                      - borrowProducts
+                    properties:
+                      borrowProducts:
+                        type: array
+                        description: The list of borrow products, optionally filtered by the supplied network and/or protocol.
+                        items:
+                          $ref: '#/components/schemas/BorrowProduct'
+                  - $ref: '#/components/schemas/ListResponse'
+              examples:
+                success:
+                  value:
+                    borrowProducts:
+                      - borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                        network: base
+                        name: mGLO / USDC
+                        venue:
+                          venueId: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+                          entrypointAddress: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                          name: Morpho Blue base-mainnet
+                        assets:
+                          - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+                            token:
+                              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                              symbol: USDC
+                              decimals: 6
+                            capabilities:
+                              - type: debt
+                                enabled: true
+                          - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+                            token:
+                              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                              symbol: mGLO
+                              decimals: 18
+                            capabilities:
+                              - type: collateral
+                                enabled: true
+                        snapshot:
+                          blockNumber: 49573788
+                          blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+                          blockTimestamp: 1785936923
+                          observedAt: '2026-08-10T20:37:34Z'
+                        protocolDetails:
+                          type: morpho_blue
+                          marketParams:
+                            onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+                            loanToken:
+                              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                              symbol: USDC
+                              decimals: 6
+                            collateralToken:
+                              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                              symbol: mGLO
+                              decimals: 18
+                            oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+                            interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+                            lltvBps: 9150
+                      - borrowProductId: bp_576a97bb-4ea4-5872-afcd-a6f62452fcbe
+                        network: base
+                        name: cbBTC / USDC
+                        venue:
+                          venueId: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+                          entrypointAddress: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                          name: Morpho Blue base-mainnet
+                        assets:
+                          - assetId: bp_asset_dc53459b-8146-50ec-83cf-361ca8d4f929
+                            token:
+                              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                              symbol: USDC
+                              decimals: 6
+                            capabilities:
+                              - type: debt
+                                enabled: true
+                          - assetId: bp_asset_15ecfce2-be4c-5665-8362-902c9d08e27d
+                            token:
+                              address: '0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf'
+                              symbol: cbBTC
+                              decimals: 8
+                            capabilities:
+                              - type: collateral
+                                enabled: true
+                        snapshot:
+                          blockNumber: 49573788
+                          blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+                          blockTimestamp: 1785936923
+                          observedAt: '2026-08-10T20:37:34Z'
+                        protocolDetails:
+                          type: morpho_blue
+                          marketParams:
+                            onchainMarketId: '0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836'
+                            loanToken:
+                              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                              symbol: USDC
+                              decimals: 6
+                            collateralToken:
+                              address: '0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf'
+                              symbol: cbBTC
+                              decimals: 8
+                            oracleAddress: '0x663becd10dae6c4a3dcd89f1d76c1174199639b9'
+                            interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+                            lltvBps: 8600
+                    nextPageToken: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid EVM network specified.
+                invalid_page_size:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Page size must be between 1 and 100.
+                invalid_page_token:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid page token format.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/evm/borrow-products/{borrowProductId}:
+    get:
+      x-audience: public
+      summary: Get a borrow product
+      description: |-
+        Gets a single borrow product by its ID.
+        The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+      operationId: getEvmBorrowProduct
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectIDOptional'
+        - name: borrowProductId
+          in: path
+          required: true
+          description: The globally unique ID of the borrow product.
+          schema:
+            $ref: '#/components/schemas/BorrowProductId'
+          example: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+      responses:
+        '200':
+          description: Successfully retrieved the borrow product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BorrowProduct'
+              examples:
+                success:
+                  value:
+                    borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                    network: base
+                    name: mGLO / USDC
+                    venue:
+                      venueId: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+                      entrypointAddress: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+                      name: Morpho Blue base-mainnet
+                    assets:
+                      - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+                        token:
+                          address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                          symbol: USDC
+                          decimals: 6
+                        capabilities:
+                          - type: debt
+                            enabled: true
+                      - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+                        token:
+                          address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                          symbol: mGLO
+                          decimals: 18
+                        capabilities:
+                          - type: collateral
+                            enabled: true
+                    snapshot:
+                      blockNumber: 49573788
+                      blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+                      blockTimestamp: 1785936923
+                      observedAt: '2026-08-10T20:37:34Z'
+                    protocolDetails:
+                      type: morpho_blue
+                      marketParams:
+                        onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+                        loanToken:
+                          address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                          symbol: USDC
+                          decimals: 6
+                        collateralToken:
+                          address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                          symbol: mGLO
+                          decimals: 18
+                        oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+                        interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+                        lltvBps: 9150
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid borrow product ID.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Borrow product not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/embedded-wallet-api/end-users/{userId}/evm/sign/transaction:
     post:
       x-audience: public
@@ -7537,6 +7972,79 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/user-operations/{userOpHash}:
+    get:
+      x-audience: public
+      summary: Get a user operation for end user EVM Smart Account
+      description: Gets a user operation by its hash for an end user's EVM Smart Account.
+      operationId: getUserOperationWithEndUserAccount
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the Smart Account the user operation belongs to.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: userOpHash
+          description: The hash of the user operation to fetch.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{64}$
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      responses:
+        '200':
+          description: Successfully retrieved the user operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: User operation not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/send:
     post:
       x-audience: public
@@ -7661,6 +8169,486 @@ paths:
                   value:
                     errorType: rate_limit_exceeded
                     errorMessage: Max concurrent user operations reached.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions:
+    get:
+      x-audience: public
+      summary: List borrow positions for an end user smart account
+      description: |-
+        Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+        A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+      operationId: listBorrowPositionsWithEndUserAccount
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the EVM Smart Account to list borrow positions for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      responses:
+        '200':
+          description: Successfully listed borrow positions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    description: Response containing a list of borrow positions.
+                    required:
+                      - borrowPositions
+                    properties:
+                      borrowPositions:
+                        type: array
+                        description: The borrow positions held by the smart account.
+                        items:
+                          $ref: '#/components/schemas/BorrowPosition'
+                  - $ref: '#/components/schemas/ListResponse'
+              examples:
+                success:
+                  value:
+                    borrowPositions:
+                      - borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                        address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        network: base
+                        snapshot:
+                          blockNumber: 49573788
+                          blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+                          blockTimestamp: 1785936923
+                          observedAt: '2026-08-10T20:37:34Z'
+                        onchainState:
+                          type: morpho_blue
+                          collateral:
+                            - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+                              token:
+                                address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                                symbol: mGLO
+                                decimals: 18
+                              amount: '5000'
+                          debt:
+                            - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+                              token:
+                                address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                                symbol: USDC
+                                decimals: 6
+                              amount: '1003.5'
+                              borrowApyBps: 525
+                          healthFactor: '1.79'
+                          currentLtvBps: 5000
+                          liquidationThresholdBps: 8250
+                          healthStatus: healthy
+                    nextPageToken: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid smart account address.
+                invalid_page_size:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Page size must be between 1 and 100.
+                invalid_page_token:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid page token format.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                smart_account_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found for this end user.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    post:
+      x-audience: public
+      summary: Create a borrow position for an end user smart account
+      description: |-
+        Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+        A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The `borrowProductId` identifies the product to borrow against, and the `collateralAmount` and `loanAmount` specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+        A user operation is broadcast to open the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+      operationId: createBorrowPositionWithEndUserAccount
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the EVM Smart Account to open the borrow position from.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBorrowPositionRequest'
+            examples:
+              create_borrow_position:
+                value:
+                  borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                  collateralAmount: '1'
+                  loanAmount: '100'
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpPaymaster: false
+                  paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+      responses:
+        '200':
+          description: Successfully created the borrow position and broadcast the user operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: collateralAmount is required and must be a valid decimal string.
+                conflicting_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both useCdpPaymaster and custom paymasterUrl
+                    errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                borrow_product_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Borrow product not found.
+                end_user_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user not found.
+                smart_account_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found for this end user.
+        '409':
+          description: Conflict. A borrow position already exists, or another borrow position operation is already in progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                position_already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A borrow position already exists for this account on borrow product 'bp_07fb56c0-9afe-5440-8ff2-5b0e115458df'.
+                operation_in_progress:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A borrow position operation for this account and product is already in progress. In-progress operations typically complete in under 30 seconds. Please wait for it to complete before retrying.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/adjust:
+    post:
+      x-audience: public
+      summary: Adjust a borrow position for an end user smart account
+      description: |-
+        Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+        The `borrowProductId` identifies the product whose position to adjust, and the `addCollateralAmount`, `removeCollateralAmount`, `repayLoanAmount`, and `borrowLoanAmount` fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+        A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+        A user operation is broadcast to adjust the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+      operationId: adjustBorrowPositionWithEndUserAccount
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the EVM Smart Account to adjust the borrow position for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdjustBorrowPositionRequest'
+            examples:
+              add_collateral_and_borrow:
+                value:
+                  borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                  addCollateralAmount: '1'
+                  borrowLoanAmount: '100'
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpPaymaster: false
+                  paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+              remove_collateral_and_repay:
+                value:
+                  borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                  removeCollateralAmount: '0.5'
+                  repayLoanAmount: '50'
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpPaymaster: false
+                  paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+      responses:
+        '200':
+          description: Successfully broadcast the user operation to adjust the borrow position.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_operation:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: At least one of addCollateralAmount, removeCollateralAmount, repayLoanAmount, or borrowLoanAmount must be supplied.
+                conflicting_collateral_operations:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both addCollateralAmount and removeCollateralAmount.
+                conflicting_debt_operations:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both repayLoanAmount and borrowLoanAmount.
+                invalid_amount:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: addCollateralAmount must be a valid decimal string.
+                conflicting_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both useCdpPaymaster and custom paymasterUrl
+                    errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                borrow_product_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Borrow product not found.
+                borrow_position_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: No borrow position exists for this account on borrow product 'bp_07fb56c0-9afe-5440-8ff2-5b0e115458df'.
+                end_user_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user not found.
+                smart_account_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found for this end user.
+        '409':
+          description: Conflict. A borrow position operation for this account and product is already in progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                operation_in_progress:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A borrow position operation for this account and product is already in progress. In-progress operations typically complete in under 30 seconds. Please wait for it to complete before retrying.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/embedded-wallet-api/end-users/{userId}/evm/smart-accounts/{address}/borrow-positions/close:
+    post:
+      x-audience: public
+      summary: Close a borrow position for an end user smart account
+      description: |-
+        Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+        A borrow position is identified by the smart account `address` and the `borrowProductId` in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use `adjustBorrowPositionWithEndUserAccount` instead.
+        A user operation is broadcast to close the position onchain. Poll `getUserOperationWithEndUserAccount` with the returned `userOpHash` until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+      operationId: closeBorrowPositionWithEndUserAccount
+      tags:
+        - End User Accounts
+      security:
+        - endUserAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - name: address
+          description: The address of the EVM Smart Account that holds the borrow position.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - $ref: '#/components/parameters/ProjectIDOptional'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseBorrowPositionRequest'
+            examples:
+              close_borrow_position:
+                value:
+                  borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+                  walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+                  useCdpPaymaster: false
+                  paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+      responses:
+        '200':
+          description: Successfully broadcast the user operation to close the borrow position.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid smart account address.
+                conflicting_paymaster:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Cannot specify both useCdpPaymaster and custom paymasterUrl
+                    errorLink: https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts#gas-sponsorship-with-paymaster
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                borrow_position_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Borrow position not found for this account on borrow product 'bp_07fb56c0-9afe-5440-8ff2-5b0e115458df'.
+                end_user_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user not found.
+                smart_account_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found for this end user.
+        '409':
+          description: Conflict. A borrow position operation for this account and product is already in progress.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                operation_in_progress:
+                  value:
+                    errorType: already_exists
+                    errorMessage: A borrow position operation for this account and product is already in progress. In-progress operations typically complete in under 30 seconds. Please wait for it to complete before retrying.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -7810,6 +8798,13 @@ paths:
                   description: The base58 encoded address of the Solana account belonging to the end user.
                   example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
                   pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+                network:
+                  type: string
+                  description: The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
                 transaction:
                   type: string
                   description: The base64 encoded transaction to sign.
@@ -7847,6 +8842,10 @@ paths:
                   value:
                     errorType: malformed_transaction
                     errorMessage: Malformed unsigned transaction.
+                network_required_for_address_lookup_tables:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: network is required to sign transactions that reference address lookup tables.
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '402':
@@ -11105,10 +12104,7 @@ paths:
                   pattern: ^[A-Za-z0-9 ,.]{1,50}$
                   example: Default policy
                 rules:
-                  type: array
-                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-                  items:
-                    $ref: '#/components/schemas/Rule'
+                  $ref: '#/components/schemas/PolicyRules'
               required:
                 - scope
                 - rules
@@ -11275,10 +12271,7 @@ paths:
                   pattern: ^[A-Za-z0-9 ,.]{1,50}$
                   example: Default policy
                 rules:
-                  type: array
-                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
-                  items:
-                    $ref: '#/components/schemas/Rule'
+                  $ref: '#/components/schemas/PolicyRules'
               required:
                 - rules
       responses:
@@ -11930,6 +12923,13 @@ paths:
             schema:
               type: object
               properties:
+                network:
+                  type: string
+                  description: The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
                 transaction:
                   type: string
                   description: The base64 encoded transaction to sign.
@@ -11961,6 +12961,10 @@ paths:
                   value:
                     errorType: malformed_transaction
                     errorMessage: Malformed unsigned transaction.
+                network_required_for_address_lookup_tables:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: network is required to sign transactions that reference address lookup tables.
         '401':
           description: Unauthorized.
           content:
@@ -12040,6 +13044,13 @@ paths:
                   type: string
                   description: The arbitrary message to sign.
                   example: Hello, world!
+                encoding:
+                  type: string
+                  description: The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+                  enum:
+                    - utf8
+                    - base64
+                  example: utf8
               required:
                 - message
       responses:
@@ -12063,10 +13074,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
-                invalid_request:
+                invalid_base64:
                   value:
                     errorType: invalid_request
-                    errorMessage: 'request body has an error: doesn''t match schema: Error at "message": string doesn''t match the regular expression "^0x[0-9a-fA-F]{40}$".'
+                    errorMessage: 'Unable to decode message as base64: illegal base64 data at input byte 3'
         '401':
           description: Unauthorized.
           content:
@@ -12894,22 +13905,7 @@ paths:
           - accounts:write@entity
         enforcement: any
       description: |
-        Subscribe to real-time events across CDP products.
-
-        ### Filtering
-
-        Onchain events can utilize multi-label filtering to only receive events that match all the specified labels.
-
-        Allows labels are:
-        - `network` (required) — Blockchain network
-        - `contract_address` — Smart contract address
-        - `event_name` — Event name (e.g., "Transfer", "Burn")
-        - `event_signature` — Event signature (e.g., "Transfer(address,address,uint256)")
-        - `transaction_from` — Transaction sender address
-        - `transaction_to` — Transaction recipient address
-        - `params.*` — Any event parameter from the log event (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-
-        For webhook types that aren't `onchain.*`, labels are ignored.
+        Subscribe to real-time events across CDP products. A webhook subscription provides a `targetURL` and other relevant endpoint configuration to enable receiving webhooks when events occur.
 
         ### Webhook Signature Verification
 
@@ -12954,6 +13950,17 @@ paths:
                   target:
                     url: https://api.example.com/webhooks
                   isEnabled: true
+              health_status_updates:
+                summary: 'Health: Monitor webhook service status'
+                value:
+                  description: Webhook service status updates.
+                  eventTypes:
+                    - health.status.updated
+                  labels:
+                    service: webhooks
+                  target:
+                    url: https://api.example.com/webhooks
+                  isEnabled: true
       responses:
         '201':
           description: Webhook subscription created successfully.
@@ -12972,10 +13979,62 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Target URL must be a valid HTTPS endpoint.
-                invalid_event_types:
+                labels_required:
                   value:
                     errorType: invalid_request
-                    errorMessage: Event types must be non-empty and contain valid event type names.
+                    errorMessage: '''labels'' is required.'
+                required_label:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.contract_address'' is required.'
+                unsupported_label_value:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.network'' contains an unsupported value.'
+                unsupported_label:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.unknown'' is not supported.'
+                too_many_labels:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels'' accepts at most 20 properties.'
+                labels_schema_mismatch:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels'' must match one of the allowed schemas.'
+                invalid_label_format:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.wallet_addresses'' has an invalid format.'
+                label_too_long:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.wallet_addresses'' must contain at most 4299 characters.'
+                labels_not_allowed:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: request body does not satisfy the allowed schema.
+                unsupported_event_type:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''eventTypes.0'' contains an unsupported value.'
+                invalid_metadata_key:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata'' contains an invalid property name.'
+                metadata_value_too_short:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata.key'' must contain at least 1 character.'
+                metadata_value_too_long:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata.key'' must contain at most 50 characters.'
+                too_many_metadata_entries:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata'' accepts at most 10 properties.'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '429':
@@ -13112,10 +14171,62 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Target URL must be a valid HTTPS endpoint.
-                invalid_event_types:
+                labels_required:
                   value:
                     errorType: invalid_request
-                    errorMessage: Event types must be non-empty and contain valid event type names.
+                    errorMessage: '''labels'' is required.'
+                required_label:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.contract_address'' is required.'
+                unsupported_label_value:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.network'' contains an unsupported value.'
+                unsupported_label:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.unknown'' is not supported.'
+                too_many_labels:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels'' accepts at most 20 properties.'
+                labels_schema_mismatch:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels'' must match one of the allowed schemas.'
+                invalid_label_format:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.wallet_addresses'' has an invalid format.'
+                label_too_long:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''labels.wallet_addresses'' must contain at most 4299 characters.'
+                labels_not_allowed:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: request body does not satisfy the allowed schema.
+                unsupported_event_type:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''eventTypes.0'' contains an unsupported value.'
+                invalid_metadata_key:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata'' contains an invalid property name.'
+                metadata_value_too_short:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata.key'' must contain at least 1 character.'
+                metadata_value_too_long:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata.key'' must contain at most 50 characters.'
+                too_many_metadata_entries:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: '''metadata'' accepts at most 10 properties.'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -14096,9 +15207,9 @@ paths:
                   example: order-1234
                 partnerUserRef:
                   description: |-
-                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+                    A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with "sandbox-" (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration without any real transfer of funds.
 
-                    This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+                    This value can be used with the [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
                   type: string
                   example: user-1234
                 paymentAmount:
@@ -16257,6 +17368,15 @@ components:
         type: string
         pattern: ^[a-zA-Z0-9-]{1,100}$
       example: e051beeb-7163-4527-a5b6-35e301529ff2
+    ProjectIDOptional:
+      name: projectID
+      in: query
+      required: false
+      description: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+      schema:
+        type: string
+        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+        example: 8e03978e-40d5-43e8-bc93-6894a57f9324
     XWalletAuthOptional:
       name: X-Wallet-Auth
       in: header
@@ -16279,15 +17399,6 @@ components:
       schema:
         type: string
       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
-    ProjectIDOptional:
-      name: projectID
-      in: query
-      required: false
-      description: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
-      schema:
-        type: string
-        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-        example: 8e03978e-40d5-43e8-bc93-6894a57f9324
   schemas:
     AccountType:
       type: string
@@ -16384,6 +17495,7 @@ components:
         - invalid_signature
         - malformed_transaction
         - not_found
+        - operation_in_progress
         - payment_method_required
         - payment_required
         - settlement_failed
@@ -16432,6 +17544,7 @@ components:
         - asset_mismatch
         - mfa_already_enrolled
         - mfa_invalid_code
+        - mfa_challenge_not_found
         - mfa_flow_expired
         - mfa_required
         - mfa_not_enrolled
@@ -16655,6 +17768,18 @@ components:
           - Mistyped addresses
           - Accessing resources from the wrong CDP project
           - Resource was deleted or hasn't been created yet
+        operation_in_progress: |-
+          This error occurs when another operation of the same kind is already in progress for
+          the resource, and the request must wait for it to complete.
+
+          **Steps to resolve:**
+          1. Wait for the in-progress operation to complete (typically under 30 seconds)
+          2. Once complete, use the resource's GET endpoint to read its state instead of
+             retrying the create
+
+          **Common causes:**
+          - Retrying a create whose previous attempt is still being processed
+          - Concurrent duplicate requests for the same resource
         payment_method_required: |-
           This error occurs when a payment method is required to complete the requested operation but none is configured or available.
 
@@ -16922,6 +18047,16 @@ components:
           - Using an expired TOTP code
           - Device clock drift on user's authenticator app
           - Attempting to reuse a previously submitted code
+        mfa_challenge_not_found: |-
+          This error occurs when the challenge named by `X-Mfa-Challenge-Id` is unknown to the server or was already consumed by a failed submit attempt. This is distinct from `mfa_flow_expired`, which indicates the flow timed out.
+
+          **Possible resolutions**
+          - Pass the exact challenge ID from the `X-Mfa-Challenge-Id` header of the prior `403 mfa_required` response
+          - If the user failed MFA verification (e.g. by entering the wrong OTP), re-initiate the MFA flow to obtain a fresh challenge
+
+          **Common causes:**
+          - Reusing a challenge after a failed submit attempt
+          - A client bug sending a challenge from a different flow or user
         mfa_flow_expired: |-
           This error occurs when the MFA enrollment or verification session has expired.
 
@@ -17773,11 +18908,11 @@ components:
           description: |
             Canonical, language-agnostic URL where the Terms of Service
             document is hosted (for example,
-            `https://docs.cdp.coinbase.com/legal/terms/us_individual`).
+            `https://www.coinbase.com/legal/user-agreements-third-party-provider`).
             Append `?lang=<tag>` (where `<tag>` is one of `languages`) to
             retrieve a specific translation; without the parameter, the
             documentation site renders a default translation.
-          example: https://docs.cdp.coinbase.com/legal/terms/us_individual
+          example: https://www.coinbase.com/legal/user-agreements-third-party-provider
       required:
         - versionId
         - languages
@@ -17786,7 +18921,7 @@ components:
         versionId: us_individual_2026-05-29
         languages:
           - en
-        url: https://docs.cdp.coinbase.com/legal/terms/us_individual
+        url: https://www.coinbase.com/legal/user-agreements-third-party-provider
     TaxForm:
       type: string
       description: |
@@ -17849,7 +18984,7 @@ components:
             - versionId: us_individual_2026-05-29
               languages:
                 - en
-              url: https://docs.cdp.coinbase.com/legal/terms/us_individual
+              url: https://www.coinbase.com/legal/user-agreements-third-party-provider
         taxForms:
           type: array
           description: |
@@ -17913,7 +19048,7 @@ components:
             - versionId: us_individual_2026-05-29
               languages:
                 - en
-              url: https://docs.cdp.coinbase.com/legal/terms/us_individual
+              url: https://www.coinbase.com/legal/user-agreements-third-party-provider
         taxAttestation:
           status: due
           impact:
@@ -18781,6 +19916,12 @@ components:
           reference: order-12345
         createdAt: '2023-10-08T14:30:00Z'
         updatedAt: '2023-10-08T14:30:00Z'
+    FiatAccountNumber:
+      x-audience: public
+      type: string
+      description: The bank account number.
+      pattern: ^[0-9]{4,17}$
+      example: '123456789'
     DepositDestinationPaymentRail:
       type: string
       description: A payment rail supported by a fiat deposit destination.
@@ -18818,10 +19959,7 @@ components:
           pattern: ^[0-9]{9}$
           example: '987654321'
         accountNumber:
-          type: string
-          description: The bank account number.
-          pattern: ^[0-9]{4,17}$
-          example: '123456789'
+          $ref: '#/components/schemas/FiatAccountNumber'
         bankAddress:
           type: string
           description: The address of the bank. Present when required by the receiving institution.
@@ -18837,6 +19975,7 @@ components:
             $ref: '#/components/schemas/DepositDestinationPaymentRail'
           example:
             - ach
+            - fedwire
       required:
         - accountType
         - currency
@@ -18855,6 +19994,7 @@ components:
         bankAddress: 399 Park Avenue, New York, NY 10022
         supportedRails:
           - ach
+          - fedwire
     DepositDestinationFiat:
       x-audience: public
       description: Fiat bank account details for a deposit destination. The `accountType` field indicates the account identification scheme and determines which fields are present.
@@ -18921,6 +20061,7 @@ components:
           bankAddress: 399 Park Avenue, New York, NY 10022
           supportedRails:
             - ach
+            - fedwire
         target:
           accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
           asset: usdc
@@ -18990,6 +20131,7 @@ components:
               description: Crypto-specific details. Required when `type` is `crypto`.
           required:
             - crypto
+      description: Request to create a new crypto deposit destination. Provide the crypto-specific details.
       example:
         accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
         type: crypto
@@ -19042,7 +20184,6 @@ components:
         type: fiat
         fiat:
           currency: usd
-          paymentRail: ach
         target:
           accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
           asset: usdc
@@ -19205,6 +20346,7 @@ components:
           - Payment for services rendered
     TransferSource:
       description: The source of the transfer.
+      x-oneof-no-discriminator: 'Field-presence union: each variant is identified by its own required fields; the account and deposit-source variants share no discriminator property.'
       oneOf:
         - $ref: '#/components/schemas/transfers_Account'
         - $ref: '#/components/schemas/PaymentMethod'
@@ -22480,6 +23622,347 @@ components:
         - solanaAccounts
         - solanaAccountObjects
         - createdAt
+    BorrowProductNetwork:
+      type: string
+      description: The name of the EVM network that a borrow product is deployed on.
+      enum:
+        - base
+      example: base
+    BorrowProductProtocol:
+      type: string
+      description: The lending protocol that operates the borrow product.
+      enum:
+        - morpho_blue
+      example: morpho_blue
+    BorrowProductId:
+      type: string
+      pattern: ^bp_[a-f0-9-]{36}$
+      description: The globally unique ID of the borrow product, which is a UUID prefixed with the string `bp_`.
+      example: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+    BorrowProductVenue:
+      type: object
+      description: The onchain venue that hosts a borrow product. The venue comprises the protocol and  network the product is deployed on. An example of a venue would be Morpho Blue on  Base Mainnet.
+      example:
+        venueId: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+        entrypointAddress: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+        name: Morpho Blue base-mainnet
+      properties:
+        venueId:
+          type: string
+          pattern: ^bp_venue_[a-f0-9-]{36}$
+          description: A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
+          example: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+        entrypointAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The contract address of the venue's entrypoint.
+          example: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+        name:
+          type: string
+          description: A human-readable name for the venue.
+          example: Morpho Blue base-mainnet
+      required:
+        - venueId
+        - entrypointAddress
+        - name
+    BorrowProductToken:
+      type: object
+      description: A token on an EVM borrow product network.
+      example:
+        address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+        symbol: USDC
+        decimals: 6
+      properties:
+        address:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The contract address of the token.
+          example: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+        symbol:
+          type: string
+          description: The symbol of the token (e.g. USDC, WETH).
+          example: USDC
+        decimals:
+          type: integer
+          format: int64
+          description: The number of decimal places used by the token.
+          example: 6
+      required:
+        - address
+        - symbol
+        - decimals
+    BorrowProductAssetCapability:
+      type: object
+      description: A capability an asset provides within a borrow product, describing the role the asset plays, either as collateral or debt, and whether that capability is currently active.
+      example:
+        type: collateral
+        enabled: true
+      properties:
+        type:
+          type: string
+          enum:
+            - collateral
+            - debt
+          description: The role the asset plays within the product. `collateral` indicates the asset can be posted as collateral, and `debt` indicates the asset can be borrowed.
+          example: collateral
+        enabled:
+          type: boolean
+          description: |-
+            Whether this capability is currently active. For example, an asset with a `collateral` capability and `enabled: false` cannot currently be borrowed against.
+            Some venues may temporarily disable an asset's capability, which will be  reflected in the `enabled` field. This would not affect any user's existing  borrow positions.
+          example: true
+      required:
+        - type
+        - enabled
+    BorrowProductAsset:
+      type: object
+      description: The assets available to be borrowed or borrowed against in this market, together with the capabilities (collateral and/or debt) they provide.
+      example:
+        assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+        token:
+          address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+          symbol: mGLO
+          decimals: 18
+        capabilities:
+          - type: collateral
+            enabled: true
+      properties:
+        assetId:
+          type: string
+          pattern: ^bp_asset_[a-f0-9-]{36}$
+          description: A stable identifier for the asset within the product, which is a UUID prefixed with the string `bp_asset_`.
+          example: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+        token:
+          $ref: '#/components/schemas/BorrowProductToken'
+          description: The onchain token that can be used as collateral or debt.
+        capabilities:
+          type: array
+          minItems: 1
+          description: The capabilities this asset provides within the borrow product. An asset may be used as collateral and/or debt.
+          items:
+            $ref: '#/components/schemas/BorrowProductAssetCapability'
+      required:
+        - assetId
+        - token
+        - capabilities
+    BorrowProductSnapshot:
+      type: object
+      description: The point-in-time at which onchain state, such as a borrow product or borrow position, was captured. This is when the data was last read from the chain.
+      example:
+        blockNumber: 49573788
+        blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+        blockTimestamp: 1785936923
+        observedAt: '2026-08-10T20:37:34Z'
+      properties:
+        blockNumber:
+          type: integer
+          format: int64
+          description: The block number at which the state was observed.
+          example: 49573788
+        blockHash:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$
+          description: The hash of the block at which the state was observed.
+          example: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+        blockTimestamp:
+          type: integer
+          format: int64
+          description: The onchain block timestamp at which the state was observed in Unix seconds.
+          example: 1785936923
+        observedAt:
+          type: string
+          format: date-time
+          description: The timestamp at which the state was observed.
+          example: '2026-08-10T20:37:34Z'
+      required:
+        - blockNumber
+        - blockHash
+        - blockTimestamp
+        - observedAt
+    MorphoBlueMarketParams:
+      type: object
+      description: Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
+      example:
+        onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+        loanToken:
+          address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+          symbol: USDC
+          decimals: 6
+        collateralToken:
+          address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+          symbol: mGLO
+          decimals: 18
+        oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+        interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+        lltvBps: 9150
+      properties:
+        onchainMarketId:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$
+          description: The Morpho Blue native bytes32 market ID that uniquely identifies  the underlying market onchain.
+          example: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+        loanToken:
+          $ref: '#/components/schemas/BorrowProductToken'
+          description: The token that is borrowed in the product.
+        collateralToken:
+          $ref: '#/components/schemas/BorrowProductToken'
+          description: The token posted as collateral in the product.
+        oracleAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The contract address of the oracle used to price the collateral token against the loan token.
+          example: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+        interestRateModelAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The contract address of the interest rate model that governs the product's borrow rate.
+          example: '0x46415998764c29ab2a25cbea6254146d50d22687'
+        lltvBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: The liquidation loan-to-value of the product, expressed in basis points. For example, `9150` represents an LLTV of 91.5%.
+          example: 9150
+      required:
+        - onchainMarketId
+        - loanToken
+        - collateralToken
+        - oracleAddress
+        - interestRateModelAddress
+        - lltvBps
+    MorphoBlueProtocolDetails:
+      type: object
+      description: Morpho Blue-specific immutable onchain protocol details that uniquely define a borrow product.
+      example:
+        type: morpho_blue
+        marketParams:
+          onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+          loanToken:
+            address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+            symbol: USDC
+            decimals: 6
+          collateralToken:
+            address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+            symbol: mGLO
+            decimals: 18
+          oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+          interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+          lltvBps: 9150
+      properties:
+        type:
+          type: string
+          description: The protocol type, used to discriminate the protocol details schema.
+          enum:
+            - morpho_blue
+          example: morpho_blue
+        marketParams:
+          $ref: '#/components/schemas/MorphoBlueMarketParams'
+          description: The Morpho Blue market parameters that uniquely define the product onchain.
+      required:
+        - type
+        - marketParams
+    BorrowProductProtocolDetails:
+      description: Protocol-specific immutable onchain details that uniquely define a borrow product. The `type` field indicates which protocol-specific schema describes the product's details.
+      oneOf:
+        - title: Morpho Blue
+          $ref: '#/components/schemas/MorphoBlueProtocolDetails'
+      discriminator:
+        propertyName: type
+        mapping:
+          morpho_blue: '#/components/schemas/MorphoBlueProtocolDetails'
+      example:
+        type: morpho_blue
+        marketParams:
+          onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+          loanToken:
+            address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+            symbol: USDC
+            decimals: 6
+          collateralToken:
+            address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+            symbol: mGLO
+            decimals: 18
+          oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+          interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+          lltvBps: 9150
+    BorrowProduct:
+      type: object
+      description: |-
+        A borrow product on an EVM network, operated by a lending protocol such as Morpho Blue. 
+        A borrow product is a protocol-native representation of a borrowable market,  describing the venue that hosts it, the assets that are borrowed or borrowed against  in it, a point-in-time snapshot of its onchain state, and the protocol-specific  immutable parameters that uniquely define it.
+      example:
+        borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+        network: base
+        name: mGLO / USDC
+        venue:
+          venueId: bp_venue_2978db31-f1ff-570f-8329-6e37d6cae04e
+          entrypointAddress: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb'
+          name: Morpho Blue base-mainnet
+        assets:
+          - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+            token:
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+              symbol: USDC
+              decimals: 6
+            capabilities:
+              - type: debt
+                enabled: true
+          - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+            token:
+              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+              symbol: mGLO
+              decimals: 18
+            capabilities:
+              - type: collateral
+                enabled: true
+        snapshot:
+          blockNumber: 49573788
+          blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+          blockTimestamp: 1785936923
+          observedAt: '2026-08-10T20:37:34Z'
+        protocolDetails:
+          type: morpho_blue
+          marketParams:
+            onchainMarketId: '0x29ae7ac08be3a58e11151fed74701fb8e6ffd8e76b1870cf17ad70f332752d0b'
+            loanToken:
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+              symbol: USDC
+              decimals: 6
+            collateralToken:
+              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+              symbol: mGLO
+              decimals: 18
+            oracleAddress: '0x182e072f2c9c58c6f19f144c97986f7496c6a109'
+            interestRateModelAddress: '0x46415998764c29ab2a25cbea6254146d50d22687'
+            lltvBps: 9150
+      properties:
+        borrowProductId:
+          $ref: '#/components/schemas/BorrowProductId'
+        network:
+          $ref: '#/components/schemas/BorrowProductNetwork'
+        name:
+          type: string
+          description: A human-readable name for the product, typically derived from its loan and collateral tokens.
+          example: mGLO / USDC
+        venue:
+          $ref: '#/components/schemas/BorrowProductVenue'
+        assets:
+          type: array
+          description: The assets available to be borrowed or borrowed against in this market.
+          items:
+            $ref: '#/components/schemas/BorrowProductAsset'
+        snapshot:
+          $ref: '#/components/schemas/BorrowProductSnapshot'
+        protocolDetails:
+          $ref: '#/components/schemas/BorrowProductProtocolDetails'
+      required:
+        - borrowProductId
+        - network
+        - name
+        - venue
+        - assets
+        - snapshot
+        - protocolDetails
     PaymasterContext:
       type: object
       additionalProperties: true
@@ -22649,6 +24132,364 @@ components:
         - userOpHash
         - calls
         - status
+    BorrowPositionAssetAmount:
+      type: object
+      description: The balance of either the collateral or debt token for a borrow position, as a decimal string in the token's standard unit denomination.
+      example:
+        assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+        token:
+          address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+          symbol: mGLO
+          decimals: 18
+        amount: '5000'
+      properties:
+        assetId:
+          type: string
+          pattern: ^bp_asset_[a-f0-9-]{36}$
+          description: The stable identifier for the asset within the borrow product, which is a UUID prefixed with the string `bp_asset_`. This matches the `assetId` of the corresponding asset on the borrow product.
+          example: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+        token:
+          $ref: '#/components/schemas/BorrowProductToken'
+          description: The onchain token this balance is denominated in.
+        amount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The token balance as a decimal string in the token's standard unit denomination (i.e. "5000" for 5000 mGLO).
+          example: '5000'
+      required:
+        - assetId
+        - token
+        - amount
+    BorrowPositionDebt:
+      description: The debt balance for a borrow position, including accrued interest, plus its current borrow rate.
+      allOf:
+        - $ref: '#/components/schemas/BorrowPositionAssetAmount'
+        - type: object
+          properties:
+            borrowApyBps:
+              type: integer
+              minimum: 0
+              description: The current annualized borrow rate for the debt, expressed in basis points. For example, `525` represents a borrow APY of 5.25%. Omitted when the rate is unavailable.
+              example: 525
+      example:
+        assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+        token:
+          address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+          symbol: USDC
+          decimals: 6
+        amount: '1003.5'
+        borrowApyBps: 525
+    BorrowPositionHealthStatus:
+      type: string
+      description: |-
+        The aggregate health of a borrow position.
+
+        - `no_debt`: the position has no outstanding debt.
+        - `healthy`: the position has debt and is above its liquidation threshold.
+        - `undercollateralized`: the position is at or below its liquidation threshold and may be eligible for liquidation.
+      enum:
+        - no_debt
+        - healthy
+        - undercollateralized
+      example: healthy
+    MorphoBlueOnchainState:
+      type: object
+      description: The live onchain state of a Morpho Blue borrow position, read at the block described by the position's snapshot.
+      example:
+        type: morpho_blue
+        collateral:
+          - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+            token:
+              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+              symbol: mGLO
+              decimals: 18
+            amount: '5000'
+        debt:
+          - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+            token:
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+              symbol: USDC
+              decimals: 6
+            amount: '1003.5'
+            borrowApyBps: 525
+        healthFactor: '1.79'
+        currentLtvBps: 5000
+        liquidationThresholdBps: 8250
+        healthStatus: healthy
+      properties:
+        type:
+          allOf:
+            - $ref: '#/components/schemas/BorrowProductProtocol'
+          description: The protocol type, used to discriminate the onchain state schema.
+        collateral:
+          type: array
+          description: The non-zero collateral balances securing the position.
+          items:
+            $ref: '#/components/schemas/BorrowPositionAssetAmount'
+        debt:
+          type: array
+          description: The non-zero debt balances owed by the position.
+          items:
+            $ref: '#/components/schemas/BorrowPositionDebt'
+        healthFactor:
+          type: string
+          description: The position's liquidation headroom as a decimal string, where `1.0` is the liquidation boundary and higher is safer. For example, `1.79` means the position's weighted collateral is 1.79x its debt. Omitted when the position has no debt.
+          example: '1.79'
+        currentLtvBps:
+          type: integer
+          minimum: 0
+          description: The position's current loan-to-value, expressed in basis points. For example, `5000` represents a current LTV of 50%. Omitted when the position has no debt.
+          example: 5000
+        liquidationThresholdBps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          description: The loan-to-value at which the position becomes eligible for liquidation, expressed in basis points. For example, `8250` represents 82.5%. Omitted when the position has no debt.
+          example: 8250
+        healthStatus:
+          $ref: '#/components/schemas/BorrowPositionHealthStatus'
+      required:
+        - type
+        - collateral
+        - debt
+        - healthStatus
+    BorrowPositionOnchainState:
+      description: The live onchain state of a borrow position. The `type` field indicates which protocol-specific schema describes the state.
+      oneOf:
+        - title: Morpho Blue
+          $ref: '#/components/schemas/MorphoBlueOnchainState'
+      discriminator:
+        propertyName: type
+        mapping:
+          morpho_blue: '#/components/schemas/MorphoBlueOnchainState'
+      example:
+        type: morpho_blue
+        collateral:
+          - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+            token:
+              address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+              symbol: mGLO
+              decimals: 18
+            amount: '5000'
+        debt:
+          - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+            token:
+              address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+              symbol: USDC
+              decimals: 6
+            amount: '1003.5'
+            borrowApyBps: 525
+        healthFactor: '1.79'
+        currentLtvBps: 5000
+        liquidationThresholdBps: 8250
+        healthStatus: healthy
+    BorrowPosition:
+      type: object
+      description: A borrow position held by a smart account in a borrow product, together with its live onchain state read at a point-in-time snapshot.
+      example:
+        borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+        address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        network: base
+        snapshot:
+          blockNumber: 49573788
+          blockHash: '0xd8419d2f10b821985b2a2d8b2f15ab3ffc14dc55bcfb75b0537dabaad4ded07c'
+          blockTimestamp: 1785936923
+          observedAt: '2026-08-10T20:37:34Z'
+        onchainState:
+          type: morpho_blue
+          collateral:
+            - assetId: bp_asset_11c0f1d0-3ff3-535e-9c57-3fbbc44f1b79
+              token:
+                address: '0xfcc9cc1209651ed8867332d6f664cf82743a2584'
+                symbol: mGLO
+                decimals: 18
+              amount: '5000'
+          debt:
+            - assetId: bp_asset_7426b5c4-a556-5005-8fee-eb156d491aef
+              token:
+                address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+                symbol: USDC
+                decimals: 6
+              amount: '1003.5'
+              borrowApyBps: 525
+          healthFactor: '1.79'
+          currentLtvBps: 5000
+          liquidationThresholdBps: 8250
+          healthStatus: healthy
+      properties:
+        borrowProductId:
+          $ref: '#/components/schemas/BorrowProductId'
+        address:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The smart account address that owns the borrow position.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        network:
+          $ref: '#/components/schemas/BorrowProductNetwork'
+        snapshot:
+          $ref: '#/components/schemas/BorrowProductSnapshot'
+        onchainState:
+          $ref: '#/components/schemas/BorrowPositionOnchainState'
+      required:
+        - borrowProductId
+        - address
+        - network
+        - snapshot
+        - onchainState
+    CreateBorrowPositionRequest:
+      type: object
+      description: |-
+        A request to create a borrow position for an end user's smart account for the specified borrow product. 
+        The smart account posts collateral and borrows against it, broadcasting a user operation  to open the position onchain.
+      example:
+        borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+        collateralAmount: '1'
+        loanAmount: '100'
+        walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster: false
+        paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          policyId: 962b252c-a726-4a37-8d86-333ce0a07299
+      properties:
+        borrowProductId:
+          $ref: '#/components/schemas/BorrowProductId'
+        collateralAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of collateral to post, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).
+          example: '1'
+        loanAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).
+          example: '100'
+        walletSecretId:
+          type: string
+          pattern: ^[a-zA-Z0-9-]{1,100}$
+          description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster:
+          type: boolean
+          description: Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+          example: false
+        paymasterUrl:
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: |-
+            Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+            If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+          example: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          allOf:
+            - $ref: '#/components/schemas/PaymasterContext'
+          description: 'Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.'
+      required:
+        - borrowProductId
+        - collateralAmount
+        - loanAmount
+        - walletSecretId
+        - useCdpPaymaster
+    AdjustBorrowPositionRequest:
+      type: object
+      description: |-
+        A request to adjust an existing borrow position for an end user's smart account on the specified borrow product.
+        The request can supply collateral, withdraw collateral, repay debt, and/or borrow more of the loan asset, broadcasting a user operation to apply the changes onchain.
+        A single request must not combine `addCollateralAmount` with `removeCollateralAmount` or `repayLoanAmount`, and must not combine `borrowLoanAmount` with `repayLoanAmount` or `removeCollateralAmount`. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+      example:
+        borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+        addCollateralAmount: '1'
+        borrowLoanAmount: '100'
+        walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster: false
+        paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          policyId: 962b252c-a726-4a37-8d86-333ce0a07299
+      properties:
+        borrowProductId:
+          $ref: '#/components/schemas/BorrowProductId'
+        addCollateralAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of collateral to add to the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC). Must not be combined with `removeCollateralAmount` or `repayLoanAmount`.
+          example: '1'
+        removeCollateralAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of collateral to withdraw from the position, as a decimal string in standard unit denomination of the collateral token (i.e. "1" for 1 cbBTC).  Must not be combined with `addCollateralAmount` or `borrowLoanAmount`.
+          example: '1'
+        repayLoanAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of the loan token to repay, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `borrowLoanAmount` or `addCollateralAmount`.
+          example: '100'
+        borrowLoanAmount:
+          allOf:
+            - $ref: '#/components/schemas/PositiveDecimal'
+          description: The amount of the loan token to borrow, as a decimal string in standard unit denomination of the loan token (i.e. "100" for 100 USDC).  Must not be combined with `repayLoanAmount` or `removeCollateralAmount`.
+          example: '100'
+        walletSecretId:
+          type: string
+          pattern: ^[a-zA-Z0-9-]{1,100}$
+          description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster:
+          type: boolean
+          description: Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+          example: false
+        paymasterUrl:
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: |-
+            Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+            If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+          example: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          allOf:
+            - $ref: '#/components/schemas/PaymasterContext'
+          description: 'Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.'
+      required:
+        - borrowProductId
+        - walletSecretId
+        - useCdpPaymaster
+    CloseBorrowPositionRequest:
+      type: object
+      description: |-
+        A request to close an end user smart account's borrow position for the specified borrow product.
+        Closing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.
+      example:
+        borrowProductId: bp_07fb56c0-9afe-5440-8ff2-5b0e115458df
+        walletSecretId: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster: false
+        paymasterUrl: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          policyId: 962b252c-a726-4a37-8d86-333ce0a07299
+      properties:
+        borrowProductId:
+          $ref: '#/components/schemas/BorrowProductId'
+        walletSecretId:
+          type: string
+          pattern: ^[a-zA-Z0-9-]{1,100}$
+          description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth header.
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        useCdpPaymaster:
+          type: boolean
+          description: Whether to use the CDP Paymaster for the user operation. When `true`, `paymasterUrl` must not be set.
+          example: false
+        paymasterUrl:
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: |-
+            Paymaster URL to use for the user operation. Must not be set when `useCdpPaymaster` is `true`.
+            If `useCdpPaymaster` is `false` and no `paymasterUrl` is set, the smart account must have sufficient funds to cover network fees.
+          example: https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456
+        paymasterContext:
+          allOf:
+            - $ref: '#/components/schemas/PaymasterContext'
+          description: 'Optional paymaster metadata forwarded to the configured paymaster service. Valid only when a paymaster is configured via `useCdpPaymaster: true` or a `paymasterUrl`.'
+      required:
+        - borrowProductId
+        - walletSecretId
+        - useCdpPaymaster
     X402Version:
       type: integer
       description: The version of the x402 protocol.
@@ -26692,6 +28533,30 @@ components:
             addresses:
               - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             operator: in
+    PolicyRules:
+      type: array
+      description: A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
+      items:
+        $ref: '#/components/schemas/Rule'
+      example:
+        - action: accept
+          operation: signEvmTransaction
+          criteria:
+            - type: ethValue
+              ethValue: '1000000000000000000'
+              operator: <=
+            - type: evmAddress
+              addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                - '0x1234567890123456789012345678901234567890'
+              operator: in
+        - action: accept
+          operation: signSolTransaction
+          criteria:
+            - type: solAddress
+              addresses:
+                - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+              operator: in
     Policy:
       type: object
       properties:
@@ -26715,29 +28580,7 @@ components:
             - account
           example: project
         rules:
-          type: array
-          description: A list of rules that comprise the policy.
-          items:
-            $ref: '#/components/schemas/Rule'
-          example:
-            - action: accept
-              operation: signEvmTransaction
-              criteria:
-                - type: ethValue
-                  ethValue: '1000000000000000000'
-                  operator: <=
-                - type: evmAddress
-                  addresses:
-                    - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-                    - '0x1234567890123456789012345678901234567890'
-                  operator: in
-            - action: accept
-              operation: signSolTransaction
-              criteria:
-                - type: solAddress
-                  addresses:
-                    - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
-                  operator: in
+          $ref: '#/components/schemas/PolicyRules'
         createdAt:
           type: string
           description: The ISO 8601 timestamp at which the Policy was created.
@@ -27099,6 +28942,154 @@ components:
           description: Total number of unique token addresses discovered.
           example: 15
           minimum: 0
+    OnchainActivityWebhookResponseLabels:
+      type: object
+      description: Effective labels returned for `onchain.activity.detected` subscriptions.
+      required:
+        - contract_address
+        - network
+      properties:
+        network:
+          type: string
+          description: Blockchain network being monitored.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        contract_address:
+          type: string
+          description: Smart contract address being monitored.
+          example: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+        event_name:
+          type: string
+          description: Decoded contract event name being matched.
+          example: Burn
+        event_signature:
+          type: string
+          description: Canonical event signature being matched.
+          example: Transfer(address,address,uint256)
+        transaction_from:
+          type: string
+          description: Transaction sender address being matched.
+          example: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+        transaction_to:
+          type: string
+          description: Transaction recipient address being matched.
+          example: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+      patternProperties:
+        ^params\.:
+          type: string
+          description: Event parameter value being matched.
+      additionalProperties: false
+    WalletActivityDetectedWebhookResponseLabels:
+      type: object
+      description: Effective labels returned for `wallet.activity.detected` subscriptions.
+      required:
+        - network
+      properties:
+        network:
+          type: string
+          description: Blockchain network being monitored.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        params.to:
+          type: string
+          description: Transaction recipient address being matched.
+          example: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+        params.from:
+          type: string
+          description: Transaction sender address being matched.
+          example: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+      anyOf:
+        - required:
+            - params.to
+        - required:
+            - params.from
+      additionalProperties: false
+    WalletActivityMultiWebhookResponseLabels:
+      type: object
+      description: Effective labels returned for `wallet.activity.multi` subscriptions.
+      required:
+        - network
+        - wallet_addresses
+      properties:
+        network:
+          type: string
+          description: Blockchain network being monitored.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        wallet_addresses:
+          type: string
+          description: Comma-separated EVM wallet addresses being monitored.
+          example: '0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd'
+      additionalProperties: false
+    HealthService:
+      type: string
+      description: A CDP service whose health and maintenance status are tracked here.
+      enum:
+        - payments_acceptance
+        - webhooks
+      example: payments_acceptance
+      x-enum-descriptions:
+        - Payment Acceptance — accepting and processing payments on behalf of merchants.
+        - CDP's webhook delivery infrastructure.
+    HealthWebhookResponseLabels:
+      type: object
+      description: Effective labels returned for `health.*` subscriptions.
+      required:
+        - service
+      properties:
+        service:
+          allOf:
+            - $ref: '#/components/schemas/HealthService'
+          description: Service whose health events are delivered.
+          example: webhooks
+      additionalProperties: false
+    EntityWebhookResponseLabels:
+      type: object
+      description: Server-injected labels returned for entity-scoped subscriptions.
+      required:
+        - entity
+      properties:
+        entity:
+          type: string
+          description: Authenticated entity that owns the subscription.
+          example: entity_123e4567-e89b-12d3-a456-426614174000
+      additionalProperties: false
+    UserWebhookResponseLabels:
+      type: object
+      description: Server-injected labels returned for user-scoped subscriptions.
+      required:
+        - user_uuid
+        - sandbox
+      properties:
+        user_uuid:
+          type: string
+          description: Authenticated user whose events are delivered.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        sandbox:
+          type: string
+          description: Stringified boolean indicating whether the subscription receives sandbox user events.
+          enum:
+            - 'true'
+            - 'false'
+          example: 'false'
+      additionalProperties: false
+    ProjectWebhookResponseLabels:
+      type: object
+      description: Server-injected labels returned for project-scoped subscriptions.
+      required:
+        - project
+      properties:
+        project:
+          type: string
+          description: Authenticated project that owns the subscription.
+          example: project_123e4567-e89b-12d3-a456-426614174000
+      additionalProperties: false
     WebhookDescription:
       type: string
       minLength: 0
@@ -27194,8 +29185,113 @@ components:
         headers:
           Authorization: Bearer token123
           Content-Type: application/json
+    WebhookResponseLabels:
+      type: object
+      description: |
+        Effective filters stored on the webhook subscription. The response includes
+        client-supplied labels plus labels defaulted or injected by the server.
+
+        * `onchain.activity.detected`, `wallet.activity.detected`, and `wallet.activity.multi`
+          include `network`. It defaults to `base-mainnet` when omitted from the request.
+        * `wallet.activity.multi` includes the requested comma-separated `wallet_addresses`.
+        * `health.*` includes the requested `service`.
+        * Project-scoped events include the authenticated `project`.
+        * Entity-scoped events include the authenticated `entity`.
+        * User-scoped events include the authenticated `user_uuid` and a `sandbox` value.
+      additionalProperties:
+        type: string
+      examples:
+        - network: base-mainnet
+          contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+          event_name: Burn
+        - network: base-mainnet
+          params.from: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+        - network: base-mainnet
+          wallet_addresses: '0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd'
+        - service: webhooks
+        - project: project_123e4567-e89b-12d3-a456-426614174000
+        - entity: entity_123e4567-e89b-12d3-a456-426614174000
+        - user_uuid: 123e4567-e89b-12d3-a456-426614174000
+          sandbox: 'false'
     WebhookSubscriptionResponse:
       type: object
+      if:
+        properties:
+          eventTypes:
+            contains:
+              const: onchain.activity.detected
+      then:
+        required:
+          - labels
+        properties:
+          labels:
+            $ref: '#/components/schemas/OnchainActivityWebhookResponseLabels'
+      else:
+        if:
+          properties:
+            eventTypes:
+              contains:
+                const: wallet.activity.detected
+        then:
+          required:
+            - labels
+          properties:
+            labels:
+              $ref: '#/components/schemas/WalletActivityDetectedWebhookResponseLabels'
+        else:
+          if:
+            properties:
+              eventTypes:
+                contains:
+                  const: wallet.activity.multi
+          then:
+            required:
+              - labels
+            properties:
+              labels:
+                $ref: '#/components/schemas/WalletActivityMultiWebhookResponseLabels'
+          else:
+            if:
+              properties:
+                eventTypes:
+                  contains:
+                    pattern: ^health\.
+            then:
+              required:
+                - labels
+              properties:
+                labels:
+                  $ref: '#/components/schemas/HealthWebhookResponseLabels'
+            else:
+              if:
+                properties:
+                  eventTypes:
+                    contains:
+                      pattern: ^(payments\.transfers\.|acceptance\.|trading\.order\.|reporting\.|customers\.)
+              then:
+                required:
+                  - labels
+                properties:
+                  labels:
+                    $ref: '#/components/schemas/EntityWebhookResponseLabels'
+              else:
+                if:
+                  properties:
+                    eventTypes:
+                      contains:
+                        pattern: ^(payment_link\.|invoicing\.|checkout\.)
+                then:
+                  required:
+                    - labels
+                  properties:
+                    labels:
+                      $ref: '#/components/schemas/UserWebhookResponseLabels'
+                else:
+                  required:
+                    - labels
+                  properties:
+                    labels:
+                      $ref: '#/components/schemas/ProjectWebhookResponseLabels'
       description: Response containing webhook subscription details.
       required:
         - subscriptionId
@@ -27258,16 +29354,7 @@ components:
         target:
           $ref: '#/components/schemas/WebhookTarget'
         labels:
-          type: object
-          description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
-            Present when subscription uses multi-label format.
-          additionalProperties:
-            type: string
-          example:
-            env: dev
-            team: payments
-            contract_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+          $ref: '#/components/schemas/WebhookResponseLabels'
       example:
         subscriptionId: 123e4567-e89b-12d3-a456-426614174000
         eventTypes:
@@ -27299,8 +29386,208 @@ components:
               items:
                 $ref: '#/components/schemas/WebhookSubscriptionResponse'
         - $ref: '#/components/schemas/ListResponse'
+    OnchainActivityWebhookLabels:
+      type: object
+      description: Labels accepted for `onchain.activity.detected` subscriptions.
+      maxProperties: 20
+      required:
+        - contract_address
+      properties:
+        network:
+          type: string
+          description: Blockchain network to monitor.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        contract_address:
+          type: string
+          description: Smart contract address to monitor.
+          example: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+        event_name:
+          type: string
+          description: Decoded contract event name to match.
+          example: Burn
+        event_signature:
+          type: string
+          description: Canonical event signature to match.
+          example: Transfer(address,address,uint256)
+        transaction_from:
+          type: string
+          description: Transaction sender address to match.
+          example: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+        transaction_to:
+          type: string
+          description: Transaction recipient address to match.
+          example: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+      patternProperties:
+        ^params\.:
+          type: string
+          description: Event parameter value to match.
+      additionalProperties: false
+      example:
+        network: base-mainnet
+        contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+        event_name: Burn
+    WalletActivityDetectedWebhookLabels:
+      type: object
+      description: Labels accepted for `wallet.activity.detected` subscriptions.
+      maxProperties: 20
+      properties:
+        network:
+          type: string
+          description: Blockchain network to monitor.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        params.to:
+          type: string
+          description: Transaction recipient address to match.
+          example: '0x61040E143A77F165Ba44543AF4A079F2C809D14b'
+        params.from:
+          type: string
+          description: Transaction sender address to match.
+          example: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+      anyOf:
+        - required:
+            - params.to
+        - required:
+            - params.from
+      additionalProperties: false
+      example:
+        network: base-mainnet
+        params.from: '0x3E16D476D8Df15e3E776EAa5A46f37EC44C830cD'
+    WalletActivityMultiWebhookLabels:
+      type: object
+      description: Labels accepted for `wallet.activity.multi` subscriptions.
+      maxProperties: 20
+      required:
+        - wallet_addresses
+      properties:
+        network:
+          type: string
+          description: Blockchain network to monitor.
+          enum:
+            - base-mainnet
+            - base-sepolia
+          example: base-mainnet
+        wallet_addresses:
+          type: string
+          minLength: 42
+          maxLength: 4299
+          pattern: ^0x[0-9a-fA-F]{40}(,0x[0-9a-fA-F]{40})*$
+          description: Comma-separated EVM wallet addresses to monitor. Each address must be `0x`-prefixed and contain 40 hexadecimal characters. Maximum 100 addresses.
+          example: 0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd,0x61040e143a77f165ba44543af4a079f2c809d14b
+      additionalProperties: false
+      example:
+        network: base-mainnet
+        wallet_addresses: '0x3e16d476d8df15e3e776eaa5a46f37ec44c830cd'
+    HealthWebhookLabels:
+      type: object
+      description: Labels accepted for `health.*` subscriptions.
+      maxProperties: 20
+      required:
+        - service
+      properties:
+        service:
+          allOf:
+            - $ref: '#/components/schemas/HealthService'
+          description: Service whose health events should be delivered.
+          example: webhooks
+      additionalProperties: false
+      example:
+        service: webhooks
+    WebhookMetadata:
+      type: object
+      description: Optional subscription metadata. Up to 10 key/value pairs may be provided. Keys and values must each contain between 1 and 50 characters.
+      propertyNames:
+        type: string
+        minLength: 1
+        maxLength: 50
+      additionalProperties:
+        type: string
+        minLength: 1
+        maxLength: 50
+      maxProperties: 10
+      example:
+        foo: bar
+        baz: qux
+    WebhookRequestLabels:
+      type: object
+      description: |
+        String-valued filters supplied when creating or updating a webhook subscription.
+        The subscription's `eventTypes` determine whether labels are required and which
+        label keys are accepted. A subscription accepts at most 20 client-supplied labels.
+
+        #### Label Behavior
+
+        An event must match ALL labels to fire to your subscription `targetURL`. When multiple labels are supplied, the event must match ALL labels to fire to your subscription `targetURL`.
+      additionalProperties:
+        type: string
+      examples:
+        - network: base-mainnet
+          contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+          event_name: Burn
+        - network: base-mainnet
+          contract_address: '0xbac4a9428ea707c51f171ed9890c3c2fa810305d'
+          event_name: PriceUpdated
+        - network: base-mainnet
+          contract_address: '0x45c6e6a47a711b14d8357d5243f46704904578e3'
+          event_name: Deposit
     WebhookSubscriptionRequest:
       type: object
+      if:
+        properties:
+          eventTypes:
+            contains:
+              const: onchain.activity.detected
+      then:
+        required:
+          - labels
+        properties:
+          labels:
+            $ref: '#/components/schemas/OnchainActivityWebhookLabels'
+      else:
+        if:
+          properties:
+            eventTypes:
+              contains:
+                const: wallet.activity.detected
+        then:
+          required:
+            - labels
+          properties:
+            labels:
+              $ref: '#/components/schemas/WalletActivityDetectedWebhookLabels'
+        else:
+          if:
+            properties:
+              eventTypes:
+                contains:
+                  const: wallet.activity.multi
+          then:
+            required:
+              - labels
+            properties:
+              labels:
+                $ref: '#/components/schemas/WalletActivityMultiWebhookLabels'
+          else:
+            if:
+              properties:
+                eventTypes:
+                  contains:
+                    pattern: ^health\.
+            then:
+              required:
+                - labels
+              properties:
+                labels:
+                  $ref: '#/components/schemas/HealthWebhookLabels'
+            else:
+              not:
+                required:
+                  - labels
       description: |
         Request to create a new webhook subscription with support for multi-label filtering.
       properties:
@@ -27324,42 +29611,66 @@ components:
         target:
           $ref: '#/components/schemas/WebhookTarget'
         metadata:
-          $ref: '#/components/schemas/Metadata'
+          $ref: '#/components/schemas/WebhookMetadata'
         labels:
-          type: object
-          description: |
-            Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-            an event contains ALL the key-value pairs specified here. Additional labels on
-            the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
-
-            **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-            **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-            - `network` (required) — Blockchain network
-            - `contract_address` — Smart contract address
-            - `event_name` — Event name (e.g., "Transfer", "Burn")
-            - `event_signature` — Event signature hash
-            - `transaction_from` — Transaction sender address
-            - `transaction_to` — Transaction recipient address
-            - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-          additionalProperties:
-            type: string
-          examples:
-            - network: base-mainnet
-              contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
-              event_name: Burn
-            - network: base-mainnet
-              contract_address: '0xbac4a9428ea707c51f171ed9890c3c2fa810305d'
-              event_name: PriceUpdated
-            - network: base-mainnet
-              contract_address: '0x45c6e6a47a711b14d8357d5243f46704904578e3'
-              event_name: Deposit
+          $ref: '#/components/schemas/WebhookRequestLabels'
       required:
         - eventTypes
         - isEnabled
         - target
     WebhookSubscriptionUpdateRequest:
       type: object
+      if:
+        properties:
+          eventTypes:
+            contains:
+              const: onchain.activity.detected
+      then:
+        required:
+          - labels
+        properties:
+          labels:
+            $ref: '#/components/schemas/OnchainActivityWebhookLabels'
+      else:
+        if:
+          properties:
+            eventTypes:
+              contains:
+                const: wallet.activity.detected
+        then:
+          required:
+            - labels
+          properties:
+            labels:
+              $ref: '#/components/schemas/WalletActivityDetectedWebhookLabels'
+        else:
+          if:
+            properties:
+              eventTypes:
+                contains:
+                  const: wallet.activity.multi
+          then:
+            required:
+              - labels
+            properties:
+              labels:
+                $ref: '#/components/schemas/WalletActivityMultiWebhookLabels'
+          else:
+            if:
+              properties:
+                eventTypes:
+                  contains:
+                    pattern: ^health\.
+            then:
+              required:
+                - labels
+              properties:
+                labels:
+                  $ref: '#/components/schemas/HealthWebhookLabels'
+            else:
+              not:
+                required:
+                  - labels
       description: |
         Request to update an existing webhook subscription.
       properties:
@@ -27381,25 +29692,9 @@ components:
         target:
           $ref: '#/components/schemas/WebhookTarget'
         metadata:
-          $ref: '#/components/schemas/Metadata'
+          $ref: '#/components/schemas/WebhookMetadata'
         labels:
-          type: object
-          description: |
-            Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-            Omit to receive all events for the selected event types.
-
-            **Note:** Currently, labels are supported for onchain webhooks only (max 20 labels per subscription).
-
-            **Allowed labels for `onchain.activity.detected`** (all in snake_case format):
-            - `network` (required) — Blockchain network
-            - `contract_address` — Smart contract address
-            - `event_name` — Event name (e.g., "Transfer", "Burn")
-            - `event_signature` — Event signature hash
-            - `transaction_from` — Transaction sender address
-            - `transaction_to` — Transaction recipient address
-            - `params.*` — Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
-          additionalProperties:
-            type: string
+          $ref: '#/components/schemas/WebhookRequestLabels'
           examples:
             - network: base-mainnet
               contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
@@ -30488,6 +32783,27 @@ components:
               example: payments.transfers.failed
           required:
             - eventType
+      example:
+        eventID: 123e4567-e89b-12d3-a456-426614174000
+        eventType: payments.transfers.failed
+        timestamp: '2026-01-01T00:05:00Z'
+        data:
+          transferId: transfer_af2937b0-9846-4fe7-bfe9-ccc22d935114
+          status: failed
+          source:
+            accountId: account_af2937b0-9846-4fe7-bfe9-ccc22d935114
+            asset: usd
+          target:
+            address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+            network: base
+            asset: usdc
+          sourceAmount: '103.50'
+          sourceAsset: usd
+          targetAmount: '100.00'
+          targetAsset: usdc
+          failureReason: Insufficient balance to complete this transfer.
+          createdAt: '2026-01-01T00:00:00Z'
+          updatedAt: '2026-01-01T00:05:00Z'
     PaymentsTransfersExpiredEvent:
       x-event-type: payments.transfers.expired
       allOf:
@@ -32329,16 +34645,6 @@ components:
               example: acceptance.disbursement.failed
           required:
             - eventType
-    HealthService:
-      type: string
-      description: A CDP service whose health and maintenance status are tracked here.
-      enum:
-        - payments_acceptance
-        - webhooks
-      example: payments_acceptance
-      x-enum-descriptions:
-        - Payment Acceptance — accepting and processing payments on behalf of merchants.
-        - CDP's webhook delivery infrastructure.
     HealthOperation:
       type: string
       description: A finer-grained operation within a service. Optional — omitted when a health status or maintenance window applies to the service as a whole.

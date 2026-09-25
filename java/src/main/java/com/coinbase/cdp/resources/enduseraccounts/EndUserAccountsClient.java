@@ -6,9 +6,16 @@ package com.coinbase.cdp.resources.enduseraccounts;
 
 import com.coinbase.cdp.core.ClientOptions;
 import com.coinbase.cdp.core.RequestOptions;
+import com.coinbase.cdp.resources.enduseraccounts.requests.AdjustBorrowPositionRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.CloseBorrowPositionRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.CreateBorrowPositionRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.CreateEvmEip7702DelegationWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.GetDelegationForEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.GetDelegationForEndUserRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.GetEvmBorrowProductRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.GetUserOperationWithEndUserAccountRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.ListBorrowPositionsWithEndUserAccountRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.ListEvmBorrowProductsRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.SendEvmAssetWithEndUserAccountRequest;
@@ -25,6 +32,8 @@ import com.coinbase.cdp.resources.enduseraccounts.requests.SignSolanaX402Payment
 import com.coinbase.cdp.resources.enduseraccounts.types.CreateEvmEip7702DelegationWithEndUserAccountResponse;
 import com.coinbase.cdp.resources.enduseraccounts.types.GetDelegationForEndUserAccountResponse;
 import com.coinbase.cdp.resources.enduseraccounts.types.GetDelegationForEndUserResponse;
+import com.coinbase.cdp.resources.enduseraccounts.types.ListBorrowPositionsWithEndUserAccountResponse;
+import com.coinbase.cdp.resources.enduseraccounts.types.ListEvmBorrowProductsResponse;
 import com.coinbase.cdp.resources.enduseraccounts.types.SendEvmAssetWithEndUserAccountRequestAsset;
 import com.coinbase.cdp.resources.enduseraccounts.types.SendEvmAssetWithEndUserAccountResponse;
 import com.coinbase.cdp.resources.enduseraccounts.types.SendEvmTransactionWithEndUserAccountResponse;
@@ -38,6 +47,8 @@ import com.coinbase.cdp.resources.enduseraccounts.types.SignSolanaMessageWithEnd
 import com.coinbase.cdp.resources.enduseraccounts.types.SignSolanaTransactionWithEndUserAccountResponse;
 import com.coinbase.cdp.resources.enduseraccounts.types.SignSolanaX402PaymentWithEndUserAccountResponse;
 import com.coinbase.cdp.types.BlockchainAddress;
+import com.coinbase.cdp.types.BorrowProduct;
+import com.coinbase.cdp.types.BorrowProductId;
 import com.coinbase.cdp.types.EvmUserOperation;
 import java.lang.String;
 
@@ -56,6 +67,74 @@ public class EndUserAccountsClient {
    */
   public WithRawResponseEndUserAccountsClient withRawResponse() {
     return this.rawClient;
+  }
+
+  /**
+   * Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+   * A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+   */
+  public ListEvmBorrowProductsResponse listEvmBorrowProducts() {
+    return this.rawClient.listEvmBorrowProducts().body();
+  }
+
+  /**
+   * Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+   * A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+   */
+  public ListEvmBorrowProductsResponse listEvmBorrowProducts(RequestOptions requestOptions) {
+    return this.rawClient.listEvmBorrowProducts(requestOptions).body();
+  }
+
+  /**
+   * Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+   * A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+   */
+  public ListEvmBorrowProductsResponse listEvmBorrowProducts(ListEvmBorrowProductsRequest request) {
+    return this.rawClient.listEvmBorrowProducts(request).body();
+  }
+
+  /**
+   * Lists the borrow products available across all supported networks and protocols. If a network and/or protocol query parameter is supplied, then borrow products are filtered and returned accordingly.
+   * A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it, the assets that can be borrowed or posted as collateral, and their collateral and debt capabilities. For example, a Morpho Blue market that lends USDC against cbBTC.
+   */
+  public ListEvmBorrowProductsResponse listEvmBorrowProducts(ListEvmBorrowProductsRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.listEvmBorrowProducts(request, requestOptions).body();
+  }
+
+  /**
+   * Gets a single borrow product by its ID.
+   * The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+   */
+  public BorrowProduct getEvmBorrowProduct(BorrowProductId borrowProductId) {
+    return this.rawClient.getEvmBorrowProduct(borrowProductId).body();
+  }
+
+  /**
+   * Gets a single borrow product by its ID.
+   * The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+   */
+  public BorrowProduct getEvmBorrowProduct(BorrowProductId borrowProductId,
+      RequestOptions requestOptions) {
+    return this.rawClient.getEvmBorrowProduct(borrowProductId, requestOptions).body();
+  }
+
+  /**
+   * Gets a single borrow product by its ID.
+   * The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+   */
+  public BorrowProduct getEvmBorrowProduct(BorrowProductId borrowProductId,
+      GetEvmBorrowProductRequest request) {
+    return this.rawClient.getEvmBorrowProduct(borrowProductId, request).body();
+  }
+
+  /**
+   * Gets a single borrow product by its ID.
+   * The ID is a stable identifier that uniquely identifies a single borrow product based on the product's onchain parameters. A borrow product is a protocol-native representation of a borrowable market, describing the venue that hosts it and the assets that participate in it together with their collateral and debt capabilities.
+   */
+  public BorrowProduct getEvmBorrowProduct(BorrowProductId borrowProductId,
+      GetEvmBorrowProductRequest request, RequestOptions requestOptions) {
+    return this.rawClient.getEvmBorrowProduct(borrowProductId, request, requestOptions).body();
   }
 
   /**
@@ -389,6 +468,39 @@ public class EndUserAccountsClient {
   }
 
   /**
+   * Gets a user operation by its hash for an end user's EVM Smart Account.
+   */
+  public EvmUserOperation getUserOperationWithEndUserAccount(String userId, String address,
+      String userOpHash) {
+    return this.rawClient.getUserOperationWithEndUserAccount(userId, address, userOpHash).body();
+  }
+
+  /**
+   * Gets a user operation by its hash for an end user's EVM Smart Account.
+   */
+  public EvmUserOperation getUserOperationWithEndUserAccount(String userId, String address,
+      String userOpHash, RequestOptions requestOptions) {
+    return this.rawClient.getUserOperationWithEndUserAccount(userId, address, userOpHash, requestOptions).body();
+  }
+
+  /**
+   * Gets a user operation by its hash for an end user's EVM Smart Account.
+   */
+  public EvmUserOperation getUserOperationWithEndUserAccount(String userId, String address,
+      String userOpHash, GetUserOperationWithEndUserAccountRequest request) {
+    return this.rawClient.getUserOperationWithEndUserAccount(userId, address, userOpHash, request).body();
+  }
+
+  /**
+   * Gets a user operation by its hash for an end user's EVM Smart Account.
+   */
+  public EvmUserOperation getUserOperationWithEndUserAccount(String userId, String address,
+      String userOpHash, GetUserOperationWithEndUserAccountRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.getUserOperationWithEndUserAccount(userId, address, userOpHash, request, requestOptions).body();
+  }
+
+  /**
    * Prepares, signs, and sends a user operation for an end user's Smart Account.
    */
   public EvmUserOperation sendUserOperationWithEndUserAccount(String userId, String address,
@@ -402,6 +514,105 @@ public class EndUserAccountsClient {
   public EvmUserOperation sendUserOperationWithEndUserAccount(String userId, String address,
       SendUserOperationWithEndUserAccountRequest request, RequestOptions requestOptions) {
     return this.rawClient.sendUserOperationWithEndUserAccount(userId, address, request, requestOptions).body();
+  }
+
+  /**
+   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+   */
+  public ListBorrowPositionsWithEndUserAccountResponse listBorrowPositionsWithEndUserAccount(
+      String userId, String address) {
+    return this.rawClient.listBorrowPositionsWithEndUserAccount(userId, address).body();
+  }
+
+  /**
+   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+   */
+  public ListBorrowPositionsWithEndUserAccountResponse listBorrowPositionsWithEndUserAccount(
+      String userId, String address, RequestOptions requestOptions) {
+    return this.rawClient.listBorrowPositionsWithEndUserAccount(userId, address, requestOptions).body();
+  }
+
+  /**
+   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+   */
+  public ListBorrowPositionsWithEndUserAccountResponse listBorrowPositionsWithEndUserAccount(
+      String userId, String address, ListBorrowPositionsWithEndUserAccountRequest request) {
+    return this.rawClient.listBorrowPositionsWithEndUserAccount(userId, address, request).body();
+  }
+
+  /**
+   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+   */
+  public ListBorrowPositionsWithEndUserAccountResponse listBorrowPositionsWithEndUserAccount(
+      String userId, String address, ListBorrowPositionsWithEndUserAccountRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.listBorrowPositionsWithEndUserAccount(userId, address, request, requestOptions).body();
+  }
+
+  /**
+   * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+   * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+   * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+   */
+  public EvmUserOperation createBorrowPositionWithEndUserAccount(String userId, String address,
+      CreateBorrowPositionRequest request) {
+    return this.rawClient.createBorrowPositionWithEndUserAccount(userId, address, request).body();
+  }
+
+  /**
+   * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+   * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+   * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+   */
+  public EvmUserOperation createBorrowPositionWithEndUserAccount(String userId, String address,
+      CreateBorrowPositionRequest request, RequestOptions requestOptions) {
+    return this.rawClient.createBorrowPositionWithEndUserAccount(userId, address, request, requestOptions).body();
+  }
+
+  /**
+   * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+   * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+   * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+   * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+   */
+  public EvmUserOperation adjustBorrowPositionWithEndUserAccount(String userId, String address,
+      AdjustBorrowPositionRequest request) {
+    return this.rawClient.adjustBorrowPositionWithEndUserAccount(userId, address, request).body();
+  }
+
+  /**
+   * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+   * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+   * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+   * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+   */
+  public EvmUserOperation adjustBorrowPositionWithEndUserAccount(String userId, String address,
+      AdjustBorrowPositionRequest request, RequestOptions requestOptions) {
+    return this.rawClient.adjustBorrowPositionWithEndUserAccount(userId, address, request, requestOptions).body();
+  }
+
+  /**
+   * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+   * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
+   * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+   */
+  public EvmUserOperation closeBorrowPositionWithEndUserAccount(String userId, String address,
+      CloseBorrowPositionRequest request) {
+    return this.rawClient.closeBorrowPositionWithEndUserAccount(userId, address, request).body();
+  }
+
+  /**
+   * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+   * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
+   * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+   */
+  public EvmUserOperation closeBorrowPositionWithEndUserAccount(String userId, String address,
+      CloseBorrowPositionRequest request, RequestOptions requestOptions) {
+    return this.rawClient.closeBorrowPositionWithEndUserAccount(userId, address, request, requestOptions).body();
   }
 
   /**

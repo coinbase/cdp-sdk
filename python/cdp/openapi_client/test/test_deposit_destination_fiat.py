@@ -44,7 +44,7 @@ class TestDepositDestinationFiat(unittest.TestCase):
                 account_number = '123456789',
                 bank_address = '399 Park Avenue, New York, NY 10022',
                 reference_code = 'CBAUSD1A2B3C4D',
-                supported_rails = [ach]
+                supported_rails = [ach, fedwire]
             )
         else:
             return DepositDestinationFiat(
@@ -54,7 +54,7 @@ class TestDepositDestinationFiat(unittest.TestCase):
                 beneficiary_name = 'John Smith',
                 routing_number = '987654321',
                 account_number = '123456789',
-                supported_rails = [ach],
+                supported_rails = [ach, fedwire],
         )
         """
 

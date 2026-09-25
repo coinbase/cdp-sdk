@@ -18,8 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -27,8 +27,19 @@ class SignSolanaTransactionRequest(BaseModel):
     """
     SignSolanaTransactionRequest
     """ # noqa: E501
+    network: Optional[StrictStr] = Field(default=None, description="The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.")
     transaction: StrictStr = Field(description="The base64 encoded transaction to sign.")
-    __properties: ClassVar[List[str]] = ["transaction"]
+    __properties: ClassVar[List[str]] = ["network", "transaction"]
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['solana', 'solana-devnet']):
+            raise ValueError("must be one of enum values ('solana', 'solana-devnet')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -81,6 +92,7 @@ class SignSolanaTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "network": obj.get("network"),
             "transaction": obj.get("transaction")
         })
         return _obj

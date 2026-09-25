@@ -38,16 +38,12 @@ class TestCreatePolicyRequest(unittest.TestCase):
             return CreatePolicyRequest(
                 scope = 'project',
                 description = 'Default policy',
-                rules = [
-                    {action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]}
-                    ]
+                rules = [{action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000000000000000, operator=<=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890], operator=in}]}, {action=accept, operation=signSolTransaction, criteria=[{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}]}]
             )
         else:
             return CreatePolicyRequest(
                 scope = 'project',
-                rules = [
-                    {action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]}
-                    ],
+                rules = [{action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000000000000000, operator=<=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890], operator=in}]}, {action=accept, operation=signSolTransaction, criteria=[{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}]}],
         )
         """
 

@@ -49,6 +49,8 @@ Set `CDP_WALLET_SECRET` for EVM and Solana wallet write operations. Flexible cus
 - `ListTransfers`
 - `CreateOnchainTransfer`
 
+`CreateCustodyAccount` creates an entity-owned account by default. Set `CDP_CUSTODY_ACCOUNT_OWNER` to a customer ID (for example, `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`) to create a customer-owned account. The customer must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin` capabilities enabled.
+
 `CreateOnchainTransfer` requests a quote by default (`CDP_TRANSFER_EXECUTE=false`). It submits a live transfer only when both `CDP_TRANSFER_EXECUTE=true` and `CDP_TRANSFER_CONFIRMATION=I_UNDERSTAND` are set and the target address is controlled by the caller.
 
 ### Policies and end users

@@ -36,7 +36,7 @@ public final class BankAccountUs {
 
   private final String routingNumber;
 
-  private final String accountNumber;
+  private final FiatAccountNumber accountNumber;
 
   private final Optional<String> bankAddress;
 
@@ -47,7 +47,7 @@ public final class BankAccountUs {
   private final Map<String, Object> additionalProperties;
 
   private BankAccountUs(BankAccountUsCurrency currency, String bankName, String beneficiaryName,
-      String routingNumber, String accountNumber, Optional<String> bankAddress,
+      String routingNumber, FiatAccountNumber accountNumber, Optional<String> bankAddress,
       Optional<String> referenceCode, List<DepositDestinationPaymentRail> supportedRails,
       Map<String, Object> additionalProperties) {
     this.currency = currency;
@@ -93,11 +93,8 @@ public final class BankAccountUs {
     return routingNumber;
   }
 
-  /**
-   * @return The bank account number.
-   */
   @JsonProperty("accountNumber")
-  public String getAccountNumber() {
+  public FiatAccountNumber getAccountNumber() {
     return accountNumber;
   }
 
@@ -185,10 +182,7 @@ public final class BankAccountUs {
   }
 
   public interface AccountNumberStage {
-    /**
-     * <p>The bank account number.</p>
-     */
-    _FinalStage accountNumber(@NotNull String accountNumber);
+    _FinalStage accountNumber(@NotNull FiatAccountNumber accountNumber);
   }
 
   public interface _FinalStage {
@@ -234,7 +228,7 @@ public final class BankAccountUs {
 
     private String routingNumber;
 
-    private String accountNumber;
+    private FiatAccountNumber accountNumber;
 
     private List<DepositDestinationPaymentRail> supportedRails = new ArrayList<>();
 
@@ -309,14 +303,9 @@ public final class BankAccountUs {
       return this;
     }
 
-    /**
-     * <p>The bank account number.</p>
-     * <p>The bank account number.</p>
-     * @return Reference to {@code this} so that method calls can be chained together.
-     */
     @java.lang.Override
     @JsonSetter("accountNumber")
-    public _FinalStage accountNumber(@NotNull String accountNumber) {
+    public _FinalStage accountNumber(@NotNull FiatAccountNumber accountNumber) {
       this.accountNumber = Objects.requireNonNull(accountNumber, "accountNumber must not be null");
       return this;
     }

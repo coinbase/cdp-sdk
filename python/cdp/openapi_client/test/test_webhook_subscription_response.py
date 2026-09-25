@@ -45,7 +45,9 @@ class TestWebhookSubscriptionResponse(unittest.TestCase):
                 secret = '123e4567-e89b-12d3-a456-426614174000',
                 subscription_id = '123e4567-e89b-12d3-a456-426614174000',
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
-                labels = {env=dev, team=payments, contract_address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913}
+                labels = {
+                    'key' : ''
+                    }
             )
         else:
             return WebhookSubscriptionResponse(

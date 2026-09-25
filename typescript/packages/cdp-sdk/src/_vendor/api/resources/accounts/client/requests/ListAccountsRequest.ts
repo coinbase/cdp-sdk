@@ -15,6 +15,24 @@ export interface ListAccountsRequest {
     pageSize?: number;
     /** The token for the next page of resources, if any. */
     pageToken?: string;
+    /**
+     * Filter accounts by owner. Values can be specific Owner IDs or owner type wildcards. Multiple values can be combined as a comma-separated list.
+     *
+     * **Specific Owner IDs:**
+     * * `entity_<uuid>` - Accounts owned by a specific entity
+     * * `customer_<uuid>` - Accounts owned by a specific customer
+     *
+     * **Owner type wildcards:**
+     * * `entity` - All entity-owned accounts
+     * * `customer` - All customer-owned accounts
+     *
+     * **Examples:**
+     * * `owner=customer_af29...` - A specific customer's accounts
+     * * `owner=customer` - All customer accounts
+     * * `owner=entity,customer_af29...` - Entity accounts and a specific customer's accounts
+     * * When omitted, accounts with any owner are returned.
+     */
+    owner?: string | string[];
     /** Filter accounts by account type. When omitted, accounts of any type are returned. Combined with `owner` using AND. */
     type?: CoinbaseApi.AccountType;
 }

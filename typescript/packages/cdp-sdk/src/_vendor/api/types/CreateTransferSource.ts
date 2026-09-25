@@ -5,4 +5,4 @@ import type * as CoinbaseApi from "../index.js";
 /**
  * The source of the transfer.
  */
-export type CreateTransferSource = CoinbaseApi.TransfersAccount | CoinbaseApi.PaymentMethod;
+export type CreateTransferSource = CoinbaseApi.TransfersAccount;

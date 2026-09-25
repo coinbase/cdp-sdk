@@ -14,6 +14,7 @@ import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.core.QueryStringMapper;
 import com.coinbase.cdp.core.RequestOptions;
 import com.coinbase.cdp.errors.BadRequestError;
+import com.coinbase.cdp.errors.ConflictError;
 import com.coinbase.cdp.errors.ForbiddenError;
 import com.coinbase.cdp.errors.InternalServerError;
 import com.coinbase.cdp.errors.NotFoundError;
@@ -340,6 +341,8 @@ public class AsyncWithRawResponseDepositDestinationsClient {
                   case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                   return;
                   case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                  return;
+                  case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                   return;
                   case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                   return;

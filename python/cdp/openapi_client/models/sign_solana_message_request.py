@@ -18,8 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +28,18 @@ class SignSolanaMessageRequest(BaseModel):
     SignSolanaMessageRequest
     """ # noqa: E501
     message: StrictStr = Field(description="The arbitrary message to sign.")
-    __properties: ClassVar[List[str]] = ["message"]
+    encoding: Optional[StrictStr] = Field(default=None, description="The encoding of the message. Use `utf8` to sign the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before signing. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.")
+    __properties: ClassVar[List[str]] = ["message", "encoding"]
+
+    @field_validator('encoding')
+    def encoding_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['utf8', 'base64']):
+            raise ValueError("must be one of enum values ('utf8', 'base64')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -81,7 +92,8 @@ class SignSolanaMessageRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "message": obj.get("message")
+            "message": obj.get("message"),
+            "encoding": obj.get("encoding")
         })
         return _obj
 

@@ -9,4 +9,5 @@ export type TransferSource =
     | CoinbaseApi.TransfersAccount
     | CoinbaseApi.PaymentMethod
     | CoinbaseApi.OnchainAddress
-    | CoinbaseApi.OriginatingBankAccountUs;
+    | CoinbaseApi.AchDepositSource
+    | CoinbaseApi.FedwireDepositSource;

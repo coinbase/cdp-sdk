@@ -20,7 +20,7 @@ export declare namespace AccountsClient {
 }
 
 /**
- * The Accounts APIs enable developers to create and manage accounts for their Entity. An Account is a container that holds assets and can be used for transacting. Accounts can be of different types including entity accounts, prime accounts, and business accounts. Support for Customer-owned accounts is in development.
+ * The Accounts APIs enable developers to create and manage accounts for their Entity and for their Customers. An Account is a container that holds assets and can be used for transacting. Accounts can be of different types including entity accounts, prime accounts, and business accounts. Use `GET /v2/accounts/{accountId}/products` to discover the spot products available to trade for an account (valid `productId`s to pass when creating an order).
  */
 export class AccountsClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<AccountsClient.Options>;
@@ -61,10 +61,11 @@ export class AccountsClient {
             path: "v2/accounts",
             operationId: "endpoint_accounts.listAccounts",
         };
-        const { pageSize, pageToken, type: type_ } = request;
+        const { pageSize, pageToken, owner, type: type_ } = request;
         const _queryParams: Record<string, unknown> = {
             pageSize,
             pageToken,
+            owner,
             type: type_ != null ? type_ : undefined,
         };
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest({
@@ -91,6 +92,7 @@ export class AccountsClient {
             queryString: core.url
                 .queryBuilder()
                 .addMany(_queryParams)
+                .add("owner", _queryParams.owner, { style: "comma" })
                 .mergeAdditional(requestOptions?.queryParams)
                 .build(),
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
@@ -124,12 +126,22 @@ export class AccountsClient {
     }
 
     /**
-     * Create an account for your Entity. Support for creating Customer-owned accounts is in development.
+     * Create an account. Two ownership modes are supported:
+     *
+     * - **Entity-owned**: when `owner` is omitted, the account is owned by the
+     *   Entity making the request. Returns an account with `owner: entity_<uuid>`.
+     *
+     * - **Customer-owned**: pass a Customer ID as `owner`
+     *   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer
+     *   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
+     *   capabilities enabled, otherwise the request is rejected with
+     *   `customer_not_authorized` (HTTP 403).
      *
      * @param {CoinbaseApi.CreateAccountRequest} request
      * @param {AccountsClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws CoinbaseApi.BadRequestError
+     * @throws CoinbaseApi.ForbiddenError
      * @throws CoinbaseApi.UnprocessableEntityError
      * @throws CoinbaseApi.ServiceUnavailableError
      *
@@ -138,6 +150,15 @@ export class AccountsClient {
      * await client.accounts.createAccount({
      *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
      *     name: "My Business Account"
+     * })
+     * ```
+     *
+     * @example
+     * ```ts
+     * await client.accounts.createAccount({
+     *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
+     *     owner: "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+     *     name: "ABC XYZ Customer Account"
      * })
      * ```
      */
@@ -202,6 +223,11 @@ export class AccountsClient {
             switch (_response.error.statusCode) {
                 case 400:
                     throw new CoinbaseApi.BadRequestError(
+                        _response.error.body as CoinbaseApi.Error_,
+                        _response.rawResponse,
+                    );
+                case 403:
+                    throw new CoinbaseApi.ForbiddenError(
                         _response.error.body as CoinbaseApi.Error_,
                         _response.rawResponse,
                     );
@@ -327,6 +353,7 @@ export class AccountsClient {
      * @throws CoinbaseApi.BadRequestError
      * @throws CoinbaseApi.UnauthorizedError
      * @throws CoinbaseApi.NotFoundError
+     * @throws CoinbaseApi.ConflictError
      * @throws CoinbaseApi.InternalServerError
      * @throws CoinbaseApi.ServiceUnavailableError
      *
@@ -411,6 +438,11 @@ export class AccountsClient {
                     );
                 case 404:
                     throw new CoinbaseApi.NotFoundError(
+                        _response.error.body as CoinbaseApi.Error_,
+                        _response.rawResponse,
+                    );
+                case 409:
+                    throw new CoinbaseApi.ConflictError(
                         _response.error.body as CoinbaseApi.Error_,
                         _response.rawResponse,
                     );

@@ -29,7 +29,7 @@ from typing_extensions import Self
 
 class CreateCryptoDepositDestinationRequest(BaseModel):
     """
-    CreateCryptoDepositDestinationRequest
+    Request to create a new crypto deposit destination. Provide the crypto-specific details.
     """ # noqa: E501
     account_id: Annotated[str, Field(strict=True)] = Field(description="The ID of the Account, which is a UUID prefixed by the string `account_`.", alias="accountId")
     type: StrictStr

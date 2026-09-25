@@ -3444,7 +3444,7 @@ class PaymentSessionsApi:
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session.")],
         addresses: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=5, description="The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.")],
         network: Annotated[Optional[PaymentSourceNetwork], Field(description="Optional filter to restrict options to a specific blockchain network.")] = None,
-        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Optional filter to restrict options to a specific asset.")] = None,
+        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Filter options by asset. Currently, only `usdc` and `usdt` return results.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3468,7 +3468,7 @@ class PaymentSessionsApi:
         :type addresses: List[str]
         :param network: Optional filter to restrict options to a specific blockchain network.
         :type network: PaymentSourceNetwork
-        :param asset: Optional filter to restrict options to a specific asset.
+        :param asset: Filter options by asset. Currently, only `usdc` and `usdt` return results.
         :type asset: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -3528,7 +3528,7 @@ class PaymentSessionsApi:
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session.")],
         addresses: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=5, description="The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.")],
         network: Annotated[Optional[PaymentSourceNetwork], Field(description="Optional filter to restrict options to a specific blockchain network.")] = None,
-        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Optional filter to restrict options to a specific asset.")] = None,
+        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Filter options by asset. Currently, only `usdc` and `usdt` return results.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3552,7 +3552,7 @@ class PaymentSessionsApi:
         :type addresses: List[str]
         :param network: Optional filter to restrict options to a specific blockchain network.
         :type network: PaymentSourceNetwork
-        :param asset: Optional filter to restrict options to a specific asset.
+        :param asset: Filter options by asset. Currently, only `usdc` and `usdt` return results.
         :type asset: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -3612,7 +3612,7 @@ class PaymentSessionsApi:
         payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session.")],
         addresses: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(min_length=1, max_length=5, description="The payer wallet addresses to generate authorization options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible authorization options, it appears in `ineligibleAddresses` with a `code` explaining why.")],
         network: Annotated[Optional[PaymentSourceNetwork], Field(description="Optional filter to restrict options to a specific blockchain network.")] = None,
-        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Optional filter to restrict options to a specific asset.")] = None,
+        asset: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=42)]], Field(description="Filter options by asset. Currently, only `usdc` and `usdt` return results.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3636,7 +3636,7 @@ class PaymentSessionsApi:
         :type addresses: List[str]
         :param network: Optional filter to restrict options to a specific blockchain network.
         :type network: PaymentSourceNetwork
-        :param asset: Optional filter to restrict options to a specific asset.
+        :param asset: Filter options by asset. Currently, only `usdc` and `usdt` return results.
         :type asset: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

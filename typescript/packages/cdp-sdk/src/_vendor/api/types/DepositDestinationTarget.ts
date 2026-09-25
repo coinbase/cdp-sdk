@@ -5,4 +5,6 @@ import type * as CoinbaseApi from "../index.js";
 /**
  * The intended target for deposited funds.
  */
-export type DepositDestinationTarget = CoinbaseApi.DepositDestinationTargetAccount;
+export type DepositDestinationTarget =
+    | CoinbaseApi.DepositDestinationTargetAccount
+    | CoinbaseApi.DepositDestinationTargetOnchainAddress;

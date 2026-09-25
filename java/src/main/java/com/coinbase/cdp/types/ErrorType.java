@@ -70,6 +70,8 @@ public final class ErrorType {
 
   public static final ErrorType AUTHORIZATION_EXPIRED = new ErrorType(Value.AUTHORIZATION_EXPIRED, "authorization_expired");
 
+  public static final ErrorType MFA_CHALLENGE_NOT_FOUND = new ErrorType(Value.MFA_CHALLENGE_NOT_FOUND, "mfa_challenge_not_found");
+
   public static final ErrorType UNAUTHORIZED = new ErrorType(Value.UNAUTHORIZED, "unauthorized");
 
   public static final ErrorType METADATA_KEY_TOO_LONG = new ErrorType(Value.METADATA_KEY_TOO_LONG, "metadata_key_too_long");
@@ -149,6 +151,8 @@ public final class ErrorType {
   public static final ErrorType IDEMPOTENCY_ERROR = new ErrorType(Value.IDEMPOTENCY_ERROR, "idempotency_error");
 
   public static final ErrorType RATE_LIMIT_EXCEEDED = new ErrorType(Value.RATE_LIMIT_EXCEEDED, "rate_limit_exceeded");
+
+  public static final ErrorType OPERATION_IN_PROGRESS = new ErrorType(Value.OPERATION_IN_PROGRESS, "operation_in_progress");
 
   public static final ErrorType INSUFFICIENT_ALLOWANCE = new ErrorType(Value.INSUFFICIENT_ALLOWANCE, "insufficient_allowance");
 
@@ -286,6 +290,8 @@ public final class ErrorType {
         return visitor.visitCaptureExpired();
       case AUTHORIZATION_EXPIRED:
         return visitor.visitAuthorizationExpired();
+      case MFA_CHALLENGE_NOT_FOUND:
+        return visitor.visitMfaChallengeNotFound();
       case UNAUTHORIZED:
         return visitor.visitUnauthorized();
       case METADATA_KEY_TOO_LONG:
@@ -366,6 +372,8 @@ public final class ErrorType {
         return visitor.visitIdempotencyError();
       case RATE_LIMIT_EXCEEDED:
         return visitor.visitRateLimitExceeded();
+      case OPERATION_IN_PROGRESS:
+        return visitor.visitOperationInProgress();
       case INSUFFICIENT_ALLOWANCE:
         return visitor.visitInsufficientAllowance();
       case DELEGATION_NOT_ENABLED:
@@ -481,6 +489,8 @@ public final class ErrorType {
         return CAPTURE_EXPIRED;
       case "authorization_expired":
         return AUTHORIZATION_EXPIRED;
+      case "mfa_challenge_not_found":
+        return MFA_CHALLENGE_NOT_FOUND;
       case "unauthorized":
         return UNAUTHORIZED;
       case "metadata_key_too_long":
@@ -561,6 +571,8 @@ public final class ErrorType {
         return IDEMPOTENCY_ERROR;
       case "rate_limit_exceeded":
         return RATE_LIMIT_EXCEEDED;
+      case "operation_in_progress":
+        return OPERATION_IN_PROGRESS;
       case "insufficient_allowance":
         return INSUFFICIENT_ALLOWANCE;
       case "delegation_not_enabled":
@@ -642,6 +654,8 @@ public final class ErrorType {
     MALFORMED_TRANSACTION,
 
     NOT_FOUND,
+
+    OPERATION_IN_PROGRESS,
 
     PAYMENT_METHOD_REQUIRED,
 
@@ -739,6 +753,8 @@ public final class ErrorType {
 
     MFA_INVALID_CODE,
 
+    MFA_CHALLENGE_NOT_FOUND,
+
     MFA_FLOW_EXPIRED,
 
     MFA_REQUIRED,
@@ -830,6 +846,8 @@ public final class ErrorType {
     T visitMalformedTransaction();
 
     T visitNotFound();
+
+    T visitOperationInProgress();
 
     T visitPaymentMethodRequired();
 
@@ -926,6 +944,8 @@ public final class ErrorType {
     T visitMfaAlreadyEnrolled();
 
     T visitMfaInvalidCode();
+
+    T visitMfaChallengeNotFound();
 
     T visitMfaFlowExpired();
 

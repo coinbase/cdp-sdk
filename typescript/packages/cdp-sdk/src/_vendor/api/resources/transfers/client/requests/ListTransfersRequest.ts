@@ -40,9 +40,9 @@ export interface ListTransfersRequest {
     updatedAfter?: string;
     /** Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format. */
     updatedBefore?: string;
-    /** Filter transfers by source asset symbol (e.g., `usd`, `usdc`). */
+    /** Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`). */
     sourceAsset?: string;
-    /** Filter transfers by target asset symbol (e.g., `usdc`, `eth`). */
+    /** Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`). */
     targetAsset?: string;
     /** Filter transfers by the on-chain address of the source. */
     sourceAddress?: CoinbaseApi.BlockchainAddress;

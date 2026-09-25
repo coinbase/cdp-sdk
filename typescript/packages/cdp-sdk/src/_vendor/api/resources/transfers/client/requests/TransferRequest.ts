@@ -27,8 +27,8 @@ import type * as CoinbaseApi from "../../../../index.js";
  *     travelRule: {
  *         isSelf: false,
  *         isIntermediary: true,
+ *         attestVerifiedWalletOwnership: true,
  *         originator: {
- *             financialInstitution: "PayPal, Inc.",
  *             name: "John Doe",
  *             address: {
  *                 line1: "123 Main St",
@@ -37,6 +37,19 @@ import type * as CoinbaseApi from "../../../../index.js";
  *                 state: "California",
  *                 postCode: "94105",
  *                 countryCode: "US"
+ *             },
+ *             financialInstitution: "PayPal, Inc.",
+ *             virtualAssetServiceProvider: {
+ *                 identifier: "5493001KJTIIGC8Y1R17",
+ *                 name: "Fidelity Digital Asset Services, LLC",
+ *                 address: {
+ *                     line1: "123 Market St",
+ *                     line2: "Suite 400",
+ *                     city: "San Francisco",
+ *                     state: "California",
+ *                     postCode: "94105",
+ *                     countryCode: "US"
+ *                 }
  *             },
  *             personalId: "123-45-6789",
  *             dateOfBirth: {
@@ -69,7 +82,7 @@ export interface TransferRequest {
     source: CoinbaseApi.CreateTransferSource;
     target: CoinbaseApi.TransferTarget;
     /** The amount of the transfer, as a decimal string in standard unit denomination of the asset specified by `asset` (e.g., "100.00" for 100 USD, "0.05" for 0.05 ETH). */
-    amount: string;
+    amount: CoinbaseApi.PositiveDecimal;
     /** The symbol of the asset for the amount. This must be one of the assets of the source or target. */
     asset: CoinbaseApi.Asset;
     /**

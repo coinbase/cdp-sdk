@@ -89,6 +89,9 @@ export const RuleSchema = z.discriminatedUnion("operation", [
  */
 export type Rule = z.infer<typeof RuleSchema>;
 
+/** Maximum number of rules allowed in a single policy. */
+export const MAX_POLICY_RULES = 100;
+
 /**
  * Schema for creating or updating a Policy.
  */
@@ -108,9 +111,12 @@ export const CreatePolicyBodySchema = z.object({
     .optional(),
   /**
    * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
+   * Limited to a maximum of 100 rules per policy.
    */
-  rules: z.array(RuleSchema).max(10).min(1),
+  rules: z
+    .array(RuleSchema)
+    .max(MAX_POLICY_RULES, { message: `A policy can have at most ${MAX_POLICY_RULES} rules` })
+    .min(1),
 });
 /**
  * Type representing the request body for creating a new policy.
@@ -129,9 +135,12 @@ export const UpdatePolicyBodySchema = z.object({
     .optional(),
   /**
    * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
+   * Limited to a maximum of 100 rules per policy.
    */
-  rules: z.array(RuleSchema).max(10).min(1),
+  rules: z
+    .array(RuleSchema)
+    .max(MAX_POLICY_RULES, { message: `A policy can have at most ${MAX_POLICY_RULES} rules` })
+    .min(1),
 });
 /**
  * Type representing the request body for updating an existing policy.
