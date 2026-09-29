@@ -470,4 +470,55 @@ describe("sendSwapTransaction", () => {
     // Check that sendTransaction was NOT called
     expect(sendTransaction).not.toHaveBeenCalled();
   });
+
+  it("should throw error when swap has balance issues", async () => {
+    const swapWithBalanceIssue: CreateSwapQuoteResult = {
+      ...mockSwap,
+      issues: {
+        allowance: undefined,
+        balance: {
+          token: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+          currentBalance: BigInt("900000000"),
+          requiredBalance: BigInt("1000000000"),
+        },
+        simulationIncomplete: false,
+      },
+    };
+
+    await expect(
+      sendSwapTransaction(CdpOpenApiClient, {
+        address: mockAddress,
+        swapQuote: swapWithBalanceIssue,
+      }),
+    ).rejects.toThrow(
+      "Insufficient token balance for swap. Current balance: 900000000. " +
+        "Required balance: 1000000000 for token 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913.",
+    );
+
+    // Check that sendTransaction was NOT called
+    expect(sendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("should send a swap even when the simulation is incomplete", async () => {
+    // simulationIncomplete means the transaction could not be validated, not that the
+    // trade will revert, so the execute path deliberately does not fail closed on it.
+    const swapWithIncompleteSimulation: CreateSwapQuoteResult = {
+      ...mockSwap,
+      issues: {
+        allowance: undefined,
+        balance: undefined,
+        simulationIncomplete: true,
+      },
+    };
+
+    const result = await sendSwapTransaction(CdpOpenApiClient, {
+      address: mockAddress,
+      swapQuote: swapWithIncompleteSimulation,
+    });
+
+    expect(sendTransaction).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      transactionHash: mockTransactionHash,
+    });
+  });
 });
