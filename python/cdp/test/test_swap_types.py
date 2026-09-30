@@ -11,6 +11,9 @@ from cdp.actions.evm.swap.types import (
     QuoteSwapResult,
     SmartAccountSwapOptions,
     SmartAccountSwapResult,
+    SwapAllowanceIssue,
+    SwapBalanceIssue,
+    SwapIssues,
     SwapParams,
     SwapPriceResult,
     SwapResult,
@@ -137,6 +140,74 @@ class TestQuoteSwapResult:
         assert result.quote_id == "quote-123"
         assert result.requires_signature is False
         assert result.permit2_data is None
+
+    def _make_quote(self, **kwargs) -> QuoteSwapResult:
+        """Create a QuoteSwapResult for check_issues tests."""
+        return QuoteSwapResult(
+            liquidity_available=True,
+            quote_id="quote-123",
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            to_token="0x4200000000000000000000000000000000000006",
+            from_amount="1000000",
+            to_amount="500000000000000",
+            min_to_amount="495000000000000",
+            to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+            data="0xabcdef",
+            value="0",
+            network="base",
+            **kwargs,
+        )
+
+    def test_quote_swap_result_check_issues_without_issues(self):
+        """Test check_issues passes when no issues are present."""
+        quote = self._make_quote()
+
+        quote.check_issues()  # should not raise
+
+    def test_quote_swap_result_check_issues_clean(self):
+        """Test check_issues passes when issues contain no blocking entries."""
+        quote = self._make_quote(issues=SwapIssues())
+
+        quote.check_issues()  # should not raise
+
+    def test_quote_swap_result_check_issues_allowance(self):
+        """Test check_issues raises on allowance issues."""
+        quote = self._make_quote(
+            issues=SwapIssues(
+                allowance=SwapAllowanceIssue(
+                    current_allowance="0",
+                    spender="0x000000000022D473030F116dDEE9F6B43aC78BA3",
+                )
+            )
+        )
+
+        with pytest.raises(ValueError, match="Insufficient token allowance for swap"):
+            quote.check_issues()
+
+    def test_quote_swap_result_check_issues_balance(self):
+        """Test check_issues raises on balance issues."""
+        quote = self._make_quote(
+            issues=SwapIssues(
+                balance=SwapBalanceIssue(
+                    token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    current_balance="900000",
+                    required_balance="1000000",
+                )
+            )
+        )
+
+        with pytest.raises(ValueError, match="Insufficient token balance for swap"):
+            quote.check_issues()
+
+    def test_quote_swap_result_check_issues_simulation_incomplete(self):
+        """Test check_issues passes on an incomplete simulation.
+
+        simulation_incomplete only means the transaction could not be validated,
+        not that the trade will revert, so it is deliberately not blocking.
+        """
+        quote = self._make_quote(issues=SwapIssues(simulation_incomplete=True))
+
+        quote.check_issues()  # should not raise
 
     def test_quote_swap_result_with_permit2(self):
         """Test QuoteSwapResult with Permit2 data."""

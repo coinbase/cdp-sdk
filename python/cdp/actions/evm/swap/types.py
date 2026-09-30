@@ -19,6 +19,47 @@ class SwapUnavailableResult(BaseModel):
     )
 
 
+class SwapAllowanceIssue(BaseModel):
+    """Details of allowance issues for a swap, mirroring the TypeScript SwapAllowanceIssue type."""
+
+    current_allowance: str = Field(
+        description="The current allowance of the fromToken by the taker"
+    )
+    spender: str = Field(description="The address to set the allowance on")
+
+
+class SwapBalanceIssue(BaseModel):
+    """Details of balance issues for a swap, mirroring the TypeScript SwapBalanceIssue type."""
+
+    token: str = Field(description="The contract address of the token")
+    current_balance: str = Field(description="The current balance of the fromToken by the taker")
+    required_balance: str = Field(description="The amount of the token that the taker must hold")
+
+
+class SwapIssues(BaseModel):
+    """Potential issues discovered during swap validation.
+
+    Mirrors the TypeScript SwapIssues type. Populated from the API response's
+    `issues` object so callers can fail closed before executing a swap.
+    """
+
+    allowance: SwapAllowanceIssue | None = Field(
+        default=None,
+        description="Details of the allowances that the taker must set. "
+        "None if no allowance is required",
+    )
+    balance: SwapBalanceIssue | None = Field(
+        default=None,
+        description="Details of the balance of the fromToken that the taker must hold. "
+        "None if the taker has a sufficient balance",
+    )
+    simulation_incomplete: bool = Field(
+        default=False,
+        description="True when the transaction could not be validated, e.g. when "
+        "the taker has an insufficient balance of the fromToken",
+    )
+
+
 class BaseSendSwapTransactionOptions(BaseModel):
     """Base options for sending a swap transaction."""
 
@@ -174,6 +215,11 @@ class QuoteSwapResult(BaseModel):
     requires_signature: bool = Field(
         default=False, description="Whether Permit2 signature is needed"
     )
+    issues: SwapIssues | None = Field(
+        default=None,
+        description="Potential issues discovered during validation "
+        "(allowance, balance, simulationIncomplete)",
+    )
 
     # Private fields to store context for execute()
     _taker: str | None = PrivateAttr(default=None)
@@ -181,6 +227,39 @@ class QuoteSwapResult(BaseModel):
     _api_clients: Any | None = PrivateAttr(default=None)
     _smart_account: Any | None = PrivateAttr(default=None)
     _paymaster_url: str | None = PrivateAttr(default=None)
+
+    def check_issues(self) -> None:
+        """Fail closed on blocking swap issues before broadcasting a transaction.
+
+        Mirrors the guards in the TypeScript execute paths: raises before any
+        transaction is sent if the quote carries allowance or balance issues.
+        An incomplete simulation is deliberately not blocking, since it does
+        not necessarily mean the trade will revert.
+
+        Raises:
+            ValueError: If the swap has insufficient allowance or balance.
+
+        """
+        if self.issues is None:
+            return
+
+        if self.issues.allowance is not None:
+            raise ValueError(
+                f"Insufficient token allowance for swap. Current allowance: "
+                f"{self.issues.allowance.current_allowance}. Please approve the "
+                f"Permit2 contract ({self.issues.allowance.spender}) to spend your tokens."
+            )
+
+        if self.issues.balance is not None:
+            raise ValueError(
+                f"Insufficient token balance for swap. Current balance: "
+                f"{self.issues.balance.current_balance}. Required balance: "
+                f"{self.issues.balance.required_balance} for token {self.issues.balance.token}."
+            )
+
+        # Note: simulation_incomplete is deliberately not treated as a blocking issue.
+        # Per the API docs it only means the transaction could not be validated, not
+        # that the trade will revert, so we do not fail closed on it.
 
     async def execute(self, idempotency_key: str | None = None) -> "ExecuteSwapQuoteResult":
         """Execute the swap quote.

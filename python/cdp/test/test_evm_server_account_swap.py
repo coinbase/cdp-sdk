@@ -43,6 +43,27 @@ def create_mock_swap_response(response_data: dict) -> MagicMock:
     else:
         mock.permit2 = None
 
+    # Mock issues
+    issues_data = response_data.get("issues")
+    if issues_data is not None:
+        mock.issues = MagicMock()
+        mock.issues.allowance = None
+        mock.issues.balance = None
+        mock.issues.simulation_incomplete = issues_data.get("simulationIncomplete", False)
+        if issues_data.get("allowance"):
+            mock.issues.allowance = MagicMock(
+                current_allowance=issues_data["allowance"].get("currentAllowance"),
+                spender=issues_data["allowance"].get("spender"),
+            )
+        if issues_data.get("balance"):
+            mock.issues.balance = MagicMock(
+                token=issues_data["balance"].get("token"),
+                current_balance=issues_data["balance"].get("currentBalance"),
+                required_balance=issues_data["balance"].get("requiredBalance"),
+            )
+    else:
+        mock.issues = None
+
     return mock
 
 
@@ -85,15 +106,8 @@ class TestEvmServerAccountSwap:
                 },
             },
             "issues": {
-                "allowance": {
-                    "currentAllowance": "0",
-                    "spender": "0x0000000000000000000000000000000000000000",
-                },
-                "balance": {
-                    "token": "0x0000000000000000000000000000000000000000",
-                    "currentBalance": "0",
-                    "requiredBalance": "0",
-                },
+                "allowance": None,
+                "balance": None,
                 "simulationIncomplete": False,
             },
             "transaction": {

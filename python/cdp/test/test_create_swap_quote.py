@@ -40,6 +40,27 @@ def create_mock_swap_response(response_data: dict) -> MagicMock:
     else:
         mock.permit2 = None
 
+    # Mock issues
+    issues_data = response_data.get("issues")
+    if issues_data is not None:
+        mock.issues = MagicMock()
+        mock.issues.allowance = None
+        mock.issues.balance = None
+        mock.issues.simulation_incomplete = issues_data.get("simulationIncomplete", False)
+        if issues_data.get("allowance"):
+            mock.issues.allowance = MagicMock(
+                current_allowance=issues_data["allowance"].get("currentAllowance"),
+                spender=issues_data["allowance"].get("spender"),
+            )
+        if issues_data.get("balance"):
+            mock.issues.balance = MagicMock(
+                token=issues_data["balance"].get("token"),
+                current_balance=issues_data["balance"].get("currentBalance"),
+                required_balance=issues_data["balance"].get("requiredBalance"),
+            )
+    else:
+        mock.issues = None
+
     return mock
 
 
@@ -227,6 +248,82 @@ class TestCreateSwapQuote:
         assert result._signer_address is None
         assert result._smart_account is None
         assert result._paymaster_url is None
+
+    @pytest.mark.asyncio
+    async def test_create_swap_quote_surfaces_issues(self, mock_api_clients, valid_response_data):
+        """Test that API issues (allowance, balance, simulationIncomplete) are surfaced on the result."""
+        response_data = dict(valid_response_data)
+        response_data["issues"] = {
+            "allowance": {
+                "currentAllowance": "1000",
+                "spender": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+            },
+            "balance": {
+                "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "currentBalance": "900000",
+                "requiredBalance": "1000000",
+            },
+            "simulationIncomplete": True,
+        }
+
+        mock_response = AsyncMock()
+        mock_response.read = AsyncMock(return_value=json.dumps(response_data).encode())
+
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
+            return_value=mock_response
+        )
+
+        result = await create_swap_quote(
+            api_clients=mock_api_clients,
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            to_token="0x4200000000000000000000000000000000000006",  # WETH
+            from_amount="1000000",
+            network="base",
+            taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+        )
+
+        assert isinstance(result, QuoteSwapResult)
+        assert result.issues is not None
+        assert result.issues.allowance is not None
+        assert result.issues.allowance.current_allowance == "1000"
+        assert result.issues.allowance.spender == "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+        assert result.issues.balance is not None
+        assert result.issues.balance.token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        assert result.issues.balance.current_balance == "900000"
+        assert result.issues.balance.required_balance == "1000000"
+        assert result.issues.simulation_incomplete is True
+
+    @pytest.mark.asyncio
+    async def test_create_swap_quote_no_issues(self, mock_api_clients, valid_response_data):
+        """Test that a response with no blocking issues maps to a clean issues object."""
+        response_data = dict(valid_response_data)
+        response_data["issues"] = {
+            "allowance": None,
+            "balance": None,
+            "simulationIncomplete": False,
+        }
+
+        mock_response = AsyncMock()
+        mock_response.read = AsyncMock(return_value=json.dumps(response_data).encode())
+
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
+            return_value=mock_response
+        )
+
+        result = await create_swap_quote(
+            api_clients=mock_api_clients,
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            to_token="0x4200000000000000000000000000000000000006",
+            from_amount="1000000",
+            network="base",
+            taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+        )
+
+        assert isinstance(result, QuoteSwapResult)
+        assert result.issues is not None
+        assert result.issues.allowance is None
+        assert result.issues.balance is None
+        assert result.issues.simulation_incomplete is False
 
     @pytest.mark.asyncio
     async def test_create_swap_quote_no_taker(self, mock_api_clients):

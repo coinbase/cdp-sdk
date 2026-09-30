@@ -133,6 +133,9 @@ async def send_swap_operation(
     if isinstance(swap_data, SwapUnavailableResult):
         raise ValueError("Swap unavailable: Insufficient liquidity")
 
+    # Fail closed on blocking swap issues (allowance, balance, simulationIncomplete)
+    swap_data.check_issues()
+
     # Get the transaction data and modify it if needed for Permit2
     tx_data = swap_data.data
 

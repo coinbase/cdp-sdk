@@ -1,21 +1,29 @@
-"""Tests for send_swap_transaction module."""
+"""Tests for send_swap_operation module."""
 
+import importlib
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from pydantic import ValidationError
 
-from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
+from cdp.actions.evm.swap.send_swap_operation import (
+    SendSwapOperationOptions,
+    send_swap_operation,
+)
 from cdp.actions.evm.swap.types import (
-    AccountSwapResult,
-    InlineSendSwapTransactionOptions,
-    QuoteBasedSendSwapTransactionOptions,
     QuoteSwapResult,
+    SmartAccountSwapResult,
     SwapAllowanceIssue,
     SwapBalanceIssue,
     SwapIssues,
 )
+
+# Resolve the module explicitly since `swap/__init__.py` shadows this submodule name with a
+# same-named function, which breaks dotted-string mock.patch() targets on Python <=3.12.
+send_swap_operation_module = importlib.import_module("cdp.actions.evm.swap.send_swap_operation")
+
+MOCK_SMART_ACCOUNT_ADDRESS = "0x75EeF66719c92DD04a5d8f2643c742f5636a06bD"
+MOCK_OWNER_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc9e7595f12345"
 
 
 def create_mock_swap_response(response_data: dict) -> MagicMock:
@@ -82,13 +90,26 @@ def patch_from_dict():
 
 
 @pytest.fixture
+def mock_smart_account():
+    """Create a mock smart account."""
+    owner = MagicMock()
+    owner.address = MOCK_OWNER_ADDRESS
+
+    smart_account = MagicMock()
+    smart_account.address = MOCK_SMART_ACCOUNT_ADDRESS
+    smart_account.owners = [owner]
+
+    return smart_account
+
+
+@pytest.fixture
 def mock_api_clients():
     """Create mock API clients."""
     api_clients = MagicMock()
     api_clients.evm_swaps = MagicMock()
-    api_clients.evm_accounts = MagicMock()
 
     # Mock the create_evm_swap_quote_without_preload_content response
+    # (a clean quote: no allowance, balance, or simulation issues)
     mock_swap_response = MagicMock()
     mock_swap_response_data = {
         "liquidityAvailable": True,
@@ -129,17 +150,12 @@ def mock_api_clients():
         return_value=mock_swap_response
     )
 
-    # Mock the send_evm_transaction response
-    api_clients.evm_accounts.send_evm_transaction = AsyncMock(
-        return_value=MagicMock(transaction_hash="0xmocked_transaction_hash")
-    )
-
     return api_clients
 
 
 @pytest.fixture
 def mock_quote():
-    """Create a mock swap quote."""
+    """Create a mock swap quote with no blocking issues."""
     return QuoteSwapResult(
         liquidity_available=True,
         quote_id="quote-123",
@@ -156,134 +172,67 @@ def mock_quote():
     )
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_with_quote(mock_api_clients, mock_quote):
-    """Test send_swap_transaction with pre-created quote."""
-    swap_options = QuoteBasedSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+async def test_send_swap_operation_with_quote(
+    mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
+):
+    """Test send_swap_operation with a pre-created quote broadcasts a user operation."""
+    mock_send_user_operation.return_value = MagicMock(
+        user_op_hash="0xmocked_user_op_hash", status="pending"
+    )
+
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
+        network="base",
         swap_quote=mock_quote,
         idempotency_key="test-key",
     )
 
-    result = await send_swap_transaction(mock_api_clients, swap_options)
+    result = await send_swap_operation(mock_api_clients, swap_options)
 
-    # In Python 3.10, the patch doesn't work correctly with local imports
-    # So we just verify the result instead of checking mock calls
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
+    assert isinstance(result, SmartAccountSwapResult)
+    assert result.user_op_hash == "0xmocked_user_op_hash"
+    assert result.smart_account_address == MOCK_SMART_ACCOUNT_ADDRESS
+    assert result.status == "pending"
+
+    # Check that send_user_operation was called with the smart account address
+    assert mock_send_user_operation.call_count == 1
+    assert mock_send_user_operation.call_args.kwargs["address"] == MOCK_SMART_ACCOUNT_ADDRESS
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_inline_params(mock_api_clients):
-    """Test send_swap_transaction with inline parameters."""
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+async def test_send_swap_operation_inline_params(
+    mock_send_user_operation, mock_api_clients, mock_smart_account
+):
+    """Test send_swap_operation with inline parameters broadcasts a user operation."""
+    mock_send_user_operation.return_value = MagicMock(
+        user_op_hash="0xmocked_user_op_hash", status="pending"
+    )
+
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
         network="base",
         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         to_token="0x4200000000000000000000000000000000000006",
         from_amount="1000000",
-        taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        slippage_bps=150,
-        idempotency_key="test-key",
-    )
-
-    result = await send_swap_transaction(mock_api_clients, swap_options)
-
-    # Real function is called, so we get the mocked API response
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_no_liquidity(mock_api_clients):
-    """Test send_swap_transaction when no liquidity is available."""
-    # Override the mock response to indicate no liquidity
-    mock_swap_response = MagicMock()
-    mock_swap_response_data = {
-        "liquidityAvailable": False,
-    }
-    mock_swap_response.read = AsyncMock(
-        return_value=json.dumps(mock_swap_response_data).encode("utf-8")
-    )
-    mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
-        return_value=mock_swap_response
-    )
-
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        network="base",
-        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        to_token="0x4200000000000000000000000000000000000006",
-        from_amount="1000000000000",  # Large amount
-        taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
         slippage_bps=100,
     )
 
-    with pytest.raises(ValueError, match="Insufficient liquidity"):
-        await send_swap_transaction(mock_api_clients, swap_options)
+    result = await send_swap_operation(mock_api_clients, swap_options)
+
+    assert isinstance(result, SmartAccountSwapResult)
+    assert result.user_op_hash == "0xmocked_user_op_hash"
+    assert mock_send_user_operation.call_count == 1
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_invalid_options(mock_api_clients):
-    """Test send_swap_transaction with invalid options type."""
-    invalid_options = MagicMock()  # Not a valid options type
-
-    with pytest.raises(ValueError, match="Invalid options type"):
-        await send_swap_transaction(mock_api_clients, invalid_options)
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_missing_inline_params(mock_api_clients):
-    """Test send_swap_transaction with insufficient inline parameters."""
-    # Pydantic will raise ValidationError when creating options with missing required fields
-    with pytest.raises(ValidationError):
-        InlineSendSwapTransactionOptions(
-            address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-            # Missing from_token, to_token, from_amount, network, taker
-        )
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_default_slippage(mock_api_clients):
-    """Test send_swap_transaction with default slippage."""
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        network="base",
-        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        to_token="0x4200000000000000000000000000000000000006",
-        from_amount="1000000",
-        taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        # No slippage_bps specified
-    )
-
-    result = await send_swap_transaction(mock_api_clients, swap_options)
-
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_converts_amount_types(mock_api_clients):
-    """Test send_swap_transaction converts amount types correctly."""
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        network="base",
-        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        to_token="0x4200000000000000000000000000000000000006",
-        from_amount=1000000,  # Integer instead of string
-        taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
-        slippage_bps=100,
-    )
-
-    result = await send_swap_transaction(mock_api_clients, swap_options)
-
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_fails_closed_on_allowance_issues(mock_api_clients, mock_quote):
-    """Test that send_swap_transaction refuses to broadcast when the quote has allowance issues."""
+async def test_send_swap_operation_fails_closed_on_allowance_issues(
+    mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
+):
+    """Test that send_swap_operation refuses to broadcast when the quote has allowance issues."""
     mock_quote.issues = SwapIssues(
         allowance=SwapAllowanceIssue(
             current_allowance="0",
@@ -291,20 +240,24 @@ async def test_send_swap_transaction_fails_closed_on_allowance_issues(mock_api_c
         )
     )
 
-    swap_options = QuoteBasedSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
+        network="base",
         swap_quote=mock_quote,
     )
 
     with pytest.raises(ValueError, match="Insufficient token allowance for swap"):
-        await send_swap_transaction(mock_api_clients, swap_options)
+        await send_swap_operation(mock_api_clients, swap_options)
 
-    mock_api_clients.evm_accounts.send_evm_transaction.assert_not_called()
+    mock_send_user_operation.assert_not_called()
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_fails_closed_on_balance_issues(mock_api_clients, mock_quote):
-    """Test that send_swap_transaction refuses to broadcast when the quote has balance issues."""
+async def test_send_swap_operation_fails_closed_on_balance_issues(
+    mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
+):
+    """Test that send_swap_operation refuses to broadcast when the quote has balance issues."""
     mock_quote.issues = SwapIssues(
         balance=SwapBalanceIssue(
             token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -313,42 +266,51 @@ async def test_send_swap_transaction_fails_closed_on_balance_issues(mock_api_cli
         )
     )
 
-    swap_options = QuoteBasedSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
+        network="base",
         swap_quote=mock_quote,
     )
 
     with pytest.raises(ValueError, match="Insufficient token balance for swap"):
-        await send_swap_transaction(mock_api_clients, swap_options)
+        await send_swap_operation(mock_api_clients, swap_options)
 
-    mock_api_clients.evm_accounts.send_evm_transaction.assert_not_called()
+    mock_send_user_operation.assert_not_called()
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_allows_incomplete_simulation(mock_api_clients, mock_quote):
-    """Test that send_swap_transaction still broadcasts when the simulation is incomplete.
+async def test_send_swap_operation_allows_incomplete_simulation(
+    mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
+):
+    """Test that send_swap_operation still broadcasts when the simulation is incomplete.
 
     simulation_incomplete only means the transaction could not be validated,
     not that the trade will revert, so the execute path deliberately does not
     fail closed on it.
     """
+    mock_send_user_operation.return_value = MagicMock(
+        user_op_hash="0xmocked_user_op_hash", status="pending"
+    )
     mock_quote.issues = SwapIssues(simulation_incomplete=True)
 
-    swap_options = QuoteBasedSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
+        network="base",
         swap_quote=mock_quote,
     )
 
-    result = await send_swap_transaction(mock_api_clients, swap_options)
+    result = await send_swap_operation(mock_api_clients, swap_options)
 
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
-    mock_api_clients.evm_accounts.send_evm_transaction.assert_called_once()
+    assert isinstance(result, SmartAccountSwapResult)
+    assert result.user_op_hash == "0xmocked_user_op_hash"
+    mock_send_user_operation.assert_called_once()
 
 
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
-async def test_send_swap_transaction_inline_params_fails_closed_on_balance_issues(
-    mock_api_clients,
+async def test_send_swap_operation_inline_params_fails_closed_on_balance_issues(
+    mock_send_user_operation, mock_api_clients, mock_smart_account
 ):
     """Test that inline swap params fail closed when the created quote has balance issues."""
     mock_response = MagicMock()
@@ -393,34 +355,15 @@ async def test_send_swap_transaction_inline_params_fails_closed_on_balance_issue
         return_value=mock_response
     )
 
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+    swap_options = SendSwapOperationOptions(
+        smart_account=mock_smart_account,
         network="base",
         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         to_token="0x4200000000000000000000000000000000000006",
         from_amount="1000000",
-        taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
     )
 
     with pytest.raises(ValueError, match="Insufficient token balance for swap"):
-        await send_swap_transaction(mock_api_clients, swap_options)
+        await send_swap_operation(mock_api_clients, swap_options)
 
-    mock_api_clients.evm_accounts.send_evm_transaction.assert_not_called()
-
-
-@pytest.mark.asyncio
-async def test_send_swap_transaction_upper_case_addresses(mock_api_clients):
-    """Test send_swap_transaction converts uppercase addresses to lowercase."""
-    swap_options = InlineSendSwapTransactionOptions(
-        address="0x742D35CC6634C0532925A3B844BC9E7595F12345",  # Uppercase
-        network="base",
-        from_token="0x833589FCD6EDB6E08F4C7C32D4F71B54BDA02913",  # Uppercase
-        to_token="0x4200000000000000000000000000000000000006",
-        from_amount="1000000",
-        taker="0x742D35CC6634C0532925A3B844BC9E7595F12345",  # Uppercase
-    )
-
-    result = await send_swap_transaction(mock_api_clients, swap_options)
-
-    assert isinstance(result, AccountSwapResult)
-    assert result.transaction_hash == "0xmocked_transaction_hash"
+    mock_send_user_operation.assert_not_called()

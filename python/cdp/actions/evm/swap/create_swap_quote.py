@@ -4,7 +4,14 @@ import hashlib
 import json
 from typing import Any
 
-from cdp.actions.evm.swap.types import Permit2Data, QuoteSwapResult, SwapUnavailableResult
+from cdp.actions.evm.swap.types import (
+    Permit2Data,
+    QuoteSwapResult,
+    SwapAllowanceIssue,
+    SwapBalanceIssue,
+    SwapIssues,
+    SwapUnavailableResult,
+)
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_evm_swap_quote_request import (
     CreateEvmSwapQuoteRequest,
@@ -34,6 +41,35 @@ def _parse_json_response(raw_data: bytes, operation: str) -> dict[str, Any]:
         return json.loads(raw_data.decode("utf-8"))
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON response from {operation}: {e}") from e
+
+
+def _map_swap_issues(issues: Any) -> SwapIssues:
+    """Map the API response issues object to a SwapIssues model.
+
+    Args:
+        issues: The issues object from CreateSwapQuoteResponse
+            (CommonSwapResponseIssues or equivalent)
+
+    Returns:
+        SwapIssues: The mapped issues, consistent with the TypeScript SwapIssues type
+
+    """
+    return SwapIssues(
+        allowance=SwapAllowanceIssue(
+            current_allowance=issues.allowance.current_allowance,
+            spender=issues.allowance.spender,
+        )
+        if issues.allowance
+        else None,
+        balance=SwapBalanceIssue(
+            token=issues.balance.token,
+            current_balance=issues.balance.current_balance,
+            required_balance=issues.balance.required_balance,
+        )
+        if issues.balance
+        else None,
+        simulation_incomplete=issues.simulation_incomplete,
+    )
 
 
 def _generate_swap_quote_id(*components: Any) -> str:
@@ -158,6 +194,10 @@ async def create_swap_quote(
     # Extract transaction data
     tx_data = swap_data.transaction
 
+    # Map the API issues (allowance, balance, simulationIncomplete) so callers
+    # can fail closed before executing the swap
+    swap_issues = _map_swap_issues(swap_data.issues) if swap_data.issues is not None else None
+
     # Check if Permit2 signature is required
     permit2_data = None
     requires_signature = False
@@ -201,6 +241,7 @@ async def create_swap_quote(
         network=network,
         permit2_data=permit2_data,
         requires_signature=requires_signature,
+        issues=swap_issues,
     )
 
     # Store taker and signer_address for execute()

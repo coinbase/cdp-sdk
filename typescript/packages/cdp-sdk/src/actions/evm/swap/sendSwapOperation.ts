@@ -35,6 +35,8 @@ import type { Hex } from "../../../types/misc.js";
  * @throws {Error} If there are insufficient token allowances. In this case, you need to approve the
  *                 Permit2 contract to spend your tokens before attempting the swap. The error message
  *                 will include the current allowance and the spender address that needs approval.
+ * @throws {Error} If the taker has an insufficient token balance for the swap. The error message will
+ *                 include the current balance, the required balance, and the token address.
  * @throws {Error} If no transaction data is found in the swap result.
  *
  * @example **Sending a swap with pre-created swap quote object**
@@ -128,6 +130,21 @@ export async function sendSwapOperation(
         `Please approve the Permit2 contract (${spender}) to spend your tokens.`,
     );
   }
+
+  // Check for balance issues
+  if (swap.issues?.balance) {
+    const { token, currentBalance, requiredBalance } = swap.issues.balance;
+    throw new Error(
+      `Insufficient token balance for swap. Current balance: ${currentBalance}. ` +
+        `Required balance: ${requiredBalance} for token ${token}.`,
+    );
+  }
+
+  /*
+   * Note: simulationIncomplete is deliberately not treated as a blocking issue.
+   * Per the API docs it only means the transaction could not be validated, not
+   * that the trade will revert, so we do not fail closed on it.
+   */
 
   // If the transaction doesn't exist, throw an error
   if (!swap.transaction) {

@@ -105,6 +105,9 @@ async def send_swap_transaction(
     else:
         raise ValueError(f"Invalid options type: {type(options)}")
 
+    # Fail closed on blocking swap issues (allowance, balance, simulationIncomplete)
+    swap_data.check_issues()
+
     # Handle Permit2 signature if required (common for both patterns)
     permit2_signature = None
     if swap_data.requires_signature and swap_data.permit2_data:
