@@ -194,6 +194,7 @@ def generate_jwt(options: JwtOptions) -> str:
             "sub": options.api_key_id,
             "iss": "cdp",
             "aud": options.audience,
+            "iat": now,
             "nbf": now,
             "exp": now + expires_in,
         }
