@@ -1,5 +1,6 @@
 """Tests for send_swap_operation module."""
 
+import importlib
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -16,6 +17,10 @@ from cdp.actions.evm.swap.types import (
     SwapBalanceIssue,
     SwapIssues,
 )
+
+# Resolve the module explicitly since `swap/__init__.py` shadows this submodule name with a
+# same-named function, which breaks dotted-string mock.patch() targets on Python <=3.12.
+send_swap_operation_module = importlib.import_module("cdp.actions.evm.swap.send_swap_operation")
 
 MOCK_SMART_ACCOUNT_ADDRESS = "0x75EeF66719c92DD04a5d8f2643c742f5636a06bD"
 MOCK_OWNER_ADDRESS = "0x742d35Cc6634C0532925a3b844Bc9e7595f12345"
@@ -167,7 +172,7 @@ def mock_quote():
     )
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_with_quote(
     mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
@@ -196,7 +201,7 @@ async def test_send_swap_operation_with_quote(
     assert mock_send_user_operation.call_args.kwargs["address"] == MOCK_SMART_ACCOUNT_ADDRESS
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_inline_params(
     mock_send_user_operation, mock_api_clients, mock_smart_account
@@ -222,7 +227,7 @@ async def test_send_swap_operation_inline_params(
     assert mock_send_user_operation.call_count == 1
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_fails_closed_on_allowance_issues(
     mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
@@ -247,7 +252,7 @@ async def test_send_swap_operation_fails_closed_on_allowance_issues(
     mock_send_user_operation.assert_not_called()
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_fails_closed_on_balance_issues(
     mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
@@ -273,7 +278,7 @@ async def test_send_swap_operation_fails_closed_on_balance_issues(
     mock_send_user_operation.assert_not_called()
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_allows_incomplete_simulation(
     mock_send_user_operation, mock_api_clients, mock_smart_account, mock_quote
@@ -302,7 +307,7 @@ async def test_send_swap_operation_allows_incomplete_simulation(
     mock_send_user_operation.assert_called_once()
 
 
-@patch("cdp.actions.evm.swap.send_swap_operation.send_user_operation")
+@patch.object(send_swap_operation_module, "send_user_operation")
 @pytest.mark.asyncio
 async def test_send_swap_operation_inline_params_fails_closed_on_balance_issues(
     mock_send_user_operation, mock_api_clients, mock_smart_account
