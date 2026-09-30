@@ -1,6 +1,6 @@
 [project]
 name = "cdp-sdk"
-version = "1.48.1"
+version = "1.48.2"
 description = "CDP SDK"
 license = {text = "MIT"}
 readme = "README.md"
