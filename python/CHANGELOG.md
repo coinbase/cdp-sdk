@@ -2,6 +2,16 @@
 
 <!-- towncrier release notes start -->
 
+## [1.48.2] - 2026-09-30
+
+### Bugfixes
+
+- Regenerate the OpenAPI client from the latest CDP API spec, adding customer-requirements and borrowing operations, Solana encoding options, and updated policy documentation.
+
+  Webhook subscription create/update metadata values now validate as 1–50 characters instead of 0–500. Requests with empty values or values longer than 50 characters must be updated. The API contract also specifies 1–50 characters for keys and at most 10 pairs. (CDP API spec a308e789)
+- Fixed the Python swap quote to surface API issues (allowance, balance, simulationIncomplete) on `QuoteSwapResult`, and made `send_swap_transaction` / `send_swap_operation` fail closed on allowance and balance issues before broadcasting a swap. `simulationIncomplete` is deliberately not blocking since, per the API docs, it does not necessarily mean the trade will revert. ([#97](https://github.com/coinbase/cdp-sdk/pull/97))
+
+
 ## [1.48.1] - 2026-08-25
 
 ### Bugfixes
