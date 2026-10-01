@@ -1,0 +1,503 @@
+name: Python Package using Conda
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        conda env update --file environment.yml --name base
+    - name: Lint with flake8
+      run: |
+        conda install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        conda install pytest
+        pytest
+- name: Cache
+  uses: actions/cache@v5.1.0
+  with:
+    # A list of files, directories, and wildcard patterns to cache and restore
+    path: 
+    # An explicit key for restoring and saving the cache
+    key: 
+    # An ordered multiline string listing the prefix-matched keys, that are used for restoring stale cache if no cache hit occurred for key. Note `cache-hit` returns false in this case.
+    restore-keys: # optional
+    # The chunk size used to split up large files during upload, in bytes
+    upload-chunk-size: # optional
+    # An optional boolean when enabled, allows windows runners to save or restore caches that can be restored or saved respectively on other platforms
+    enableCrossOsArchive: # optional, default is false
+    # Fail the workflow if cache entry is not found
+    fail-on-cache-miss: # optional, default is false
+    # Check if a cache entry exists for the given input(s) (key, restore-keys) without downloading the cache
+    lookup-only: # optional, default is false
+    # Run the post step to save the cache even if another step before fails
+    save-always: # optional, default is false- name: Coder Create Task
+  # You may pin to the exact commit or the version.
+  # uses: coder/create-task-action@a2f4758e6eb3b2c2aefd0fdd4b062e678e1db703
+  uses: coder/create-task-action@v0.0.5
+  with:
+    # Prompt/instructions to send to the task
+    coder-task-prompt: 
+    # Coder session token for authentication
+    coder-token: 
+    # Coder deployment URL
+    coder-url: 
+    # Coder template to use for workspace
+    coder-template-name: 
+    # GitHub issue URL to link this task to
+    github-issue-url: 
+    # GitHub token for API operations
+    github-token: 
+    # GitHub user ID to create task for. If provided, `coder-username` must not be set.
+    github-user-id: # optional
+    # Coder username to create task for. If provided, github-user-id must not be set. Useful for automated workflows without a triggering user.
+    coder-username: # optional
+    # Coder organization name
+    coder-organization: # optional, default is default
+    # Prefix for task name
+    coder-task-name-prefix: # optional, default is gh
+    # Template preset to use (optional)
+    coder-template-preset: # optional
+    # Whether to comment on the GitHub issue
+    comment-on-issue: # optional, default is true- name: Create Asana Task
+  # You may pin to the exact commit or the version.
+  # uses: honeycombio/gha-create-asana-task@804456b9b876e7a13fcc47e8839407c16acd03c5
+  uses: honeycombio/gha-create-asana-task@v1.0.1
+  with:
+    # Asana PAT
+    asana-secret: 
+    # Your Asana Workspace ID
+    asana-workspace-id: 
+    # Your Asana Project ID
+    asana-project-id: 
+    # Your Asana Section ID (column the task should belong to)
+    asana-section-id: 
+    # Name for Asana task
+    asana-task-name: 
+    # Description for Asana task
+    asana-task-description: # optional
+    # Date on which Asana task is due (YYYY-MM-DD)
+    asana-due-date: # optional
+    # List of tag IDs to associate with Asana task
+    asana-tags: # optional- name: Teamwork GitHub Sync
+  # You may pin to the exact commit or the version.
+  # uses: Teamwork/github-sync@42dcac69eb5a41fad0d518efeb6aecf1e45f8d01
+  uses: Teamwork/github-sync@v1.3.3
+  with:
+    # GitHub token
+    GITHUB_TOKEN: 
+    # Teamwork URI
+    TEAMWORK_URI: 
+    # Teamwork API token
+    TEAMWORK_API_TOKEN: 
+    # Do you want to enable automatic tagging: true/false
+    AUTOMATIC_TAGGING: # optional
+    # The case-sensitive column name of the column you would like the task to be moved to once the PR has been opened
+    BOARD_COLUMN_OPENED: # optional, default is 
+    # The case-sensitive column name of the column you would like the task to be moved to once the PR has been merged
+    BOARD_COLUMN_MERGED: # optional, default is 
+    # The case-sensitive column name of the column you would like the task to be moved to if the PR was closed without being merged
+    BOARD_COLUMN_CLOSED: # optional, default is - name: Coder Create Task
+  # You may pin to the exact commit or the version.
+  # uses: coder/create-task-action@a2f4758e6eb3b2c2aefd0fdd4b062e678e1db703
+  uses: coder/create-task-action@v0.0.5
+  with:
+    # Prompt/instructions to send to the task
+    coder-task-prompt: 
+    # Coder session token for authentication
+    coder-token: 
+    # Coder deployment URL
+    coder-url: 
+    # Coder template to use for workspace
+    coder-template-name: 
+    # GitHub issue URL to link this task to
+    github-issue-url: 
+    # GitHub token for API operations
+    github-token: 
+    # GitHub user ID to create task for. If provided, `coder-username` must not be set.
+    github-user-id: # optional
+    # Coder username to create task for. If provided, github-user-id must not be set. Useful for automated workflows without a triggering user.
+    coder-username: # optional
+    # Coder organization name
+    coder-organization: # optional, default is default
+    # Prefix for task name
+    coder-task-name-prefix: # optional, default is gh
+    # Template preset to use (optional)
+    coder-template-preset: # optional
+    # Whether to comment on the GitHub issue
+    comment-on-issue: # optional, default is true- name: Veracode Profile Sandboxes Helper
+  # You may pin to the exact commit or the version.
+  # uses: veracode/veracode-sandboxes-helper@baa0a8458605b92d261b6b8f7801fa67fdce501b
+  uses: veracode/veracode-sandboxes-helper@v1.0.0
+  with:
+    # The activity expected from the Action: clean, promote-latest-scan, remove-sandbox
+    activity: # optional
+    # Veracode Application name
+    app-name: 
+    # Sandbox name for actions related to a specific Sandbox
+    sandbox-name: # optional
+    # The amount of oldest scanned-in sandboxes to remove
+    clean-amount: # optional, default is 1
+    # Deletes the sandbox after its promotion. Only works with the [promote] activity. Default is false
+    delete-on-promote: # optional, default is false
+    # The number of days which the sandbox had no activity
+    clean-modified-before: # optional, default is 0- name: ChartDB Database Sync
+  # You may pin to the exact commit or the version.
+  # uses: chartdb/chartdb-action@bf0d5213ffaae65d356cfb042b1b0b06e8581c12
+  uses: chartdb/chartdb-action@v1.0.0
+  with:
+    # Database host address
+    db-host: 
+    # Database port
+    db-port: # optional, default is 5432
+    # Database name
+    db-database: 
+    # Database username
+    db-username: 
+    # Database password (use secrets!)
+    db-password: # optional
+    # Database type (postgresql, mysql, mariadb, mssql)
+    db-type: 
+    # ChartDB API token (use secrets!)
+    chartdb-api-token: 
+    # ChartDB diagram ID to sync with
+    chartdb-diagram-id: 
+    # Docker network mode
+    network: # optional, default is host- name: OpenInfraQuote
+  # You may pin to the exact commit or the version.
+  # uses: terrateamio/openinfraquote-action@6ce7f258c71e3104b75ca438a731c4f6d45d4593
+  uses: terrateamio/openinfraquote-action@v1
+  with:
+    # Path to the Terraform JSON plan file
+    plan-path: # optional, default is tfplan.json
+    # Whether to comment the result on the pull request
+    comment-on-pr: # optional, default is true
+    # GitHub token for commenting on pull requests
+    github-token: # optional, default is ${{ github.token }}
+    # Optional region for oiq price
+    region: # optional, default is - name: Docker image exists
+  # You may pin to the exact commit or the version.
+  # uses: cloudposse/github-action-docker-image-exists@4bdf41f05434b8b3570d45f34f9d43bc37b5f6a5
+  uses: cloudposse/github-action-docker-image-exists@0.2.0
+  with:
+    # Organization
+    organization: 
+    # Repository
+    repository: 
+    # Docker registry
+    registry: 
+    # Image name (excluding registry). Defaults to {{$organization/$repository}}.
+    image_name: # optional, default is 
+    # Tag
+    tag: 
+    # Docker login
+    login: # optional, default is 
+    # Docker password
+    password: # optional, default is - name: ServiceNow ITSM Actions
+  # You may pin to the exact commit or the version.
+  # uses: shundor/servicenow-actions@e61808a890f5eeae51a75fc433ed91842e46040c
+  uses: shundor/servicenow-actions@v1.0
+  with:
+    # ServiceNow instance host
+    sn_host: 
+    # ServiceNow username
+    sn_username: 
+    # ServiceNow password
+    sn_password: 
+    # ServiceNow client ID
+    sn_client_id: 
+    # ServiceNow client secret
+    sn_client_secret: 
+    # ServiceNow module name
+    sn_module: 
+    # ServiceNow module parameters
+    sn_module_params: 
+    # Enable debug mode
+    debug: # optional, default is false- name: Publish event
+  # You may pin to the exact commit or the version.
+  # uses: fiberplane/publish-event@63e125ddca44bfb308eec949bcb22f80230394b0
+  uses: fiberplane/publish-event@v1.2
+  with:
+    # API token used to access the Fiberplane API with
+    api-token: 
+    # Title of the newly created event
+    title: # default is GitHub Action
+    # Labels to add to the event.
+Format: key=value|key=value|key=value
+
+    labels: 
+    # Time at which the event occurred. Defaults to current time. Format should be a RFC 3339 formatted string
+    time: # optional
+    # ID of the workspace to which the event should be posted
+    workspace-id: 
+    # Base URL of the Fiberplane API
+    fp-base-url: # default is https://studio.fiberplane.com- name: Instrument pipeline
+  # You may pin to the exact commit or the version.
+  # uses: autometrics-dev/instrument-pipeline@142e4e6cbc109bb37c705daa856b6462689b3ef8
+  uses: autometrics-dev/instrument-pipeline@v0.1.0
+  with:
+    # URL to the aggregation gateway, for example `http://localhost:9091`
+    pushgateway: 
+    # Type of the aggregation gateway, one of `prometheus`, `gravel`, or `zapier`. Currently only changes the url format in case of prometheus
+    gatewaytype: # optional
+    # Comma separated list of buckets for duration histogram, with or without the brackets []
+    buckets: # optional- name: SDP CI Integration
+  # You may pin to the exact commit or the version.
+  # uses: opentext/sdp-github-actions-integration@70702e2f103ff12a4be0e02e09bade9760805725
+  uses: opentext/sdp-github-actions-integration@v26.4.0
+  with:
+    # Url of OpenText SDP / SDM instance
+    octaneUrl: 
+    # Shared Space ID
+    octaneSharedSpace: 
+    # Workspace ID
+    octaneWorkspace: 
+    # OpenText SDP / SDM API Access Client ID
+    octaneClientId: 
+    # OpenText SDP / SDM API Access Client Secret
+    octaneClientSecret: 
+    # GitHub PAT
+    gitHubToken: 
+    # URL of the organization/repository in GitHub
+    serverBaseUrl: 
+    # Pattern to build pipeline names
+    pipelineNamePattern: 
+    # Pattern to search unit test result report files in artifacts
+    unitTestResultsGlobPattern: # optional
+    # Pattern to search Gherkin test result report files in artifacts
+    gherkinTestResultsGlobPattern: # optional
+    # Testing framework to use for the test runner
+    testingFramework: # optional
+    # Sets the log level (1-5): 1-trace, 2-debug, 3-info, 4-warn, 5-error- name: elmah.io Create Deployment Action
+  # You may pin to the exact commit or the version.
+  # uses: elmahio/github-create-deployment-action@132611db9161ecebb1b07db6510d4ea5e0d2d415
+  uses: elmahio/github-create-deployment-action@v1
+  with:
+    # An API key with permission to create deployments.
+    apiKey: 
+    # The version number of this deployment. The value of version can be a SemVer compliant string or any other syntax that you are using as your version numbering scheme.
+    version: 
+    # Optional description of this deployment. Can be markdown or clear text.
+    description: # optional
+    # The name of the person responsible for creating this deployment. This can be the name taken from your deployment server.
+    userName: # optional
+    # The email of the person responsible for creating this deployment. This can be the email taken from your deployment server.
+    userEmail: # optional
+    # As default, deployments are attached all logs of the organization. If you want a deployment to attach to a single log only, set this to the ID of that log.
+    logId: # optional
+    logLevel: # optional, default is 3- name: Annotate Nobl9 SLO
+  # You may pin to the exact commit or the version.
+  # uses: nobl9/action-annotate-slo@1b79aa07d76525d32ec2d468f8afd1858e160cc1
+  uses: nobl9/action-annotate-slo@v0.1.0
+  with:
+    # Annotation to add
+    annotation: 
+    # SLO to annotate
+    slo: # optional
+    # Labels to annotate
+    labels: # optional
+    # Project containing SLO to annotate
+    project: 
+    # sloctl version to use
+    sloctl_version: # optional, default is 0.0.99
+    # Nobl9 client id
+    nobl9_client_id: 
+    # Nobl9 client secret
+    nobl9_client_secret: 
+    # Nobl9 okta org url
+    nobl9_okta_org_url: # optional, default is https://accounts.nobl9.com
+    # Nobl9 okta auth server
+    nobl9_okta_auth_server: # optional, default is auseg9kiegWKEtJZC416
+    # Nobl9 URL
+    nobl9_url: # optional, default is https://app.nobl9.com/api- name: Application observability for AWS
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/application-observability-for-aws@3ad2bc7d604dc6853b503f18ad4d5495dcf4ee08
+  uses: aws-actions/application-observability-for-aws@v1.2.1
+  with:
+    # The bot name to respond to in comments (e.g., @awsapm)
+    bot_name: # optional, default is @awsapm
+    # The branch to merge PRs into (defaults to repository default branch)
+    target_branch: # optional
+    # Prefix for branches created by the action (e.g., 'awsapm/', 'awsapm-')
+    branch_prefix: # optional, default is awsapm/
+    # Comma-separated list of GitHub usernames allowed to use this action even without write access. Empty string (default) means only users with write/admin access can use it. The single value '*' allows ANY user to trigger the action, which removes the trust boundary entirely - see docs/security.md before using it.
+    allowed_non_write_users: # optional, default is 
+    # GitHub token to use for API calls. If not provided, uses the default GitHub Actions token.
+    github_token: # optional, default is ${{ github.token }}
+    # Custom instructions to guide the AI agent's analysis and actions
+    custom_prompt: # optional, default is 
+    # CLI tool to use for investigation
+    cli_tool: # optional, default is claude_code
+    # Path to AI agent execution output file (used to post results back to GitHub). For claude_code path, pass this from claude-code-base-action outputs in a second call to this action.
+    output_file: # optional
+    # Execution status from AI agent (success or failure). Only used when output_file is provided.
+    output_status: # optional
+    # GitHub comment ID to update with results (required for Step 3 - pass from Step 1 output: steps.prepare.outputs.awsapm_comment_id)
+    comment_id: # optional
+    # Enable CloudWatch MCP server for metrics, alarms, and log insights
+    enable_cloudwatch_mcp: # optional, default is true
+    # Enable integration test mode (internal use only)
+    test_mode: # optional, default is false- name: Actions Dashboard
+  # You may pin to the exact commit or the version.
+  # uses: pushtodisplay/actions-dashboard@ce26532a36af079259315587543935064f22e6b4
+  uses: pushtodisplay/actions-dashboard@v1.0.0
+  with:
+    # Serialized steps context of the calling job (the workflow passes toJSON(steps)). Only steps that declare an id: are included — GitHub itself computes this list. Empty context means the report step is first: status 'started'. Otherwise the job's status: done, failed, cancelled, or in progress.
+    steps-json: # optional
+    # Set to true on report steps placed in the middle of a job — the job is still running, so the status is 'in progress' instead of 'done'. Leave unset on the first or last report step. A failure or cancellation is always reported as such.
+    progress: # optional
+    # API key for authentication. Optional when the workflow or job sets env PUSH_TO_DISPLAY_API_KEY.
+    api-key: # optional
+    # Base URL of the Push to Display API. Override only for self-hosted instances or testing.
+    api-url: # optional, default is https://api.pushtodisplay.com
+    # Board ID to push to. Optional when the workflow or job sets env PUSH_TO_DISPLAY_BOARD. Omit to use the account's default board.
+    board-id: # optional
+    # Explicit panel ID (1-4). Defaults to panel 1.
+    panel-id: # optional
+    # Label shown on the board. Defaults to the workflow name.
+    label: # optional- name: PagerDuty Change Events
+  # You may pin to the exact commit or the version.
+  # uses: PagerDuty/pagerduty-change-events-action@ec2c5d5cff79059924d663a7427733785626c3bf
+  uses: PagerDuty/pagerduty-change-events-action@v1.3.0
+  with:
+    # The integration key that identifies the service the change was made to.
+    integration-key: 
+    # Custom event summary. If provided the GitHub event type is ignored and the given sum- name: rootly-pulse
+  # You may pin to the exact commit or the version.
+  # uses: rootlyhq/pulse-action@7aa3a8baf889ff8b37a489dde53edece73b24a64
+  uses: rootlyhq/pulse-action@v1.1.1
+  with:
+    # Summary of the pulse
+    summary: 
+    # A API key for rootly
+    api_key: 
+    # Environments associated with the pulse. Separate with commas.
+    environments: # optional
+    # Services associated with the pulse. Separate with commas.
+    services: # optional
+    # Labels associated with the pulse. Separate with commas and separate key-value pair with = (no spaces before or after =).
+    labels: # optional
+    # Source of the pulse
+    source: # optional
+    # Refs associated with the pulse. Separate with commas and separate key-value pair with = (no spaces before or after =).
+    refs: # optionalmary used. A link to the run is included in the event.
+    custom-event: # optional- name: rootly-pulse
+  # You may pin to the exact commit or the version.
+  # uses: rootlyhq/pulse-action@7aa3a8baf889ff8b37a489dde53edece73b24a64
+  uses: rootlyhq/pulse-action@v1.1.1
+  with:
+    # Summary of the pulse
+    summary: 
+    # A API key for rootly
+    api_key: 
+    # Environments associated with the pulse. Separate with commas.
+    environments: # optional
+    # Services associated with the pulse. Separate with commas.
+    services: # optional
+    # Labels associated with the pulse. Separate with commas and separate key-value pair with = (no spaces before or after =).
+    labels: # optional
+    # Source of the pulse
+    source: # optional
+    # Refs associated with the pulse. Separate with commas and separate key-value pair with = (no spaces before or after =).
+    refs: # optional- name: Harden-Runner
+  # You may pin to the exact commit or the version.
+  # uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1
+  uses: step-security/harden-runner@v2.21.1
+  with:
+    # Only these endpoints will be allowed if egress-policy is set to block
+    allowed-endpoints: # optional, default is 
+    # These endpoints will be denied when endpoint blocking is enabled
+    denied-endpoints: # optional, default is 
+    # Policy for outbound traffic, can be either audit or block
+    egress-policy: # optional, default is block
+    # Used to avoid github rate limiting
+    token: # optional, default is ${{ github.token }}
+    # Disable sending telemetry to StepSecurity API, can be set to true or false. This can only be set to true when egress-policy is set to block
+    disable-telemetry: # optional, default is false
+    # Disable sudo access for the runner account. Note: This parameter will be deprecated in the future. Please use disable-sudo-and-containers instead.
+    disable-sudo: # optional, default is false
+    # Disable sudo and container access for the runner account
+    disable-sudo-and-containers: # optional, default is false
+    # Disable file monitoring
+    disable-file-monitoring: # optional, default is false
+    # Policy name to be used from the policy store. Requires id-token: write permission.
+    policy: # optional, default is 
+    # StepSecurity API key for authenticating with the policy store. Required when use-policy-store is set to true.
+    api-key: # optional, default is 
+    # Set to true to fetch policy from the policy store using the API key. This is the preferred method over the policy input which requires id-token: write permission. Policies can be defined and attached at workflow, repo, org, or cluster (for ARC) level in the policy store. The most granular policy will apply.
+    use-policy-store: # optional, default is false
+    # Set to true to deploy the Harden Runner agent directly on a self-hosted runner VM (Linux only). The recommended approach for self-hosted VMs is to bake the agent into the VM image; see docs.stepsecurity.io. Use this option only if baking is not possible, and only for ephemeral runners.
+    deploy-on-self-hosted-vm: # optional, default is false- name: rss-to-issues
+  # You may pin to the exact commit or the version.
+  # uses: git-for-windows/rss-to-issues@99d302b353c4751ca1bda6130fb24934ec12e01e
+  uses: git-for-windows/rss-to-issues@v0.0.13
+  with:
+    # The GITHUB_TOKEN secret
+    github-token: 
+    # URL of the RSS/Atom feed
+    feed: 
+    # Only look at feed items younger than this
+    max-age: 
+    # Prefix added to the created issues' titles
+    prefix: # optional
+    # Labels to add, comma separated
+    labels: # optional
+    # Log issue creation but do nothing
+    dry-run: # optional
+    # Aggregate all items in a single issue
+    aggregate: # optional
+    # Limit the issue contents' size
+    character-limit: # optional
+    # Limit to feed items whose titles match this regular expression
+    title-pattern: # optional
+    # Limit to feed items whose contents match this regular expression
+    content-pattern: # optional
+    # If set, only the URL is added to the issue body
+    url-only: # optional, default is false- name: Setup Nsolid environment
+  # You may pin to the exact commit or the version.
+  # uses: nodesource/setup-nsolid@1ca68d2589d3d56ecd3881dfe6ffa87eeda9c939
+  uses: nodesource/setup-nsolid@v1.0.1
+  with:
+    # Node to use, if no values specified we will setup the major version available for the nsolid-version. E.g: 18.x, 20.x.
+    node-version: # optional
+    # Nsolid version to use. E.g: 5.0.5, 4.10.0, latest.
+    nsolid-version: 
+    # Target operating system for Nsolid to use. E.g: linux, darwin, win32. Will use linux by default.
+    platform: # optional
+    # Target architecture for Node to use.- name: Load runner information
+  # You may pin to the exact commit or the version.
+  # uses: devops-actions/load-runner-info@a067f205538cf4690b35b0e224e983c29cc21ecb
+  uses: devops-actions/load-runner-info@v2.0.1
+  with:
+    # Slug of the organization to analyze.
+    organization: 
+    # Slug of the repository to analyze.
+    repo: # optional
+    # Access token to use for analysis with either admin:org or repo owner if you run it against a repo
+    accessToken: 
+    arch: # optional- name: SSL Certificate Expiry Checker
+  # You may pin to the exact commit or the version.
+  # uses: surmon-china/action-ssl-cert-expiry-checker@f484a489fd29bbb1eaaa4d272b5261d20490dd2f
+  uses: surmon-china/action-ssl-cert-expiry-checker@v1.0.0
+  with:
+    # Site domain to be checked (without protocol)
+    domain: 
