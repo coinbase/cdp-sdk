@@ -2,6 +2,7 @@ import hashlib
 import inspect
 import re
 import uuid
+from decimal import ROUND_HALF_UP, Decimal
 
 from eth_account.typed_transactions import DynamicFeeTransaction
 
@@ -58,6 +59,21 @@ class InvalidDecimalNumberError(Exception):
         super().__init__(f"Invalid decimal number: {value}")
 
 
+def _round_half_up(value: str) -> int:
+    """Round a non-negative decimal string to the nearest integer, with ties rounding up.
+
+    The built-in round() rounds ties to the nearest even number, which differs from the
+    Math.round used by viem's parseUnits in the TypeScript SDK.
+
+    Args:
+        value: The decimal number string to round
+
+    Returns: The rounded integer
+
+    """
+    return int(Decimal(value).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
 def parse_units(value: str, decimals: int) -> int:
     """Parse a decimal number string into an integer.
 
@@ -88,20 +104,22 @@ def parse_units(value: str, decimals: int) -> int:
 
     # round off if the fraction is larger than the number of decimals
     if decimals == 0:
-        if round(float(f"0.{fraction}")) == 1:
-            integer = str(int(integer) + 1)
+        if _round_half_up(f"0.{fraction}") == 1:
+            integer = str(int(integer or "0") + 1)
         fraction = ""
     elif len(fraction) > decimals:
         left = fraction[: decimals - 1]
         unit = fraction[decimals - 1 : decimals]
         right = fraction[decimals:]
 
-        rounded = round(float(f"{unit}.{right}"))
-        fraction = f"{int(left) + 1}0".zfill(len(left) + 1) if rounded > 9 else f"{left}{rounded}"
+        rounded = _round_half_up(f"{unit}.{right}")
+        fraction = (
+            f"{int(left or '0') + 1}0".zfill(len(left) + 1) if rounded > 9 else f"{left}{rounded}"
+        )
 
         if len(fraction) > decimals:
             fraction = fraction[1:]
-            integer = str(int(integer) + 1)
+            integer = str(int(integer or "0") + 1)
 
         fraction = fraction[:decimals]
     else:
