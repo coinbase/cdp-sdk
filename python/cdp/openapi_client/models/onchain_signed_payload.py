@@ -25,10 +25,10 @@ from typing_extensions import Self
 
 class OnchainSignedPayload(BaseModel):
     """
-    A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`: - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`. - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+    A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`: - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`. - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`. - `solana_subscription` — the 64-byte ed25519 signature for the payer that   signed, extracted from the signed Solana transaction and base58-encoded.   Not the signed transaction bytes, and not `0x`-prefixed hex.
     """ # noqa: E501
     payload_id: Optional[StrictStr] = Field(default=None, description="The unique identifier of the signed payload.", alias="payloadId")
-    signature: Optional[StrictStr] = Field(default=None, description="The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`.")
+    signature: Optional[StrictStr] = Field(default=None, description="The output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. For `solana_subscription`, this is the payer's 64-byte ed25519 signature extracted from the signed Solana transaction and base58-encoded, not the signed transaction bytes or `0x`-prefixed hex.")
     __properties: ClassVar[List[str]] = ["payloadId", "signature"]
 
     model_config = ConfigDict(

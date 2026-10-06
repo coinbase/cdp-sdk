@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.49.0] - 2026-10-06
+
+### Features
+
+- Revoke delegation now calls `POST .../delegation/revoke` and `POST .../address/{address}/delegation/revoke`. The old `DELETE` endpoints remain as `revokeDelegationForEndUserDeprecated` and `revokeDelegationForEndUserAccountDeprecated` until 2026-10-22. The generated request body type for all four operations is now `RevokeDelegationRequest`. Also adds the Mandates API (`createMandate`, `getMandate`, `listMandates`, `cancelMandate`, `approveWalletMandate`, `revokeWalletMandate`, `authorizeMandatePaymentSession`, and related approval and revocation reads) from the cdp-api master spec. ([#cdp-api-6c7beea6](https://github.com/coinbase/cdp-sdk/pull/cdp-api-6c7beea6))
+
+
 ## [1.48.2] - 2026-09-30
 
 ### Bugfixes

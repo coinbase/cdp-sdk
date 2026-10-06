@@ -5,6 +5,7 @@
 package com.coinbase.cdp.resources.enduseraccounts.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
+import com.coinbase.cdp.types.RevokeDelegationRequest;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 
 @JsonInclude(JsonInclude.Include.NON_ABSENT)
 @JsonDeserialize(
@@ -32,17 +34,17 @@ public final class RevokeDelegationForEndUserRequest {
 
   private final Optional<String> projectId;
 
-  private final Optional<String> walletSecretId;
+  private final RevokeDelegationRequest body;
 
   private final Map<String, Object> additionalProperties;
 
   private RevokeDelegationForEndUserRequest(Optional<String> developerAuth,
-      Optional<String> idempotencyKey, Optional<String> projectId, Optional<String> walletSecretId,
+      Optional<String> idempotencyKey, Optional<String> projectId, RevokeDelegationRequest body,
       Map<String, Object> additionalProperties) {
     this.developerAuth = developerAuth;
     this.idempotencyKey = idempotencyKey;
     this.projectId = projectId;
-    this.walletSecretId = walletSecretId;
+    this.body = body;
     this.additionalProperties = additionalProperties;
   }
 
@@ -69,17 +71,14 @@ public final class RevokeDelegationForEndUserRequest {
   /**
    * @return The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    */
-  @JsonIgnore
+  @JsonProperty("projectID")
   public Optional<String> getProjectId() {
     return projectId;
   }
 
-  /**
-   * @return When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   */
-  @JsonProperty("walletSecretId")
-  public Optional<String> getWalletSecretId() {
-    return walletSecretId;
+  @JsonProperty("body")
+  public RevokeDelegationRequest getBody() {
+    return body;
   }
 
   @java.lang.Override
@@ -94,12 +93,12 @@ public final class RevokeDelegationForEndUserRequest {
   }
 
   private boolean equalTo(RevokeDelegationForEndUserRequest other) {
-    return developerAuth.equals(other.developerAuth) && idempotencyKey.equals(other.idempotencyKey) && projectId.equals(other.projectId) && walletSecretId.equals(other.walletSecretId);
+    return developerAuth.equals(other.developerAuth) && idempotencyKey.equals(other.idempotencyKey) && projectId.equals(other.projectId) && body.equals(other.body);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.developerAuth, this.idempotencyKey, this.projectId, this.walletSecretId);
+    return Objects.hash(this.developerAuth, this.idempotencyKey, this.projectId, this.body);
   }
 
   @java.lang.Override
@@ -107,21 +106,60 @@ public final class RevokeDelegationForEndUserRequest {
     return ObjectMappers.stringify(this);
   }
 
-  public static Builder builder() {
+  public static BodyStage builder() {
     return new Builder();
+  }
+
+  public interface BodyStage {
+    _FinalStage body(@NotNull RevokeDelegationRequest body);
+
+    Builder from(RevokeDelegationForEndUserRequest other);
+  }
+
+  public interface _FinalStage {
+    RevokeDelegationForEndUserRequest build();
+
+    _FinalStage additionalProperty(String key, Object value);
+
+    _FinalStage additionalProperties(Map<String, Object> additionalProperties);
+
+    /**
+     * <p>A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+     * <a href="https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token">Generate Wallet Token</a>
+     * section of our Authentication docs for more details on how to generate your Wallet Token.</p>
+     */
+    _FinalStage developerAuth(Optional<String> developerAuth);
+
+    _FinalStage developerAuth(String developerAuth);
+
+    /**
+     * <p>An optional string request header for making requests safely retryable.
+     * When included, duplicate requests with the same key will return identical responses.
+     * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
+     */
+    _FinalStage idempotencyKey(Optional<String> idempotencyKey);
+
+    _FinalStage idempotencyKey(String idempotencyKey);
+
+    /**
+     * <p>The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).</p>
+     */
+    _FinalStage projectId(Optional<String> projectId);
+
+    _FinalStage projectId(String projectId);
   }
 
   @JsonIgnoreProperties(
       ignoreUnknown = true
   )
-  public static final class Builder {
-    private Optional<String> developerAuth = Optional.empty();
-
-    private Optional<String> idempotencyKey = Optional.empty();
+  public static final class Builder implements BodyStage, _FinalStage {
+    private RevokeDelegationRequest body;
 
     private Optional<String> projectId = Optional.empty();
 
-    private Optional<String> walletSecretId = Optional.empty();
+    private Optional<String> idempotencyKey = Optional.empty();
+
+    private Optional<String> developerAuth = Optional.empty();
 
     @JsonAnySetter
     private Map<String, Object> additionalProperties = new HashMap<>();
@@ -129,26 +167,54 @@ public final class RevokeDelegationForEndUserRequest {
     private Builder() {
     }
 
+    @java.lang.Override
     public Builder from(RevokeDelegationForEndUserRequest other) {
       developerAuth(other.getDeveloperAuth());
       idempotencyKey(other.getIdempotencyKey());
       projectId(other.getProjectId());
-      walletSecretId(other.getWalletSecretId());
+      body(other.getBody());
+      return this;
+    }
+
+    @java.lang.Override
+    @JsonSetter("body")
+    public _FinalStage body(@NotNull RevokeDelegationRequest body) {
+      this.body = Objects.requireNonNull(body, "body must not be null");
       return this;
     }
 
     /**
-     * <p>A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-     * <a href="https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token">Generate Wallet Token</a>
-     * section of our Authentication docs for more details on how to generate your Wallet Token.</p>
+     * <p>The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
      */
-    public Builder developerAuth(Optional<String> developerAuth) {
-      this.developerAuth = developerAuth;
+    @java.lang.Override
+    public _FinalStage projectId(String projectId) {
+      this.projectId = Optional.ofNullable(projectId);
       return this;
     }
 
-    public Builder developerAuth(String developerAuth) {
-      this.developerAuth = Optional.ofNullable(developerAuth);
+    /**
+     * <p>The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "projectID",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage projectId(Optional<String> projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    /**
+     * <p>An optional string request header for making requests safely retryable.
+     * When included, duplicate requests with the same key will return identical responses.
+     * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage idempotencyKey(String idempotencyKey) {
+      this.idempotencyKey = Optional.ofNullable(idempotencyKey);
       return this;
     }
 
@@ -157,59 +223,47 @@ public final class RevokeDelegationForEndUserRequest {
      * When included, duplicate requests with the same key will return identical responses.
      * Refer to our <a href="https://docs.cdp.coinbase.com/api-reference/v2/idempotency">Idempotency docs</a> for more information on using idempotency keys.</p>
      */
-    public Builder idempotencyKey(Optional<String> idempotencyKey) {
+    @java.lang.Override
+    public _FinalStage idempotencyKey(Optional<String> idempotencyKey) {
       this.idempotencyKey = idempotencyKey;
       return this;
     }
 
-    public Builder idempotencyKey(String idempotencyKey) {
-      this.idempotencyKey = Optional.ofNullable(idempotencyKey);
+    /**
+     * <p>A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+     * <a href="https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token">Generate Wallet Token</a>
+     * section of our Authentication docs for more details on how to generate your Wallet Token.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage developerAuth(String developerAuth) {
+      this.developerAuth = Optional.ofNullable(developerAuth);
       return this;
     }
 
     /**
-     * <p>The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).</p>
+     * <p>A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+     * <a href="https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token">Generate Wallet Token</a>
+     * section of our Authentication docs for more details on how to generate your Wallet Token.</p>
      */
-    @JsonSetter(
-        value = "projectID",
-        nulls = Nulls.SKIP
-    )
-    public Builder projectId(Optional<String> projectId) {
-      this.projectId = projectId;
+    @java.lang.Override
+    public _FinalStage developerAuth(Optional<String> developerAuth) {
+      this.developerAuth = developerAuth;
       return this;
     }
 
-    public Builder projectId(String projectId) {
-      this.projectId = Optional.ofNullable(projectId);
-      return this;
-    }
-
-    /**
-     * <p>When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.</p>
-     */
-    @JsonSetter(
-        value = "walletSecretId",
-        nulls = Nulls.SKIP
-    )
-    public Builder walletSecretId(Optional<String> walletSecretId) {
-      this.walletSecretId = walletSecretId;
-      return this;
-    }
-
-    public Builder walletSecretId(String walletSecretId) {
-      this.walletSecretId = Optional.ofNullable(walletSecretId);
-      return this;
-    }
-
+    @java.lang.Override
     public RevokeDelegationForEndUserRequest build() {
-      return new RevokeDelegationForEndUserRequest(developerAuth, idempotencyKey, projectId, walletSecretId, additionalProperties);
+      return new RevokeDelegationForEndUserRequest(developerAuth, idempotencyKey, projectId, body, additionalProperties);
     }
 
+    @java.lang.Override
     public Builder additionalProperty(String key, Object value) {
       this.additionalProperties.put(key, value);
       return this;
     }
 
+    @java.lang.Override
     public Builder additionalProperties(Map<String, Object> additionalProperties) {
       this.additionalProperties.putAll(additionalProperties);
       return this;

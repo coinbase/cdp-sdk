@@ -17,6 +17,10 @@ type PublicOperation struct {
 // per the `security` field in openapi.yaml.
 var PublicOperations = []PublicOperation{
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/coinbase\-accounts/balances$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/approvals/wallet$`)},
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/approvals/wallet/options$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/revocations/wallet$`)},
+	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/revocations/wallet/options$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/coinbase$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet$`)},
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet/options$`)},

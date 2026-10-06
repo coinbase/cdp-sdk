@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.58.0
+
+### Minor Changes
+
+- 4965775: Revoke delegation now calls `POST .../delegation/revoke` and `POST .../address/{address}/delegation/revoke`. The old `DELETE` endpoints remain as `revokeDelegationForEndUserDeprecated` and `revokeDelegationForEndUserAccountDeprecated` until 2026-10-22. The generated request body type for all four operations is now `RevokeDelegationRequest`. Also adds the Mandates API (`createMandate`, `getMandate`, `listMandates`, `cancelMandate`, `approveWalletMandate`, `revokeWalletMandate`, `authorizeMandatePaymentSession`, and related approval and revocation reads) from the cdp-api master spec.
+
 ## 1.57.1
 
 ### Patch Changes

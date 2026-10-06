@@ -101,7 +101,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with <code>sourceAccountId</code> or <code>targetAccountId</code>.
+   * @return Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.
    */
   @JsonProperty("accountId")
   public Optional<AccountId> getAccountId() {
@@ -109,7 +109,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with <code>accountId</code>.
+   * @return Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with <code>accountId</code> or <code>sourceAddress</code>.
    */
   @JsonProperty("sourceAccountId")
   public Optional<AccountId> getSourceAccountId() {
@@ -117,7 +117,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with <code>accountId</code>.
+   * @return Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with <code>accountId</code>, <code>targetAddress</code>, or <code>targetEmail</code>.
    */
   @JsonProperty("targetAccountId")
   public Optional<AccountId> getTargetAccountId() {
@@ -173,7 +173,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by the on-chain address of the source.
+   * @return Filter transfers by the on-chain address of the source. Cannot be combined with <code>accountId</code> or <code>sourceAccountId</code>.
    */
   @JsonProperty("sourceAddress")
   public Optional<BlockchainAddress> getSourceAddress() {
@@ -181,7 +181,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by the on-chain destination address of the target.
+   * @return Filter transfers by the on-chain destination address of the target. Cannot be combined with <code>accountId</code>, <code>targetAccountId</code>, or <code>targetEmail</code>.
    */
   @JsonProperty("targetAddress")
   public Optional<BlockchainAddress> getTargetAddress() {
@@ -189,7 +189,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter transfers by the email address of the target recipient.
+   * @return Filter transfers by the email address of the target recipient. Cannot be combined with <code>accountId</code>, <code>targetAccountId</code>, or <code>targetAddress</code>.
    */
   @JsonProperty("targetEmail")
   public Optional<Email> getTargetEmail() {
@@ -197,7 +197,7 @@ public final class ListTransfersRequest {
   }
 
   /**
-   * @return Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+   * @return Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
    */
   @JsonProperty("transferId")
   public Optional<String> getTransferId() {
@@ -329,7 +329,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with <code>sourceAccountId</code> or <code>targetAccountId</code>.</p>
+     * <p>Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</p>
      */
     @JsonSetter(
         value = "accountId",
@@ -346,7 +346,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with <code>accountId</code>.</p>
+     * <p>Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with <code>accountId</code> or <code>sourceAddress</code>.</p>
      */
     @JsonSetter(
         value = "sourceAccountId",
@@ -363,7 +363,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with <code>accountId</code>.</p>
+     * <p>Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with <code>accountId</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</p>
      */
     @JsonSetter(
         value = "targetAccountId",
@@ -482,7 +482,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by the on-chain address of the source.</p>
+     * <p>Filter transfers by the on-chain address of the source. Cannot be combined with <code>accountId</code> or <code>sourceAccountId</code>.</p>
      */
     @JsonSetter(
         value = "sourceAddress",
@@ -499,7 +499,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by the on-chain destination address of the target.</p>
+     * <p>Filter transfers by the on-chain destination address of the target. Cannot be combined with <code>accountId</code>, <code>targetAccountId</code>, or <code>targetEmail</code>.</p>
      */
     @JsonSetter(
         value = "targetAddress",
@@ -516,7 +516,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter transfers by the email address of the target recipient.</p>
+     * <p>Filter transfers by the email address of the target recipient. Cannot be combined with <code>accountId</code>, <code>targetAccountId</code>, or <code>targetAddress</code>.</p>
      */
     @JsonSetter(
         value = "targetEmail",
@@ -533,7 +533,7 @@ public final class ListTransfersRequest {
     }
 
     /**
-     * <p>Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.</p>
+     * <p>Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.</p>
      */
     @JsonSetter(
         value = "transferId",

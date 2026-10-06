@@ -28,7 +28,7 @@ class WebhookTarget(BaseModel):
     """
     Target configuration for webhook delivery. Specifies the destination URL and any custom headers to include in webhook requests. 
     """ # noqa: E501
-    url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The webhook URL to deliver events to.")
+    url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The webhook URL to deliver events to.  Must be a publicly accessible HTTPS URL that responds to HEAD requests with a 200 status code.  If the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400. ")
     headers: Optional[Dict[str, StrictStr]] = Field(default=None, description="Additional headers to include in webhook requests.")
     __properties: ClassVar[List[str]] = ["url", "headers"]
 

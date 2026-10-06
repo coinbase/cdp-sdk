@@ -43,6 +43,8 @@ export const listWebhookSubscriptions = (
 /**
  * Subscribe to real-time events across CDP products. A webhook subscription provides a `targetURL` and other relevant endpoint configuration to enable receiving webhooks when events occur.
 
+An entity can have up to 100 webhook subscriptions. Once this limit is reached, new webhook subscription creation requests return a `400` error with `errorType: subscription_limit_exceeded`.
+
 ### Webhook Signature Verification
 
 All webhooks include an HMAC-SHA256 signed header for security. The signature is signed with the secret that is returned in the `secret` field when creating a subscription.

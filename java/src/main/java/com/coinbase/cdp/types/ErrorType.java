@@ -10,27 +10,15 @@ import java.lang.Object;
 import java.lang.String;
 
 public final class ErrorType {
-  public static final ErrorType NETWORK_MISMATCH = new ErrorType(Value.NETWORK_MISMATCH, "network_mismatch");
-
   public static final ErrorType PAYMENT_SESSION_ACTION_PENDING = new ErrorType(Value.PAYMENT_SESSION_ACTION_PENDING, "payment_session_action_pending");
 
-  public static final ErrorType ORDER_ALREADY_CANCELED = new ErrorType(Value.ORDER_ALREADY_CANCELED, "order_already_canceled");
-
-  public static final ErrorType MFA_INVALID_CODE = new ErrorType(Value.MFA_INVALID_CODE, "mfa_invalid_code");
-
   public static final ErrorType DELEGATION_REVOKED = new ErrorType(Value.DELEGATION_REVOKED, "delegation_revoked");
-
-  public static final ErrorType ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE = new ErrorType(Value.ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE, "entity_not_configured_for_payment_acceptance");
 
   public static final ErrorType STALE_ATTESTATION = new ErrorType(Value.STALE_ATTESTATION, "stale_attestation");
 
   public static final ErrorType MFA_FLOW_EXPIRED = new ErrorType(Value.MFA_FLOW_EXPIRED, "mfa_flow_expired");
 
-  public static final ErrorType SOURCE_ACCOUNT_INVALID = new ErrorType(Value.SOURCE_ACCOUNT_INVALID, "source_account_invalid");
-
   public static final ErrorType TRANSFER_AMOUNT_INVALID = new ErrorType(Value.TRANSFER_AMOUNT_INVALID, "transfer_amount_invalid");
-
-  public static final ErrorType TRAVEL_RULES_FIELD_MISSING = new ErrorType(Value.TRAVEL_RULES_FIELD_MISSING, "travel_rules_field_missing");
 
   public static final ErrorType CLIENT_CLOSED_REQUEST = new ErrorType(Value.CLIENT_CLOSED_REQUEST, "client_closed_request");
 
@@ -40,14 +28,6 @@ public final class ErrorType {
 
   public static final ErrorType PAYMENT_SESSION_ALREADY_CANCELED = new ErrorType(Value.PAYMENT_SESSION_ALREADY_CANCELED, "payment_session_already_canceled");
 
-  public static final ErrorType MFA_REQUIRED = new ErrorType(Value.MFA_REQUIRED, "mfa_required");
-
-  public static final ErrorType UNSUPPORTED_TOS_LANGUAGE = new ErrorType(Value.UNSUPPORTED_TOS_LANGUAGE, "unsupported_tos_language");
-
-  public static final ErrorType OTP_VERIFICATION_NOT_FOUND = new ErrorType(Value.OTP_VERIFICATION_NOT_FOUND, "otp_verification_not_found");
-
-  public static final ErrorType PAYMENT_METHOD_REQUIRED = new ErrorType(Value.PAYMENT_METHOD_REQUIRED, "payment_method_required");
-
   public static final ErrorType ASSET_MISMATCH = new ErrorType(Value.ASSET_MISMATCH, "asset_mismatch");
 
   public static final ErrorType METADATA_VALUE_TOO_LONG = new ErrorType(Value.METADATA_VALUE_TOO_LONG, "metadata_value_too_long");
@@ -56,15 +36,9 @@ public final class ErrorType {
 
   public static final ErrorType INVALID_REQUEST = new ErrorType(Value.INVALID_REQUEST, "invalid_request");
 
-  public static final ErrorType SETTLEMENT_FAILED = new ErrorType(Value.SETTLEMENT_FAILED, "settlement_failed");
-
-  public static final ErrorType ALREADY_ENABLED = new ErrorType(Value.ALREADY_ENABLED, "already_enabled");
-
   public static final ErrorType DOCUMENT_VERIFICATION_FAILED = new ErrorType(Value.DOCUMENT_VERIFICATION_FAILED, "document_verification_failed");
 
   public static final ErrorType OTP_VERIFICATION_DESTINATION_MISMATCH = new ErrorType(Value.OTP_VERIFICATION_DESTINATION_MISMATCH, "otp_verification_destination_mismatch");
-
-  public static final ErrorType OTP_VERIFICATION_INVALID = new ErrorType(Value.OTP_VERIFICATION_INVALID, "otp_verification_invalid");
 
   public static final ErrorType CAPTURE_EXPIRED = new ErrorType(Value.CAPTURE_EXPIRED, "capture_expired");
 
@@ -72,11 +46,9 @@ public final class ErrorType {
 
   public static final ErrorType MFA_CHALLENGE_NOT_FOUND = new ErrorType(Value.MFA_CHALLENGE_NOT_FOUND, "mfa_challenge_not_found");
 
-  public static final ErrorType UNAUTHORIZED = new ErrorType(Value.UNAUTHORIZED, "unauthorized");
+  public static final ErrorType MANDATE_CANCELED = new ErrorType(Value.MANDATE_CANCELED, "mandate_canceled");
 
-  public static final ErrorType METADATA_KEY_TOO_LONG = new ErrorType(Value.METADATA_KEY_TOO_LONG, "metadata_key_too_long");
-
-  public static final ErrorType PHONE_NUMBER_VERIFICATION_EXPIRED = new ErrorType(Value.PHONE_NUMBER_VERIFICATION_EXPIRED, "phone_number_verification_expired");
+  public static final ErrorType INVALID_WEBHOOK_URL = new ErrorType(Value.INVALID_WEBHOOK_URL, "invalid_webhook_url");
 
   public static final ErrorType PAYMENT_REQUIRED = new ErrorType(Value.PAYMENT_REQUIRED, "payment_required");
 
@@ -86,6 +58,98 @@ public final class ErrorType {
 
   public static final ErrorType TRANSFER_ASSET_NOT_SUPPORTED = new ErrorType(Value.TRANSFER_ASSET_NOT_SUPPORTED, "transfer_asset_not_supported");
 
+  public static final ErrorType CUSTOMER_NOT_AUTHORIZED = new ErrorType(Value.CUSTOMER_NOT_AUTHORIZED, "customer_not_authorized");
+
+  public static final ErrorType ACCOUNT_LIMIT_EXCEEDED = new ErrorType(Value.ACCOUNT_LIMIT_EXCEEDED, "account_limit_exceeded");
+
+  public static final ErrorType TRANSFER_QUOTE_EXPIRED = new ErrorType(Value.TRANSFER_QUOTE_EXPIRED, "transfer_quote_expired");
+
+  public static final ErrorType NO_REFUNDABLE_BALANCE = new ErrorType(Value.NO_REFUNDABLE_BALANCE, "no_refundable_balance");
+
+  public static final ErrorType METADATA_TOO_MANY_ENTRIES = new ErrorType(Value.METADATA_TOO_MANY_ENTRIES, "metadata_too_many_entries");
+
+  public static final ErrorType OTP_VERIFICATION_CODE_INVALID = new ErrorType(Value.OTP_VERIFICATION_CODE_INVALID, "otp_verification_code_invalid");
+
+  public static final ErrorType ACCOUNT_NOT_READY = new ErrorType(Value.ACCOUNT_NOT_READY, "account_not_ready");
+
+  public static final ErrorType DAILY_TRANSACTION_LIMIT_EXCEEDED = new ErrorType(Value.DAILY_TRANSACTION_LIMIT_EXCEEDED, "daily_transaction_limit_exceeded");
+
+  public static final ErrorType TARGET_ASSET_NOT_SUPPORTED = new ErrorType(Value.TARGET_ASSET_NOT_SUPPORTED, "target_asset_not_supported");
+
+  public static final ErrorType NO_VOIDABLE_BALANCE = new ErrorType(Value.NO_VOIDABLE_BALANCE, "no_voidable_balance");
+
+  public static final ErrorType BAD_GATEWAY = new ErrorType(Value.BAD_GATEWAY, "bad_gateway");
+
+  public static final ErrorType MALFORMED_TRANSACTION = new ErrorType(Value.MALFORMED_TRANSACTION, "malformed_transaction");
+
+  public static final ErrorType MFA_NOT_ENROLLED = new ErrorType(Value.MFA_NOT_ENROLLED, "mfa_not_enrolled");
+
+  public static final ErrorType GUEST_REGION_FORBIDDEN = new ErrorType(Value.GUEST_REGION_FORBIDDEN, "guest_region_forbidden");
+
+  public static final ErrorType IDEMPOTENCY_ERROR = new ErrorType(Value.IDEMPOTENCY_ERROR, "idempotency_error");
+
+  public static final ErrorType INSUFFICIENT_ALLOWANCE = new ErrorType(Value.INSUFFICIENT_ALLOWANCE, "insufficient_allowance");
+
+  public static final ErrorType DELEGATION_NOT_ENABLED = new ErrorType(Value.DELEGATION_NOT_ENABLED, "delegation_not_enabled");
+
+  public static final ErrorType MANDATE_POLICY_VIOLATION = new ErrorType(Value.MANDATE_POLICY_VIOLATION, "mandate_policy_violation");
+
+  public static final ErrorType RECIPIENT_ALLOWLIST_VIOLATION = new ErrorType(Value.RECIPIENT_ALLOWLIST_VIOLATION, "recipient_allowlist_violation");
+
+  public static final ErrorType SERVICE_UNAVAILABLE = new ErrorType(Value.SERVICE_UNAVAILABLE, "service_unavailable");
+
+  public static final ErrorType RECIPIENT_ALLOWLIST_PENDING = new ErrorType(Value.RECIPIENT_ALLOWLIST_PENDING, "recipient_allowlist_pending");
+
+  public static final ErrorType POLICY_VIOLATION = new ErrorType(Value.POLICY_VIOLATION, "policy_violation");
+
+  public static final ErrorType REQUEST_CANCELED = new ErrorType(Value.REQUEST_CANCELED, "request_canceled");
+
+  public static final ErrorType MODERATION_REJECTED = new ErrorType(Value.MODERATION_REJECTED, "moderation_rejected");
+
+  public static final ErrorType SOURCE_ACCOUNT_NOT_FOUND = new ErrorType(Value.SOURCE_ACCOUNT_NOT_FOUND, "source_account_not_found");
+
+  public static final ErrorType NETWORK_MISMATCH = new ErrorType(Value.NETWORK_MISMATCH, "network_mismatch");
+
+  public static final ErrorType ORDER_ALREADY_CANCELED = new ErrorType(Value.ORDER_ALREADY_CANCELED, "order_already_canceled");
+
+  public static final ErrorType MFA_INVALID_CODE = new ErrorType(Value.MFA_INVALID_CODE, "mfa_invalid_code");
+
+  public static final ErrorType ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE = new ErrorType(Value.ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE, "entity_not_configured_for_payment_acceptance");
+
+  public static final ErrorType SUBSCRIPTION_LIMIT_EXCEEDED = new ErrorType(Value.SUBSCRIPTION_LIMIT_EXCEEDED, "subscription_limit_exceeded");
+
+  public static final ErrorType MANDATE_EXPIRED = new ErrorType(Value.MANDATE_EXPIRED, "mandate_expired");
+
+  public static final ErrorType SOURCE_ACCOUNT_INVALID = new ErrorType(Value.SOURCE_ACCOUNT_INVALID, "source_account_invalid");
+
+  public static final ErrorType TRAVEL_RULES_FIELD_MISSING = new ErrorType(Value.TRAVEL_RULES_FIELD_MISSING, "travel_rules_field_missing");
+
+  public static final ErrorType MFA_REQUIRED = new ErrorType(Value.MFA_REQUIRED, "mfa_required");
+
+  public static final ErrorType MANDATE_REVOKED = new ErrorType(Value.MANDATE_REVOKED, "mandate_revoked");
+
+  public static final ErrorType UNSUPPORTED_TOS_LANGUAGE = new ErrorType(Value.UNSUPPORTED_TOS_LANGUAGE, "unsupported_tos_language");
+
+  public static final ErrorType OTP_VERIFICATION_NOT_FOUND = new ErrorType(Value.OTP_VERIFICATION_NOT_FOUND, "otp_verification_not_found");
+
+  public static final ErrorType PAYMENT_METHOD_REQUIRED = new ErrorType(Value.PAYMENT_METHOD_REQUIRED, "payment_method_required");
+
+  public static final ErrorType INCOMPATIBLE_EVENT_TYPES = new ErrorType(Value.INCOMPATIBLE_EVENT_TYPES, "incompatible_event_types");
+
+  public static final ErrorType MANDATE_INVALID_STATUS = new ErrorType(Value.MANDATE_INVALID_STATUS, "mandate_invalid_status");
+
+  public static final ErrorType SETTLEMENT_FAILED = new ErrorType(Value.SETTLEMENT_FAILED, "settlement_failed");
+
+  public static final ErrorType ALREADY_ENABLED = new ErrorType(Value.ALREADY_ENABLED, "already_enabled");
+
+  public static final ErrorType OTP_VERIFICATION_INVALID = new ErrorType(Value.OTP_VERIFICATION_INVALID, "otp_verification_invalid");
+
+  public static final ErrorType UNAUTHORIZED = new ErrorType(Value.UNAUTHORIZED, "unauthorized");
+
+  public static final ErrorType METADATA_KEY_TOO_LONG = new ErrorType(Value.METADATA_KEY_TOO_LONG, "metadata_key_too_long");
+
+  public static final ErrorType PHONE_NUMBER_VERIFICATION_EXPIRED = new ErrorType(Value.PHONE_NUMBER_VERIFICATION_EXPIRED, "phone_number_verification_expired");
+
   public static final ErrorType TIMED_OUT = new ErrorType(Value.TIMED_OUT, "timed_out");
 
   public static final ErrorType REFUND_EXPIRED = new ErrorType(Value.REFUND_EXPIRED, "refund_expired");
@@ -94,87 +158,47 @@ public final class ErrorType {
 
   public static final ErrorType GUEST_TRANSACTION_LIMIT = new ErrorType(Value.GUEST_TRANSACTION_LIMIT, "guest_transaction_limit");
 
-  public static final ErrorType CUSTOMER_NOT_AUTHORIZED = new ErrorType(Value.CUSTOMER_NOT_AUTHORIZED, "customer_not_authorized");
-
   public static final ErrorType DAILY_AMOUNT_LIMIT_EXCEEDED = new ErrorType(Value.DAILY_AMOUNT_LIMIT_EXCEEDED, "daily_amount_limit_exceeded");
-
-  public static final ErrorType ACCOUNT_LIMIT_EXCEEDED = new ErrorType(Value.ACCOUNT_LIMIT_EXCEEDED, "account_limit_exceeded");
-
-  public static final ErrorType TRANSFER_QUOTE_EXPIRED = new ErrorType(Value.TRANSFER_QUOTE_EXPIRED, "transfer_quote_expired");
 
   public static final ErrorType INSUFFICIENT_LIQUIDITY = new ErrorType(Value.INSUFFICIENT_LIQUIDITY, "insufficient_liquidity");
 
   public static final ErrorType POLICY_IN_USE = new ErrorType(Value.POLICY_IN_USE, "policy_in_use");
 
-  public static final ErrorType NO_REFUNDABLE_BALANCE = new ErrorType(Value.NO_REFUNDABLE_BALANCE, "no_refundable_balance");
-
   public static final ErrorType INTERNAL_SERVER_ERROR = new ErrorType(Value.INTERNAL_SERVER_ERROR, "internal_server_error");
-
-  public static final ErrorType METADATA_TOO_MANY_ENTRIES = new ErrorType(Value.METADATA_TOO_MANY_ENTRIES, "metadata_too_many_entries");
 
   public static final ErrorType ALREADY_EXISTS = new ErrorType(Value.ALREADY_EXISTS, "already_exists");
 
   public static final ErrorType GUEST_TRANSACTION_COUNT = new ErrorType(Value.GUEST_TRANSACTION_COUNT, "guest_transaction_count");
 
-  public static final ErrorType OTP_VERIFICATION_CODE_INVALID = new ErrorType(Value.OTP_VERIFICATION_CODE_INVALID, "otp_verification_code_invalid");
-
   public static final ErrorType OTP_VERIFICATION_REQUIRED = new ErrorType(Value.OTP_VERIFICATION_REQUIRED, "otp_verification_required");
 
   public static final ErrorType TRAVEL_RULES_RECIPIENT_VIOLATION = new ErrorType(Value.TRAVEL_RULES_RECIPIENT_VIOLATION, "travel_rules_recipient_violation");
 
-  public static final ErrorType ACCOUNT_NOT_READY = new ErrorType(Value.ACCOUNT_NOT_READY, "account_not_ready");
-
-  public static final ErrorType DAILY_TRANSACTION_LIMIT_EXCEEDED = new ErrorType(Value.DAILY_TRANSACTION_LIMIT_EXCEEDED, "daily_transaction_limit_exceeded");
-
   public static final ErrorType TARGET_ACCOUNT_INVALID = new ErrorType(Value.TARGET_ACCOUNT_INVALID, "target_account_invalid");
-
-  public static final ErrorType TARGET_ASSET_NOT_SUPPORTED = new ErrorType(Value.TARGET_ASSET_NOT_SUPPORTED, "target_asset_not_supported");
 
   public static final ErrorType ORDER_ALREADY_FILLED = new ErrorType(Value.ORDER_ALREADY_FILLED, "order_already_filled");
 
-  public static final ErrorType NO_VOIDABLE_BALANCE = new ErrorType(Value.NO_VOIDABLE_BALANCE, "no_voidable_balance");
-
   public static final ErrorType OTP_VERIFICATION_EXPIRED = new ErrorType(Value.OTP_VERIFICATION_EXPIRED, "otp_verification_expired");
 
-  public static final ErrorType BAD_GATEWAY = new ErrorType(Value.BAD_GATEWAY, "bad_gateway");
-
-  public static final ErrorType MALFORMED_TRANSACTION = new ErrorType(Value.MALFORMED_TRANSACTION, "malformed_transaction");
+  public static final ErrorType MANDATE_ACTION_PENDING = new ErrorType(Value.MANDATE_ACTION_PENDING, "mandate_action_pending");
 
   public static final ErrorType NETWORK_NOT_TRADABLE = new ErrorType(Value.NETWORK_NOT_TRADABLE, "network_not_tradable");
 
-  public static final ErrorType MFA_NOT_ENROLLED = new ErrorType(Value.MFA_NOT_ENROLLED, "mfa_not_enrolled");
-
   public static final ErrorType DELEGATION_NOT_AUTHORIZED = new ErrorType(Value.DELEGATION_NOT_AUTHORIZED, "delegation_not_authorized");
-
-  public static final ErrorType GUEST_REGION_FORBIDDEN = new ErrorType(Value.GUEST_REGION_FORBIDDEN, "guest_region_forbidden");
-
-  public static final ErrorType IDEMPOTENCY_ERROR = new ErrorType(Value.IDEMPOTENCY_ERROR, "idempotency_error");
 
   public static final ErrorType RATE_LIMIT_EXCEEDED = new ErrorType(Value.RATE_LIMIT_EXCEEDED, "rate_limit_exceeded");
 
   public static final ErrorType OPERATION_IN_PROGRESS = new ErrorType(Value.OPERATION_IN_PROGRESS, "operation_in_progress");
 
-  public static final ErrorType INSUFFICIENT_ALLOWANCE = new ErrorType(Value.INSUFFICIENT_ALLOWANCE, "insufficient_allowance");
-
-  public static final ErrorType DELEGATION_NOT_ENABLED = new ErrorType(Value.DELEGATION_NOT_ENABLED, "delegation_not_enabled");
-
   public static final ErrorType INVALID_SQL_QUERY = new ErrorType(Value.INVALID_SQL_QUERY, "invalid_sql_query");
 
-  public static final ErrorType RECIPIENT_ALLOWLIST_VIOLATION = new ErrorType(Value.RECIPIENT_ALLOWLIST_VIOLATION, "recipient_allowlist_violation");
-
   public static final ErrorType FAUCET_LIMIT_EXCEEDED = new ErrorType(Value.FAUCET_LIMIT_EXCEEDED, "faucet_limit_exceeded");
-
-  public static final ErrorType SERVICE_UNAVAILABLE = new ErrorType(Value.SERVICE_UNAVAILABLE, "service_unavailable");
 
   public static final ErrorType MFA_ALREADY_ENROLLED = new ErrorType(Value.MFA_ALREADY_ENROLLED, "mfa_already_enrolled");
 
   public static final ErrorType TRANSACTION_SIMULATION_FAILED = new ErrorType(Value.TRANSACTION_SIMULATION_FAILED, "transaction_simulation_failed");
 
-  public static final ErrorType RECIPIENT_ALLOWLIST_PENDING = new ErrorType(Value.RECIPIENT_ALLOWLIST_PENDING, "recipient_allowlist_pending");
-
   public static final ErrorType ENDPOINT_UNAVAILABLE = new ErrorType(Value.ENDPOINT_UNAVAILABLE, "endpoint_unavailable");
-
-  public static final ErrorType POLICY_VIOLATION = new ErrorType(Value.POLICY_VIOLATION, "policy_violation");
 
   public static final ErrorType INSUFFICIENT_BALANCE = new ErrorType(Value.INSUFFICIENT_BALANCE, "insufficient_balance");
 
@@ -188,15 +212,11 @@ public final class ErrorType {
 
   public static final ErrorType NO_CAPTURABLE_BALANCE = new ErrorType(Value.NO_CAPTURABLE_BALANCE, "no_capturable_balance");
 
-  public static final ErrorType REQUEST_CANCELED = new ErrorType(Value.REQUEST_CANCELED, "request_canceled");
-
   public static final ErrorType DELEGATION_EXPIRED = new ErrorType(Value.DELEGATION_EXPIRED, "delegation_expired");
 
   public static final ErrorType PAYMENT_SESSION_ALREADY_AUTHORIZED = new ErrorType(Value.PAYMENT_SESSION_ALREADY_AUTHORIZED, "payment_session_already_authorized");
 
-  public static final ErrorType MODERATION_REJECTED = new ErrorType(Value.MODERATION_REJECTED, "moderation_rejected");
-
-  public static final ErrorType SOURCE_ACCOUNT_NOT_FOUND = new ErrorType(Value.SOURCE_ACCOUNT_NOT_FOUND, "source_account_not_found");
+  public static final ErrorType INVALID_WEBHOOK_HEADERS = new ErrorType(Value.INVALID_WEBHOOK_HEADERS, "invalid_webhook_headers");
 
   private final Value value;
 
@@ -230,28 +250,16 @@ public final class ErrorType {
 
   public <T> T visit(Visitor<T> visitor) {
     switch (value) {
-      case NETWORK_MISMATCH:
-        return visitor.visitNetworkMismatch();
       case PAYMENT_SESSION_ACTION_PENDING:
         return visitor.visitPaymentSessionActionPending();
-      case ORDER_ALREADY_CANCELED:
-        return visitor.visitOrderAlreadyCanceled();
-      case MFA_INVALID_CODE:
-        return visitor.visitMfaInvalidCode();
       case DELEGATION_REVOKED:
         return visitor.visitDelegationRevoked();
-      case ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE:
-        return visitor.visitEntityNotConfiguredForPaymentAcceptance();
       case STALE_ATTESTATION:
         return visitor.visitStaleAttestation();
       case MFA_FLOW_EXPIRED:
         return visitor.visitMfaFlowExpired();
-      case SOURCE_ACCOUNT_INVALID:
-        return visitor.visitSourceAccountInvalid();
       case TRANSFER_AMOUNT_INVALID:
         return visitor.visitTransferAmountInvalid();
-      case TRAVEL_RULES_FIELD_MISSING:
-        return visitor.visitTravelRulesFieldMissing();
       case CLIENT_CLOSED_REQUEST:
         return visitor.visitClientClosedRequest();
       case TARGET_EMAIL_INVALID:
@@ -260,14 +268,6 @@ public final class ErrorType {
         return visitor.visitDelegationNotFound();
       case PAYMENT_SESSION_ALREADY_CANCELED:
         return visitor.visitPaymentSessionAlreadyCanceled();
-      case MFA_REQUIRED:
-        return visitor.visitMfaRequired();
-      case UNSUPPORTED_TOS_LANGUAGE:
-        return visitor.visitUnsupportedTosLanguage();
-      case OTP_VERIFICATION_NOT_FOUND:
-        return visitor.visitOtpVerificationNotFound();
-      case PAYMENT_METHOD_REQUIRED:
-        return visitor.visitPaymentMethodRequired();
       case ASSET_MISMATCH:
         return visitor.visitAssetMismatch();
       case METADATA_VALUE_TOO_LONG:
@@ -276,28 +276,20 @@ public final class ErrorType {
         return visitor.visitSourceAssetNotSupported();
       case INVALID_REQUEST:
         return visitor.visitInvalidRequest();
-      case SETTLEMENT_FAILED:
-        return visitor.visitSettlementFailed();
-      case ALREADY_ENABLED:
-        return visitor.visitAlreadyEnabled();
       case DOCUMENT_VERIFICATION_FAILED:
         return visitor.visitDocumentVerificationFailed();
       case OTP_VERIFICATION_DESTINATION_MISMATCH:
         return visitor.visitOtpVerificationDestinationMismatch();
-      case OTP_VERIFICATION_INVALID:
-        return visitor.visitOtpVerificationInvalid();
       case CAPTURE_EXPIRED:
         return visitor.visitCaptureExpired();
       case AUTHORIZATION_EXPIRED:
         return visitor.visitAuthorizationExpired();
       case MFA_CHALLENGE_NOT_FOUND:
         return visitor.visitMfaChallengeNotFound();
-      case UNAUTHORIZED:
-        return visitor.visitUnauthorized();
-      case METADATA_KEY_TOO_LONG:
-        return visitor.visitMetadataKeyTooLong();
-      case PHONE_NUMBER_VERIFICATION_EXPIRED:
-        return visitor.visitPhoneNumberVerificationExpired();
+      case MANDATE_CANCELED:
+        return visitor.visitMandateCanceled();
+      case INVALID_WEBHOOK_URL:
+        return visitor.visitInvalidWebhookUrl();
       case PAYMENT_REQUIRED:
         return visitor.visitPaymentRequired();
       case INVALID_SIGNATURE:
@@ -306,6 +298,98 @@ public final class ErrorType {
         return visitor.visitForbidden();
       case TRANSFER_ASSET_NOT_SUPPORTED:
         return visitor.visitTransferAssetNotSupported();
+      case CUSTOMER_NOT_AUTHORIZED:
+        return visitor.visitCustomerNotAuthorized();
+      case ACCOUNT_LIMIT_EXCEEDED:
+        return visitor.visitAccountLimitExceeded();
+      case TRANSFER_QUOTE_EXPIRED:
+        return visitor.visitTransferQuoteExpired();
+      case NO_REFUNDABLE_BALANCE:
+        return visitor.visitNoRefundableBalance();
+      case METADATA_TOO_MANY_ENTRIES:
+        return visitor.visitMetadataTooManyEntries();
+      case OTP_VERIFICATION_CODE_INVALID:
+        return visitor.visitOtpVerificationCodeInvalid();
+      case ACCOUNT_NOT_READY:
+        return visitor.visitAccountNotReady();
+      case DAILY_TRANSACTION_LIMIT_EXCEEDED:
+        return visitor.visitDailyTransactionLimitExceeded();
+      case TARGET_ASSET_NOT_SUPPORTED:
+        return visitor.visitTargetAssetNotSupported();
+      case NO_VOIDABLE_BALANCE:
+        return visitor.visitNoVoidableBalance();
+      case BAD_GATEWAY:
+        return visitor.visitBadGateway();
+      case MALFORMED_TRANSACTION:
+        return visitor.visitMalformedTransaction();
+      case MFA_NOT_ENROLLED:
+        return visitor.visitMfaNotEnrolled();
+      case GUEST_REGION_FORBIDDEN:
+        return visitor.visitGuestRegionForbidden();
+      case IDEMPOTENCY_ERROR:
+        return visitor.visitIdempotencyError();
+      case INSUFFICIENT_ALLOWANCE:
+        return visitor.visitInsufficientAllowance();
+      case DELEGATION_NOT_ENABLED:
+        return visitor.visitDelegationNotEnabled();
+      case MANDATE_POLICY_VIOLATION:
+        return visitor.visitMandatePolicyViolation();
+      case RECIPIENT_ALLOWLIST_VIOLATION:
+        return visitor.visitRecipientAllowlistViolation();
+      case SERVICE_UNAVAILABLE:
+        return visitor.visitServiceUnavailable();
+      case RECIPIENT_ALLOWLIST_PENDING:
+        return visitor.visitRecipientAllowlistPending();
+      case POLICY_VIOLATION:
+        return visitor.visitPolicyViolation();
+      case REQUEST_CANCELED:
+        return visitor.visitRequestCanceled();
+      case MODERATION_REJECTED:
+        return visitor.visitModerationRejected();
+      case SOURCE_ACCOUNT_NOT_FOUND:
+        return visitor.visitSourceAccountNotFound();
+      case NETWORK_MISMATCH:
+        return visitor.visitNetworkMismatch();
+      case ORDER_ALREADY_CANCELED:
+        return visitor.visitOrderAlreadyCanceled();
+      case MFA_INVALID_CODE:
+        return visitor.visitMfaInvalidCode();
+      case ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE:
+        return visitor.visitEntityNotConfiguredForPaymentAcceptance();
+      case SUBSCRIPTION_LIMIT_EXCEEDED:
+        return visitor.visitSubscriptionLimitExceeded();
+      case MANDATE_EXPIRED:
+        return visitor.visitMandateExpired();
+      case SOURCE_ACCOUNT_INVALID:
+        return visitor.visitSourceAccountInvalid();
+      case TRAVEL_RULES_FIELD_MISSING:
+        return visitor.visitTravelRulesFieldMissing();
+      case MFA_REQUIRED:
+        return visitor.visitMfaRequired();
+      case MANDATE_REVOKED:
+        return visitor.visitMandateRevoked();
+      case UNSUPPORTED_TOS_LANGUAGE:
+        return visitor.visitUnsupportedTosLanguage();
+      case OTP_VERIFICATION_NOT_FOUND:
+        return visitor.visitOtpVerificationNotFound();
+      case PAYMENT_METHOD_REQUIRED:
+        return visitor.visitPaymentMethodRequired();
+      case INCOMPATIBLE_EVENT_TYPES:
+        return visitor.visitIncompatibleEventTypes();
+      case MANDATE_INVALID_STATUS:
+        return visitor.visitMandateInvalidStatus();
+      case SETTLEMENT_FAILED:
+        return visitor.visitSettlementFailed();
+      case ALREADY_ENABLED:
+        return visitor.visitAlreadyEnabled();
+      case OTP_VERIFICATION_INVALID:
+        return visitor.visitOtpVerificationInvalid();
+      case UNAUTHORIZED:
+        return visitor.visitUnauthorized();
+      case METADATA_KEY_TOO_LONG:
+        return visitor.visitMetadataKeyTooLong();
+      case PHONE_NUMBER_VERIFICATION_EXPIRED:
+        return visitor.visitPhoneNumberVerificationExpired();
       case TIMED_OUT:
         return visitor.visitTimedOut();
       case REFUND_EXPIRED:
@@ -314,88 +398,48 @@ public final class ErrorType {
         return visitor.visitNotFound();
       case GUEST_TRANSACTION_LIMIT:
         return visitor.visitGuestTransactionLimit();
-      case CUSTOMER_NOT_AUTHORIZED:
-        return visitor.visitCustomerNotAuthorized();
       case DAILY_AMOUNT_LIMIT_EXCEEDED:
         return visitor.visitDailyAmountLimitExceeded();
-      case ACCOUNT_LIMIT_EXCEEDED:
-        return visitor.visitAccountLimitExceeded();
-      case TRANSFER_QUOTE_EXPIRED:
-        return visitor.visitTransferQuoteExpired();
       case INSUFFICIENT_LIQUIDITY:
         return visitor.visitInsufficientLiquidity();
       case POLICY_IN_USE:
         return visitor.visitPolicyInUse();
-      case NO_REFUNDABLE_BALANCE:
-        return visitor.visitNoRefundableBalance();
       case INTERNAL_SERVER_ERROR:
         return visitor.visitInternalServerError();
-      case METADATA_TOO_MANY_ENTRIES:
-        return visitor.visitMetadataTooManyEntries();
       case ALREADY_EXISTS:
         return visitor.visitAlreadyExists();
       case GUEST_TRANSACTION_COUNT:
         return visitor.visitGuestTransactionCount();
-      case OTP_VERIFICATION_CODE_INVALID:
-        return visitor.visitOtpVerificationCodeInvalid();
       case OTP_VERIFICATION_REQUIRED:
         return visitor.visitOtpVerificationRequired();
       case TRAVEL_RULES_RECIPIENT_VIOLATION:
         return visitor.visitTravelRulesRecipientViolation();
-      case ACCOUNT_NOT_READY:
-        return visitor.visitAccountNotReady();
-      case DAILY_TRANSACTION_LIMIT_EXCEEDED:
-        return visitor.visitDailyTransactionLimitExceeded();
       case TARGET_ACCOUNT_INVALID:
         return visitor.visitTargetAccountInvalid();
-      case TARGET_ASSET_NOT_SUPPORTED:
-        return visitor.visitTargetAssetNotSupported();
       case ORDER_ALREADY_FILLED:
         return visitor.visitOrderAlreadyFilled();
-      case NO_VOIDABLE_BALANCE:
-        return visitor.visitNoVoidableBalance();
       case OTP_VERIFICATION_EXPIRED:
         return visitor.visitOtpVerificationExpired();
-      case BAD_GATEWAY:
-        return visitor.visitBadGateway();
-      case MALFORMED_TRANSACTION:
-        return visitor.visitMalformedTransaction();
+      case MANDATE_ACTION_PENDING:
+        return visitor.visitMandateActionPending();
       case NETWORK_NOT_TRADABLE:
         return visitor.visitNetworkNotTradable();
-      case MFA_NOT_ENROLLED:
-        return visitor.visitMfaNotEnrolled();
       case DELEGATION_NOT_AUTHORIZED:
         return visitor.visitDelegationNotAuthorized();
-      case GUEST_REGION_FORBIDDEN:
-        return visitor.visitGuestRegionForbidden();
-      case IDEMPOTENCY_ERROR:
-        return visitor.visitIdempotencyError();
       case RATE_LIMIT_EXCEEDED:
         return visitor.visitRateLimitExceeded();
       case OPERATION_IN_PROGRESS:
         return visitor.visitOperationInProgress();
-      case INSUFFICIENT_ALLOWANCE:
-        return visitor.visitInsufficientAllowance();
-      case DELEGATION_NOT_ENABLED:
-        return visitor.visitDelegationNotEnabled();
       case INVALID_SQL_QUERY:
         return visitor.visitInvalidSqlQuery();
-      case RECIPIENT_ALLOWLIST_VIOLATION:
-        return visitor.visitRecipientAllowlistViolation();
       case FAUCET_LIMIT_EXCEEDED:
         return visitor.visitFaucetLimitExceeded();
-      case SERVICE_UNAVAILABLE:
-        return visitor.visitServiceUnavailable();
       case MFA_ALREADY_ENROLLED:
         return visitor.visitMfaAlreadyEnrolled();
       case TRANSACTION_SIMULATION_FAILED:
         return visitor.visitTransactionSimulationFailed();
-      case RECIPIENT_ALLOWLIST_PENDING:
-        return visitor.visitRecipientAllowlistPending();
       case ENDPOINT_UNAVAILABLE:
         return visitor.visitEndpointUnavailable();
-      case POLICY_VIOLATION:
-        return visitor.visitPolicyViolation();
       case INSUFFICIENT_BALANCE:
         return visitor.visitInsufficientBalance();
       case TARGET_ACCOUNT_NOT_FOUND:
@@ -408,16 +452,12 @@ public final class ErrorType {
         return visitor.visitOrderQuoteExpired();
       case NO_CAPTURABLE_BALANCE:
         return visitor.visitNoCapturableBalance();
-      case REQUEST_CANCELED:
-        return visitor.visitRequestCanceled();
       case DELEGATION_EXPIRED:
         return visitor.visitDelegationExpired();
       case PAYMENT_SESSION_ALREADY_AUTHORIZED:
         return visitor.visitPaymentSessionAlreadyAuthorized();
-      case MODERATION_REJECTED:
-        return visitor.visitModerationRejected();
-      case SOURCE_ACCOUNT_NOT_FOUND:
-        return visitor.visitSourceAccountNotFound();
+      case INVALID_WEBHOOK_HEADERS:
+        return visitor.visitInvalidWebhookHeaders();
       case UNKNOWN:
       default:
         return visitor.visitUnknown(string);
@@ -429,28 +469,16 @@ public final class ErrorType {
   )
   public static ErrorType valueOf(String value) {
     switch (value) {
-      case "network_mismatch":
-        return NETWORK_MISMATCH;
       case "payment_session_action_pending":
         return PAYMENT_SESSION_ACTION_PENDING;
-      case "order_already_canceled":
-        return ORDER_ALREADY_CANCELED;
-      case "mfa_invalid_code":
-        return MFA_INVALID_CODE;
       case "delegation_revoked":
         return DELEGATION_REVOKED;
-      case "entity_not_configured_for_payment_acceptance":
-        return ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE;
       case "stale_attestation":
         return STALE_ATTESTATION;
       case "mfa_flow_expired":
         return MFA_FLOW_EXPIRED;
-      case "source_account_invalid":
-        return SOURCE_ACCOUNT_INVALID;
       case "transfer_amount_invalid":
         return TRANSFER_AMOUNT_INVALID;
-      case "travel_rules_field_missing":
-        return TRAVEL_RULES_FIELD_MISSING;
       case "client_closed_request":
         return CLIENT_CLOSED_REQUEST;
       case "target_email_invalid":
@@ -459,14 +487,6 @@ public final class ErrorType {
         return DELEGATION_NOT_FOUND;
       case "payment_session_already_canceled":
         return PAYMENT_SESSION_ALREADY_CANCELED;
-      case "mfa_required":
-        return MFA_REQUIRED;
-      case "unsupported_tos_language":
-        return UNSUPPORTED_TOS_LANGUAGE;
-      case "otp_verification_not_found":
-        return OTP_VERIFICATION_NOT_FOUND;
-      case "payment_method_required":
-        return PAYMENT_METHOD_REQUIRED;
       case "asset_mismatch":
         return ASSET_MISMATCH;
       case "metadata_value_too_long":
@@ -475,28 +495,20 @@ public final class ErrorType {
         return SOURCE_ASSET_NOT_SUPPORTED;
       case "invalid_request":
         return INVALID_REQUEST;
-      case "settlement_failed":
-        return SETTLEMENT_FAILED;
-      case "already_enabled":
-        return ALREADY_ENABLED;
       case "document_verification_failed":
         return DOCUMENT_VERIFICATION_FAILED;
       case "otp_verification_destination_mismatch":
         return OTP_VERIFICATION_DESTINATION_MISMATCH;
-      case "otp_verification_invalid":
-        return OTP_VERIFICATION_INVALID;
       case "capture_expired":
         return CAPTURE_EXPIRED;
       case "authorization_expired":
         return AUTHORIZATION_EXPIRED;
       case "mfa_challenge_not_found":
         return MFA_CHALLENGE_NOT_FOUND;
-      case "unauthorized":
-        return UNAUTHORIZED;
-      case "metadata_key_too_long":
-        return METADATA_KEY_TOO_LONG;
-      case "phone_number_verification_expired":
-        return PHONE_NUMBER_VERIFICATION_EXPIRED;
+      case "mandate_canceled":
+        return MANDATE_CANCELED;
+      case "invalid_webhook_url":
+        return INVALID_WEBHOOK_URL;
       case "payment_required":
         return PAYMENT_REQUIRED;
       case "invalid_signature":
@@ -505,6 +517,98 @@ public final class ErrorType {
         return FORBIDDEN;
       case "transfer_asset_not_supported":
         return TRANSFER_ASSET_NOT_SUPPORTED;
+      case "customer_not_authorized":
+        return CUSTOMER_NOT_AUTHORIZED;
+      case "account_limit_exceeded":
+        return ACCOUNT_LIMIT_EXCEEDED;
+      case "transfer_quote_expired":
+        return TRANSFER_QUOTE_EXPIRED;
+      case "no_refundable_balance":
+        return NO_REFUNDABLE_BALANCE;
+      case "metadata_too_many_entries":
+        return METADATA_TOO_MANY_ENTRIES;
+      case "otp_verification_code_invalid":
+        return OTP_VERIFICATION_CODE_INVALID;
+      case "account_not_ready":
+        return ACCOUNT_NOT_READY;
+      case "daily_transaction_limit_exceeded":
+        return DAILY_TRANSACTION_LIMIT_EXCEEDED;
+      case "target_asset_not_supported":
+        return TARGET_ASSET_NOT_SUPPORTED;
+      case "no_voidable_balance":
+        return NO_VOIDABLE_BALANCE;
+      case "bad_gateway":
+        return BAD_GATEWAY;
+      case "malformed_transaction":
+        return MALFORMED_TRANSACTION;
+      case "mfa_not_enrolled":
+        return MFA_NOT_ENROLLED;
+      case "guest_region_forbidden":
+        return GUEST_REGION_FORBIDDEN;
+      case "idempotency_error":
+        return IDEMPOTENCY_ERROR;
+      case "insufficient_allowance":
+        return INSUFFICIENT_ALLOWANCE;
+      case "delegation_not_enabled":
+        return DELEGATION_NOT_ENABLED;
+      case "mandate_policy_violation":
+        return MANDATE_POLICY_VIOLATION;
+      case "recipient_allowlist_violation":
+        return RECIPIENT_ALLOWLIST_VIOLATION;
+      case "service_unavailable":
+        return SERVICE_UNAVAILABLE;
+      case "recipient_allowlist_pending":
+        return RECIPIENT_ALLOWLIST_PENDING;
+      case "policy_violation":
+        return POLICY_VIOLATION;
+      case "request_canceled":
+        return REQUEST_CANCELED;
+      case "moderation_rejected":
+        return MODERATION_REJECTED;
+      case "source_account_not_found":
+        return SOURCE_ACCOUNT_NOT_FOUND;
+      case "network_mismatch":
+        return NETWORK_MISMATCH;
+      case "order_already_canceled":
+        return ORDER_ALREADY_CANCELED;
+      case "mfa_invalid_code":
+        return MFA_INVALID_CODE;
+      case "entity_not_configured_for_payment_acceptance":
+        return ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE;
+      case "subscription_limit_exceeded":
+        return SUBSCRIPTION_LIMIT_EXCEEDED;
+      case "mandate_expired":
+        return MANDATE_EXPIRED;
+      case "source_account_invalid":
+        return SOURCE_ACCOUNT_INVALID;
+      case "travel_rules_field_missing":
+        return TRAVEL_RULES_FIELD_MISSING;
+      case "mfa_required":
+        return MFA_REQUIRED;
+      case "mandate_revoked":
+        return MANDATE_REVOKED;
+      case "unsupported_tos_language":
+        return UNSUPPORTED_TOS_LANGUAGE;
+      case "otp_verification_not_found":
+        return OTP_VERIFICATION_NOT_FOUND;
+      case "payment_method_required":
+        return PAYMENT_METHOD_REQUIRED;
+      case "incompatible_event_types":
+        return INCOMPATIBLE_EVENT_TYPES;
+      case "mandate_invalid_status":
+        return MANDATE_INVALID_STATUS;
+      case "settlement_failed":
+        return SETTLEMENT_FAILED;
+      case "already_enabled":
+        return ALREADY_ENABLED;
+      case "otp_verification_invalid":
+        return OTP_VERIFICATION_INVALID;
+      case "unauthorized":
+        return UNAUTHORIZED;
+      case "metadata_key_too_long":
+        return METADATA_KEY_TOO_LONG;
+      case "phone_number_verification_expired":
+        return PHONE_NUMBER_VERIFICATION_EXPIRED;
       case "timed_out":
         return TIMED_OUT;
       case "refund_expired":
@@ -513,88 +617,48 @@ public final class ErrorType {
         return NOT_FOUND;
       case "guest_transaction_limit":
         return GUEST_TRANSACTION_LIMIT;
-      case "customer_not_authorized":
-        return CUSTOMER_NOT_AUTHORIZED;
       case "daily_amount_limit_exceeded":
         return DAILY_AMOUNT_LIMIT_EXCEEDED;
-      case "account_limit_exceeded":
-        return ACCOUNT_LIMIT_EXCEEDED;
-      case "transfer_quote_expired":
-        return TRANSFER_QUOTE_EXPIRED;
       case "insufficient_liquidity":
         return INSUFFICIENT_LIQUIDITY;
       case "policy_in_use":
         return POLICY_IN_USE;
-      case "no_refundable_balance":
-        return NO_REFUNDABLE_BALANCE;
       case "internal_server_error":
         return INTERNAL_SERVER_ERROR;
-      case "metadata_too_many_entries":
-        return METADATA_TOO_MANY_ENTRIES;
       case "already_exists":
         return ALREADY_EXISTS;
       case "guest_transaction_count":
         return GUEST_TRANSACTION_COUNT;
-      case "otp_verification_code_invalid":
-        return OTP_VERIFICATION_CODE_INVALID;
       case "otp_verification_required":
         return OTP_VERIFICATION_REQUIRED;
       case "travel_rules_recipient_violation":
         return TRAVEL_RULES_RECIPIENT_VIOLATION;
-      case "account_not_ready":
-        return ACCOUNT_NOT_READY;
-      case "daily_transaction_limit_exceeded":
-        return DAILY_TRANSACTION_LIMIT_EXCEEDED;
       case "target_account_invalid":
         return TARGET_ACCOUNT_INVALID;
-      case "target_asset_not_supported":
-        return TARGET_ASSET_NOT_SUPPORTED;
       case "order_already_filled":
         return ORDER_ALREADY_FILLED;
-      case "no_voidable_balance":
-        return NO_VOIDABLE_BALANCE;
       case "otp_verification_expired":
         return OTP_VERIFICATION_EXPIRED;
-      case "bad_gateway":
-        return BAD_GATEWAY;
-      case "malformed_transaction":
-        return MALFORMED_TRANSACTION;
+      case "mandate_action_pending":
+        return MANDATE_ACTION_PENDING;
       case "network_not_tradable":
         return NETWORK_NOT_TRADABLE;
-      case "mfa_not_enrolled":
-        return MFA_NOT_ENROLLED;
       case "delegation_not_authorized":
         return DELEGATION_NOT_AUTHORIZED;
-      case "guest_region_forbidden":
-        return GUEST_REGION_FORBIDDEN;
-      case "idempotency_error":
-        return IDEMPOTENCY_ERROR;
       case "rate_limit_exceeded":
         return RATE_LIMIT_EXCEEDED;
       case "operation_in_progress":
         return OPERATION_IN_PROGRESS;
-      case "insufficient_allowance":
-        return INSUFFICIENT_ALLOWANCE;
-      case "delegation_not_enabled":
-        return DELEGATION_NOT_ENABLED;
       case "invalid_sql_query":
         return INVALID_SQL_QUERY;
-      case "recipient_allowlist_violation":
-        return RECIPIENT_ALLOWLIST_VIOLATION;
       case "faucet_limit_exceeded":
         return FAUCET_LIMIT_EXCEEDED;
-      case "service_unavailable":
-        return SERVICE_UNAVAILABLE;
       case "mfa_already_enrolled":
         return MFA_ALREADY_ENROLLED;
       case "transaction_simulation_failed":
         return TRANSACTION_SIMULATION_FAILED;
-      case "recipient_allowlist_pending":
-        return RECIPIENT_ALLOWLIST_PENDING;
       case "endpoint_unavailable":
         return ENDPOINT_UNAVAILABLE;
-      case "policy_violation":
-        return POLICY_VIOLATION;
       case "insufficient_balance":
         return INSUFFICIENT_BALANCE;
       case "target_account_not_found":
@@ -607,16 +671,12 @@ public final class ErrorType {
         return ORDER_QUOTE_EXPIRED;
       case "no_capturable_balance":
         return NO_CAPTURABLE_BALANCE;
-      case "request_canceled":
-        return REQUEST_CANCELED;
       case "delegation_expired":
         return DELEGATION_EXPIRED;
       case "payment_session_already_authorized":
         return PAYMENT_SESSION_ALREADY_AUTHORIZED;
-      case "moderation_rejected":
-        return MODERATION_REJECTED;
-      case "source_account_not_found":
-        return SOURCE_ACCOUNT_NOT_FOUND;
+      case "invalid_webhook_headers":
+        return INVALID_WEBHOOK_HEADERS;
       default:
         return new ErrorType(Value.UNKNOWN, value);
     }
@@ -643,9 +703,15 @@ public final class ErrorType {
 
     IDEMPOTENCY_ERROR,
 
+    INCOMPATIBLE_EVENT_TYPES,
+
     INTERNAL_SERVER_ERROR,
 
     INVALID_REQUEST,
+
+    INVALID_WEBHOOK_HEADERS,
+
+    INVALID_WEBHOOK_URL,
 
     INVALID_SQL_QUERY,
 
@@ -668,6 +734,8 @@ public final class ErrorType {
     REQUEST_CANCELED,
 
     SERVICE_UNAVAILABLE,
+
+    SUBSCRIPTION_LIMIT_EXCEEDED,
 
     TIMED_OUT,
 
@@ -811,6 +879,18 @@ public final class ErrorType {
 
     MODERATION_REJECTED,
 
+    MANDATE_ACTION_PENDING,
+
+    MANDATE_POLICY_VIOLATION,
+
+    MANDATE_EXPIRED,
+
+    MANDATE_CANCELED,
+
+    MANDATE_REVOKED,
+
+    MANDATE_INVALID_STATUS,
+
     UNKNOWN
   }
 
@@ -835,9 +915,15 @@ public final class ErrorType {
 
     T visitIdempotencyError();
 
+    T visitIncompatibleEventTypes();
+
     T visitInternalServerError();
 
     T visitInvalidRequest();
+
+    T visitInvalidWebhookHeaders();
+
+    T visitInvalidWebhookUrl();
 
     T visitInvalidSqlQuery();
 
@@ -860,6 +946,8 @@ public final class ErrorType {
     T visitRequestCanceled();
 
     T visitServiceUnavailable();
+
+    T visitSubscriptionLimitExceeded();
 
     T visitTimedOut();
 
@@ -1002,6 +1090,18 @@ public final class ErrorType {
     T visitStaleAttestation();
 
     T visitModerationRejected();
+
+    T visitMandateActionPending();
+
+    T visitMandatePolicyViolation();
+
+    T visitMandateExpired();
+
+    T visitMandateCanceled();
+
+    T visitMandateRevoked();
+
+    T visitMandateInvalidStatus();
 
     T visitUnknown(String unknownType);
   }

@@ -54,6 +54,13 @@ const (
 	AccountTypePrime    AccountType = "prime"
 )
 
+// Defines values for ApprovalStatus.
+const (
+	ApprovalStatusFailed    ApprovalStatus = "failed"
+	ApprovalStatusPending   ApprovalStatus = "pending"
+	ApprovalStatusSucceeded ApprovalStatus = "succeeded"
+)
+
 // Defines values for AssetType.
 const (
 	AssetTypeCrypto AssetType = "crypto"
@@ -173,6 +180,11 @@ const (
 	Jwt DeveloperJWTAuthenticationType = "jwt"
 )
 
+// Defines values for EIP2612PayloadType.
+const (
+	Eip2612 EIP2612PayloadType = "eip2612"
+)
+
 // Defines values for EIP3009PayloadType.
 const (
 	Eip3009 EIP3009PayloadType = "eip3009"
@@ -217,6 +229,7 @@ const (
 	ErrorTypeGuestTransactionCount                   ErrorType = "guest_transaction_count"
 	ErrorTypeGuestTransactionLimit                   ErrorType = "guest_transaction_limit"
 	ErrorTypeIdempotencyError                        ErrorType = "idempotency_error"
+	ErrorTypeIncompatibleEventTypes                  ErrorType = "incompatible_event_types"
 	ErrorTypeInsufficientAllowance                   ErrorType = "insufficient_allowance"
 	ErrorTypeInsufficientBalance                     ErrorType = "insufficient_balance"
 	ErrorTypeInsufficientLiquidity                   ErrorType = "insufficient_liquidity"
@@ -224,7 +237,15 @@ const (
 	ErrorTypeInvalidRequest                          ErrorType = "invalid_request"
 	ErrorTypeInvalidSignature                        ErrorType = "invalid_signature"
 	ErrorTypeInvalidSqlQuery                         ErrorType = "invalid_sql_query"
+	ErrorTypeInvalidWebhookHeaders                   ErrorType = "invalid_webhook_headers"
+	ErrorTypeInvalidWebhookUrl                       ErrorType = "invalid_webhook_url"
 	ErrorTypeMalformedTransaction                    ErrorType = "malformed_transaction"
+	ErrorTypeMandateActionPending                    ErrorType = "mandate_action_pending"
+	ErrorTypeMandateCanceled                         ErrorType = "mandate_canceled"
+	ErrorTypeMandateExpired                          ErrorType = "mandate_expired"
+	ErrorTypeMandateInvalidStatus                    ErrorType = "mandate_invalid_status"
+	ErrorTypeMandatePolicyViolation                  ErrorType = "mandate_policy_violation"
+	ErrorTypeMandateRevoked                          ErrorType = "mandate_revoked"
 	ErrorTypeMetadataKeyTooLong                      ErrorType = "metadata_key_too_long"
 	ErrorTypeMetadataTooManyEntries                  ErrorType = "metadata_too_many_entries"
 	ErrorTypeMetadataValueTooLong                    ErrorType = "metadata_value_too_long"
@@ -270,6 +291,7 @@ const (
 	ErrorTypeSourceAccountNotFound                   ErrorType = "source_account_not_found"
 	ErrorTypeSourceAssetNotSupported                 ErrorType = "source_asset_not_supported"
 	ErrorTypeStaleAttestation                        ErrorType = "stale_attestation"
+	ErrorTypeSubscriptionLimitExceeded               ErrorType = "subscription_limit_exceeded"
 	ErrorTypeTargetAccountInvalid                    ErrorType = "target_account_invalid"
 	ErrorTypeTargetAccountNotFound                   ErrorType = "target_account_not_found"
 	ErrorTypeTargetAssetNotSupported                 ErrorType = "target_asset_not_supported"
@@ -305,6 +327,14 @@ const (
 	AcceptanceDisbursementFailed                   EventType = "acceptance.disbursement.failed"
 	AcceptanceDisbursementPending                  EventType = "acceptance.disbursement.pending"
 	AcceptanceDisbursementSucceeded                EventType = "acceptance.disbursement.succeeded"
+	AcceptanceMandateApprovalFailed                EventType = "acceptance.mandate.approval_failed"
+	AcceptanceMandateApprovalInitiated             EventType = "acceptance.mandate.approval_initiated"
+	AcceptanceMandateApprovalSucceeded             EventType = "acceptance.mandate.approval_succeeded"
+	AcceptanceMandateCanceled                      EventType = "acceptance.mandate.canceled"
+	AcceptanceMandateCreated                       EventType = "acceptance.mandate.created"
+	AcceptanceMandateRevocationFailed              EventType = "acceptance.mandate.revocation_failed"
+	AcceptanceMandateRevocationInitiated           EventType = "acceptance.mandate.revocation_initiated"
+	AcceptanceMandateRevocationSucceeded           EventType = "acceptance.mandate.revocation_succeeded"
 	AcceptancePaymentSessionAuthorizationFailed    EventType = "acceptance.payment_session.authorization_failed"
 	AcceptancePaymentSessionAuthorizationPending   EventType = "acceptance.payment_session.authorization_pending"
 	AcceptancePaymentSessionAuthorizationSucceeded EventType = "acceptance.payment_session.authorization_succeeded"
@@ -623,6 +653,12 @@ const (
 	IneligibleWalletAuthorizationAddressCodeSupersededByPreferredOption IneligibleWalletAuthorizationAddressCode = "superseded_by_preferred_option"
 )
 
+// Defines values for IneligibleWalletMandateApprovalAddressesCode.
+const (
+	IneligibleWalletMandateApprovalAddressesCodeInsufficientFunds           IneligibleWalletMandateApprovalAddressesCode = "insufficient_funds"
+	IneligibleWalletMandateApprovalAddressesCodeSupersededByPreferredOption IneligibleWalletMandateApprovalAddressesCode = "superseded_by_preferred_option"
+)
+
 // Defines values for InitiateOnrampVerificationRequestChannel.
 const (
 	InitiateOnrampVerificationRequestChannelEmail InitiateOnrampVerificationRequestChannel = "email"
@@ -654,6 +690,26 @@ const (
 const (
 	ListSolanaTokenBalancesNetworkSolana       ListSolanaTokenBalancesNetwork = "solana"
 	ListSolanaTokenBalancesNetworkSolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
+)
+
+// Defines values for MandatePolicyPeriod.
+const (
+	Day   MandatePolicyPeriod = "day"
+	Month MandatePolicyPeriod = "month"
+	Week  MandatePolicyPeriod = "week"
+	Year  MandatePolicyPeriod = "year"
+)
+
+// Defines values for MandateStatus.
+const (
+	ApprovalFailed      MandateStatus = "approval_failed"
+	ApprovalPending     MandateStatus = "approval_pending"
+	ApprovalSucceeded   MandateStatus = "approval_succeeded"
+	Canceled            MandateStatus = "canceled"
+	Created             MandateStatus = "created"
+	RevocationFailed    MandateStatus = "revocation_failed"
+	RevocationPending   MandateStatus = "revocation_pending"
+	RevocationSucceeded MandateStatus = "revocation_succeeded"
 )
 
 // Defines values for MintAddressCriterionOperator.
@@ -855,6 +911,8 @@ const (
 	PaymentSourceNetworkOptimismSepolia PaymentSourceNetwork = "optimism-sepolia"
 	PaymentSourceNetworkPolygon         PaymentSourceNetwork = "polygon"
 	PaymentSourceNetworkPolygonAmoy     PaymentSourceNetwork = "polygon-amoy"
+	PaymentSourceNetworkSolana          PaymentSourceNetwork = "solana"
+	PaymentSourceNetworkSolanaDevnet    PaymentSourceNetwork = "solana-devnet"
 )
 
 // Defines values for PaymentTargetNetwork.
@@ -863,9 +921,14 @@ const (
 	PaymentTargetNetworkBaseSepolia PaymentTargetNetwork = "base-sepolia"
 )
 
+// Defines values for Permit2AllowancePayloadType.
+const (
+	Permit2AllowancePayloadTypePermit2 Permit2AllowancePayloadType = "permit2"
+)
+
 // Defines values for Permit2PayloadType.
 const (
-	Permit2 Permit2PayloadType = "permit2"
+	Permit2PayloadTypePermit2 Permit2PayloadType = "permit2"
 )
 
 // Defines values for PolicyScope.
@@ -902,6 +965,13 @@ const (
 	RequirementStatusPastDue  RequirementStatus = "past_due"
 	RequirementStatusPending  RequirementStatus = "pending"
 	RequirementStatusRejected RequirementStatus = "rejected"
+)
+
+// Defines values for RevocationStatus.
+const (
+	RevocationStatusFailed    RevocationStatus = "failed"
+	RevocationStatusPending   RevocationStatus = "pending"
+	RevocationStatusSucceeded RevocationStatus = "succeeded"
 )
 
 // Defines values for SendEndUserEvmAssetRuleAction.
@@ -1220,6 +1290,11 @@ const (
 // Defines values for SolValueCriterionType.
 const (
 	SolValue SolValueCriterionType = "solValue"
+)
+
+// Defines values for SolanaSubscriptionPayloadType.
+const (
+	SolanaSubscription SolanaSubscriptionPayloadType = "solana_subscription"
 )
 
 // Defines values for SpendPermissionNetwork.
@@ -1683,201 +1758,202 @@ const (
 
 // Defines values for X402VerifyInvalidReason.
 const (
-	AmountTooLow                                                                   X402VerifyInvalidReason = "amount_too_low"
-	BatchSettlementChannelBusy                                                     X402VerifyInvalidReason = "batch_settlement_channel_busy"
-	BatchSettlementChargeExceedsSignedCumulative                                   X402VerifyInvalidReason = "batch_settlement_charge_exceeds_signed_cumulative"
-	BatchSettlementCumulativeAmountMismatch                                        X402VerifyInvalidReason = "batch_settlement_cumulative_amount_mismatch"
-	BatchSettlementRefundAmountExceedsBalance                                      X402VerifyInvalidReason = "batch_settlement_refund_amount_exceeds_balance"
-	BatchSettlementRefundAmountInvalid                                             X402VerifyInvalidReason = "batch_settlement_refund_amount_invalid"
-	BatchSettlementRefundNoBalance                                                 X402VerifyInvalidReason = "batch_settlement_refund_no_balance"
-	DuplicateSettlement                                                            X402VerifyInvalidReason = "duplicate_settlement"
-	Erc20ApprovalAssetMismatch                                                     X402VerifyInvalidReason = "erc20_approval_asset_mismatch"
-	Erc20ApprovalBroadcastFailed                                                   X402VerifyInvalidReason = "erc20_approval_broadcast_failed"
-	Erc20ApprovalFromMismatch                                                      X402VerifyInvalidReason = "erc20_approval_from_mismatch"
-	Erc20ApprovalInsufficientEthForGas                                             X402VerifyInvalidReason = "erc20_approval_insufficient_eth_for_gas"
-	Erc20ApprovalSpenderNotPermit2                                                 X402VerifyInvalidReason = "erc20_approval_spender_not_permit2"
-	Erc20ApprovalTxFailed                                                          X402VerifyInvalidReason = "erc20_approval_tx_failed"
-	Erc20ApprovalTxInvalidSignature                                                X402VerifyInvalidReason = "erc20_approval_tx_invalid_signature"
-	Erc20ApprovalTxParseFailed                                                     X402VerifyInvalidReason = "erc20_approval_tx_parse_failed"
-	Erc20ApprovalTxSignerMismatch                                                  X402VerifyInvalidReason = "erc20_approval_tx_signer_mismatch"
-	Erc20ApprovalTxWrongSelector                                                   X402VerifyInvalidReason = "erc20_approval_tx_wrong_selector"
-	Erc20ApprovalTxWrongSpender                                                    X402VerifyInvalidReason = "erc20_approval_tx_wrong_spender"
-	Erc20ApprovalTxWrongTarget                                                     X402VerifyInvalidReason = "erc20_approval_tx_wrong_target"
-	InsufficientFunds                                                              X402VerifyInvalidReason = "insufficient_funds"
-	InvalidAmount                                                                  X402VerifyInvalidReason = "invalid_amount"
-	InvalidBatchSettlementEvmChannelIdMismatch                                     X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_id_mismatch"
-	InvalidBatchSettlementEvmChannelNotFound                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_not_found"
-	InvalidBatchSettlementEvmChannelStateReadFailed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_state_read_failed"
-	InvalidBatchSettlementEvmCumulativeBelowClaimed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_below_claimed"
-	InvalidBatchSettlementEvmCumulativeExceedsBalance                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_exceeds_balance"
-	InvalidBatchSettlementEvmDepositPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_payload"
-	InvalidBatchSettlementEvmDepositSimulationFailed                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_simulation_failed"
-	InvalidBatchSettlementEvmEip2612AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_amount_mismatch"
-	InvalidBatchSettlementEvmEip2612AssetMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_asset_mismatch"
-	InvalidBatchSettlementEvmEip2612DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_deadline_expired"
-	InvalidBatchSettlementEvmEip2612InvalidFormat                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_format"
-	InvalidBatchSettlementEvmEip2612InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_signature"
-	InvalidBatchSettlementEvmEip2612OwnerMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_owner_mismatch"
-	InvalidBatchSettlementEvmEip2612SpenderMismatch                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_spender_mismatch"
-	InvalidBatchSettlementEvmErc20ApprovalAssetMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_asset_mismatch"
-	InvalidBatchSettlementEvmErc20ApprovalFromMismatch                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_from_mismatch"
-	InvalidBatchSettlementEvmErc20ApprovalInvalidFormat                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_invalid_format"
-	InvalidBatchSettlementEvmErc20ApprovalUnavailable                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_unavailable"
-	InvalidBatchSettlementEvmErc20ApprovalWrongSpender                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_wrong_spender"
-	InvalidBatchSettlementEvmErc3009AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc3009_authorization_required"
-	InvalidBatchSettlementEvmInsufficientBalance                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_insufficient_balance"
-	InvalidBatchSettlementEvmMissingEip712Domain                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_missing_eip712_domain"
-	InvalidBatchSettlementEvmNetworkMismatch                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_network_mismatch"
-	InvalidBatchSettlementEvmPayloadAuthorizationValidAfter                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_after"
-	InvalidBatchSettlementEvmPayloadAuthorizationValidBefore                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_before"
-	InvalidBatchSettlementEvmPayloadType                                           X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_type"
-	InvalidBatchSettlementEvmPermit2AllowanceRequired                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_allowance_required"
-	InvalidBatchSettlementEvmPermit2AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_amount_mismatch"
-	InvalidBatchSettlementEvmPermit2AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_authorization_required"
-	InvalidBatchSettlementEvmPermit2DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_deadline_expired"
-	InvalidBatchSettlementEvmPermit2InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_signature"
-	InvalidBatchSettlementEvmPermit2InvalidSpender                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_spender"
-	InvalidBatchSettlementEvmReceiveAuthorizationSignature                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_receive_authorization_signature"
-	InvalidBatchSettlementEvmReceiverAuthorizerMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_authorizer_mismatch"
-	InvalidBatchSettlementEvmReceiverMismatch                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_mismatch"
-	InvalidBatchSettlementEvmRefundPayload                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_refund_payload"
-	InvalidBatchSettlementEvmRpcReadFailed                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_rpc_read_failed"
-	InvalidBatchSettlementEvmScheme                                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_scheme"
-	InvalidBatchSettlementEvmTokenMismatch                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_token_mismatch"
-	InvalidBatchSettlementEvmVoucherPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_payload"
-	InvalidBatchSettlementEvmVoucherSignature                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_signature"
-	InvalidBatchSettlementEvmWithdrawDelayMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_mismatch"
-	InvalidBatchSettlementEvmWithdrawDelayOutOfRange                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_out_of_range"
-	InvalidBazaarExtension                                                         X402VerifyInvalidReason = "invalid_bazaar_extension"
-	InvalidErc20ApprovalExtensionFormat                                            X402VerifyInvalidReason = "invalid_erc20_approval_extension_format"
-	InvalidExactEvmAuthorizationValue                                              X402VerifyInvalidReason = "invalid_exact_evm_authorization_value"
-	InvalidExactEvmEip3009NotSupported                                             X402VerifyInvalidReason = "invalid_exact_evm_eip3009_not_supported"
-	InvalidExactEvmExtraField                                                      X402VerifyInvalidReason = "invalid_exact_evm_extra_field"
-	InvalidExactEvmFailedToCheckDeployment                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_deployment"
-	InvalidExactEvmFailedToCheckNonce                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_nonce"
-	InvalidExactEvmFailedToExecuteTransfer                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_execute_transfer"
-	InvalidExactEvmFailedToGetBalance                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_balance"
-	InvalidExactEvmFailedToGetNetworkConfig                                        X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_network_config"
-	InvalidExactEvmFailedToGetReceipt                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_receipt"
-	InvalidExactEvmFailedToParseSignature                                          X402VerifyInvalidReason = "invalid_exact_evm_failed_to_parse_signature"
-	InvalidExactEvmFailedToVerifySignature                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_verify_signature"
-	InvalidExactEvmInsufficientBalance                                             X402VerifyInvalidReason = "invalid_exact_evm_insufficient_balance"
-	InvalidExactEvmInsufficientFunds                                               X402VerifyInvalidReason = "invalid_exact_evm_insufficient_funds"
-	InvalidExactEvmMissingEip712Domain                                             X402VerifyInvalidReason = "invalid_exact_evm_missing_eip712_domain"
-	InvalidExactEvmNetworkMismatch                                                 X402VerifyInvalidReason = "invalid_exact_evm_network_mismatch"
-	InvalidExactEvmNonceAlreadyUsed                                                X402VerifyInvalidReason = "invalid_exact_evm_nonce_already_used"
-	InvalidExactEvmPayload                                                         X402VerifyInvalidReason = "invalid_exact_evm_payload"
-	InvalidExactEvmPayloadAuthorizationFromAddressKyt                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
-	InvalidExactEvmPayloadAuthorizationToAddressKyt                                X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
-	InvalidExactEvmPayloadAuthorizationTypedDataMessage                            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
-	InvalidExactEvmPayloadAuthorizationValidAfter                                  X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
-	InvalidExactEvmPayloadAuthorizationValidBefore                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
-	InvalidExactEvmPayloadAuthorizationValue                                       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
-	InvalidExactEvmPayloadAuthorizationValueMismatch                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_mismatch"
-	InvalidExactEvmPayloadAuthorizationValueTooLow                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
-	InvalidExactEvmPayloadMissingSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_missing_signature"
-	InvalidExactEvmPayloadRecipientMismatch                                        X402VerifyInvalidReason = "invalid_exact_evm_payload_recipient_mismatch"
-	InvalidExactEvmPayloadSignature                                                X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
-	InvalidExactEvmPayloadSignatureAddress                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
-	InvalidExactEvmPayloadUndeployedSmartWallet                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_undeployed_smart_wallet"
-	InvalidExactEvmPermit2PayloadAllowanceRequired                                 X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_allowance_required"
-	InvalidExactEvmPermit2PayloadAmount                                            X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_amount"
-	InvalidExactEvmPermit2PayloadDeadline                                          X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_deadline"
-	InvalidExactEvmPermit2PayloadRecipient                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_recipient"
-	InvalidExactEvmPermit2PayloadSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_signature"
-	InvalidExactEvmPermit2PayloadSpender                                           X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_spender"
-	InvalidExactEvmPermit2PayloadValidAfter                                        X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_valid_after"
-	InvalidExactEvmRecipientMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_recipient_mismatch"
-	InvalidExactEvmRequiredAmount                                                  X402VerifyInvalidReason = "invalid_exact_evm_required_amount"
-	InvalidExactEvmScheme                                                          X402VerifyInvalidReason = "invalid_exact_evm_scheme"
-	InvalidExactEvmSignature                                                       X402VerifyInvalidReason = "invalid_exact_evm_signature"
-	InvalidExactEvmSignatureFormat                                                 X402VerifyInvalidReason = "invalid_exact_evm_signature_format"
-	InvalidExactEvmTokenNameMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_token_name_mismatch"
-	InvalidExactEvmTokenVersionMismatch                                            X402VerifyInvalidReason = "invalid_exact_evm_token_version_mismatch"
-	InvalidExactEvmTransactionFailed                                               X402VerifyInvalidReason = "invalid_exact_evm_transaction_failed"
-	InvalidExactEvmTransactionSimulationFailed                                     X402VerifyInvalidReason = "invalid_exact_evm_transaction_simulation_failed"
-	InvalidExactEvmTransactionState                                                X402VerifyInvalidReason = "invalid_exact_evm_transaction_state"
-	InvalidExactEvmUnsupportedScheme                                               X402VerifyInvalidReason = "invalid_exact_evm_unsupported_scheme"
-	InvalidExactEvmVerificationFailed                                              X402VerifyInvalidReason = "invalid_exact_evm_verification_failed"
-	InvalidExactSolanaExtraField                                                   X402VerifyInvalidReason = "invalid_exact_solana_extra_field"
-	InvalidExactSolanaFeePayerMismatch                                             X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_mismatch"
-	InvalidExactSolanaFeePayerNotManagedByFacilitator                              X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_not_managed_by_facilitator"
-	InvalidExactSolanaInvalidFeePayer                                              X402VerifyInvalidReason = "invalid_exact_solana_invalid_fee_payer"
-	InvalidExactSolanaNetworkMismatch                                              X402VerifyInvalidReason = "invalid_exact_solana_network_mismatch"
-	InvalidExactSolanaPayloadAmountInsufficient                                    X402VerifyInvalidReason = "invalid_exact_solana_payload_amount_insufficient"
-	InvalidExactSolanaPayloadMemoCount                                             X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_count"
-	InvalidExactSolanaPayloadMemoMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_mismatch"
-	InvalidExactSolanaPayloadMintMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_mint_mismatch"
-	InvalidExactSolanaPayloadMissingFeePayer                                       X402VerifyInvalidReason = "invalid_exact_solana_payload_missing_fee_payer"
-	InvalidExactSolanaPayloadNoTransferInstruction                                 X402VerifyInvalidReason = "invalid_exact_solana_payload_no_transfer_instruction"
-	InvalidExactSolanaPayloadRecipientMismatch                                     X402VerifyInvalidReason = "invalid_exact_solana_payload_recipient_mismatch"
-	InvalidExactSolanaPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction"
-	InvalidExactSolanaPayloadTransactionCouldNotBeDecoded                          X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_could_not_be_decoded"
-	InvalidExactSolanaPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_fee_payer_transferring_funds"
-	InvalidExactSolanaPayloadTransactionInstructionsComputeLimitInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_limit_instruction"
-	InvalidExactSolanaPayloadTransactionInstructionsComputePriceInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction"
-	InvalidExactSolanaPayloadTransactionInstructionsComputePriceInstructionTooHigh X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction_too_high"
-	InvalidExactSolanaPayloadTransactionInstructionsLength                         X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_length"
-	InvalidExactSolanaPayloadUnknownFifthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fifth_instruction"
-	InvalidExactSolanaPayloadUnknownFourthInstruction                              X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fourth_instruction"
-	InvalidExactSolanaPayloadUnknownSixthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_sixth_instruction"
-	InvalidExactSolanaTransactionConfirmationFailed                                X402VerifyInvalidReason = "invalid_exact_solana_transaction_confirmation_failed"
-	InvalidExactSolanaTransactionFailed                                            X402VerifyInvalidReason = "invalid_exact_solana_transaction_failed"
-	InvalidExactSolanaTransactionSigningFailed                                     X402VerifyInvalidReason = "invalid_exact_solana_transaction_signing_failed"
-	InvalidExactSolanaTransactionSimulationFailed                                  X402VerifyInvalidReason = "invalid_exact_solana_transaction_simulation_failed"
-	InvalidExactSolanaUnsupportedScheme                                            X402VerifyInvalidReason = "invalid_exact_solana_unsupported_scheme"
-	InvalidExactSolanaVerificationFailed                                           X402VerifyInvalidReason = "invalid_exact_solana_verification_failed"
-	InvalidExactSvmPayloadTransaction                                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
-	InvalidExactSvmPayloadTransactionAmountMismatch                                X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
-	InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
-	InvalidExactSvmPayloadTransactionCreateAtaInstruction                          X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
-	InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
-	InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
-	InvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
-	InvalidExactSvmPayloadTransactionFeePayerTransferringFunds                     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
-	InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
-	InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
-	InvalidExactSvmPayloadTransactionInstructions                                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
-	InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
-	InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
-	InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
-	InvalidExactSvmPayloadTransactionInstructionsLength                            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_length"
-	InvalidExactSvmPayloadTransactionNotATransferInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction"
-	InvalidExactSvmPayloadTransactionReceiverAtaNotFound                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_receiver_ata_not_found"
-	InvalidExactSvmPayloadTransactionSenderAtaNotFound                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_sender_ata_not_found"
-	InvalidExactSvmPayloadTransactionSimulationFailed                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_simulation_failed"
-	InvalidExactSvmPayloadTransactionTransferToIncorrectAta                        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
-	InvalidNetwork                                                                 X402VerifyInvalidReason = "invalid_network"
-	InvalidPayload                                                                 X402VerifyInvalidReason = "invalid_payload"
-	InvalidPaymentRequirements                                                     X402VerifyInvalidReason = "invalid_payment_requirements"
-	InvalidPermit2RecipientMismatch                                                X402VerifyInvalidReason = "invalid_permit2_recipient_mismatch"
-	InvalidPermit2Signature                                                        X402VerifyInvalidReason = "invalid_permit2_signature"
-	InvalidPermit2Spender                                                          X402VerifyInvalidReason = "invalid_permit2_spender"
-	InvalidScheme                                                                  X402VerifyInvalidReason = "invalid_scheme"
-	InvalidX402Version                                                             X402VerifyInvalidReason = "invalid_x402_version"
-	KytRiskDetected                                                                X402VerifyInvalidReason = "kyt_risk_detected"
-	MissingBatchSettlementChannel                                                  X402VerifyInvalidReason = "missing_batch_settlement_channel"
-	Permit22612AmountMismatch                                                      X402VerifyInvalidReason = "permit2_2612_amount_mismatch"
-	Permit2AllowanceRequired                                                       X402VerifyInvalidReason = "permit2_allowance_required"
-	Permit2AmountMismatch                                                          X402VerifyInvalidReason = "permit2_amount_mismatch"
-	Permit2DeadlineExpired                                                         X402VerifyInvalidReason = "permit2_deadline_expired"
-	Permit2Disabled                                                                X402VerifyInvalidReason = "permit2_disabled"
-	Permit2InsufficientBalance                                                     X402VerifyInvalidReason = "permit2_insufficient_balance"
-	Permit2InvalidAmount                                                           X402VerifyInvalidReason = "permit2_invalid_amount"
-	Permit2InvalidDestination                                                      X402VerifyInvalidReason = "permit2_invalid_destination"
-	Permit2InvalidNonce                                                            X402VerifyInvalidReason = "permit2_invalid_nonce"
-	Permit2InvalidOwner                                                            X402VerifyInvalidReason = "permit2_invalid_owner"
-	Permit2NotYetValid                                                             X402VerifyInvalidReason = "permit2_not_yet_valid"
-	Permit2PaymentTooEarly                                                         X402VerifyInvalidReason = "permit2_payment_too_early"
-	Permit2ProxyNotDeployed                                                        X402VerifyInvalidReason = "permit2_proxy_not_deployed"
-	Permit2SimulationFailed                                                        X402VerifyInvalidReason = "permit2_simulation_failed"
-	Permit2TokenMismatch                                                           X402VerifyInvalidReason = "permit2_token_mismatch"
-	PreflightValidationFailed                                                      X402VerifyInvalidReason = "preflight_validation_failed"
-	RequestBlockedByLocation                                                       X402VerifyInvalidReason = "request_blocked_by_location"
-	SelfSendNotAllowed                                                             X402VerifyInvalidReason = "self_send_not_allowed"
-	SmartWalletDeploymentFailed                                                    X402VerifyInvalidReason = "smart_wallet_deployment_failed"
-	UnknownError                                                                   X402VerifyInvalidReason = "unknown_error"
-	UnsupportedPayloadType                                                         X402VerifyInvalidReason = "unsupported_payload_type"
+	X402VerifyInvalidReasonAmountTooLow                                                                   X402VerifyInvalidReason = "amount_too_low"
+	X402VerifyInvalidReasonBatchSettlementChannelBusy                                                     X402VerifyInvalidReason = "batch_settlement_channel_busy"
+	X402VerifyInvalidReasonBatchSettlementChargeExceedsSignedCumulative                                   X402VerifyInvalidReason = "batch_settlement_charge_exceeds_signed_cumulative"
+	X402VerifyInvalidReasonBatchSettlementCumulativeAmountMismatch                                        X402VerifyInvalidReason = "batch_settlement_cumulative_amount_mismatch"
+	X402VerifyInvalidReasonBatchSettlementRefundAmountExceedsBalance                                      X402VerifyInvalidReason = "batch_settlement_refund_amount_exceeds_balance"
+	X402VerifyInvalidReasonBatchSettlementRefundAmountInvalid                                             X402VerifyInvalidReason = "batch_settlement_refund_amount_invalid"
+	X402VerifyInvalidReasonBatchSettlementRefundNoBalance                                                 X402VerifyInvalidReason = "batch_settlement_refund_no_balance"
+	X402VerifyInvalidReasonDuplicateSettlement                                                            X402VerifyInvalidReason = "duplicate_settlement"
+	X402VerifyInvalidReasonErc20ApprovalAssetMismatch                                                     X402VerifyInvalidReason = "erc20_approval_asset_mismatch"
+	X402VerifyInvalidReasonErc20ApprovalBroadcastFailed                                                   X402VerifyInvalidReason = "erc20_approval_broadcast_failed"
+	X402VerifyInvalidReasonErc20ApprovalFromMismatch                                                      X402VerifyInvalidReason = "erc20_approval_from_mismatch"
+	X402VerifyInvalidReasonErc20ApprovalInsufficientEthForGas                                             X402VerifyInvalidReason = "erc20_approval_insufficient_eth_for_gas"
+	X402VerifyInvalidReasonErc20ApprovalSpenderNotPermit2                                                 X402VerifyInvalidReason = "erc20_approval_spender_not_permit2"
+	X402VerifyInvalidReasonErc20ApprovalTxFailed                                                          X402VerifyInvalidReason = "erc20_approval_tx_failed"
+	X402VerifyInvalidReasonErc20ApprovalTxInvalidSignature                                                X402VerifyInvalidReason = "erc20_approval_tx_invalid_signature"
+	X402VerifyInvalidReasonErc20ApprovalTxParseFailed                                                     X402VerifyInvalidReason = "erc20_approval_tx_parse_failed"
+	X402VerifyInvalidReasonErc20ApprovalTxSignerMismatch                                                  X402VerifyInvalidReason = "erc20_approval_tx_signer_mismatch"
+	X402VerifyInvalidReasonErc20ApprovalTxWrongSelector                                                   X402VerifyInvalidReason = "erc20_approval_tx_wrong_selector"
+	X402VerifyInvalidReasonErc20ApprovalTxWrongSpender                                                    X402VerifyInvalidReason = "erc20_approval_tx_wrong_spender"
+	X402VerifyInvalidReasonErc20ApprovalTxWrongTarget                                                     X402VerifyInvalidReason = "erc20_approval_tx_wrong_target"
+	X402VerifyInvalidReasonInsufficientFunds                                                              X402VerifyInvalidReason = "insufficient_funds"
+	X402VerifyInvalidReasonInvalidAmount                                                                  X402VerifyInvalidReason = "invalid_amount"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelIdMismatch                                     X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_id_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelNotFound                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_not_found"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmChannelStateReadFailed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_channel_state_read_failed"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmCumulativeBelowClaimed                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_below_claimed"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmCumulativeExceedsBalance                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_cumulative_exceeds_balance"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmDepositPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_payload"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmDepositSimulationFailed                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_deposit_simulation_failed"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_amount_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612AssetMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_asset_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_deadline_expired"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612InvalidFormat                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_format"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_invalid_signature"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612OwnerMismatch                                  X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_owner_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmEip2612SpenderMismatch                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_eip2612_spender_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalAssetMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_asset_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalFromMismatch                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_from_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalInvalidFormat                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_invalid_format"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalUnavailable                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_unavailable"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc20ApprovalWrongSpender                             X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc20_approval_wrong_spender"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmErc3009AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_erc3009_authorization_required"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmInsufficientBalance                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_insufficient_balance"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmMissingEip712Domain                                   X402VerifyInvalidReason = "invalid_batch_settlement_evm_missing_eip712_domain"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmNetworkMismatch                                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_network_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadAuthorizationValidAfter                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_after"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadAuthorizationValidBefore                       X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_authorization_valid_before"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPayloadType                                           X402VerifyInvalidReason = "invalid_batch_settlement_evm_payload_type"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AllowanceRequired                              X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_allowance_required"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AmountMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_amount_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2AuthorizationRequired                          X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_authorization_required"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2DeadlineExpired                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_deadline_expired"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2InvalidSignature                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_signature"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmPermit2InvalidSpender                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_permit2_invalid_spender"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiveAuthorizationSignature                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_receive_authorization_signature"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiverAuthorizerMismatch                            X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_authorizer_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmReceiverMismatch                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_receiver_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmRefundPayload                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_refund_payload"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmRpcReadFailed                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_rpc_read_failed"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmScheme                                                X402VerifyInvalidReason = "invalid_batch_settlement_evm_scheme"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmTokenMismatch                                         X402VerifyInvalidReason = "invalid_batch_settlement_evm_token_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmVoucherPayload                                        X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_payload"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmVoucherSignature                                      X402VerifyInvalidReason = "invalid_batch_settlement_evm_voucher_signature"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmWithdrawDelayMismatch                                 X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_mismatch"
+	X402VerifyInvalidReasonInvalidBatchSettlementEvmWithdrawDelayOutOfRange                               X402VerifyInvalidReason = "invalid_batch_settlement_evm_withdraw_delay_out_of_range"
+	X402VerifyInvalidReasonInvalidBazaarExtension                                                         X402VerifyInvalidReason = "invalid_bazaar_extension"
+	X402VerifyInvalidReasonInvalidErc20ApprovalExtensionFormat                                            X402VerifyInvalidReason = "invalid_erc20_approval_extension_format"
+	X402VerifyInvalidReasonInvalidExactEvmAuthorizationValue                                              X402VerifyInvalidReason = "invalid_exact_evm_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmEip3009NotSupported                                             X402VerifyInvalidReason = "invalid_exact_evm_eip3009_not_supported"
+	X402VerifyInvalidReasonInvalidExactEvmExtraField                                                      X402VerifyInvalidReason = "invalid_exact_evm_extra_field"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToCheckDeployment                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_deployment"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToCheckNonce                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_check_nonce"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToExecuteTransfer                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_execute_transfer"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToGetBalance                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_balance"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToGetNetworkConfig                                        X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_network_config"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToGetReceipt                                              X402VerifyInvalidReason = "invalid_exact_evm_failed_to_get_receipt"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToParseSignature                                          X402VerifyInvalidReason = "invalid_exact_evm_failed_to_parse_signature"
+	X402VerifyInvalidReasonInvalidExactEvmFailedToVerifySignature                                         X402VerifyInvalidReason = "invalid_exact_evm_failed_to_verify_signature"
+	X402VerifyInvalidReasonInvalidExactEvmInsufficientBalance                                             X402VerifyInvalidReason = "invalid_exact_evm_insufficient_balance"
+	X402VerifyInvalidReasonInvalidExactEvmInsufficientFunds                                               X402VerifyInvalidReason = "invalid_exact_evm_insufficient_funds"
+	X402VerifyInvalidReasonInvalidExactEvmMissingEip712Domain                                             X402VerifyInvalidReason = "invalid_exact_evm_missing_eip712_domain"
+	X402VerifyInvalidReasonInvalidExactEvmNetworkMismatch                                                 X402VerifyInvalidReason = "invalid_exact_evm_network_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmNonceAlreadyUsed                                                X402VerifyInvalidReason = "invalid_exact_evm_nonce_already_used"
+	X402VerifyInvalidReasonInvalidExactEvmPayload                                                         X402VerifyInvalidReason = "invalid_exact_evm_payload"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationToAddressKyt                                X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage                            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter                                  X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue                                       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueMismatch                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueTooLow                                 X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadMissingSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_missing_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadRecipientMismatch                                        X402VerifyInvalidReason = "invalid_exact_evm_payload_recipient_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                                X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                         X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadUndeployedSmartWallet                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_undeployed_smart_wallet"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAllowanceRequired                                 X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_allowance_required"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAmount                                            X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_amount"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadDeadline                                          X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_deadline"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadRecipient                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_recipient"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSignature                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSpender                                           X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_spender"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadValidAfter                                        X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_valid_after"
+	X402VerifyInvalidReasonInvalidExactEvmRecipientMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_recipient_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmRequiredAmount                                                  X402VerifyInvalidReason = "invalid_exact_evm_required_amount"
+	X402VerifyInvalidReasonInvalidExactEvmScheme                                                          X402VerifyInvalidReason = "invalid_exact_evm_scheme"
+	X402VerifyInvalidReasonInvalidExactEvmSignature                                                       X402VerifyInvalidReason = "invalid_exact_evm_signature"
+	X402VerifyInvalidReasonInvalidExactEvmSignatureFormat                                                 X402VerifyInvalidReason = "invalid_exact_evm_signature_format"
+	X402VerifyInvalidReasonInvalidExactEvmTokenNameMismatch                                               X402VerifyInvalidReason = "invalid_exact_evm_token_name_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmTokenVersionMismatch                                            X402VerifyInvalidReason = "invalid_exact_evm_token_version_mismatch"
+	X402VerifyInvalidReasonInvalidExactEvmTransactionFailed                                               X402VerifyInvalidReason = "invalid_exact_evm_transaction_failed"
+	X402VerifyInvalidReasonInvalidExactEvmTransactionSimulationFailed                                     X402VerifyInvalidReason = "invalid_exact_evm_transaction_simulation_failed"
+	X402VerifyInvalidReasonInvalidExactEvmTransactionState                                                X402VerifyInvalidReason = "invalid_exact_evm_transaction_state"
+	X402VerifyInvalidReasonInvalidExactEvmUnsupportedScheme                                               X402VerifyInvalidReason = "invalid_exact_evm_unsupported_scheme"
+	X402VerifyInvalidReasonInvalidExactEvmVerificationFailed                                              X402VerifyInvalidReason = "invalid_exact_evm_verification_failed"
+	X402VerifyInvalidReasonInvalidExactSolanaExtraField                                                   X402VerifyInvalidReason = "invalid_exact_solana_extra_field"
+	X402VerifyInvalidReasonInvalidExactSolanaFeePayerMismatch                                             X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_mismatch"
+	X402VerifyInvalidReasonInvalidExactSolanaFeePayerNotManagedByFacilitator                              X402VerifyInvalidReason = "invalid_exact_solana_fee_payer_not_managed_by_facilitator"
+	X402VerifyInvalidReasonInvalidExactSolanaInvalidFeePayer                                              X402VerifyInvalidReason = "invalid_exact_solana_invalid_fee_payer"
+	X402VerifyInvalidReasonInvalidExactSolanaNetworkMismatch                                              X402VerifyInvalidReason = "invalid_exact_solana_network_mismatch"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadAmountInsufficient                                    X402VerifyInvalidReason = "invalid_exact_solana_payload_amount_insufficient"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadMemoCount                                             X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_count"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadMemoMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_memo_mismatch"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadMintMismatch                                          X402VerifyInvalidReason = "invalid_exact_solana_payload_mint_mismatch"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadMissingFeePayer                                       X402VerifyInvalidReason = "invalid_exact_solana_payload_missing_fee_payer"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadNoTransferInstruction                                 X402VerifyInvalidReason = "invalid_exact_solana_payload_no_transfer_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadRecipientMismatch                                     X402VerifyInvalidReason = "invalid_exact_solana_payload_recipient_mismatch"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionCouldNotBeDecoded                          X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_could_not_be_decoded"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_fee_payer_transferring_funds"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputeLimitInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_limit_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputePriceInstruction        X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsComputePriceInstructionTooHigh X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_compute_price_instruction_too_high"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadTransactionInstructionsLength                         X402VerifyInvalidReason = "invalid_exact_solana_payload_transaction_instructions_length"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownFifthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fifth_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownFourthInstruction                              X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_fourth_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaPayloadUnknownSixthInstruction                               X402VerifyInvalidReason = "invalid_exact_solana_payload_unknown_sixth_instruction"
+	X402VerifyInvalidReasonInvalidExactSolanaTransactionConfirmationFailed                                X402VerifyInvalidReason = "invalid_exact_solana_transaction_confirmation_failed"
+	X402VerifyInvalidReasonInvalidExactSolanaTransactionFailed                                            X402VerifyInvalidReason = "invalid_exact_solana_transaction_failed"
+	X402VerifyInvalidReasonInvalidExactSolanaTransactionSigningFailed                                     X402VerifyInvalidReason = "invalid_exact_solana_transaction_signing_failed"
+	X402VerifyInvalidReasonInvalidExactSolanaTransactionSimulationFailed                                  X402VerifyInvalidReason = "invalid_exact_solana_transaction_simulation_failed"
+	X402VerifyInvalidReasonInvalidExactSolanaUnsupportedScheme                                            X402VerifyInvalidReason = "invalid_exact_solana_unsupported_scheme"
+	X402VerifyInvalidReasonInvalidExactSolanaVerificationFailed                                           X402VerifyInvalidReason = "invalid_exact_solana_verification_failed"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionAmountMismatch                                X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstruction                          X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerTransferringFunds                     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructions                                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsLength                            X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_length"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionNotATransferInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionReceiverAtaNotFound                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_receiver_ata_not_found"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSenderAtaNotFound                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_sender_ata_not_found"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSimulationFailed                              X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_simulation_failed"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionTransferToIncorrectAta                        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
+	X402VerifyInvalidReasonInvalidNetwork                                                                 X402VerifyInvalidReason = "invalid_network"
+	X402VerifyInvalidReasonInvalidPayload                                                                 X402VerifyInvalidReason = "invalid_payload"
+	X402VerifyInvalidReasonInvalidPaymentRequirements                                                     X402VerifyInvalidReason = "invalid_payment_requirements"
+	X402VerifyInvalidReasonInvalidPermit2RecipientMismatch                                                X402VerifyInvalidReason = "invalid_permit2_recipient_mismatch"
+	X402VerifyInvalidReasonInvalidPermit2Signature                                                        X402VerifyInvalidReason = "invalid_permit2_signature"
+	X402VerifyInvalidReasonInvalidPermit2Spender                                                          X402VerifyInvalidReason = "invalid_permit2_spender"
+	X402VerifyInvalidReasonInvalidScheme                                                                  X402VerifyInvalidReason = "invalid_scheme"
+	X402VerifyInvalidReasonInvalidX402Version                                                             X402VerifyInvalidReason = "invalid_x402_version"
+	X402VerifyInvalidReasonKytRiskDetected                                                                X402VerifyInvalidReason = "kyt_risk_detected"
+	X402VerifyInvalidReasonMissingBatchSettlementChannel                                                  X402VerifyInvalidReason = "missing_batch_settlement_channel"
+	X402VerifyInvalidReasonNodeFailure                                                                    X402VerifyInvalidReason = "node_failure"
+	X402VerifyInvalidReasonPermit22612AmountMismatch                                                      X402VerifyInvalidReason = "permit2_2612_amount_mismatch"
+	X402VerifyInvalidReasonPermit2AllowanceRequired                                                       X402VerifyInvalidReason = "permit2_allowance_required"
+	X402VerifyInvalidReasonPermit2AmountMismatch                                                          X402VerifyInvalidReason = "permit2_amount_mismatch"
+	X402VerifyInvalidReasonPermit2DeadlineExpired                                                         X402VerifyInvalidReason = "permit2_deadline_expired"
+	X402VerifyInvalidReasonPermit2Disabled                                                                X402VerifyInvalidReason = "permit2_disabled"
+	X402VerifyInvalidReasonPermit2InsufficientBalance                                                     X402VerifyInvalidReason = "permit2_insufficient_balance"
+	X402VerifyInvalidReasonPermit2InvalidAmount                                                           X402VerifyInvalidReason = "permit2_invalid_amount"
+	X402VerifyInvalidReasonPermit2InvalidDestination                                                      X402VerifyInvalidReason = "permit2_invalid_destination"
+	X402VerifyInvalidReasonPermit2InvalidNonce                                                            X402VerifyInvalidReason = "permit2_invalid_nonce"
+	X402VerifyInvalidReasonPermit2InvalidOwner                                                            X402VerifyInvalidReason = "permit2_invalid_owner"
+	X402VerifyInvalidReasonPermit2NotYetValid                                                             X402VerifyInvalidReason = "permit2_not_yet_valid"
+	X402VerifyInvalidReasonPermit2PaymentTooEarly                                                         X402VerifyInvalidReason = "permit2_payment_too_early"
+	X402VerifyInvalidReasonPermit2ProxyNotDeployed                                                        X402VerifyInvalidReason = "permit2_proxy_not_deployed"
+	X402VerifyInvalidReasonPermit2SimulationFailed                                                        X402VerifyInvalidReason = "permit2_simulation_failed"
+	X402VerifyInvalidReasonPermit2TokenMismatch                                                           X402VerifyInvalidReason = "permit2_token_mismatch"
+	X402VerifyInvalidReasonPreflightValidationFailed                                                      X402VerifyInvalidReason = "preflight_validation_failed"
+	X402VerifyInvalidReasonRequestBlockedByLocation                                                       X402VerifyInvalidReason = "request_blocked_by_location"
+	X402VerifyInvalidReasonSelfSendNotAllowed                                                             X402VerifyInvalidReason = "self_send_not_allowed"
+	X402VerifyInvalidReasonSmartWalletDeploymentFailed                                                    X402VerifyInvalidReason = "smart_wallet_deployment_failed"
+	X402VerifyInvalidReasonUnknownError                                                                   X402VerifyInvalidReason = "unknown_error"
+	X402VerifyInvalidReasonUnsupportedPayloadType                                                         X402VerifyInvalidReason = "unsupported_payload_type"
 )
 
 // Defines values for ListTokensForAccountParamsNetwork.
@@ -2207,6 +2283,69 @@ type AmountDetail struct {
 	Total string `json:"total"`
 }
 
+// Approval An attempt to attach a funding source to a mandate and make it usable. A successful approval sets the mandate's `source` and moves the mandate to `approval_succeeded`; a failed one moves the mandate to `approval_failed` and can be retried by submitting a new approval. A mandate holds at most one active source, so at most one approval ever succeeds. The network transactions that grant the spending allowance are on `onchainTransactions`.
+type Approval struct {
+	// ApprovalId The unique identifier of the approval.
+	ApprovalId ApprovalId `json:"approvalId"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the approval was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Error Details of why the approval failed. Only present when `status` is `failed`.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions Network transactions that grant the spending allowance on-chain. Empty until the approval has been submitted to the network.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// Source The funding source this approval binds to the mandate. Present once the source has been determined from the customer's submission.
+	Source *MandateSource `json:"source,omitempty"`
+
+	// Status The current status of the approval attempt.
+	Status ApprovalStatus `json:"status"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the approval was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// ApprovalId The ID of an approval, a UUID prefixed by `approval_`.
+type ApprovalId = string
+
+// ApprovalPayload A single payload the customer signs to approve a mandate on a wallet source. Mandates support allowance-style credentials only, since a mandate must be reusable for later debits when the customer is not present. Inspect `type` to determine how to handle `data`:
+//
+// - `eip2612`: pass `data` to `eth_signTypedData_v4`, return the signature.
+//
+//   - `permit2`: a Permit2 `PermitSingle` (AllowanceTransfer) granting a
+//     reusable allowance; pass `data` to `eth_signTypedData_v4`, return the
+//     signature. Preceded by a one-time `erc20_approval` of the Permit2 contract
+//     when the wallet has not yet approved Permit2 for this asset.
+//
+//   - `erc20_approval`: send `data` via `eth_sendTransaction`, return the transaction hash.
+//
+//   - `solana_subscription`: decode `data.transaction` from base64 and pass the
+//     bytes to the Solana Wallet Standard `signTransaction` method (never
+//     `signAndSendTransaction`). From the signed transaction, extract the
+//     64-byte ed25519 signature for the payer that signed, base58-encode it,
+//     and return that string as `OnchainSignedPayload.signature`. Do not
+//     submit the signed transaction bytes.
+type ApprovalPayload struct {
+	union json.RawMessage
+}
+
+// ApprovalStatus The status of an approval attempt:
+//
+// - `pending`: the submitted source is being bound and verified.
+//
+//   - `succeeded`: the mandate's `source` is attached and its status becomes
+//     `approval_succeeded`.
+//
+//   - `failed`: the attempt could not be completed (see `error`). The mandate's
+//     status becomes `approval_failed`; submit a new approval to retry (which
+//     moves it back to `approval_pending`).
+type ApprovalStatus string
+
 // Asset The symbol of the asset (e.g., eth, usd, usdc, usdt).
 type Asset = string
 
@@ -2479,6 +2618,12 @@ type BorrowProductVenue struct {
 
 	// VenueId A stable identifier for the venue, which is a UUID prefixed with the string `bp_venue_`.
 	VenueId string `json:"venueId"`
+}
+
+// CancelMandateRequest A request to cancel a mandate. The merchant is inferred from the API key.
+type CancelMandateRequest struct {
+	// Reason An optional human-readable reason for canceling the mandate.
+	Reason *string `json:"reason,omitempty"`
 }
 
 // CancelPaymentSessionRequest A request to cancel a payment session.
@@ -3014,6 +3159,30 @@ type CreateFiatDepositDestinationRequest struct {
 
 // CreateFiatDepositDestinationRequestType defines model for CreateFiatDepositDestinationRequest.Type.
 type CreateFiatDepositDestinationRequestType string
+
+// CreateMandateRequest A request to create a new mandate. The merchant is inferred from the API key. The mandate is returned in `created` status with no source. Attach a source next by approving the mandate, using **Get wallet approval options** then **Approve a mandate with a wallet**, which returns a `pending` approval; the mandate becomes `approval_succeeded` once that approval succeeds. The mandate is denominated in `asset`, fixed at creation. `policy` is optional. Omit it or send `{}` to default to a Coinbase-configured monthly max. The response includes the resolved `policy`. If you set `maxPerPeriod`, include both `amount` and `period`.
+type CreateMandateRequest struct {
+	// ApprovalRedirect Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.
+	ApprovalRedirect *PaymentRedirect `json:"approvalRedirect,omitempty"`
+
+	// Asset The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.
+	Asset Asset `json:"asset"`
+
+	// CustomerDisplay Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.
+	CustomerDisplay *MandateCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExpiresAt The UTC ISO 8601 timestamp after which this mandate can no longer be authorized against. Omit for a mandate with no expiry.
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Policy Optional. Omit or send `{}` to default to a Coinbase-configured monthly max. If you set `maxPerPeriod`, include both `amount` and `period`.
+	Policy *MandatePolicy `json:"policy,omitempty"`
+
+	// RevocationRedirect Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.
+	RevocationRedirect *PaymentRedirect `json:"revocationRedirect,omitempty"`
+}
 
 // CreatePaymentSessionRequest A request to create a new payment session.
 type CreatePaymentSessionRequest struct {
@@ -3627,6 +3796,21 @@ type DisbursementWalletTarget struct {
 	// Network The blockchain network on which the target receives funds.
 	Network Network `json:"network"`
 }
+
+// EIP2612Payload An EIP-2612 Permit typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. Used to set up a mandate's reusable credential; the permit stands in for a live per-authorization signature on later authorizations.
+type EIP2612Payload struct {
+	// Data EIP-712 typed data for an EIP-2612 Permit. Pass to `eth_signTypedData_v4`.
+	Data EIP712Message `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type EIP2612PayloadType `json:"type"`
+}
+
+// EIP2612PayloadType The payload type.
+type EIP2612PayloadType string
 
 // EIP3009Payload An EIP-3009 TransferWithAuthorization typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
 type EIP3009Payload struct {
@@ -4489,6 +4673,24 @@ type IneligibleWalletAuthorizationAddress struct {
 // IneligibleWalletAuthorizationAddressCode A machine-readable code indicating why this address has no eligible authorization option. The enum is closed — any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
 type IneligibleWalletAuthorizationAddressCode string
 
+// IneligibleWalletMandateApprovalAddresses A requested customer wallet address that has no eligible mandate approval option, along with a machine- and human-readable reason.
+type IneligibleWalletMandateApprovalAddresses struct {
+	// Address The requested customer wallet address that has no eligible mandate approval option.
+	Address BlockchainAddress `json:"address"`
+
+	// Code A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+	Code IneligibleWalletMandateApprovalAddressesCode `json:"code"`
+
+	// FundsRequired The funding options for this address, one entry per (network, asset) combination the customer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array.
+	FundsRequired *[]WalletMandateApprovalFundsRequirement `json:"fundsRequired,omitempty"`
+
+	// Message A human-readable, English-language description of why this address has no eligible mandate approval option. Suitable for surfacing in product UIs; does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations.
+	Message string `json:"message"`
+}
+
+// IneligibleWalletMandateApprovalAddressesCode A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+type IneligibleWalletMandateApprovalAddressesCode string
+
 // InitiateOnrampVerificationRequest Request body for initiating an onramp OTP verification.
 type InitiateOnrampVerificationRequest struct {
 	// Channel The OTP delivery channel.
@@ -4567,6 +4769,159 @@ type MFAMethods struct {
 		EnrolledAt time.Time `json:"enrolledAt"`
 	} `json:"totp,omitempty"`
 }
+
+// Mandate A durable, revocable standing authorization to debit a funding `source` without the customer present each time, within its `policy` caps. Payment sessions draw against it by referencing its `mandateId`.
+//
+// `source` is set once an approval succeeds. `status` reflects the most recent action; the `approvedAt`, `canceledAt`, and `revokedAt` timestamps are the durable record of what has happened. Ending one mandate does not affect other mandates on the same `source`.
+type Mandate struct {
+	// ApprovalRedirect Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. When omitted, the approval page keeps the customer on the Coinbase-hosted experience.
+	ApprovalRedirect *PaymentRedirect `json:"approvalRedirect,omitempty"`
+
+	// ApprovedAt The UTC ISO 8601 timestamp at which an approval succeeded and the mandate became usable. Present only once the mandate has been approved; set once, on the successful approval, and unchanged by later transitions. Its presence is the durable signal that the mandate was approved, independent of `status`.
+	ApprovedAt *time.Time `json:"approvedAt,omitempty"`
+
+	// Asset The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.
+	Asset Asset `json:"asset"`
+
+	// CanceledAt The UTC ISO 8601 timestamp at which the merchant canceled the mandate off-chain. Present only once the mandate has been canceled. Canceling does not touch the on-chain spending allowance; check `revokedAt` for that.
+	CanceledAt *time.Time `json:"canceledAt,omitempty"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the mandate was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// CustomerDisplay Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.
+	CustomerDisplay *MandateCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExpiresAt The UTC ISO 8601 timestamp after which the mandate can no longer be authorized against. Authorization attempts after this time return `422`; `status` does not change. Omit for no expiry.
+	ExpiresAt *time.Time `json:"expiresAt,omitempty"`
+
+	// MandateId The unique identifier of the mandate.
+	MandateId MandateId `json:"mandateId"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// Policy Debit caps. Always present. If you omitted `policy` at create, this is a Coinbase-configured monthly max.
+	Policy MandatePolicy `json:"policy"`
+
+	// RevocationRedirect Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. When omitted, the revocation page keeps the customer on the Coinbase-hosted experience.
+	RevocationRedirect *PaymentRedirect `json:"revocationRedirect,omitempty"`
+
+	// RevocationUrl Hosted page where the customer can remove their spending allowance for this mandate. Present once the mandate has a `source` (from `approval_succeeded` onward); absent before approval, when there is nothing to revoke.
+	RevocationUrl *Url `json:"revocationUrl,omitempty"`
+
+	// RevokedAt The UTC ISO 8601 timestamp at which the spending allowance was removed on-chain by a wallet revocation. Present only once that has happened. Its presence is the single signal that the allowance is gone, independent of `status` (for example, it can be set on a `canceled` mandate whose allowance was later cleaned up).
+	RevokedAt *time.Time `json:"revokedAt,omitempty"`
+
+	// Source The funding source the mandate draws against. Set when an approval succeeds. Not present before the mandate is `approval_succeeded`.
+	Source *MandateSource `json:"source,omitempty"`
+
+	// Status The current status of the mandate.
+	Status MandateStatus `json:"status"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the mandate was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+
+	// Url Hosted page where the customer approves this mandate. Present only before the mandate reaches `approval_succeeded`; complemented by `revocationUrl` afterward.
+	Url *Url `json:"url,omitempty"`
+}
+
+// MandateAuthorizationRequest A request to authorize a payment session against a mandate in `approval_succeeded` status, using the mandate's existing approval. No fresh signature is required. The charge must fall within the mandate's `policy`.
+type MandateAuthorizationRequest struct {
+	// CustomerDisplay Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An optional merchant-provided internal identifier for this mandate authorization, from the merchant's own system—not visible to the payer.
+	ExternalReferenceId *ExternalReferenceId `json:"externalReferenceId,omitempty"`
+
+	// MandateId The ID of the mandate to authorize against. Must be in `approval_succeeded` status.
+	MandateId MandateId `json:"mandateId"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+}
+
+// MandateCustomerDisplay Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.
+type MandateCustomerDisplay struct {
+	// MerchantName The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+	MerchantName *string `json:"merchantName,omitempty"`
+}
+
+// MandateId The ID of the mandate, a UUID prefixed by `mandate_`.
+type MandateId = string
+
+// MandatePolicy Debit caps in the mandate's `asset`. Omit `policy` or send `{}` to default to a Coinbase-configured monthly max. Supplied amounts are capped at Coinbase ceilings. If you set `maxPerPeriod`, include both `amount` and `period`.
+type MandatePolicy struct {
+	// MaxPerAuthorization Max amount for one authorization. Omit to use the Coinbase default. Capped at the Coinbase ceiling.
+	MaxPerAuthorization *string `json:"maxPerAuthorization,omitempty"`
+
+	// MaxPerPeriod One rolling cap. Omit to use a Coinbase-configured monthly max. If set, both `amount` and `period` are required. Amount is capped at that period's ceiling.
+	MaxPerPeriod *MandatePolicyPeriodCap `json:"maxPerPeriod,omitempty"`
+
+	// MinSetupBalance Optional minimum available balance the payer must have to set up the mandate, denominated in the mandate's `asset`. When set, the mandate can only be approved if the payer's available balance is at least this amount; an approval attempted while the balance is below it is rejected with a `422` (`mandate_policy_violation`). This does not dictate the amount debited: the payment session amount remains the source of truth for what is debited. Omit to use the Coinbase-configured default.
+	MinSetupBalance *string `json:"minSetupBalance,omitempty"`
+}
+
+// MandatePolicyPeriod The rolling window that `maxPerPeriod.amount` applies over. It is a fixed duration measured back from now, not a calendar window. For example, `month` means the trailing 30 days, not the current calendar month.
+type MandatePolicyPeriod string
+
+// MandatePolicyPeriodCap One rolling cap over `period` (a trailing window, not a calendar period). Send both `amount` and `period`, or omit the object. The stored amount is capped at the Coinbase ceiling for that period. Enforced atomically at authorization so concurrent charges cannot exceed the cap.
+type MandatePolicyPeriodCap struct {
+	// Amount Max total authorizable in the rolling `period`. Capped at the Coinbase ceiling for `period`.
+	Amount string `json:"amount"`
+
+	// Period The rolling window that `maxPerPeriod.amount` applies over. It is a fixed duration measured back from now, not a calendar window. For example, `month` means the trailing 30 days, not the current calendar month.
+	Period MandatePolicyPeriod `json:"period"`
+}
+
+// MandateSource The funding source the mandate draws against. A wallet is the only supported source type today.
+type MandateSource struct {
+	union json.RawMessage
+}
+
+// MandateSourceWallet defines model for MandateSourceWallet.
+type MandateSourceWallet struct {
+	// Address The blockchain address of the payer.
+	Address BlockchainAddress `json:"address"`
+
+	// Asset The asset used for the payment.
+	Asset Asset `json:"asset"`
+
+	// Network The blockchain network for the payment.
+	Network PaymentSourceNetwork `json:"network"`
+}
+
+// MandateStatus The most recent action on the mandate. `status` is an informational indicator of the latest transition; it is not the source of truth for what has durably happened. Read the timestamps for that: `approvedAt`, `canceledAt`, and `revokedAt` each record a durable milestone independently of `status`.
+//
+//   - `created`: the mandate exists but no approval has been attempted. No
+//     source attached. Not usable.
+//
+//   - `approval_pending`: an approval is in flight. Not usable. Emits
+//     `acceptance.mandate.approval_initiated`.
+//
+// - `approval_succeeded`: the mandate has a source and is usable.
+//
+//   - `approval_failed`: the last approval attempt failed. Not usable. Submit
+//     a new approval to retry.
+//
+//   - `revocation_pending`: a wallet revocation is being confirmed on the
+//     network. Emits `acceptance.mandate.revocation_initiated`. Resolves to
+//     `revocation_succeeded` on success or `revocation_failed` on failure.
+//
+//   - `revocation_succeeded`: a wallet revocation removed the spending allowance
+//     on-chain (`revokedAt` is set). Terminal.
+//
+//   - `revocation_failed`: the last wallet revocation attempt did not complete.
+//     The spending allowance was not removed, so the mandate remains usable if it
+//     was usable before. Submit a new revocation to retry.
+//
+//   - `canceled`: the merchant ended the mandate off-chain (`canceledAt` is set).
+//     The on-chain spending allowance may still be live; a later wallet
+//     revocation can still move `status` through the `revocation_*` values and
+//     set `revokedAt`.
+//
+// **Usable when** `approvedAt` is set, `canceledAt` is null, `revokedAt` is null, and `expiresAt` is null or in the future. Usability is derived from these timestamps, not from `status`: a failed revocation, for example, leaves `status` at `revocation_failed` but the mandate stays usable because the allowance was never removed. Authorization checks the durable conditions in order, and the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`). Approve a mandate and get wallet approval options use that same order for the in-flight, revoked, canceled, and expired checks. Any other status except `created` or `approval_failed` returns `422` (`mandate_invalid_status`). Those rejections do not change the timestamps. Debit limits are enforced at authorization time.
+type MandateStatus string
 
 // Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 type Metadata map[string]string
@@ -4816,13 +5171,16 @@ type OnchainSignaturePayload struct {
 }
 
 // OnchainSignedPayload A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:
-// - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
-// - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+//   - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
+//   - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+//   - `solana_subscription` — the 64-byte ed25519 signature for the payer that
+//     signed, extracted from the signed Solana transaction and base58-encoded.
+//     Not the signed transaction bytes, and not `0x`-prefixed hex.
 type OnchainSignedPayload struct {
 	// PayloadId The unique identifier of the signed payload.
 	PayloadId *string `json:"payloadId,omitempty"`
 
-	// Signature The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`.
+	// Signature The output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. For `solana_subscription`, this is the payer's 64-byte ed25519 signature extracted from the signed Solana transaction and base58-encoded, not the signed transaction bytes or `0x`-prefixed hex.
 	Signature *string `json:"signature,omitempty"`
 }
 
@@ -5390,6 +5748,21 @@ type PaymentTargetWallet struct {
 	Network *PaymentTargetNetwork `json:"network,omitempty"`
 }
 
+// Permit2AllowancePayload A Permit2 `PermitSingle` (AllowanceTransfer) typed-data payload. It grants the spender a reusable allowance through the canonical Permit2 contract, so it can back repeated charges rather than a single transfer. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. A one-time ERC-20 approval of the Permit2 contract (an `erc20_approval` payload) is required first if the wallet has not yet approved Permit2 for this asset.
+type Permit2AllowancePayload struct {
+	// Data EIP-712 typed data for a Permit2 `PermitSingle`. Pass to `eth_signTypedData_v4`.
+	Data EIP712Message `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type Permit2AllowancePayloadType `json:"type"`
+}
+
+// Permit2AllowancePayloadType The payload type.
+type Permit2AllowancePayloadType string
+
 // Permit2Payload A Permit2 PermitTransferFrom typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
 type Permit2Payload struct {
 	// Data EIP-712 typed data for a Permit2 PermitTransferFrom. Pass to `eth_signTypedData_v4`.
@@ -5653,6 +6026,74 @@ type RequirementStatus string
 // one unaccepted version has a deadline set in the past. Do not infer status
 // or blocking behavior from omission of the aggregate deadline.
 type RequirementsMap map[string]Requirement
+
+// Revocation A record of a wallet revocation: the customer removing the mandate's spending allowance on-chain (see `onchainTransactions`). While it is confirming, the mandate's `status` is `revocation_pending`; on success it becomes `revocation_succeeded` and the mandate's `revokedAt` is set, and on failure it becomes `revocation_failed`. This applies regardless of whether the mandate was previously canceled: a revocation on an already-canceled mandate still moves `status` through the `revocation_*` values and sets `revokedAt`.
+//
+// To check whether the spending allowance is still active, read the mandate: `revokedAt` is set once the allowance has been removed.
+type Revocation struct {
+	// CreatedAt The UTC ISO 8601 timestamp at which the revocation was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Error Details of why the revocation failed. Only present when `status` is `failed`.
+	Error *PaymentError `json:"error,omitempty"`
+
+	// MandateId The unique identifier of the mandate this revocation applies to.
+	MandateId MandateId `json:"mandateId"`
+
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OnchainTransactions Network transactions that remove the spending allowance on-chain. Empty until the revocation has been submitted to the network.
+	OnchainTransactions *[]OnchainTransaction `json:"onchainTransactions,omitempty"`
+
+	// RevocationId The unique identifier of the revocation.
+	RevocationId RevocationId `json:"revocationId"`
+
+	// Status The current status of the revocation attempt.
+	Status RevocationStatus `json:"status"`
+
+	// UpdatedAt The UTC ISO 8601 timestamp at which the revocation was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// RevocationId The ID of a revocation, a UUID prefixed by `revocation_`.
+type RevocationId = string
+
+// RevocationPayload A single payload the customer signs to remove the mandate's spending allowance on-chain. Each payload sets the allowance to zero using the same credential type that granted it. Inspect `type` to determine how to handle `data`:
+//
+//   - `eip2612`: an EIP-2612 `Permit` with `value` of `0`; pass `data` to
+//     `eth_signTypedData_v4`, return the signature.
+//
+//   - `permit2`: a Permit2 `PermitSingle` with `amount` of `0`; pass `data` to
+//     `eth_signTypedData_v4`, return the signature.
+//
+//   - `erc20_approval`: an ERC-20 `approve` of `0`; send `data` via
+//     `eth_sendTransaction`, return the transaction hash.
+//
+//   - `solana_subscription`: decode `data.transaction` from base64 and pass the
+//     bytes to the Solana Wallet Standard `signTransaction` method (never
+//     `signAndSendTransaction`). The transaction is `revokeDelegation`.
+//     From the signed transaction, extract the 64-byte ed25519 signature for
+//     the payer that signed, base58-encode it, and return that string as
+//     `OnchainSignedPayload.signature`.
+type RevocationPayload struct {
+	union json.RawMessage
+}
+
+// RevocationStatus The status of a wallet revocation attempt:
+//
+// - `pending`: awaiting network confirmation.
+//
+// - `succeeded`: the spending allowance has been removed on-chain.
+//
+// - `failed`: the revocation did not complete (see `error`).
+type RevocationStatus string
+
+// RevokeDelegationRequest The request body for revoking a user-scoped or account-scoped delegation.
+type RevokeDelegationRequest struct {
+	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+	WalletSecretId *string `json:"walletSecretId,omitempty"`
+}
 
 // RevokeSpendPermissionRequest Request parameters for revoking a Spend Permission.
 type RevokeSpendPermissionRequest struct {
@@ -6433,6 +6874,27 @@ type SolanaAccount struct {
 
 	// UpdatedAt The ISO 8601 UTC timestamp at which the account was last updated.
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// SolanaSubscriptionPayload An unsigned Solana transaction the payer must sign to approve or revoke a mandate on a Solana wallet source. Decode `data.transaction` from base64 and pass the bytes to the Solana Wallet Standard `signTransaction` method (never `signAndSendTransaction`). Do not submit the signed transaction bytes. From the signed transaction, take the 64-byte ed25519 signature for the payer that signed, base58-encode those 64 bytes, and return that string as `OnchainSignedPayload.signature`.
+type SolanaSubscriptionPayload struct {
+	// Data The unsigned Solana transaction the payer signs to approve or revoke a mandate on a Solana wallet source. Decode `transaction` and pass it to the Solana Wallet Standard `signTransaction` method. Submit only the extracted per-signer signature, not the signed transaction.
+	Data SolanaSubscriptionPayloadData `json:"data"`
+
+	// PayloadId The unique identifier of the payload.
+	PayloadId string `json:"payloadId"`
+
+	// Type The payload type.
+	Type SolanaSubscriptionPayloadType `json:"type"`
+}
+
+// SolanaSubscriptionPayloadType The payload type.
+type SolanaSubscriptionPayloadType string
+
+// SolanaSubscriptionPayloadData The unsigned Solana transaction the payer signs to approve or revoke a mandate on a Solana wallet source. Decode `transaction` and pass it to the Solana Wallet Standard `signTransaction` method. Submit only the extracted per-signer signature, not the signed transaction.
+type SolanaSubscriptionPayloadData struct {
+	// Transaction The unsigned Solana transaction, serialized to bytes and encoded as base64. Pass the decoded bytes to the Solana Wallet Standard `signTransaction` method. Do not POST this field (or the signed transaction bytes) as `OnchainSignedPayload.signature`.
+	Transaction []byte `json:"transaction"`
 }
 
 // SolanaToken General information about a Solana token. Includes the mint address, and other identifying information.
@@ -7238,6 +7700,18 @@ type Void struct {
 // VoidId The ID of the void, a UUID prefixed by `void_`.
 type VoidId = string
 
+// WalletApprovalRequest A request to approve a mandate on a wallet source. Submit the `optionId` the customer chose from **Get wallet approval options** along with the signed payloads. This creates a `pending` approval; the mandate becomes `approval_succeeded` once the approval succeeds.
+type WalletApprovalRequest struct {
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OptionId The identifier of the chosen option. Must match an `optionId` from the **Get wallet approval options** response.
+	OptionId string `json:"optionId"`
+
+	// SignedPayloads The processed payloads from the customer, corresponding to the payloads in the selected option.
+	SignedPayloads []OnchainSignedPayload `json:"signedPayloads"`
+}
+
 // WalletAuthorizationFundsRequirement Describes, for one enabled (network, asset) combination, what the payer would need to fund a source address with so that it becomes eligible to authorize the payment. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings, formatted the same way as `WalletAuthorizationOption.amount`.
 type WalletAuthorizationFundsRequirement struct {
 	// Asset The symbol of the asset the payer would fund on this network.
@@ -7298,6 +7772,75 @@ type WalletAuthorizationRequest struct {
 	OptionId string `json:"optionId"`
 
 	// SignedPayloads The processed payloads from the payer, corresponding to the payloads in the selected authorization option.
+	SignedPayloads []OnchainSignedPayload `json:"signedPayloads"`
+}
+
+// WalletMandateApprovalFundsRequirement Describes, for one enabled (network, asset) combination, what the customer would need to fund a source address with so that it becomes eligible to approve the mandate. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings.
+type WalletMandateApprovalFundsRequirement struct {
+	// Asset The symbol of the asset the customer would fund on this network.
+	Asset Asset `json:"asset"`
+
+	// CurrentBalance A decimal representation of the address's current balance of `asset` on this `network`.
+	CurrentBalance string `json:"currentBalance"`
+
+	// Network The blockchain network this funding requirement applies to.
+	Network PaymentSourceNetwork `json:"network"`
+
+	// RequiredBalance A decimal representation of the balance of `asset` the customer must hold on this `network` to become eligible to approve the mandate.
+	RequiredBalance string `json:"requiredBalance"`
+}
+
+// WalletMandateApprovalOption An option for approving a mandate on a wallet source. Specifies the source (address, network, asset) and the payloads the customer must sign to approve the mandate on that source.
+type WalletMandateApprovalOption struct {
+	// OptionId The unique identifier of the wallet mandate approval option.
+	OptionId string `json:"optionId"`
+
+	// Payloads The payloads the customer must sign to approve this source.
+	Payloads []ApprovalPayload `json:"payloads"`
+
+	// Source The source this option would attach to the mandate.
+	Source MandateSourceWallet `json:"source"`
+}
+
+// WalletMandateApprovalOptionsResponse The available options for approving this mandate on a wallet source, one per eligible asset the address can back. Present them to the customer, have them sign the chosen option's payloads, then call **Approve a mandate with a wallet**. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why. This is a stateless read operation and does not modify the mandate.
+type WalletMandateApprovalOptionsResponse struct {
+	// IneligibleAddresses Requested customer addresses that have no eligible mandate approval option, each with a `code` explaining why. Empty when every requested address can approve the mandate.
+	IneligibleAddresses []IneligibleWalletMandateApprovalAddresses `json:"ineligibleAddresses"`
+
+	// Options The available wallet mandate approval options.
+	Options []WalletMandateApprovalOption `json:"options"`
+}
+
+// WalletMandateRevocationOption One way the customer can remove the mandate's spending allowance on-chain: a source and the payloads to sign for it.
+type WalletMandateRevocationOption struct {
+	// OptionId The unique identifier of the wallet mandate revocation option.
+	OptionId string `json:"optionId"`
+
+	// Payloads The payloads the customer must sign to remove the spending allowance.
+	Payloads []RevocationPayload `json:"payloads"`
+
+	// Source The funding source whose spending allowance this option removes.
+	Source MandateSourceWallet `json:"source"`
+}
+
+// WalletMandateRevocationOptionsResponse The ways the customer can remove this mandate's spending allowance on-chain.
+type WalletMandateRevocationOptionsResponse struct {
+	// Options The available revocation options. At least one is present; when there is no active spending allowance to remove, the request fails with a `422` instead.
+	Options []WalletMandateRevocationOption `json:"options"`
+}
+
+// WalletRevocationRequest A request to remove a mandate's spending allowance on-chain. Submit the `optionId` the customer chose from **Get wallet revocation options** along with their signed payloads. Returns a `pending` revocation that resolves once the network transaction confirms.
+type WalletRevocationRequest struct {
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// OptionId The identifier of the chosen option. Must match an `optionId` from the **Get wallet revocation options** response.
+	OptionId string `json:"optionId"`
+
+	// Reason An optional human-readable reason for revoking the spending allowance.
+	Reason *string `json:"reason,omitempty"`
+
+	// SignedPayloads The processed payloads from the customer, corresponding to the payloads in the selected option.
 	SignedPayloads []OnchainSignedPayload `json:"signedPayloads"`
 }
 
@@ -7509,6 +8052,10 @@ type WebhookTarget struct {
 	Headers *map[string]string `json:"headers,omitempty"`
 
 	// Url The webhook URL to deliver events to.
+	//
+	// Must be a publicly accessible HTTPS URL that responds to HEAD requests with a 200 status code.
+	//
+	// If the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400.
 	Url Url `json:"url"`
 }
 
@@ -8461,6 +9008,9 @@ type EndUserUserId = string
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
+// OnrampPartnerId defines model for OnrampPartnerId.
+type OnrampPartnerId = openapi_types.UUID
+
 // PageSize defines model for PageSize.
 type PageSize = int
 
@@ -8758,6 +9308,9 @@ type ListDepositDestinationsParams struct {
 	// Network Filter deposit destinations by network.
 	Network *string `form:"network,omitempty" json:"network,omitempty"`
 
+	// Status Filter deposit destinations by status.
+	Status *DepositDestinationStatus `form:"status,omitempty" json:"status,omitempty"`
+
 	// PageSize The number of resources to return per page.
 	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
@@ -8799,14 +9352,8 @@ type CreateDisbursementParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserAccountJSONBody defines parameters for RevokeDelegationForEndUserAccount.
-type RevokeDelegationForEndUserAccountJSONBody struct {
-	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-	WalletSecretId *string `json:"walletSecretId,omitempty"`
-}
-
-// RevokeDelegationForEndUserAccountParams defines parameters for RevokeDelegationForEndUserAccount.
-type RevokeDelegationForEndUserAccountParams struct {
+// RevokeDelegationForEndUserAccountDeprecatedParams defines parameters for RevokeDelegationForEndUserAccountDeprecated.
+type RevokeDelegationForEndUserAccountDeprecatedParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -8857,14 +9404,29 @@ type CreateDelegationForEndUserAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserJSONBody defines parameters for RevokeDelegationForEndUser.
-type RevokeDelegationForEndUserJSONBody struct {
-	// WalletSecretId When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-	WalletSecretId *string `json:"walletSecretId,omitempty"`
+// RevokeDelegationForEndUserAccountParams defines parameters for RevokeDelegationForEndUserAccount.
+type RevokeDelegationForEndUserAccountParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
-type RevokeDelegationForEndUserParams struct {
+// RevokeDelegationForEndUserDeprecatedParams defines parameters for RevokeDelegationForEndUserDeprecated.
+type RevokeDelegationForEndUserDeprecatedParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
 
@@ -8888,6 +9450,27 @@ type RevokeDelegationForEndUserParams struct {
 type GetDelegationForEndUserParams struct {
 	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
 	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+}
+
+// RevokeDelegationForEndUserParams defines parameters for RevokeDelegationForEndUser.
+type RevokeDelegationForEndUserParams struct {
+	// ProjectID The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+	ProjectID *ProjectIDOptional `form:"projectID,omitempty" json:"projectID,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuthOptional `json:"X-Wallet-Auth,omitempty"`
+
+	// XDeveloperAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XDeveloperAuth *XDeveloperAuth `json:"X-Developer-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONBody defines parameters for CreateEvmEip7702DelegationWithEndUserAccount.
@@ -10018,6 +10601,86 @@ type ListEvmTokenBalancesParams struct {
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// ListMandatesParams defines parameters for ListMandates.
+type ListMandatesParams struct {
+	// Address Filter mandates by the customer's wallet address.
+	Address *BlockchainAddress `form:"address,omitempty" json:"address,omitempty"`
+
+	// Network Filter mandates by the customer's wallet network. Only applies when `address` is also provided.
+	Network *PaymentSourceNetwork `form:"network,omitempty" json:"network,omitempty"`
+
+	// Status Filter mandates by their latest action, e.g. `approval_succeeded` for mandates whose most recent transition was a successful approval. Note that `status` tracks the latest action, not usability; usability is derived from the `approvedAt`, `canceledAt`, and `revokedAt` timestamps.
+	Status *MandateStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// CreateMandateParams defines parameters for CreateMandate.
+type CreateMandateParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListMandateApprovalsParams defines parameters for ListMandateApprovals.
+type ListMandateApprovalsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ApproveWalletMandateParams defines parameters for ApproveWalletMandate.
+type ApproveWalletMandateParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// GetWalletApprovalOptionsParams defines parameters for GetWalletApprovalOptions.
+type GetWalletApprovalOptionsParams struct {
+	// Addresses The customer's wallet addresses to generate approval options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible approval options, it appears in `ineligibleAddresses` with a `code` explaining why.
+	Addresses []BlockchainAddress `form:"addresses" json:"addresses"`
+
+	// Network Optional filter to restrict options to a specific blockchain network.
+	Network *PaymentSourceNetwork `form:"network,omitempty" json:"network,omitempty"`
+
+	// Asset Filter options by asset. Currently, only `usdc` and `usdt` return results.
+	Asset *Asset `form:"asset,omitempty" json:"asset,omitempty"`
+}
+
+// CancelMandateParams defines parameters for CancelMandate.
+type CancelMandateParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// ListMandateRevocationsParams defines parameters for ListMandateRevocations.
+type ListMandateRevocationsParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// RevokeWalletMandateParams defines parameters for RevokeWalletMandate.
+type RevokeWalletMandateParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // GetOnrampUserLimitsJSONBody defines parameters for GetOnrampUserLimits.
 type GetOnrampUserLimitsJSONBody struct {
 	// PaymentMethodType The type of payment method to be used to complete an onramp order.
@@ -10101,6 +10764,18 @@ type CreateOnrampOrderJSONBody struct {
 	UserAuthToken *OnrampUserAuthToken `json:"userAuthToken,omitempty"`
 }
 
+// CreateOnrampOrderParams defines parameters for CreateOnrampOrder.
+type CreateOnrampOrderParams struct {
+	// XOnrampPartnerId The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+	XOnrampPartnerId *OnrampPartnerId `json:"X-Onramp-Partner-Id,omitempty"`
+}
+
+// CreateOnrampSessionParams defines parameters for CreateOnrampSession.
+type CreateOnrampSessionParams struct {
+	// XOnrampPartnerId The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+	XOnrampPartnerId *OnrampPartnerId `json:"X-Onramp-Partner-Id,omitempty"`
+}
+
 // InitiateOnrampVerificationParams defines parameters for InitiateOnrampVerification.
 type InitiateOnrampVerificationParams struct {
 	// XIdempotencyKey An optional string request header for making requests safely retryable.
@@ -10157,6 +10832,14 @@ type AuthorizeCoinbasePaymentSessionParams struct {
 	// CbAuthzId The `authorizationId` returned from a successful `POST https://login.coinbase.com/api/v1/authorization-challenges` step. Identifies the MFA challenge that gates this authorization. Must be a lowercase UUID v4.
 	CbAuthzId openapi_types.UUID `json:"cb-authz-id"`
 
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// AuthorizeMandatePaymentSessionParams defines parameters for AuthorizeMandatePaymentSession.
+type AuthorizeMandatePaymentSessionParams struct {
 	// XIdempotencyKey An optional string request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
@@ -10541,13 +11224,13 @@ type ListTransfersParams struct {
 	// Status Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
 	Status *TransferStatus `form:"status,omitempty" json:"status,omitempty"`
 
-	// AccountId Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
+	// AccountId Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
 	AccountId *AccountId `form:"accountId,omitempty" json:"accountId,omitempty"`
 
-	// SourceAccountId Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
+	// SourceAccountId Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.
 	SourceAccountId *AccountId `form:"sourceAccountId,omitempty" json:"sourceAccountId,omitempty"`
 
-	// TargetAccountId Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
+	// TargetAccountId Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.
 	TargetAccountId *AccountId `form:"targetAccountId,omitempty" json:"targetAccountId,omitempty"`
 
 	// CreatedAfter Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
@@ -10568,16 +11251,16 @@ type ListTransfersParams struct {
 	// TargetAsset Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
 	TargetAsset *string `form:"targetAsset,omitempty" json:"targetAsset,omitempty"`
 
-	// SourceAddress Filter transfers by the on-chain address of the source.
+	// SourceAddress Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.
 	SourceAddress *BlockchainAddress `form:"sourceAddress,omitempty" json:"sourceAddress,omitempty"`
 
-	// TargetAddress Filter transfers by the on-chain destination address of the target.
+	// TargetAddress Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.
 	TargetAddress *BlockchainAddress `form:"targetAddress,omitempty" json:"targetAddress,omitempty"`
 
-	// TargetEmail Filter transfers by the email address of the target recipient.
+	// TargetEmail Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.
 	TargetEmail *Email `form:"targetEmail,omitempty" json:"targetEmail,omitempty"`
 
-	// TransferId Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+	// TransferId Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
 	TransferId *string `form:"transferId,omitempty" json:"transferId,omitempty"`
 
 	// PageSize The number of resources to return per page.
@@ -10733,14 +11416,20 @@ type CreateDepositDestinationJSONRequestBody = CreateDepositDestinationRequest
 // CreateDisbursementJSONRequestBody defines body for CreateDisbursement for application/json ContentType.
 type CreateDisbursementJSONRequestBody = CreateDisbursementRequest
 
-// RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
-type RevokeDelegationForEndUserAccountJSONRequestBody RevokeDelegationForEndUserAccountJSONBody
+// RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody defines body for RevokeDelegationForEndUserAccountDeprecated for application/json ContentType.
+type RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody = RevokeDelegationRequest
 
 // CreateDelegationForEndUserAccountJSONRequestBody defines body for CreateDelegationForEndUserAccount for application/json ContentType.
 type CreateDelegationForEndUserAccountJSONRequestBody CreateDelegationForEndUserAccountJSONBody
 
+// RevokeDelegationForEndUserAccountJSONRequestBody defines body for RevokeDelegationForEndUserAccount for application/json ContentType.
+type RevokeDelegationForEndUserAccountJSONRequestBody = RevokeDelegationRequest
+
+// RevokeDelegationForEndUserDeprecatedJSONRequestBody defines body for RevokeDelegationForEndUserDeprecated for application/json ContentType.
+type RevokeDelegationForEndUserDeprecatedJSONRequestBody = RevokeDelegationRequest
+
 // RevokeDelegationForEndUserJSONRequestBody defines body for RevokeDelegationForEndUser for application/json ContentType.
-type RevokeDelegationForEndUserJSONRequestBody RevokeDelegationForEndUserJSONBody
+type RevokeDelegationForEndUserJSONRequestBody = RevokeDelegationRequest
 
 // CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody defines body for CreateEvmEip7702DelegationWithEndUserAccount for application/json ContentType.
 type CreateEvmEip7702DelegationWithEndUserAccountJSONRequestBody CreateEvmEip7702DelegationWithEndUserAccountJSONBody
@@ -10865,6 +11554,18 @@ type SendUserOperationJSONRequestBody SendUserOperationJSONBody
 // CreateEvmSwapQuoteJSONRequestBody defines body for CreateEvmSwapQuote for application/json ContentType.
 type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
 
+// CreateMandateJSONRequestBody defines body for CreateMandate for application/json ContentType.
+type CreateMandateJSONRequestBody = CreateMandateRequest
+
+// ApproveWalletMandateJSONRequestBody defines body for ApproveWalletMandate for application/json ContentType.
+type ApproveWalletMandateJSONRequestBody = WalletApprovalRequest
+
+// CancelMandateJSONRequestBody defines body for CancelMandate for application/json ContentType.
+type CancelMandateJSONRequestBody = CancelMandateRequest
+
+// RevokeWalletMandateJSONRequestBody defines body for RevokeWalletMandate for application/json ContentType.
+type RevokeWalletMandateJSONRequestBody = WalletRevocationRequest
+
 // GetOnrampUserLimitsJSONRequestBody defines body for GetOnrampUserLimits for application/json ContentType.
 type GetOnrampUserLimitsJSONRequestBody GetOnrampUserLimitsJSONBody
 
@@ -10888,6 +11589,9 @@ type CreatePaymentSessionJSONRequestBody = CreatePaymentSessionRequest
 
 // AuthorizeCoinbasePaymentSessionJSONRequestBody defines body for AuthorizeCoinbasePaymentSession for application/json ContentType.
 type AuthorizeCoinbasePaymentSessionJSONRequestBody = CoinbaseAuthorizationRequest
+
+// AuthorizeMandatePaymentSessionJSONRequestBody defines body for AuthorizeMandatePaymentSession for application/json ContentType.
+type AuthorizeMandatePaymentSessionJSONRequestBody = MandateAuthorizationRequest
 
 // AuthorizeWalletPaymentSessionJSONRequestBody defines body for AuthorizeWalletPaymentSession for application/json ContentType.
 type AuthorizeWalletPaymentSessionJSONRequestBody = WalletAuthorizationRequest
@@ -11081,6 +11785,155 @@ func (t Abi_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *Abi_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEIP2612Payload returns the union data inside the ApprovalPayload as a EIP2612Payload
+func (t ApprovalPayload) AsEIP2612Payload() (EIP2612Payload, error) {
+	var body EIP2612Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEIP2612Payload overwrites any union data inside the ApprovalPayload as the provided EIP2612Payload
+func (t *ApprovalPayload) FromEIP2612Payload(v EIP2612Payload) error {
+	v.Type = "eip2612"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEIP2612Payload performs a merge with any union data inside the ApprovalPayload, using the provided EIP2612Payload
+func (t *ApprovalPayload) MergeEIP2612Payload(v EIP2612Payload) error {
+	v.Type = "eip2612"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPermit2AllowancePayload returns the union data inside the ApprovalPayload as a Permit2AllowancePayload
+func (t ApprovalPayload) AsPermit2AllowancePayload() (Permit2AllowancePayload, error) {
+	var body Permit2AllowancePayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPermit2AllowancePayload overwrites any union data inside the ApprovalPayload as the provided Permit2AllowancePayload
+func (t *ApprovalPayload) FromPermit2AllowancePayload(v Permit2AllowancePayload) error {
+	v.Type = "permit2"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePermit2AllowancePayload performs a merge with any union data inside the ApprovalPayload, using the provided Permit2AllowancePayload
+func (t *ApprovalPayload) MergePermit2AllowancePayload(v Permit2AllowancePayload) error {
+	v.Type = "permit2"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsErc20ApprovalPayload returns the union data inside the ApprovalPayload as a Erc20ApprovalPayload
+func (t ApprovalPayload) AsErc20ApprovalPayload() (Erc20ApprovalPayload, error) {
+	var body Erc20ApprovalPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromErc20ApprovalPayload overwrites any union data inside the ApprovalPayload as the provided Erc20ApprovalPayload
+func (t *ApprovalPayload) FromErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	v.Type = "erc20_approval"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeErc20ApprovalPayload performs a merge with any union data inside the ApprovalPayload, using the provided Erc20ApprovalPayload
+func (t *ApprovalPayload) MergeErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	v.Type = "erc20_approval"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolanaSubscriptionPayload returns the union data inside the ApprovalPayload as a SolanaSubscriptionPayload
+func (t ApprovalPayload) AsSolanaSubscriptionPayload() (SolanaSubscriptionPayload, error) {
+	var body SolanaSubscriptionPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolanaSubscriptionPayload overwrites any union data inside the ApprovalPayload as the provided SolanaSubscriptionPayload
+func (t *ApprovalPayload) FromSolanaSubscriptionPayload(v SolanaSubscriptionPayload) error {
+	v.Type = "solana_subscription"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolanaSubscriptionPayload performs a merge with any union data inside the ApprovalPayload, using the provided SolanaSubscriptionPayload
+func (t *ApprovalPayload) MergeSolanaSubscriptionPayload(v SolanaSubscriptionPayload) error {
+	v.Type = "solana_subscription"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t ApprovalPayload) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t ApprovalPayload) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "eip2612":
+		return t.AsEIP2612Payload()
+	case "erc20_approval":
+		return t.AsErc20ApprovalPayload()
+	case "permit2":
+		return t.AsPermit2AllowancePayload()
+	case "solana_subscription":
+		return t.AsSolanaSubscriptionPayload()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t ApprovalPayload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *ApprovalPayload) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -12200,6 +13053,42 @@ func (t *InitiateOnrampVerificationRequest_Destination) UnmarshalJSON(b []byte) 
 	return err
 }
 
+// AsMandateSourceWallet returns the union data inside the MandateSource as a MandateSourceWallet
+func (t MandateSource) AsMandateSourceWallet() (MandateSourceWallet, error) {
+	var body MandateSourceWallet
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMandateSourceWallet overwrites any union data inside the MandateSource as the provided MandateSourceWallet
+func (t *MandateSource) FromMandateSourceWallet(v MandateSourceWallet) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMandateSourceWallet performs a merge with any union data inside the MandateSource, using the provided MandateSourceWallet
+func (t *MandateSource) MergeMandateSourceWallet(v MandateSourceWallet) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t MandateSource) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *MandateSource) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsEIP3009Payload returns the union data inside the OnchainSignaturePayload as a EIP3009Payload
 func (t OnchainSignaturePayload) AsEIP3009Payload() (EIP3009Payload, error) {
 	var body EIP3009Payload
@@ -12636,6 +13525,155 @@ func (t RefundSource) MarshalJSON() ([]byte, error) {
 }
 
 func (t *RefundSource) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEIP2612Payload returns the union data inside the RevocationPayload as a EIP2612Payload
+func (t RevocationPayload) AsEIP2612Payload() (EIP2612Payload, error) {
+	var body EIP2612Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEIP2612Payload overwrites any union data inside the RevocationPayload as the provided EIP2612Payload
+func (t *RevocationPayload) FromEIP2612Payload(v EIP2612Payload) error {
+	v.Type = "eip2612"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEIP2612Payload performs a merge with any union data inside the RevocationPayload, using the provided EIP2612Payload
+func (t *RevocationPayload) MergeEIP2612Payload(v EIP2612Payload) error {
+	v.Type = "eip2612"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPermit2AllowancePayload returns the union data inside the RevocationPayload as a Permit2AllowancePayload
+func (t RevocationPayload) AsPermit2AllowancePayload() (Permit2AllowancePayload, error) {
+	var body Permit2AllowancePayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPermit2AllowancePayload overwrites any union data inside the RevocationPayload as the provided Permit2AllowancePayload
+func (t *RevocationPayload) FromPermit2AllowancePayload(v Permit2AllowancePayload) error {
+	v.Type = "permit2"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePermit2AllowancePayload performs a merge with any union data inside the RevocationPayload, using the provided Permit2AllowancePayload
+func (t *RevocationPayload) MergePermit2AllowancePayload(v Permit2AllowancePayload) error {
+	v.Type = "permit2"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsErc20ApprovalPayload returns the union data inside the RevocationPayload as a Erc20ApprovalPayload
+func (t RevocationPayload) AsErc20ApprovalPayload() (Erc20ApprovalPayload, error) {
+	var body Erc20ApprovalPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromErc20ApprovalPayload overwrites any union data inside the RevocationPayload as the provided Erc20ApprovalPayload
+func (t *RevocationPayload) FromErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	v.Type = "erc20_approval"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeErc20ApprovalPayload performs a merge with any union data inside the RevocationPayload, using the provided Erc20ApprovalPayload
+func (t *RevocationPayload) MergeErc20ApprovalPayload(v Erc20ApprovalPayload) error {
+	v.Type = "erc20_approval"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolanaSubscriptionPayload returns the union data inside the RevocationPayload as a SolanaSubscriptionPayload
+func (t RevocationPayload) AsSolanaSubscriptionPayload() (SolanaSubscriptionPayload, error) {
+	var body SolanaSubscriptionPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolanaSubscriptionPayload overwrites any union data inside the RevocationPayload as the provided SolanaSubscriptionPayload
+func (t *RevocationPayload) FromSolanaSubscriptionPayload(v SolanaSubscriptionPayload) error {
+	v.Type = "solana_subscription"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolanaSubscriptionPayload performs a merge with any union data inside the RevocationPayload, using the provided SolanaSubscriptionPayload
+func (t *RevocationPayload) MergeSolanaSubscriptionPayload(v SolanaSubscriptionPayload) error {
+	v.Type = "solana_subscription"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RevocationPayload) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t RevocationPayload) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "eip2612":
+		return t.AsEIP2612Payload()
+	case "erc20_approval":
+		return t.AsErc20ApprovalPayload()
+	case "permit2":
+		return t.AsPermit2AllowancePayload()
+	case "solana_subscription":
+		return t.AsSolanaSubscriptionPayload()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t RevocationPayload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RevocationPayload) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -16775,10 +17813,10 @@ type ClientInterface interface {
 	// GetDisbursement request
 	GetDisbursement(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// RevokeDelegationForEndUserAccountWithBody request with any body
-	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// RevokeDelegationForEndUserAccountDeprecatedWithBody request with any body
+	RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	RevokeDelegationForEndUserAccountDeprecated(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetDelegationForEndUserAccount request
 	GetDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -16788,13 +17826,23 @@ type ClientInterface interface {
 
 	CreateDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// RevokeDelegationForEndUserAccountWithBody request with any body
+	RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeDelegationForEndUserDeprecatedWithBody request with any body
+	RevokeDelegationForEndUserDeprecatedWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeDelegationForEndUserDeprecated(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDelegationForEndUser request
+	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RevokeDelegationForEndUserWithBody request with any body
 	RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetDelegationForEndUser request
-	GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBody request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBody(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -17055,6 +18103,50 @@ type ClientInterface interface {
 	// ListEvmTokenBalances request
 	ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListMandates request
+	ListMandates(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateMandateWithBody request with any body
+	CreateMandateWithBody(ctx context.Context, params *CreateMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateMandate(ctx context.Context, params *CreateMandateParams, body CreateMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMandate request
+	GetMandate(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListMandateApprovals request
+	ListMandateApprovals(ctx context.Context, mandateId MandateId, params *ListMandateApprovalsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ApproveWalletMandateWithBody request with any body
+	ApproveWalletMandateWithBody(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ApproveWalletMandate(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, body ApproveWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWalletApprovalOptions request
+	GetWalletApprovalOptions(ctx context.Context, mandateId MandateId, params *GetWalletApprovalOptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMandateApproval request
+	GetMandateApproval(ctx context.Context, mandateId MandateId, approvalId ApprovalId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CancelMandateWithBody request with any body
+	CancelMandateWithBody(ctx context.Context, mandateId MandateId, params *CancelMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CancelMandate(ctx context.Context, mandateId MandateId, params *CancelMandateParams, body CancelMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListMandateRevocations request
+	ListMandateRevocations(ctx context.Context, mandateId MandateId, params *ListMandateRevocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeWalletMandateWithBody request with any body
+	RevokeWalletMandateWithBody(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeWalletMandate(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, body RevokeWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWalletRevocationOptions request
+	GetWalletRevocationOptions(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetMandateRevocation request
+	GetMandateRevocation(ctx context.Context, mandateId MandateId, revocationId RevocationId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetOnrampUserLimitsWithBody request with any body
 	GetOnrampUserLimitsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -17066,17 +18158,17 @@ type ClientInterface interface {
 	RequestLimitsUpgrade(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateOnrampOrderWithBody request with any body
-	CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateOnrampOrderWithBody(ctx context.Context, params *CreateOnrampOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateOnrampOrder(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateOnrampOrder(ctx context.Context, params *CreateOnrampOrderParams, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetOnrampOrderById request
 	GetOnrampOrderById(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateOnrampSessionWithBody request with any body
-	CreateOnrampSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateOnrampSessionWithBody(ctx context.Context, params *CreateOnrampSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateOnrampSession(ctx context.Context, params *CreateOnrampSessionParams, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// InitiateOnrampVerificationWithBody request with any body
 	InitiateOnrampVerificationWithBody(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -17112,6 +18204,11 @@ type ClientInterface interface {
 	AuthorizeCoinbasePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	AuthorizeCoinbasePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// AuthorizeMandatePaymentSessionWithBody request with any body
+	AuthorizeMandatePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	AuthorizeMandatePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, body AuthorizeMandatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// AuthorizeWalletPaymentSessionWithBody request with any body
 	AuthorizeWalletPaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -17743,8 +18840,8 @@ func (c *CDPClient) GetDisbursement(ctx context.Context, disbursementId Disburse
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(c.Server, userId, address, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17755,8 +18852,8 @@ func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Contex
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewRevokeDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
+func (c *CDPClient) RevokeDelegationForEndUserAccountDeprecated(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountDeprecatedRequest(c.Server, userId, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -17803,6 +18900,66 @@ func (c *CDPClient) CreateDelegationForEndUserAccount(ctx context.Context, userI
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) RevokeDelegationForEndUserAccountWithBody(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequestWithBody(c.Server, userId, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserAccount(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserAccountRequest(c.Server, userId, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserDeprecatedWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserDeprecatedRequestWithBody(c.Server, userId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeDelegationForEndUserDeprecated(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeDelegationForEndUserDeprecatedRequest(c.Server, userId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeDelegationForEndUserRequestWithBody(c.Server, userId, params, contentType, body)
 	if err != nil {
@@ -17817,18 +18974,6 @@ func (c *CDPClient) RevokeDelegationForEndUserWithBody(ctx context.Context, user
 
 func (c *CDPClient) RevokeDelegationForEndUser(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRevokeDelegationForEndUserRequest(c.Server, userId, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) GetDelegationForEndUser(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetDelegationForEndUserRequest(c.Server, userId, params)
 	if err != nil {
 		return nil, err
 	}
@@ -19039,6 +20184,198 @@ func (c *CDPClient) ListEvmTokenBalances(ctx context.Context, network ListEvmTok
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) ListMandates(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMandatesRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateMandateWithBody(ctx context.Context, params *CreateMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMandateRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateMandate(ctx context.Context, params *CreateMandateParams, body CreateMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateMandateRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetMandate(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMandateRequest(c.Server, mandateId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListMandateApprovals(ctx context.Context, mandateId MandateId, params *ListMandateApprovalsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMandateApprovalsRequest(c.Server, mandateId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ApproveWalletMandateWithBody(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewApproveWalletMandateRequestWithBody(c.Server, mandateId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ApproveWalletMandate(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, body ApproveWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewApproveWalletMandateRequest(c.Server, mandateId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetWalletApprovalOptions(ctx context.Context, mandateId MandateId, params *GetWalletApprovalOptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWalletApprovalOptionsRequest(c.Server, mandateId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetMandateApproval(ctx context.Context, mandateId MandateId, approvalId ApprovalId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMandateApprovalRequest(c.Server, mandateId, approvalId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CancelMandateWithBody(ctx context.Context, mandateId MandateId, params *CancelMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelMandateRequestWithBody(c.Server, mandateId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CancelMandate(ctx context.Context, mandateId MandateId, params *CancelMandateParams, body CancelMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCancelMandateRequest(c.Server, mandateId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListMandateRevocations(ctx context.Context, mandateId MandateId, params *ListMandateRevocationsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListMandateRevocationsRequest(c.Server, mandateId, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeWalletMandateWithBody(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeWalletMandateRequestWithBody(c.Server, mandateId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeWalletMandate(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, body RevokeWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeWalletMandateRequest(c.Server, mandateId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetWalletRevocationOptions(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWalletRevocationOptionsRequest(c.Server, mandateId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetMandateRevocation(ctx context.Context, mandateId MandateId, revocationId RevocationId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetMandateRevocationRequest(c.Server, mandateId, revocationId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) GetOnrampUserLimitsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOnrampUserLimitsRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -19087,8 +20424,8 @@ func (c *CDPClient) RequestLimitsUpgrade(ctx context.Context, body RequestLimits
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateOnrampOrderRequestWithBody(c.Server, contentType, body)
+func (c *CDPClient) CreateOnrampOrderWithBody(ctx context.Context, params *CreateOnrampOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampOrderRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19099,8 +20436,8 @@ func (c *CDPClient) CreateOnrampOrderWithBody(ctx context.Context, contentType s
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateOnrampOrder(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateOnrampOrderRequest(c.Server, body)
+func (c *CDPClient) CreateOnrampOrder(ctx context.Context, params *CreateOnrampOrderParams, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampOrderRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19123,8 +20460,8 @@ func (c *CDPClient) GetOnrampOrderById(ctx context.Context, orderId string, reqE
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateOnrampSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateOnrampSessionRequestWithBody(c.Server, contentType, body)
+func (c *CDPClient) CreateOnrampSessionWithBody(ctx context.Context, params *CreateOnrampSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampSessionRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19135,8 +20472,8 @@ func (c *CDPClient) CreateOnrampSessionWithBody(ctx context.Context, contentType
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateOnrampSessionRequest(c.Server, body)
+func (c *CDPClient) CreateOnrampSession(ctx context.Context, params *CreateOnrampSessionParams, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampSessionRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -19293,6 +20630,30 @@ func (c *CDPClient) AuthorizeCoinbasePaymentSessionWithBody(ctx context.Context,
 
 func (c *CDPClient) AuthorizeCoinbasePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewAuthorizeCoinbasePaymentSessionRequest(c.Server, paymentSessionId, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeMandatePaymentSessionWithBody(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeMandatePaymentSessionRequestWithBody(c.Server, paymentSessionId, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) AuthorizeMandatePaymentSession(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, body AuthorizeMandatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewAuthorizeMandatePaymentSessionRequest(c.Server, paymentSessionId, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -21473,6 +22834,22 @@ func NewListDepositDestinationsRequest(server string, params *ListDepositDestina
 
 		}
 
+		if params.Status != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, *params.Status); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.PageSize != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
@@ -21807,19 +23184,19 @@ func NewGetDisbursementRequest(server string, disbursementId DisbursementId) (*h
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserAccountRequest calls the generic RevokeDelegationForEndUserAccount builder with application/json body
-func NewRevokeDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountDeprecatedRequest calls the generic RevokeDelegationForEndUserAccountDeprecated builder with application/json body
+func NewRevokeDelegationForEndUserAccountDeprecatedRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(server, userId, address, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserAccountRequestWithBody generates requests for RevokeDelegationForEndUserAccount with any type of body
-func NewRevokeDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody generates requests for RevokeDelegationForEndUserAccountDeprecated with any type of body
+func NewRevokeDelegationForEndUserAccountDeprecatedRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -22085,19 +23462,132 @@ func NewCreateDelegationForEndUserAccountRequestWithBody(server string, userId s
 	return req, nil
 }
 
-// NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
-func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountRequest calls the generic RevokeDelegationForEndUserAccount builder with application/json body
+func NewRevokeDelegationForEndUserAccountRequest(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewRevokeDelegationForEndUserRequestWithBody(server, userId, params, "application/json", bodyReader)
+	return NewRevokeDelegationForEndUserAccountRequestWithBody(server, userId, address, params, "application/json", bodyReader)
 }
 
-// NewRevokeDelegationForEndUserRequestWithBody generates requests for RevokeDelegationForEndUser with any type of body
-func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewRevokeDelegationForEndUserAccountRequestWithBody generates requests for RevokeDelegationForEndUserAccount with any type of body
+func NewRevokeDelegationForEndUserAccountRequestWithBody(server string, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/address/%s/delegation/revoke", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewRevokeDelegationForEndUserDeprecatedRequest calls the generic RevokeDelegationForEndUserDeprecated builder with application/json body
+func NewRevokeDelegationForEndUserDeprecatedRequest(server string, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserDeprecatedRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserDeprecatedRequestWithBody generates requests for RevokeDelegationForEndUserDeprecated with any type of body
+func NewRevokeDelegationForEndUserDeprecatedRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -22242,6 +23732,112 @@ func NewGetDelegationForEndUserRequest(server string, userId string, params *Get
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeDelegationForEndUserRequest calls the generic RevokeDelegationForEndUser builder with application/json body
+func NewRevokeDelegationForEndUserRequest(server string, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeDelegationForEndUserRequestWithBody(server, userId, params, "application/json", bodyReader)
+}
+
+// NewRevokeDelegationForEndUserRequestWithBody generates requests for RevokeDelegationForEndUser with any type of body
+func NewRevokeDelegationForEndUserRequestWithBody(server string, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/embedded-wallet-api/end-users/%s/delegation/revoke", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.ProjectID != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "projectID", runtime.ParamLocationQuery, *params.ProjectID); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XDeveloperAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Developer-Auth", runtime.ParamLocationHeader, *params.XDeveloperAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Developer-Auth", headerParam1)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam2 string
+
+			headerParam2, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam2)
+		}
+
 	}
 
 	return req, nil
@@ -26708,6 +28304,738 @@ func NewListEvmTokenBalancesRequest(server string, network ListEvmTokenBalancesN
 	return req, nil
 }
 
+// NewListMandatesRequest generates requests for ListMandates
+func NewListMandatesRequest(server string, params *ListMandatesParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Address != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "address", runtime.ParamLocationQuery, *params.Address); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Network != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, *params.Network); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Status != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, *params.Status); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateMandateRequest calls the generic CreateMandate builder with application/json body
+func NewCreateMandateRequest(server string, params *CreateMandateParams, body CreateMandateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateMandateRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateMandateRequestWithBody generates requests for CreateMandate with any type of body
+func NewCreateMandateRequestWithBody(server string, params *CreateMandateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetMandateRequest generates requests for GetMandate
+func NewGetMandateRequest(server string, mandateId MandateId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListMandateApprovalsRequest generates requests for ListMandateApprovals
+func NewListMandateApprovalsRequest(server string, mandateId MandateId, params *ListMandateApprovalsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/approvals", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewApproveWalletMandateRequest calls the generic ApproveWalletMandate builder with application/json body
+func NewApproveWalletMandateRequest(server string, mandateId MandateId, params *ApproveWalletMandateParams, body ApproveWalletMandateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewApproveWalletMandateRequestWithBody(server, mandateId, params, "application/json", bodyReader)
+}
+
+// NewApproveWalletMandateRequestWithBody generates requests for ApproveWalletMandate with any type of body
+func NewApproveWalletMandateRequestWithBody(server string, mandateId MandateId, params *ApproveWalletMandateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/approvals/wallet", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetWalletApprovalOptionsRequest generates requests for GetWalletApprovalOptions
+func NewGetWalletApprovalOptionsRequest(server string, mandateId MandateId, params *GetWalletApprovalOptionsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/approvals/wallet/options", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", false, "addresses", runtime.ParamLocationQuery, params.Addresses); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.Network != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "network", runtime.ParamLocationQuery, *params.Network); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Asset != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "asset", runtime.ParamLocationQuery, *params.Asset); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetMandateApprovalRequest generates requests for GetMandateApproval
+func NewGetMandateApprovalRequest(server string, mandateId MandateId, approvalId ApprovalId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "approvalId", runtime.ParamLocationPath, approvalId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/approvals/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCancelMandateRequest calls the generic CancelMandate builder with application/json body
+func NewCancelMandateRequest(server string, mandateId MandateId, params *CancelMandateParams, body CancelMandateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCancelMandateRequestWithBody(server, mandateId, params, "application/json", bodyReader)
+}
+
+// NewCancelMandateRequestWithBody generates requests for CancelMandate with any type of body
+func NewCancelMandateRequestWithBody(server string, mandateId MandateId, params *CancelMandateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/cancel", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewListMandateRevocationsRequest generates requests for ListMandateRevocations
+func NewListMandateRevocationsRequest(server string, mandateId MandateId, params *ListMandateRevocationsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/revocations", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeWalletMandateRequest calls the generic RevokeWalletMandate builder with application/json body
+func NewRevokeWalletMandateRequest(server string, mandateId MandateId, params *RevokeWalletMandateParams, body RevokeWalletMandateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeWalletMandateRequestWithBody(server, mandateId, params, "application/json", bodyReader)
+}
+
+// NewRevokeWalletMandateRequestWithBody generates requests for RevokeWalletMandate with any type of body
+func NewRevokeWalletMandateRequestWithBody(server string, mandateId MandateId, params *RevokeWalletMandateParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/revocations/wallet", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewGetWalletRevocationOptionsRequest generates requests for GetWalletRevocationOptions
+func NewGetWalletRevocationOptionsRequest(server string, mandateId MandateId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/revocations/wallet/options", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetMandateRevocationRequest generates requests for GetMandateRevocation
+func NewGetMandateRevocationRequest(server string, mandateId MandateId, revocationId RevocationId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "mandateId", runtime.ParamLocationPath, mandateId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "revocationId", runtime.ParamLocationPath, revocationId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/mandates/%s/revocations/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetOnrampUserLimitsRequest calls the generic GetOnrampUserLimits builder with application/json body
 func NewGetOnrampUserLimitsRequest(server string, body GetOnrampUserLimitsJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -26789,18 +29117,18 @@ func NewRequestLimitsUpgradeRequestWithBody(server string, contentType string, b
 }
 
 // NewCreateOnrampOrderRequest calls the generic CreateOnrampOrder builder with application/json body
-func NewCreateOnrampOrderRequest(server string, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
+func NewCreateOnrampOrderRequest(server string, params *CreateOnrampOrderParams, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateOnrampOrderRequestWithBody(server, "application/json", bodyReader)
+	return NewCreateOnrampOrderRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewCreateOnrampOrderRequestWithBody generates requests for CreateOnrampOrder with any type of body
-func NewCreateOnrampOrderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateOnrampOrderRequestWithBody(server string, params *CreateOnrampOrderParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -26824,6 +29152,21 @@ func NewCreateOnrampOrderRequestWithBody(server string, contentType string, body
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XOnrampPartnerId != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Onramp-Partner-Id", runtime.ParamLocationHeader, *params.XOnrampPartnerId)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Onramp-Partner-Id", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -26863,18 +29206,18 @@ func NewGetOnrampOrderByIdRequest(server string, orderId string) (*http.Request,
 }
 
 // NewCreateOnrampSessionRequest calls the generic CreateOnrampSession builder with application/json body
-func NewCreateOnrampSessionRequest(server string, body CreateOnrampSessionJSONRequestBody) (*http.Request, error) {
+func NewCreateOnrampSessionRequest(server string, params *CreateOnrampSessionParams, body CreateOnrampSessionJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateOnrampSessionRequestWithBody(server, "application/json", bodyReader)
+	return NewCreateOnrampSessionRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewCreateOnrampSessionRequestWithBody generates requests for CreateOnrampSession with any type of body
-func NewCreateOnrampSessionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateOnrampSessionRequestWithBody(server string, params *CreateOnrampSessionParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -26898,6 +29241,21 @@ func NewCreateOnrampSessionRequestWithBody(server string, contentType string, bo
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XOnrampPartnerId != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Onramp-Partner-Id", runtime.ParamLocationHeader, *params.XOnrampPartnerId)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Onramp-Partner-Id", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -27408,6 +29766,68 @@ func NewAuthorizeCoinbasePaymentSessionRequestWithBody(server string, paymentSes
 			}
 
 			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewAuthorizeMandatePaymentSessionRequest calls the generic AuthorizeMandatePaymentSession builder with application/json body
+func NewAuthorizeMandatePaymentSessionRequest(server string, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, body AuthorizeMandatePaymentSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewAuthorizeMandatePaymentSessionRequestWithBody(server, paymentSessionId, params, "application/json", bodyReader)
+}
+
+// NewAuthorizeMandatePaymentSessionRequestWithBody generates requests for AuthorizeMandatePaymentSession with any type of body
+func NewAuthorizeMandatePaymentSessionRequestWithBody(server string, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "paymentSessionId", runtime.ParamLocationPath, paymentSessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/payment-sessions/%s/authorizations/mandate", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
 		}
 
 	}
@@ -30622,10 +33042,10 @@ type ClientWithResponsesInterface interface {
 	// GetDisbursementWithResponse request
 	GetDisbursementWithResponse(ctx context.Context, disbursementId DisbursementId, reqEditors ...RequestEditorFn) (*GetDisbursementResponse, error)
 
-	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
-	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+	// RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error)
 
-	RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+	RevokeDelegationForEndUserAccountDeprecatedWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error)
 
 	// GetDelegationForEndUserAccountWithResponse request
 	GetDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *GetDelegationForEndUserAccountParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserAccountResponse, error)
@@ -30635,13 +33055,23 @@ type ClientWithResponsesInterface interface {
 
 	CreateDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *CreateDelegationForEndUserAccountParams, body CreateDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDelegationForEndUserAccountResponse, error)
 
+	// RevokeDelegationForEndUserAccountWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+
+	RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error)
+
+	// RevokeDelegationForEndUserDeprecatedWithBodyWithResponse request with any body
+	RevokeDelegationForEndUserDeprecatedWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error)
+
+	RevokeDelegationForEndUserDeprecatedWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error)
+
+	// GetDelegationForEndUserWithResponse request
+	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
+
 	// RevokeDelegationForEndUserWithBodyWithResponse request with any body
 	RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
 
 	RevokeDelegationForEndUserWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, body RevokeDelegationForEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error)
-
-	// GetDelegationForEndUserWithResponse request
-	GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error)
 
 	// CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with any body
 	CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, params *CreateEvmEip7702DelegationWithEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmEip7702DelegationWithEndUserAccountResponse, error)
@@ -30902,6 +33332,50 @@ type ClientWithResponsesInterface interface {
 	// ListEvmTokenBalancesWithResponse request
 	ListEvmTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListEvmTokenBalancesResponse, error)
 
+	// ListMandatesWithResponse request
+	ListMandatesWithResponse(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*ListMandatesResponse, error)
+
+	// CreateMandateWithBodyWithResponse request with any body
+	CreateMandateWithBodyWithResponse(ctx context.Context, params *CreateMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMandateResponse, error)
+
+	CreateMandateWithResponse(ctx context.Context, params *CreateMandateParams, body CreateMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMandateResponse, error)
+
+	// GetMandateWithResponse request
+	GetMandateWithResponse(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*GetMandateResponse, error)
+
+	// ListMandateApprovalsWithResponse request
+	ListMandateApprovalsWithResponse(ctx context.Context, mandateId MandateId, params *ListMandateApprovalsParams, reqEditors ...RequestEditorFn) (*ListMandateApprovalsResponse, error)
+
+	// ApproveWalletMandateWithBodyWithResponse request with any body
+	ApproveWalletMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApproveWalletMandateResponse, error)
+
+	ApproveWalletMandateWithResponse(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, body ApproveWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*ApproveWalletMandateResponse, error)
+
+	// GetWalletApprovalOptionsWithResponse request
+	GetWalletApprovalOptionsWithResponse(ctx context.Context, mandateId MandateId, params *GetWalletApprovalOptionsParams, reqEditors ...RequestEditorFn) (*GetWalletApprovalOptionsResponse, error)
+
+	// GetMandateApprovalWithResponse request
+	GetMandateApprovalWithResponse(ctx context.Context, mandateId MandateId, approvalId ApprovalId, reqEditors ...RequestEditorFn) (*GetMandateApprovalResponse, error)
+
+	// CancelMandateWithBodyWithResponse request with any body
+	CancelMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *CancelMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelMandateResponse, error)
+
+	CancelMandateWithResponse(ctx context.Context, mandateId MandateId, params *CancelMandateParams, body CancelMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelMandateResponse, error)
+
+	// ListMandateRevocationsWithResponse request
+	ListMandateRevocationsWithResponse(ctx context.Context, mandateId MandateId, params *ListMandateRevocationsParams, reqEditors ...RequestEditorFn) (*ListMandateRevocationsResponse, error)
+
+	// RevokeWalletMandateWithBodyWithResponse request with any body
+	RevokeWalletMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeWalletMandateResponse, error)
+
+	RevokeWalletMandateWithResponse(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, body RevokeWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeWalletMandateResponse, error)
+
+	// GetWalletRevocationOptionsWithResponse request
+	GetWalletRevocationOptionsWithResponse(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*GetWalletRevocationOptionsResponse, error)
+
+	// GetMandateRevocationWithResponse request
+	GetMandateRevocationWithResponse(ctx context.Context, mandateId MandateId, revocationId RevocationId, reqEditors ...RequestEditorFn) (*GetMandateRevocationResponse, error)
+
 	// GetOnrampUserLimitsWithBodyWithResponse request with any body
 	GetOnrampUserLimitsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
 
@@ -30913,17 +33387,17 @@ type ClientWithResponsesInterface interface {
 	RequestLimitsUpgradeWithResponse(ctx context.Context, body RequestLimitsUpgradeJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestLimitsUpgradeResponse, error)
 
 	// CreateOnrampOrderWithBodyWithResponse request with any body
-	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
+	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, params *CreateOnrampOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
 
-	CreateOnrampOrderWithResponse(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
+	CreateOnrampOrderWithResponse(ctx context.Context, params *CreateOnrampOrderParams, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
 
 	// GetOnrampOrderByIdWithResponse request
 	GetOnrampOrderByIdWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOnrampOrderByIdResponse, error)
 
 	// CreateOnrampSessionWithBodyWithResponse request with any body
-	CreateOnrampSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
+	CreateOnrampSessionWithBodyWithResponse(ctx context.Context, params *CreateOnrampSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
 
-	CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
+	CreateOnrampSessionWithResponse(ctx context.Context, params *CreateOnrampSessionParams, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
 
 	// InitiateOnrampVerificationWithBodyWithResponse request with any body
 	InitiateOnrampVerificationWithBodyWithResponse(ctx context.Context, params *InitiateOnrampVerificationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*InitiateOnrampVerificationResponse, error)
@@ -30959,6 +33433,11 @@ type ClientWithResponsesInterface interface {
 	AuthorizeCoinbasePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error)
 
 	AuthorizeCoinbasePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeCoinbasePaymentSessionParams, body AuthorizeCoinbasePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeCoinbasePaymentSessionResponse, error)
+
+	// AuthorizeMandatePaymentSessionWithBodyWithResponse request with any body
+	AuthorizeMandatePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeMandatePaymentSessionResponse, error)
+
+	AuthorizeMandatePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, body AuthorizeMandatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeMandatePaymentSessionResponse, error)
 
 	// AuthorizeWalletPaymentSessionWithBodyWithResponse request with any body
 	AuthorizeWalletPaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeWalletPaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeWalletPaymentSessionResponse, error)
@@ -31955,7 +34434,7 @@ func (r GetDisbursementResponse) StatusCode() int {
 	return 0
 }
 
-type RevokeDelegationForEndUserAccountResponse struct {
+type RevokeDelegationForEndUserAccountDeprecatedResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -31966,7 +34445,7 @@ type RevokeDelegationForEndUserAccountResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserAccountResponse) Status() string {
+func (r RevokeDelegationForEndUserAccountDeprecatedResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -31974,7 +34453,7 @@ func (r RevokeDelegationForEndUserAccountResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserAccountResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserAccountDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32046,7 +34525,7 @@ func (r CreateDelegationForEndUserAccountResponse) StatusCode() int {
 	return 0
 }
 
-type RevokeDelegationForEndUserResponse struct {
+type RevokeDelegationForEndUserAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON401      *UnauthorizedError
@@ -32057,7 +34536,7 @@ type RevokeDelegationForEndUserResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r RevokeDelegationForEndUserResponse) Status() string {
+func (r RevokeDelegationForEndUserAccountResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -32065,7 +34544,33 @@ func (r RevokeDelegationForEndUserResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r RevokeDelegationForEndUserResponse) StatusCode() int {
+func (r RevokeDelegationForEndUserAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeDelegationForEndUserDeprecatedResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserDeprecatedResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserDeprecatedResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -32096,6 +34601,32 @@ func (r GetDelegationForEndUserResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDelegationForEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeDelegationForEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeDelegationForEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeDelegationForEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -33934,6 +36465,348 @@ func (r ListEvmTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+type ListMandatesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Mandates The list of mandates.
+		Mandates []Mandate `json:"mandates"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMandatesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMandatesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateMandateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Mandate
+	JSON400      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateMandateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateMandateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetMandateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Mandate
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMandateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMandateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListMandateApprovalsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Approvals The list of approvals for the mandate, most recent first.
+		Approvals []Approval `json:"approvals"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMandateApprovalsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMandateApprovalsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ApproveWalletMandateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Approval
+	JSON400      *Error
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ApproveWalletMandateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ApproveWalletMandateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWalletApprovalOptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WalletMandateApprovalOptionsResponse
+	JSON400      *Error
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWalletApprovalOptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWalletApprovalOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetMandateApprovalResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Approval
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMandateApprovalResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMandateApprovalResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CancelMandateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Mandate
+	JSON404      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CancelMandateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CancelMandateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListMandateRevocationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// Revocations The list of revocations for the mandate, most recent first.
+		Revocations []Revocation `json:"revocations"`
+	}
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListMandateRevocationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListMandateRevocationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeWalletMandateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Revocation
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeWalletMandateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeWalletMandateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWalletRevocationOptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WalletMandateRevocationOptionsResponse
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWalletRevocationOptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWalletRevocationOptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetMandateRevocationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Revocation
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetMandateRevocationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetMandateRevocationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetOnrampUserLimitsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -34070,6 +36943,7 @@ type CreateOnrampSessionResponse struct {
 	}
 	JSON400 *Error
 	JSON401 *UnauthorizedError
+	JSON404 *Error
 	JSON429 *RateLimitExceeded
 	JSON500 *InternalServerError
 }
@@ -34346,6 +37220,35 @@ func (r AuthorizeCoinbasePaymentSessionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r AuthorizeCoinbasePaymentSessionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type AuthorizeMandatePaymentSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Authorization
+	JSON400      *Error
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r AuthorizeMandatePaymentSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r AuthorizeMandatePaymentSessionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -35358,6 +38261,7 @@ type GetTransferByIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *Transfer
+	JSON400      *Error
 	JSON404      *Error
 }
 
@@ -36016,21 +38920,21 @@ func (c *ClientWithResponses) GetDisbursementWithResponse(ctx context.Context, d
 	return ParseGetDisbursementResponse(rsp)
 }
 
-// RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+// RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountDeprecatedResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountDeprecatedWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountDeprecatedWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp)
 }
 
-func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
-	rsp, err := c.RevokeDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountDeprecatedWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountDeprecatedParams, body RevokeDelegationForEndUserAccountDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountDeprecated(ctx, userId, address, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+	return ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp)
 }
 
 // GetDelegationForEndUserAccountWithResponse request returning *GetDelegationForEndUserAccountResponse
@@ -36059,6 +38963,49 @@ func (c *ClientWithResponses) CreateDelegationForEndUserAccountWithResponse(ctx 
 	return ParseCreateDelegationForEndUserAccountResponse(rsp)
 }
 
+// RevokeDelegationForEndUserAccountWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserAccountResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithBodyWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccountWithBody(ctx, userId, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserAccountWithResponse(ctx context.Context, userId string, address BlockchainAddress, params *RevokeDelegationForEndUserAccountParams, body RevokeDelegationForEndUserAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserAccountResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserAccount(ctx, userId, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserAccountResponse(rsp)
+}
+
+// RevokeDelegationForEndUserDeprecatedWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserDeprecatedResponse
+func (c *ClientWithResponses) RevokeDelegationForEndUserDeprecatedWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserDeprecatedWithBody(ctx, userId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserDeprecatedResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeDelegationForEndUserDeprecatedWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserDeprecatedParams, body RevokeDelegationForEndUserDeprecatedJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
+	rsp, err := c.RevokeDelegationForEndUserDeprecated(ctx, userId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeDelegationForEndUserDeprecatedResponse(rsp)
+}
+
+// GetDelegationForEndUserWithResponse request returning *GetDelegationForEndUserResponse
+func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error) {
+	rsp, err := c.GetDelegationForEndUser(ctx, userId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDelegationForEndUserResponse(rsp)
+}
+
 // RevokeDelegationForEndUserWithBodyWithResponse request with arbitrary body returning *RevokeDelegationForEndUserResponse
 func (c *ClientWithResponses) RevokeDelegationForEndUserWithBodyWithResponse(ctx context.Context, userId string, params *RevokeDelegationForEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeDelegationForEndUserResponse, error) {
 	rsp, err := c.RevokeDelegationForEndUserWithBody(ctx, userId, params, contentType, body, reqEditors...)
@@ -36074,15 +39021,6 @@ func (c *ClientWithResponses) RevokeDelegationForEndUserWithResponse(ctx context
 		return nil, err
 	}
 	return ParseRevokeDelegationForEndUserResponse(rsp)
-}
-
-// GetDelegationForEndUserWithResponse request returning *GetDelegationForEndUserResponse
-func (c *ClientWithResponses) GetDelegationForEndUserWithResponse(ctx context.Context, userId string, params *GetDelegationForEndUserParams, reqEditors ...RequestEditorFn) (*GetDelegationForEndUserResponse, error) {
-	rsp, err := c.GetDelegationForEndUser(ctx, userId, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetDelegationForEndUserResponse(rsp)
 }
 
 // CreateEvmEip7702DelegationWithEndUserAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmEip7702DelegationWithEndUserAccountResponse
@@ -36944,6 +39882,146 @@ func (c *ClientWithResponses) ListEvmTokenBalancesWithResponse(ctx context.Conte
 	return ParseListEvmTokenBalancesResponse(rsp)
 }
 
+// ListMandatesWithResponse request returning *ListMandatesResponse
+func (c *ClientWithResponses) ListMandatesWithResponse(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*ListMandatesResponse, error) {
+	rsp, err := c.ListMandates(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMandatesResponse(rsp)
+}
+
+// CreateMandateWithBodyWithResponse request with arbitrary body returning *CreateMandateResponse
+func (c *ClientWithResponses) CreateMandateWithBodyWithResponse(ctx context.Context, params *CreateMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateMandateResponse, error) {
+	rsp, err := c.CreateMandateWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMandateResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateMandateWithResponse(ctx context.Context, params *CreateMandateParams, body CreateMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateMandateResponse, error) {
+	rsp, err := c.CreateMandate(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateMandateResponse(rsp)
+}
+
+// GetMandateWithResponse request returning *GetMandateResponse
+func (c *ClientWithResponses) GetMandateWithResponse(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*GetMandateResponse, error) {
+	rsp, err := c.GetMandate(ctx, mandateId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMandateResponse(rsp)
+}
+
+// ListMandateApprovalsWithResponse request returning *ListMandateApprovalsResponse
+func (c *ClientWithResponses) ListMandateApprovalsWithResponse(ctx context.Context, mandateId MandateId, params *ListMandateApprovalsParams, reqEditors ...RequestEditorFn) (*ListMandateApprovalsResponse, error) {
+	rsp, err := c.ListMandateApprovals(ctx, mandateId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMandateApprovalsResponse(rsp)
+}
+
+// ApproveWalletMandateWithBodyWithResponse request with arbitrary body returning *ApproveWalletMandateResponse
+func (c *ClientWithResponses) ApproveWalletMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ApproveWalletMandateResponse, error) {
+	rsp, err := c.ApproveWalletMandateWithBody(ctx, mandateId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseApproveWalletMandateResponse(rsp)
+}
+
+func (c *ClientWithResponses) ApproveWalletMandateWithResponse(ctx context.Context, mandateId MandateId, params *ApproveWalletMandateParams, body ApproveWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*ApproveWalletMandateResponse, error) {
+	rsp, err := c.ApproveWalletMandate(ctx, mandateId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseApproveWalletMandateResponse(rsp)
+}
+
+// GetWalletApprovalOptionsWithResponse request returning *GetWalletApprovalOptionsResponse
+func (c *ClientWithResponses) GetWalletApprovalOptionsWithResponse(ctx context.Context, mandateId MandateId, params *GetWalletApprovalOptionsParams, reqEditors ...RequestEditorFn) (*GetWalletApprovalOptionsResponse, error) {
+	rsp, err := c.GetWalletApprovalOptions(ctx, mandateId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWalletApprovalOptionsResponse(rsp)
+}
+
+// GetMandateApprovalWithResponse request returning *GetMandateApprovalResponse
+func (c *ClientWithResponses) GetMandateApprovalWithResponse(ctx context.Context, mandateId MandateId, approvalId ApprovalId, reqEditors ...RequestEditorFn) (*GetMandateApprovalResponse, error) {
+	rsp, err := c.GetMandateApproval(ctx, mandateId, approvalId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMandateApprovalResponse(rsp)
+}
+
+// CancelMandateWithBodyWithResponse request with arbitrary body returning *CancelMandateResponse
+func (c *ClientWithResponses) CancelMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *CancelMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CancelMandateResponse, error) {
+	rsp, err := c.CancelMandateWithBody(ctx, mandateId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelMandateResponse(rsp)
+}
+
+func (c *ClientWithResponses) CancelMandateWithResponse(ctx context.Context, mandateId MandateId, params *CancelMandateParams, body CancelMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*CancelMandateResponse, error) {
+	rsp, err := c.CancelMandate(ctx, mandateId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCancelMandateResponse(rsp)
+}
+
+// ListMandateRevocationsWithResponse request returning *ListMandateRevocationsResponse
+func (c *ClientWithResponses) ListMandateRevocationsWithResponse(ctx context.Context, mandateId MandateId, params *ListMandateRevocationsParams, reqEditors ...RequestEditorFn) (*ListMandateRevocationsResponse, error) {
+	rsp, err := c.ListMandateRevocations(ctx, mandateId, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListMandateRevocationsResponse(rsp)
+}
+
+// RevokeWalletMandateWithBodyWithResponse request with arbitrary body returning *RevokeWalletMandateResponse
+func (c *ClientWithResponses) RevokeWalletMandateWithBodyWithResponse(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeWalletMandateResponse, error) {
+	rsp, err := c.RevokeWalletMandateWithBody(ctx, mandateId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeWalletMandateResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeWalletMandateWithResponse(ctx context.Context, mandateId MandateId, params *RevokeWalletMandateParams, body RevokeWalletMandateJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeWalletMandateResponse, error) {
+	rsp, err := c.RevokeWalletMandate(ctx, mandateId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeWalletMandateResponse(rsp)
+}
+
+// GetWalletRevocationOptionsWithResponse request returning *GetWalletRevocationOptionsResponse
+func (c *ClientWithResponses) GetWalletRevocationOptionsWithResponse(ctx context.Context, mandateId MandateId, reqEditors ...RequestEditorFn) (*GetWalletRevocationOptionsResponse, error) {
+	rsp, err := c.GetWalletRevocationOptions(ctx, mandateId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWalletRevocationOptionsResponse(rsp)
+}
+
+// GetMandateRevocationWithResponse request returning *GetMandateRevocationResponse
+func (c *ClientWithResponses) GetMandateRevocationWithResponse(ctx context.Context, mandateId MandateId, revocationId RevocationId, reqEditors ...RequestEditorFn) (*GetMandateRevocationResponse, error) {
+	rsp, err := c.GetMandateRevocation(ctx, mandateId, revocationId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetMandateRevocationResponse(rsp)
+}
+
 // GetOnrampUserLimitsWithBodyWithResponse request with arbitrary body returning *GetOnrampUserLimitsResponse
 func (c *ClientWithResponses) GetOnrampUserLimitsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error) {
 	rsp, err := c.GetOnrampUserLimitsWithBody(ctx, contentType, body, reqEditors...)
@@ -36979,16 +40057,16 @@ func (c *ClientWithResponses) RequestLimitsUpgradeWithResponse(ctx context.Conte
 }
 
 // CreateOnrampOrderWithBodyWithResponse request with arbitrary body returning *CreateOnrampOrderResponse
-func (c *ClientWithResponses) CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
-	rsp, err := c.CreateOnrampOrderWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateOnrampOrderWithBodyWithResponse(ctx context.Context, params *CreateOnrampOrderParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
+	rsp, err := c.CreateOnrampOrderWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateOnrampOrderResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateOnrampOrderWithResponse(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
-	rsp, err := c.CreateOnrampOrder(ctx, body, reqEditors...)
+func (c *ClientWithResponses) CreateOnrampOrderWithResponse(ctx context.Context, params *CreateOnrampOrderParams, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
+	rsp, err := c.CreateOnrampOrder(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -37005,16 +40083,16 @@ func (c *ClientWithResponses) GetOnrampOrderByIdWithResponse(ctx context.Context
 }
 
 // CreateOnrampSessionWithBodyWithResponse request with arbitrary body returning *CreateOnrampSessionResponse
-func (c *ClientWithResponses) CreateOnrampSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
-	rsp, err := c.CreateOnrampSessionWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateOnrampSessionWithBodyWithResponse(ctx context.Context, params *CreateOnrampSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
+	rsp, err := c.CreateOnrampSessionWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateOnrampSessionResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
-	rsp, err := c.CreateOnrampSession(ctx, body, reqEditors...)
+func (c *ClientWithResponses) CreateOnrampSessionWithResponse(ctx context.Context, params *CreateOnrampSessionParams, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
+	rsp, err := c.CreateOnrampSession(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -37132,6 +40210,23 @@ func (c *ClientWithResponses) AuthorizeCoinbasePaymentSessionWithResponse(ctx co
 		return nil, err
 	}
 	return ParseAuthorizeCoinbasePaymentSessionResponse(rsp)
+}
+
+// AuthorizeMandatePaymentSessionWithBodyWithResponse request with arbitrary body returning *AuthorizeMandatePaymentSessionResponse
+func (c *ClientWithResponses) AuthorizeMandatePaymentSessionWithBodyWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*AuthorizeMandatePaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeMandatePaymentSessionWithBody(ctx, paymentSessionId, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeMandatePaymentSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) AuthorizeMandatePaymentSessionWithResponse(ctx context.Context, paymentSessionId PaymentSessionId, params *AuthorizeMandatePaymentSessionParams, body AuthorizeMandatePaymentSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*AuthorizeMandatePaymentSessionResponse, error) {
+	rsp, err := c.AuthorizeMandatePaymentSession(ctx, paymentSessionId, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseAuthorizeMandatePaymentSessionResponse(rsp)
 }
 
 // AuthorizeWalletPaymentSessionWithBodyWithResponse request with arbitrary body returning *AuthorizeWalletPaymentSessionResponse
@@ -39468,15 +42563,15 @@ func ParseGetDisbursementResponse(rsp *http.Response) (*GetDisbursementResponse,
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserAccountResponse parses an HTTP response from a RevokeDelegationForEndUserAccountWithResponse call
-func ParseRevokeDelegationForEndUserAccountResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountResponse, error) {
+// ParseRevokeDelegationForEndUserAccountDeprecatedResponse parses an HTTP response from a RevokeDelegationForEndUserAccountDeprecatedWithResponse call
+func ParseRevokeDelegationForEndUserAccountDeprecatedResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountDeprecatedResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserAccountResponse{
+	response := &RevokeDelegationForEndUserAccountDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -39685,15 +42780,69 @@ func ParseCreateDelegationForEndUserAccountResponse(rsp *http.Response) (*Create
 	return response, nil
 }
 
-// ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
-func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
+// ParseRevokeDelegationForEndUserAccountResponse parses an HTTP response from a RevokeDelegationForEndUserAccountWithResponse call
+func ParseRevokeDelegationForEndUserAccountResponse(rsp *http.Response) (*RevokeDelegationForEndUserAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &RevokeDelegationForEndUserResponse{
+	response := &RevokeDelegationForEndUserAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeDelegationForEndUserDeprecatedResponse parses an HTTP response from a RevokeDelegationForEndUserDeprecatedWithResponse call
+func ParseRevokeDelegationForEndUserDeprecatedResponse(rsp *http.Response) (*RevokeDelegationForEndUserDeprecatedResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserDeprecatedResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -39763,6 +42912,60 @@ func ParseGetDelegationForEndUserResponse(rsp *http.Response) (*GetDelegationFor
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeDelegationForEndUserResponse parses an HTTP response from a RevokeDelegationForEndUserWithResponse call
+func ParseRevokeDelegationForEndUserResponse(rsp *http.Response) (*RevokeDelegationForEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeDelegationForEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest UnauthorizedError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -44367,6 +47570,756 @@ func ParseListEvmTokenBalancesResponse(rsp *http.Response) (*ListEvmTokenBalance
 	return response, nil
 }
 
+// ParseListMandatesResponse parses an HTTP response from a ListMandatesWithResponse call
+func ParseListMandatesResponse(rsp *http.Response) (*ListMandatesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMandatesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Mandates The list of mandates.
+			Mandates []Mandate `json:"mandates"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateMandateResponse parses an HTTP response from a CreateMandateWithResponse call
+func ParseCreateMandateResponse(rsp *http.Response) (*CreateMandateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateMandateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Mandate
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMandateResponse parses an HTTP response from a GetMandateWithResponse call
+func ParseGetMandateResponse(rsp *http.Response) (*GetMandateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMandateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Mandate
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListMandateApprovalsResponse parses an HTTP response from a ListMandateApprovalsWithResponse call
+func ParseListMandateApprovalsResponse(rsp *http.Response) (*ListMandateApprovalsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMandateApprovalsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Approvals The list of approvals for the mandate, most recent first.
+			Approvals []Approval `json:"approvals"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseApproveWalletMandateResponse parses an HTTP response from a ApproveWalletMandateWithResponse call
+func ParseApproveWalletMandateResponse(rsp *http.Response) (*ApproveWalletMandateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ApproveWalletMandateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Approval
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWalletApprovalOptionsResponse parses an HTTP response from a GetWalletApprovalOptionsWithResponse call
+func ParseGetWalletApprovalOptionsResponse(rsp *http.Response) (*GetWalletApprovalOptionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWalletApprovalOptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WalletMandateApprovalOptionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMandateApprovalResponse parses an HTTP response from a GetMandateApprovalWithResponse call
+func ParseGetMandateApprovalResponse(rsp *http.Response) (*GetMandateApprovalResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMandateApprovalResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Approval
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCancelMandateResponse parses an HTTP response from a CancelMandateWithResponse call
+func ParseCancelMandateResponse(rsp *http.Response) (*CancelMandateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CancelMandateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Mandate
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListMandateRevocationsResponse parses an HTTP response from a ListMandateRevocationsWithResponse call
+func ParseListMandateRevocationsResponse(rsp *http.Response) (*ListMandateRevocationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListMandateRevocationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// Revocations The list of revocations for the mandate, most recent first.
+			Revocations []Revocation `json:"revocations"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeWalletMandateResponse parses an HTTP response from a RevokeWalletMandateWithResponse call
+func ParseRevokeWalletMandateResponse(rsp *http.Response) (*RevokeWalletMandateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeWalletMandateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Revocation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWalletRevocationOptionsResponse parses an HTTP response from a GetWalletRevocationOptionsWithResponse call
+func ParseGetWalletRevocationOptionsResponse(rsp *http.Response) (*GetWalletRevocationOptionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWalletRevocationOptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WalletMandateRevocationOptionsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetMandateRevocationResponse parses an HTTP response from a GetMandateRevocationWithResponse call
+func ParseGetMandateRevocationResponse(rsp *http.Response) (*GetMandateRevocationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetMandateRevocationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Revocation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetOnrampUserLimitsResponse parses an HTTP response from a GetOnrampUserLimitsWithResponse call
 func ParseGetOnrampUserLimitsResponse(rsp *http.Response) (*GetOnrampUserLimitsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -44643,6 +48596,13 @@ func ParseCreateOnrampSessionResponse(rsp *http.Response) (*CreateOnrampSessionR
 			return nil, err
 		}
 		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
 		var dest RateLimitExceeded
@@ -45206,6 +49166,81 @@ func ParseAuthorizeCoinbasePaymentSessionResponse(rsp *http.Response) (*Authoriz
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseAuthorizeMandatePaymentSessionResponse parses an HTTP response from a AuthorizeMandatePaymentSessionWithResponse call
+func ParseAuthorizeMandatePaymentSessionResponse(rsp *http.Response) (*AuthorizeMandatePaymentSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &AuthorizeMandatePaymentSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Authorization
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -47559,6 +51594,13 @@ func ParseGetTransferByIdResponse(rsp *http.Response) (*GetTransferByIdResponse,
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest Error
