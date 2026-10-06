@@ -93,7 +93,7 @@ export declare namespace DepositDestinationsClient {
  *   "fiat": {
  *     "accountType": "us_bank",
  *     "currency": "usd",
- *     "bankName": "Citibank, N.A.",
+ *     "bankName": "Citibank N.A.",
  *     "beneficiaryName": "John Smith",
  *     "routingNumber": "987654321",
  *     "accountNumber": "123456789",
@@ -116,7 +116,7 @@ export class DepositDestinationsClient {
     }
 
     /**
-     * List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+     * List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
      *
      * @param {CoinbaseApi.ListDepositDestinationsRequest} request
      * @param {DepositDestinationsClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -153,12 +153,13 @@ export class DepositDestinationsClient {
             path: "v2/deposit-destinations",
             operationId: "endpoint_depositDestinations.listDepositDestinations",
         };
-        const { accountId, address, type: type_, network, pageSize, pageToken } = request;
+        const { accountId, address, type: type_, network, status, pageSize, pageToken } = request;
         const _queryParams: Record<string, unknown> = {
             accountId,
             address,
             type: type_,
             network,
+            status: status != null ? status : undefined,
             pageSize,
             pageToken,
         };

@@ -16,7 +16,10 @@ import type * as CoinbaseApi from "../../../../index.js";
  * {
  *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
  *     owner: "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
- *     name: "ABC XYZ Customer Account"
+ *     name: "ABC XYZ Customer Account",
+ *     compliance: {
+ *         requesterIpAddress: "203.0.113.42"
+ *     }
  * }
  * ```
  */
@@ -40,5 +43,6 @@ export interface CreateAccountRequest {
      */
     owner?: CoinbaseApi.Owner;
     name?: CoinbaseApi.AccountName;
+    /** Required when `owner` is a Customer ID; omit for Entity-owned accounts. */
     compliance?: CoinbaseApi.Compliance;
 }

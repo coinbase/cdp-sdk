@@ -26,11 +26,11 @@ import type * as CoinbaseApi from "../../../../index.js";
 export interface ListTransfersRequest {
     /** Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action. */
     status?: CoinbaseApi.TransferStatus;
-    /** Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`. */
+    /** Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`. */
     accountId?: CoinbaseApi.AccountId;
-    /** Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`. */
+    /** Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`. */
     sourceAccountId?: CoinbaseApi.AccountId;
-    /** Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`. */
+    /** Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`. */
     targetAccountId?: CoinbaseApi.AccountId;
     /** Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format. */
     createdAfter?: string;
@@ -44,13 +44,13 @@ export interface ListTransfersRequest {
     sourceAsset?: string;
     /** Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`). */
     targetAsset?: string;
-    /** Filter transfers by the on-chain address of the source. */
+    /** Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`. */
     sourceAddress?: CoinbaseApi.BlockchainAddress;
-    /** Filter transfers by the on-chain destination address of the target. */
+    /** Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`. */
     targetAddress?: CoinbaseApi.BlockchainAddress;
-    /** Filter transfers by the email address of the target recipient. */
+    /** Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`. */
     targetEmail?: CoinbaseApi.Email;
-    /** Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. */
+    /** Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter. */
     transferId?: string;
     /** The number of resources to return per page. */
     pageSize?: number;

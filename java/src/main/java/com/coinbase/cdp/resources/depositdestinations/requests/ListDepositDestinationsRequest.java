@@ -6,6 +6,7 @@ package com.coinbase.cdp.resources.depositdestinations.requests;
 
 import com.coinbase.cdp.core.ObjectMappers;
 import com.coinbase.cdp.types.AccountId;
+import com.coinbase.cdp.types.DepositDestinationStatus;
 import com.coinbase.cdp.types.DepositDestinationType;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -36,6 +37,8 @@ public final class ListDepositDestinationsRequest {
 
   private final Optional<String> network;
 
+  private final Optional<DepositDestinationStatus> status;
+
   private final Optional<Integer> pageSize;
 
   private final Optional<String> pageToken;
@@ -43,12 +46,14 @@ public final class ListDepositDestinationsRequest {
   private final Map<String, Object> additionalProperties;
 
   private ListDepositDestinationsRequest(Optional<AccountId> accountId, Optional<String> address,
-      Optional<DepositDestinationType> type, Optional<String> network, Optional<Integer> pageSize,
+      Optional<DepositDestinationType> type, Optional<String> network,
+      Optional<DepositDestinationStatus> status, Optional<Integer> pageSize,
       Optional<String> pageToken, Map<String, Object> additionalProperties) {
     this.accountId = accountId;
     this.address = address;
     this.type = type;
     this.network = network;
+    this.status = status;
     this.pageSize = pageSize;
     this.pageToken = pageToken;
     this.additionalProperties = additionalProperties;
@@ -87,6 +92,14 @@ public final class ListDepositDestinationsRequest {
   }
 
   /**
+   * @return Filter deposit destinations by status.
+   */
+  @JsonProperty("status")
+  public Optional<DepositDestinationStatus> getStatus() {
+    return status;
+  }
+
+  /**
    * @return The number of resources to return per page.
    */
   @JsonProperty("pageSize")
@@ -114,12 +127,12 @@ public final class ListDepositDestinationsRequest {
   }
 
   private boolean equalTo(ListDepositDestinationsRequest other) {
-    return accountId.equals(other.accountId) && address.equals(other.address) && type.equals(other.type) && network.equals(other.network) && pageSize.equals(other.pageSize) && pageToken.equals(other.pageToken);
+    return accountId.equals(other.accountId) && address.equals(other.address) && type.equals(other.type) && network.equals(other.network) && status.equals(other.status) && pageSize.equals(other.pageSize) && pageToken.equals(other.pageToken);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.accountId, this.address, this.type, this.network, this.pageSize, this.pageToken);
+    return Objects.hash(this.accountId, this.address, this.type, this.network, this.status, this.pageSize, this.pageToken);
   }
 
   @java.lang.Override
@@ -143,6 +156,8 @@ public final class ListDepositDestinationsRequest {
 
     private Optional<String> network = Optional.empty();
 
+    private Optional<DepositDestinationStatus> status = Optional.empty();
+
     private Optional<Integer> pageSize = Optional.empty();
 
     private Optional<String> pageToken = Optional.empty();
@@ -158,6 +173,7 @@ public final class ListDepositDestinationsRequest {
       address(other.getAddress());
       type(other.getType());
       network(other.getNetwork());
+      status(other.getStatus());
       pageSize(other.getPageSize());
       pageToken(other.getPageToken());
       return this;
@@ -232,6 +248,23 @@ public final class ListDepositDestinationsRequest {
     }
 
     /**
+     * <p>Filter deposit destinations by status.</p>
+     */
+    @JsonSetter(
+        value = "status",
+        nulls = Nulls.SKIP
+    )
+    public Builder status(Optional<DepositDestinationStatus> status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder status(DepositDestinationStatus status) {
+      this.status = Optional.ofNullable(status);
+      return this;
+    }
+
+    /**
      * <p>The number of resources to return per page.</p>
      */
     @JsonSetter(
@@ -266,7 +299,7 @@ public final class ListDepositDestinationsRequest {
     }
 
     public ListDepositDestinationsRequest build() {
-      return new ListDepositDestinationsRequest(accountId, address, type, network, pageSize, pageToken, additionalProperties);
+      return new ListDepositDestinationsRequest(accountId, address, type, network, status, pageSize, pageToken, additionalProperties);
     }
 
     public Builder additionalProperty(String key, Object value) {

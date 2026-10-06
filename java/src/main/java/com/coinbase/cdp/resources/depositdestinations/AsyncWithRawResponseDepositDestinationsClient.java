@@ -57,7 +57,7 @@ public class AsyncWithRawResponseDepositDestinationsClient {
   }
 
   /**
-   * List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+   * List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
    */
   public CompletableFuture<CdpClientHttpResponse<ListDepositDestinationsResponse>> listDepositDestinations(
       ) {
@@ -65,7 +65,7 @@ public class AsyncWithRawResponseDepositDestinationsClient {
   }
 
   /**
-   * List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+   * List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
    */
   public CompletableFuture<CdpClientHttpResponse<ListDepositDestinationsResponse>> listDepositDestinations(
       RequestOptions requestOptions) {
@@ -73,7 +73,7 @@ public class AsyncWithRawResponseDepositDestinationsClient {
   }
 
   /**
-   * List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+   * List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
    */
   public CompletableFuture<CdpClientHttpResponse<ListDepositDestinationsResponse>> listDepositDestinations(
       ListDepositDestinationsRequest request) {
@@ -81,7 +81,7 @@ public class AsyncWithRawResponseDepositDestinationsClient {
   }
 
   /**
-   * List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+   * List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
    */
   public CompletableFuture<CdpClientHttpResponse<ListDepositDestinationsResponse>> listDepositDestinations(
       ListDepositDestinationsRequest request, RequestOptions requestOptions) {
@@ -98,6 +98,9 @@ public class AsyncWithRawResponseDepositDestinationsClient {
       }
       if (request.getNetwork().isPresent()) {
         QueryStringMapper.addQueryParameter(httpUrl, "network", request.getNetwork().get(), false);
+      }
+      if (request.getStatus().isPresent()) {
+        QueryStringMapper.addQueryParameter(httpUrl, "status", request.getStatus().get(), false);
       }
       if (request.getPageSize().isPresent()) {
         QueryStringMapper.addQueryParameter(httpUrl, "pageSize", request.getPageSize().get(), false);

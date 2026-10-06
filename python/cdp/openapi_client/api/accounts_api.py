@@ -65,7 +65,7 @@ class AccountsApi:
     ) -> Account:
         """Create account
 
-        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.   Omit `compliance`; it has no effect for Entity-owned accounts.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403). `compliance.requesterIpAddress`   is required; use the IP address of the end-customer who initiated the   request (not the partner server's IP).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest
@@ -140,7 +140,7 @@ class AccountsApi:
     ) -> ApiResponse[Account]:
         """Create account
 
-        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.   Omit `compliance`; it has no effect for Entity-owned accounts.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403). `compliance.requesterIpAddress`   is required; use the IP address of the end-customer who initiated the   request (not the partner server's IP).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest
@@ -215,7 +215,7 @@ class AccountsApi:
     ) -> RESTResponseType:
         """Create account
 
-        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403).
+        Create an account. Two ownership modes are supported:  - **Entity-owned**: when `owner` is omitted, the account is owned by the   Entity making the request. Returns an account with `owner: entity_<uuid>`.   Omit `compliance`; it has no effect for Entity-owned accounts.  - **Customer-owned**: pass a Customer ID as `owner`   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`   capabilities enabled, otherwise the request is rejected with   `customer_not_authorized` (HTTP 403). `compliance.requesterIpAddress`   is required; use the IP address of the end-customer who initiated the   request (not the partner server's IP).
 
         :param create_account_request: (required)
         :type create_account_request: CreateAccountRequest

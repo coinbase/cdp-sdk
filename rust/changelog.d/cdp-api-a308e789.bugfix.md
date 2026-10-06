@@ -1,3 +1,0 @@
-Regenerate the OpenAPI client from the latest CDP API spec, including customer-requirements and borrowing operations, Solana encoding options, and updated webhook and policy schemas.
-
-Generated Rust type migration notes: policy `rules` now use the `PolicyRules` newtype; `BankAccountUsAccountNumber` is renamed to `FiatAccountNumber`; webhook labels and metadata use `WebhookRequestLabels`, `WebhookResponseLabels`, and `WebhookMetadata` instead of the previous inline types. `WebhookMetadataValue` validates values as 1–50 characters instead of the generic metadata range of 0–500. Update direct struct construction and field access to use these generated newtypes.

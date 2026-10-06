@@ -89,6 +89,9 @@ public final class CreateAccountRequest {
     return name;
   }
 
+  /**
+   * @return Required when <code>owner</code> is a Customer ID; omit for Entity-owned accounts.
+   */
   @JsonProperty("compliance")
   public Optional<Compliance> getCompliance() {
     return compliance;
@@ -212,6 +215,9 @@ public final class CreateAccountRequest {
       return this;
     }
 
+    /**
+     * <p>Required when <code>owner</code> is a Customer ID; omit for Entity-owned accounts.</p>
+     */
     @JsonSetter(
         value = "compliance",
         nulls = Nulls.SKIP

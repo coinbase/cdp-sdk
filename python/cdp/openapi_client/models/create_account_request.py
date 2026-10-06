@@ -31,7 +31,7 @@ class CreateAccountRequest(BaseModel):
     """ # noqa: E501
     owner: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The Owner of the Account to create. * If omitted, the account will be owned by the Entity making the request. * If the account is for a customer, the value will be a Customer ID,   e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`.  * Further, the corresponding Customer must have all of the following capabilities enabled:   - `custodyCrypto`   - `custodyFiat`   - `custodyStablecoin`.")
     name: Optional[Annotated[str, Field(strict=True, max_length=64)]] = Field(default=None, description="An optional name for the account. Must be 1-64 characters and can only contain alphanumeric characters, hyphens, and spaces.")
-    compliance: Optional[Compliance] = None
+    compliance: Optional[Compliance] = Field(default=None, description="Required when `owner` is a Customer ID; omit for Entity-owned accounts.")
     __properties: ClassVar[List[str]] = ["owner", "name", "compliance"]
 
     @field_validator('owner')

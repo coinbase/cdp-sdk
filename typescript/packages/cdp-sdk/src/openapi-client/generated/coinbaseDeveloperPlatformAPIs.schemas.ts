@@ -83,8 +83,11 @@ export const ErrorType = {
   faucet_limit_exceeded: "faucet_limit_exceeded",
   forbidden: "forbidden",
   idempotency_error: "idempotency_error",
+  incompatible_event_types: "incompatible_event_types",
   internal_server_error: "internal_server_error",
   invalid_request: "invalid_request",
+  invalid_webhook_headers: "invalid_webhook_headers",
+  invalid_webhook_url: "invalid_webhook_url",
   invalid_sql_query: "invalid_sql_query",
   invalid_signature: "invalid_signature",
   malformed_transaction: "malformed_transaction",
@@ -96,6 +99,7 @@ export const ErrorType = {
   rate_limit_exceeded: "rate_limit_exceeded",
   request_canceled: "request_canceled",
   service_unavailable: "service_unavailable",
+  subscription_limit_exceeded: "subscription_limit_exceeded",
   timed_out: "timed_out",
   unauthorized: "unauthorized",
   unsupported_tos_language: "unsupported_tos_language",
@@ -167,6 +171,12 @@ export const ErrorType = {
   daily_amount_limit_exceeded: "daily_amount_limit_exceeded",
   stale_attestation: "stale_attestation",
   moderation_rejected: "moderation_rejected",
+  mandate_action_pending: "mandate_action_pending",
+  mandate_policy_violation: "mandate_policy_violation",
+  mandate_expired: "mandate_expired",
+  mandate_canceled: "mandate_canceled",
+  mandate_revoked: "mandate_revoked",
+  mandate_invalid_status: "mandate_invalid_status",
 } as const;
 
 /**
@@ -249,6 +259,7 @@ export interface CreateAccountRequest {
   - `custodyStablecoin`. */
   owner?: Owner;
   name?: AccountName;
+  /** Required when `owner` is a Customer ID; omit for Entity-owned accounts. */
   compliance?: Compliance;
 }
 
@@ -1114,6 +1125,19 @@ export type UpdateCustomerRequest = CustomerWriteBase;
 export type DepositDestinationType = string;
 
 /**
+ * The status of the deposit destination.
+ */
+export type DepositDestinationStatus =
+  (typeof DepositDestinationStatus)[keyof typeof DepositDestinationStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DepositDestinationStatus = {
+  active: "active",
+  inactive: "inactive",
+  pending: "pending",
+} as const;
+
+/**
  * The ID of the Deposit Destination, which is a UUID prefixed by the string `depositDestination_`.
  * @pattern ^depositDestination_[a-f0-9\-]{36}$
  */
@@ -1201,19 +1225,6 @@ export type DepositDestinationTargetOnchainAddress = OnchainAddress;
 export type DepositDestinationTarget =
   | DepositDestinationTargetAccount
   | DepositDestinationTargetOnchainAddress;
-
-/**
- * The status of the deposit destination.
- */
-export type DepositDestinationStatus =
-  (typeof DepositDestinationStatus)[keyof typeof DepositDestinationStatus];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const DepositDestinationStatus = {
-  active: "active",
-  inactive: "inactive",
-  pending: "pending",
-} as const;
 
 /**
  * Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -2053,6 +2064,8 @@ export const PaymentSourceNetwork = {
   "optimism-sepolia": "optimism-sepolia",
   polygon: "polygon",
   "polygon-amoy": "polygon-amoy",
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
 } as const;
 
 /**
@@ -2557,9 +2570,6 @@ export interface Permit2Payload {
   data: EIP712Message;
 }
 
-/**
- * The payload type.
- */
 export type Erc20ApprovalPayloadType =
   (typeof Erc20ApprovalPayloadType)[keyof typeof Erc20ApprovalPayloadType];
 
@@ -2597,7 +2607,6 @@ export type Erc20ApprovalPayloadData = {
 export interface Erc20ApprovalPayload {
   /** The unique identifier of the payload. */
   payloadId: string;
-  /** The payload type. */
   type: Erc20ApprovalPayloadType;
   /** An EVM transaction object. Send via `eth_sendTransaction`. */
   data: Erc20ApprovalPayloadData;
@@ -2713,11 +2722,14 @@ export interface WalletAuthorizationOptionsResponse {
  * A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:
 - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
 - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+- `solana_subscription` — the 64-byte ed25519 signature for the payer that
+  signed, extracted from the signed Solana transaction and base58-encoded.
+  Not the signed transaction bytes, and not `0x`-prefixed hex.
  */
 export interface OnchainSignedPayload {
   /** The unique identifier of the signed payload. */
   payloadId?: string;
-  /** The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. */
+  /** The output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. For `solana_subscription`, this is the payer's 64-byte ed25519 signature extracted from the signed Solana transaction and base58-encoded, not the signed transaction bytes or `0x`-prefixed hex. */
   signature?: string;
 }
 
@@ -2744,6 +2756,25 @@ export interface CoinbaseAuthorizationRequest {
   /** Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
   customerDisplay?: OperationCustomerDisplay;
   /** An optional merchant-provided internal identifier for this Coinbase authorization, from the merchant's own system—not visible to the payer. */
+  externalReferenceId?: ExternalReferenceId;
+}
+
+/**
+ * The ID of the mandate, a UUID prefixed by `mandate_`.
+ * @pattern ^mandate_[a-f0-9\-]{36}$
+ */
+export type MandateId = string;
+
+/**
+ * A request to authorize a payment session against a mandate in `approval_succeeded` status, using the mandate's existing approval. No fresh signature is required. The charge must fall within the mandate's `policy`.
+ */
+export interface MandateAuthorizationRequest {
+  /** The ID of the mandate to authorize against. Must be in `approval_succeeded` status. */
+  mandateId: MandateId;
+  metadata?: Metadata;
+  /** Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
+  customerDisplay?: OperationCustomerDisplay;
+  /** An optional merchant-provided internal identifier for this mandate authorization, from the merchant's own system—not visible to the payer. */
   externalReferenceId?: ExternalReferenceId;
 }
 
@@ -2788,6 +2819,499 @@ export interface CreateRefundRequest {
   externalReferenceId?: ExternalReferenceId;
   /** Optional customer-facing display data for this refund, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted. */
   customerDisplay?: OperationCustomerDisplay;
+}
+
+/**
+ * The most recent action on the mandate. `status` is an informational indicator of the latest transition; it is not the source of truth for what has durably happened. Read the timestamps for that: `approvedAt`, `canceledAt`, and `revokedAt` each record a durable milestone independently of `status`.
+
+- `created`: the mandate exists but no approval has been attempted. No
+  source attached. Not usable.
+
+
+- `approval_pending`: an approval is in flight. Not usable. Emits
+  `acceptance.mandate.approval_initiated`.
+
+
+- `approval_succeeded`: the mandate has a source and is usable.
+
+- `approval_failed`: the last approval attempt failed. Not usable. Submit
+  a new approval to retry.
+
+
+- `revocation_pending`: a wallet revocation is being confirmed on the
+  network. Emits `acceptance.mandate.revocation_initiated`. Resolves to
+  `revocation_succeeded` on success or `revocation_failed` on failure.
+
+
+- `revocation_succeeded`: a wallet revocation removed the spending allowance
+  on-chain (`revokedAt` is set). Terminal.
+
+
+- `revocation_failed`: the last wallet revocation attempt did not complete.
+  The spending allowance was not removed, so the mandate remains usable if it
+  was usable before. Submit a new revocation to retry.
+
+
+- `canceled`: the merchant ended the mandate off-chain (`canceledAt` is set).
+  The on-chain spending allowance may still be live; a later wallet
+  revocation can still move `status` through the `revocation_*` values and
+  set `revokedAt`.
+
+
+**Usable when** `approvedAt` is set, `canceledAt` is null, `revokedAt` is null, and `expiresAt` is null or in the future. Usability is derived from these timestamps, not from `status`: a failed revocation, for example, leaves `status` at `revocation_failed` but the mandate stays usable because the allowance was never removed. Authorization checks the durable conditions in order, and the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`). Approve a mandate and get wallet approval options use that same order for the in-flight, revoked, canceled, and expired checks. Any other status except `created` or `approval_failed` returns `422` (`mandate_invalid_status`). Those rejections do not change the timestamps. Debit limits are enforced at authorization time.
+ */
+export type MandateStatus = (typeof MandateStatus)[keyof typeof MandateStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MandateStatus = {
+  created: "created",
+  approval_pending: "approval_pending",
+  approval_succeeded: "approval_succeeded",
+  approval_failed: "approval_failed",
+  revocation_pending: "revocation_pending",
+  revocation_succeeded: "revocation_succeeded",
+  revocation_failed: "revocation_failed",
+  canceled: "canceled",
+} as const;
+
+/**
+ * A blockchain wallet the mandate draws funds from. Extends the shared payment source wallet, requiring `network` and `asset` alongside `address` (the `asset` is what debits against the mandate are drawn in).
+ */
+export type MandateSourceWallet = PaymentSourceWallet & unknown;
+
+/**
+ * The funding source the mandate draws against. A wallet is the only supported source type today.
+ */
+export type MandateSource = MandateSourceWallet;
+
+/**
+ * The rolling window that `maxPerPeriod.amount` applies over. It is a fixed duration measured back from now, not a calendar window. For example, `month` means the trailing 30 days, not the current calendar month.
+ */
+export type MandatePolicyPeriod = (typeof MandatePolicyPeriod)[keyof typeof MandatePolicyPeriod];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MandatePolicyPeriod = {
+  day: "day",
+  week: "week",
+  month: "month",
+  year: "year",
+} as const;
+
+/**
+ * One rolling cap over `period` (a trailing window, not a calendar period). Send both `amount` and `period`, or omit the object. The stored amount is capped at the Coinbase ceiling for that period. Enforced atomically at authorization so concurrent charges cannot exceed the cap.
+ */
+export interface MandatePolicyPeriodCap {
+  /** Max total authorizable in the rolling `period`. Capped at the Coinbase ceiling for `period`. */
+  amount: string;
+  period: MandatePolicyPeriod;
+}
+
+/**
+ * Debit caps in the mandate's `asset`. Omit `policy` or send `{}` to default to a Coinbase-configured monthly max. Supplied amounts are capped at Coinbase ceilings. If you set `maxPerPeriod`, include both `amount` and `period`.
+ */
+export interface MandatePolicy {
+  /** Max amount for one authorization. Omit to use the Coinbase default. Capped at the Coinbase ceiling. */
+  maxPerAuthorization?: string;
+  /** One rolling cap. Omit to use a Coinbase-configured monthly max. If set, both `amount` and `period` are required. Amount is capped at that period's ceiling. */
+  maxPerPeriod?: MandatePolicyPeriodCap;
+  /** Optional minimum available balance the payer must have to set up the mandate, denominated in the mandate's `asset`. When set, the mandate can only be approved if the payer's available balance is at least this amount; an approval attempted while the balance is below it is rejected with a `422` (`mandate_policy_violation`). This does not dictate the amount debited: the payment session amount remains the source of truth for what is debited. Omit to use the Coinbase-configured default. */
+  minSetupBalance?: string;
+}
+
+/**
+ * Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.
+ */
+export interface MandateCustomerDisplay {
+  /**
+   * The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+   * @maxLength 128
+   */
+  merchantName?: string;
+}
+
+/**
+ * A durable, revocable standing authorization to debit a funding `source` without the customer present each time, within its `policy` caps. Payment sessions draw against it by referencing its `mandateId`.
+
+`source` is set once an approval succeeds. `status` reflects the most recent action; the `approvedAt`, `canceledAt`, and `revokedAt` timestamps are the durable record of what has happened. Ending one mandate does not affect other mandates on the same `source`.
+ */
+export interface Mandate {
+  /** The unique identifier of the mandate. */
+  mandateId: MandateId;
+  /** The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination. */
+  asset: Asset;
+  /** The funding source the mandate draws against. Set when an approval succeeds. Not present before the mandate is `approval_succeeded`. */
+  source?: MandateSource;
+  /** Debit caps. Always present. If you omitted `policy` at create, this is a Coinbase-configured monthly max. */
+  policy: MandatePolicy;
+  /** The current status of the mandate. */
+  status: MandateStatus;
+  /** The UTC ISO 8601 timestamp after which the mandate can no longer be authorized against. Authorization attempts after this time return `422`; `status` does not change. Omit for no expiry. */
+  expiresAt?: string;
+  /** Hosted page where the customer approves this mandate. Present only before the mandate reaches `approval_succeeded`; complemented by `revocationUrl` afterward. */
+  readonly url?: Url;
+  /** Hosted page where the customer can remove their spending allowance for this mandate. Present once the mandate has a `source` (from `approval_succeeded` onward); absent before approval, when there is nothing to revoke. */
+  readonly revocationUrl?: Url;
+  /** Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. When omitted, the approval page keeps the customer on the Coinbase-hosted experience. */
+  approvalRedirect?: PaymentRedirect;
+  /** Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. When omitted, the revocation page keeps the customer on the Coinbase-hosted experience. */
+  revocationRedirect?: PaymentRedirect;
+  customerDisplay?: MandateCustomerDisplay;
+  /** The UTC ISO 8601 timestamp at which an approval succeeded and the mandate became usable. Present only once the mandate has been approved; set once, on the successful approval, and unchanged by later transitions. Its presence is the durable signal that the mandate was approved, independent of `status`. */
+  approvedAt?: string;
+  /** The UTC ISO 8601 timestamp at which the merchant canceled the mandate off-chain. Present only once the mandate has been canceled. Canceling does not touch the on-chain spending allowance; check `revokedAt` for that. */
+  canceledAt?: string;
+  /** The UTC ISO 8601 timestamp at which the spending allowance was removed on-chain by a wallet revocation. Present only once that has happened. Its presence is the single signal that the allowance is gone, independent of `status` (for example, it can be set on a `canceled` mandate whose allowance was later cleaned up). */
+  revokedAt?: string;
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the mandate was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the mandate was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * A request to create a new mandate. The merchant is inferred from the API key. The mandate is returned in `created` status with no source. Attach a source next by approving the mandate, using **Get wallet approval options** then **Approve a mandate with a wallet**, which returns a `pending` approval; the mandate becomes `approval_succeeded` once that approval succeeds. The mandate is denominated in `asset`, fixed at creation. `policy` is optional. Omit it or send `{}` to default to a Coinbase-configured monthly max. The response includes the resolved `policy`. If you set `maxPerPeriod`, include both `amount` and `period`.
+ */
+export interface CreateMandateRequest {
+  /** The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination. */
+  asset: Asset;
+  /** Optional. Omit or send `{}` to default to a Coinbase-configured monthly max. If you set `maxPerPeriod`, include both `amount` and `period`. */
+  policy?: MandatePolicy;
+  /** The UTC ISO 8601 timestamp after which this mandate can no longer be authorized against. Omit for a mandate with no expiry. */
+  expiresAt?: string;
+  /** Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience. */
+  approvalRedirect?: PaymentRedirect;
+  /** Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience. */
+  revocationRedirect?: PaymentRedirect;
+  customerDisplay?: MandateCustomerDisplay;
+  metadata?: Metadata;
+}
+
+/**
+ * A request to cancel a mandate. The merchant is inferred from the API key.
+ */
+export interface CancelMandateRequest {
+  /** An optional human-readable reason for canceling the mandate. */
+  reason?: string;
+}
+
+/**
+ * The ID of a revocation, a UUID prefixed by `revocation_`.
+ * @pattern ^revocation_[a-f0-9\-]{36}$
+ */
+export type RevocationId = string;
+
+/**
+ * The status of a wallet revocation attempt:
+
+- `pending`: awaiting network confirmation.
+
+- `succeeded`: the spending allowance has been removed on-chain.
+
+- `failed`: the revocation did not complete (see `error`).
+ */
+export type RevocationStatus = (typeof RevocationStatus)[keyof typeof RevocationStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const RevocationStatus = {
+  pending: "pending",
+  succeeded: "succeeded",
+  failed: "failed",
+} as const;
+
+/**
+ * A record of a wallet revocation: the customer removing the mandate's spending allowance on-chain (see `onchainTransactions`). While it is confirming, the mandate's `status` is `revocation_pending`; on success it becomes `revocation_succeeded` and the mandate's `revokedAt` is set, and on failure it becomes `revocation_failed`. This applies regardless of whether the mandate was previously canceled: a revocation on an already-canceled mandate still moves `status` through the `revocation_*` values and sets `revokedAt`.
+
+To check whether the spending allowance is still active, read the mandate: `revokedAt` is set once the allowance has been removed.
+ */
+export interface Revocation {
+  /** The unique identifier of the revocation. */
+  revocationId: RevocationId;
+  /** The unique identifier of the mandate this revocation applies to. */
+  mandateId: MandateId;
+  /** The current status of the revocation attempt. */
+  status: RevocationStatus;
+  /** Network transactions that remove the spending allowance on-chain. Empty until the revocation has been submitted to the network. */
+  onchainTransactions?: OnchainTransaction[];
+  /** Details of why the revocation failed. Only present when `status` is `failed`. */
+  error?: PaymentError;
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the revocation was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the revocation was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * A request to remove a mandate's spending allowance on-chain. Submit the `optionId` the customer chose from **Get wallet revocation options** along with their signed payloads. Returns a `pending` revocation that resolves once the network transaction confirms.
+ */
+export interface WalletRevocationRequest {
+  /** The identifier of the chosen option. Must match an `optionId` from the **Get wallet revocation options** response. */
+  optionId: string;
+  /** The processed payloads from the customer, corresponding to the payloads in the selected option. */
+  signedPayloads: OnchainSignedPayload[];
+  /** An optional human-readable reason for revoking the spending allowance. */
+  reason?: string;
+  metadata?: Metadata;
+}
+
+export type EIP2612PayloadType = (typeof EIP2612PayloadType)[keyof typeof EIP2612PayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EIP2612PayloadType = {
+  eip2612: "eip2612",
+} as const;
+
+/**
+ * An EIP-2612 Permit typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. Used to set up a mandate's reusable credential; the permit stands in for a live per-authorization signature on later authorizations.
+ */
+export interface EIP2612Payload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  type: EIP2612PayloadType;
+  /** EIP-712 typed data for an EIP-2612 Permit. Pass to `eth_signTypedData_v4`. */
+  data: EIP712Message;
+}
+
+export type Permit2AllowancePayloadType =
+  (typeof Permit2AllowancePayloadType)[keyof typeof Permit2AllowancePayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const Permit2AllowancePayloadType = {
+  permit2: "permit2",
+} as const;
+
+/**
+ * A Permit2 `PermitSingle` (AllowanceTransfer) typed-data payload. It grants the spender a reusable allowance through the canonical Permit2 contract, so it can back repeated charges rather than a single transfer. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. A one-time ERC-20 approval of the Permit2 contract (an `erc20_approval` payload) is required first if the wallet has not yet approved Permit2 for this asset.
+ */
+export interface Permit2AllowancePayload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  type: Permit2AllowancePayloadType;
+  /** EIP-712 typed data for a Permit2 `PermitSingle`. Pass to `eth_signTypedData_v4`. */
+  data: EIP712Message;
+}
+
+/**
+ * The unsigned Solana transaction the payer signs to approve or revoke a mandate on a Solana wallet source. Decode `transaction` and pass it to the Solana Wallet Standard `signTransaction` method. Submit only the extracted per-signer signature, not the signed transaction.
+ */
+export interface SolanaSubscriptionPayloadData {
+  /** The unsigned Solana transaction, serialized to bytes and encoded as base64. Pass the decoded bytes to the Solana Wallet Standard `signTransaction` method. Do not POST this field (or the signed transaction bytes) as `OnchainSignedPayload.signature`. */
+  transaction: string;
+}
+
+export type SolanaSubscriptionPayloadType =
+  (typeof SolanaSubscriptionPayloadType)[keyof typeof SolanaSubscriptionPayloadType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolanaSubscriptionPayloadType = {
+  solana_subscription: "solana_subscription",
+} as const;
+
+/**
+ * An unsigned Solana transaction the payer must sign to approve or revoke a mandate on a Solana wallet source. Decode `data.transaction` from base64 and pass the bytes to the Solana Wallet Standard `signTransaction` method (never `signAndSendTransaction`). Do not submit the signed transaction bytes. From the signed transaction, take the 64-byte ed25519 signature for the payer that signed, base58-encode those 64 bytes, and return that string as `OnchainSignedPayload.signature`.
+ */
+export interface SolanaSubscriptionPayload {
+  /** The unique identifier of the payload. */
+  payloadId: string;
+  type: SolanaSubscriptionPayloadType;
+  data: SolanaSubscriptionPayloadData;
+}
+
+/**
+ * A single payload the customer signs to remove the mandate's spending allowance on-chain. Each payload sets the allowance to zero using the same credential type that granted it. Inspect `type` to determine how to handle `data`:
+
+- `eip2612`: an EIP-2612 `Permit` with `value` of `0`; pass `data` to
+  `eth_signTypedData_v4`, return the signature.
+
+
+- `permit2`: a Permit2 `PermitSingle` with `amount` of `0`; pass `data` to
+  `eth_signTypedData_v4`, return the signature.
+
+
+- `erc20_approval`: an ERC-20 `approve` of `0`; send `data` via
+  `eth_sendTransaction`, return the transaction hash.
+
+- `solana_subscription`: decode `data.transaction` from base64 and pass the
+  bytes to the Solana Wallet Standard `signTransaction` method (never
+  `signAndSendTransaction`). The transaction is `revokeDelegation`.
+  From the signed transaction, extract the 64-byte ed25519 signature for
+  the payer that signed, base58-encode it, and return that string as
+  `OnchainSignedPayload.signature`.
+ */
+export type RevocationPayload =
+  | EIP2612Payload
+  | Permit2AllowancePayload
+  | Erc20ApprovalPayload
+  | SolanaSubscriptionPayload;
+
+/**
+ * One way the customer can remove the mandate's spending allowance on-chain: a source and the payloads to sign for it.
+ */
+export interface WalletMandateRevocationOption {
+  /** The unique identifier of the wallet mandate revocation option. */
+  optionId: string;
+  /** The funding source whose spending allowance this option removes. */
+  source: MandateSourceWallet;
+  /** The payloads the customer must sign to remove the spending allowance. */
+  payloads: RevocationPayload[];
+}
+
+/**
+ * The ways the customer can remove this mandate's spending allowance on-chain.
+ */
+export interface WalletMandateRevocationOptionsResponse {
+  /** The available revocation options. At least one is present; when there is no active spending allowance to remove, the request fails with a `422` instead. */
+  options: WalletMandateRevocationOption[];
+}
+
+/**
+ * The ID of an approval, a UUID prefixed by `approval_`.
+ * @pattern ^approval_[a-f0-9\-]{36}$
+ */
+export type ApprovalId = string;
+
+/**
+ * The status of an approval attempt:
+
+- `pending`: the submitted source is being bound and verified.
+
+- `succeeded`: the mandate's `source` is attached and its status becomes
+  `approval_succeeded`.
+
+
+- `failed`: the attempt could not be completed (see `error`). The mandate's
+  status becomes `approval_failed`; submit a new approval to retry (which
+  moves it back to `approval_pending`).
+ */
+export type ApprovalStatus = (typeof ApprovalStatus)[keyof typeof ApprovalStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ApprovalStatus = {
+  pending: "pending",
+  succeeded: "succeeded",
+  failed: "failed",
+} as const;
+
+/**
+ * An attempt to attach a funding source to a mandate and make it usable. A successful approval sets the mandate's `source` and moves the mandate to `approval_succeeded`; a failed one moves the mandate to `approval_failed` and can be retried by submitting a new approval. A mandate holds at most one active source, so at most one approval ever succeeds. The network transactions that grant the spending allowance are on `onchainTransactions`.
+ */
+export interface Approval {
+  /** The unique identifier of the approval. */
+  approvalId: ApprovalId;
+  /** The current status of the approval attempt. */
+  status: ApprovalStatus;
+  /** The funding source this approval binds to the mandate. Present once the source has been determined from the customer's submission. */
+  source?: MandateSource;
+  /** Network transactions that grant the spending allowance on-chain. Empty until the approval has been submitted to the network. */
+  onchainTransactions?: OnchainTransaction[];
+  /** Details of why the approval failed. Only present when `status` is `failed`. */
+  error?: PaymentError;
+  metadata?: Metadata;
+  /** The UTC ISO 8601 timestamp at which the approval was created. */
+  createdAt: string;
+  /** The UTC ISO 8601 timestamp at which the approval was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * A request to approve a mandate on a wallet source. Submit the `optionId` the customer chose from **Get wallet approval options** along with the signed payloads. This creates a `pending` approval; the mandate becomes `approval_succeeded` once the approval succeeds.
+ */
+export interface WalletApprovalRequest {
+  /** The identifier of the chosen option. Must match an `optionId` from the **Get wallet approval options** response. */
+  optionId: string;
+  /** The processed payloads from the customer, corresponding to the payloads in the selected option. */
+  signedPayloads: OnchainSignedPayload[];
+  metadata?: Metadata;
+}
+
+/**
+ * A single payload the customer signs to approve a mandate on a wallet source. Mandates support allowance-style credentials only, since a mandate must be reusable for later debits when the customer is not present. Inspect `type` to determine how to handle `data`:
+
+- `eip2612`: pass `data` to `eth_signTypedData_v4`, return the signature.
+
+- `permit2`: a Permit2 `PermitSingle` (AllowanceTransfer) granting a
+  reusable allowance; pass `data` to `eth_signTypedData_v4`, return the
+  signature. Preceded by a one-time `erc20_approval` of the Permit2 contract
+  when the wallet has not yet approved Permit2 for this asset.
+
+
+- `erc20_approval`: send `data` via `eth_sendTransaction`, return the transaction hash.
+- `solana_subscription`: decode `data.transaction` from base64 and pass the
+  bytes to the Solana Wallet Standard `signTransaction` method (never
+  `signAndSendTransaction`). From the signed transaction, extract the
+  64-byte ed25519 signature for the payer that signed, base58-encode it,
+  and return that string as `OnchainSignedPayload.signature`. Do not
+  submit the signed transaction bytes.
+ */
+export type ApprovalPayload =
+  | EIP2612Payload
+  | Permit2AllowancePayload
+  | Erc20ApprovalPayload
+  | SolanaSubscriptionPayload;
+
+/**
+ * An option for approving a mandate on a wallet source. Specifies the source (address, network, asset) and the payloads the customer must sign to approve the mandate on that source.
+ */
+export interface WalletMandateApprovalOption {
+  /** The unique identifier of the wallet mandate approval option. */
+  optionId: string;
+  /** The source this option would attach to the mandate. */
+  source: MandateSourceWallet;
+  /** The payloads the customer must sign to approve this source. */
+  payloads: ApprovalPayload[];
+}
+
+/**
+ * Describes, for one enabled (network, asset) combination, what the customer would need to fund a source address with so that it becomes eligible to approve the mandate. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings.
+ */
+export interface WalletMandateApprovalFundsRequirement {
+  /** The symbol of the asset the customer would fund on this network. */
+  asset: Asset;
+  /** The blockchain network this funding requirement applies to. */
+  network: PaymentSourceNetwork;
+  /** A decimal representation of the address's current balance of `asset` on this `network`. */
+  currentBalance: string;
+  /** A decimal representation of the balance of `asset` the customer must hold on this `network` to become eligible to approve the mandate. */
+  requiredBalance: string;
+}
+
+/**
+ * A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+ */
+export type IneligibleWalletMandateApprovalAddressesCode =
+  (typeof IneligibleWalletMandateApprovalAddressesCode)[keyof typeof IneligibleWalletMandateApprovalAddressesCode];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const IneligibleWalletMandateApprovalAddressesCode = {
+  /** The address does not hold enough of a supported asset on a supported source network to approve the mandate. */
+  insufficient_funds: "insufficient_funds",
+  /** The address was superseded because a preferred funding option was selected instead. */
+  superseded_by_preferred_option: "superseded_by_preferred_option",
+} as const;
+
+/**
+ * A requested customer wallet address that has no eligible mandate approval option, along with a machine- and human-readable reason.
+ */
+export interface IneligibleWalletMandateApprovalAddresses {
+  /** The requested customer wallet address that has no eligible mandate approval option. */
+  address: BlockchainAddress;
+  /** A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec. */
+  code: IneligibleWalletMandateApprovalAddressesCode;
+  /** A human-readable, English-language description of why this address has no eligible mandate approval option. Suitable for surfacing in product UIs; does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations. */
+  message: string;
+  /** The funding options for this address, one entry per (network, asset) combination the customer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array. */
+  fundsRequired?: WalletMandateApprovalFundsRequirement[];
+}
+
+/**
+ * The available options for approving this mandate on a wallet source, one per eligible asset the address can back. Present them to the customer, have them sign the chosen option's payloads, then call **Approve a mandate with a wallet**. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why. This is a stateless read operation and does not modify the mandate.
+ */
+export interface WalletMandateApprovalOptionsResponse {
+  /** The available wallet mandate approval options. */
+  options: WalletMandateApprovalOption[];
+  /** Requested customer addresses that have no eligible mandate approval option, each with a `code` explaining why. Empty when every requested address can approve the mandate. */
+  ineligibleAddresses: IneligibleWalletMandateApprovalAddresses[];
 }
 
 /**
@@ -3386,6 +3910,17 @@ export interface BorrowProduct {
  */
 export interface PaymasterContext {
   [key: string]: unknown;
+}
+
+/**
+ * The request body for revoking a user-scoped or account-scoped delegation.
+ */
+export interface RevokeDelegationRequest {
+  /**
+   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  walletSecretId?: string;
 }
 
 /**
@@ -7303,6 +7838,14 @@ export const EventType = {
   acceptancepayment_sessionvoid_pending: "acceptance.payment_session.void_pending",
   acceptancepayment_sessionvoid_succeeded: "acceptance.payment_session.void_succeeded",
   acceptancepayment_sessionvoid_failed: "acceptance.payment_session.void_failed",
+  acceptancemandatecreated: "acceptance.mandate.created",
+  acceptancemandatecanceled: "acceptance.mandate.canceled",
+  acceptancemandateapproval_initiated: "acceptance.mandate.approval_initiated",
+  acceptancemandateapproval_succeeded: "acceptance.mandate.approval_succeeded",
+  acceptancemandateapproval_failed: "acceptance.mandate.approval_failed",
+  acceptancemandaterevocation_initiated: "acceptance.mandate.revocation_initiated",
+  acceptancemandaterevocation_succeeded: "acceptance.mandate.revocation_succeeded",
+  acceptancemandaterevocation_failed: "acceptance.mandate.revocation_failed",
   acceptancedisbursementpending: "acceptance.disbursement.pending",
   acceptancedisbursementsucceeded: "acceptance.disbursement.succeeded",
   acceptancedisbursementfailed: "acceptance.disbursement.failed",
@@ -7326,7 +7869,12 @@ Specifies the destination URL and any custom headers to include in webhook reque
 
  */
 export interface WebhookTarget {
-  /** The webhook URL to deliver events to. */
+  /** The webhook URL to deliver events to.
+
+Must be a publicly accessible HTTPS URL that responds to HEAD requests with a 200 status code.
+
+If the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400.
+ */
   url: Url;
   /** Additional headers to include in webhook requests. */
   headers?: WebhookTargetHeaders;
@@ -7890,6 +8438,7 @@ export const X402VerifyInvalidReason = {
   request_blocked_by_location: "request_blocked_by_location",
   self_send_not_allowed: "self_send_not_allowed",
   invalid_bazaar_extension: "invalid_bazaar_extension",
+  node_failure: "node_failure",
   unknown_error: "unknown_error",
 } as const;
 
@@ -10876,6 +11425,204 @@ export type AcceptancePaymentSessionVoidFailedEvent = PaymentSessionEventBase &
   AcceptancePaymentSessionVoidFailedEventAllOf;
 
 /**
+ * The `data` payload for every mandate webhook event. Always contains the full `mandate`. Action events also carry the relevant sub-resource: `approval` on the three `approval_*` events, `revocation` on the three `revocation_*` events. The `created` and `canceled` events carry only the `mandate`.
+
+`mandate.status` reflects only the latest action. Read `mandate.canceledAt` and `mandate.revokedAt` to know what has durably happened: the on-chain spending allowance is gone precisely when `revokedAt` is set, and canceling alone does not remove it.
+ */
+export interface MandateEventData {
+  mandate: Mandate;
+  /** The approval attempt this event concerns. Present only on the approval events (`acceptance.mandate.approval_initiated`, `acceptance.mandate.approval_succeeded`, and `acceptance.mandate.approval_failed`); absent on all other events. A `failed` approval carries an `error`. */
+  approval?: Approval;
+  /** The wallet revocation this event concerns. Present only on revocation events (`revocation_initiated`, `revocation_succeeded`, `revocation_failed`); absent on all others. A `failed` revocation carries an `error`. */
+  revocation?: Revocation;
+}
+
+/**
+ * Common fields included in every mandate webhook event payload.
+ */
+export interface MandateEventBase {
+  /** Unique identifier for this webhook event. Use this for idempotency. */
+  eventId: string;
+  /** When this event occurred (ISO 8601 format). */
+  timestamp: string;
+  data: MandateEventData;
+}
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateCreatedEventAllOfEventType =
+  (typeof AcceptanceMandateCreatedEventAllOfEventType)[keyof typeof AcceptanceMandateCreatedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateCreatedEventAllOfEventType = {
+  acceptancemandatecreated: "acceptance.mandate.created",
+} as const;
+
+export type AcceptanceMandateCreatedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateCreatedEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.created` event. `data` carries the full `mandate`.
+ */
+export type AcceptanceMandateCreatedEvent = MandateEventBase & AcceptanceMandateCreatedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateCanceledEventAllOfEventType =
+  (typeof AcceptanceMandateCanceledEventAllOfEventType)[keyof typeof AcceptanceMandateCanceledEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateCanceledEventAllOfEventType = {
+  acceptancemandatecanceled: "acceptance.mandate.canceled",
+} as const;
+
+export type AcceptanceMandateCanceledEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateCanceledEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.canceled` event. `data` carries the full `mandate`, now in `canceled` status with `canceledAt` set. The on-chain spending allowance is unaffected; it is gone only if `mandate.revokedAt` is set.
+ */
+export type AcceptanceMandateCanceledEvent = MandateEventBase & AcceptanceMandateCanceledEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateApprovalInitiatedEventAllOfEventType =
+  (typeof AcceptanceMandateApprovalInitiatedEventAllOfEventType)[keyof typeof AcceptanceMandateApprovalInitiatedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateApprovalInitiatedEventAllOfEventType = {
+  acceptancemandateapproval_initiated: "acceptance.mandate.approval_initiated",
+} as const;
+
+export type AcceptanceMandateApprovalInitiatedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateApprovalInitiatedEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.approval_initiated` event. `data` carries the full `mandate` and the `approval`.
+ */
+export type AcceptanceMandateApprovalInitiatedEvent = MandateEventBase &
+  AcceptanceMandateApprovalInitiatedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateApprovalSucceededEventAllOfEventType =
+  (typeof AcceptanceMandateApprovalSucceededEventAllOfEventType)[keyof typeof AcceptanceMandateApprovalSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateApprovalSucceededEventAllOfEventType = {
+  acceptancemandateapproval_succeeded: "acceptance.mandate.approval_succeeded",
+} as const;
+
+export type AcceptanceMandateApprovalSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateApprovalSucceededEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.approval_succeeded` event. `data` carries the full `mandate` and the `approval`.
+ */
+export type AcceptanceMandateApprovalSucceededEvent = MandateEventBase &
+  AcceptanceMandateApprovalSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateApprovalFailedEventAllOfEventType =
+  (typeof AcceptanceMandateApprovalFailedEventAllOfEventType)[keyof typeof AcceptanceMandateApprovalFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateApprovalFailedEventAllOfEventType = {
+  acceptancemandateapproval_failed: "acceptance.mandate.approval_failed",
+} as const;
+
+export type AcceptanceMandateApprovalFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateApprovalFailedEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.approval_failed` event. `data` carries the full `mandate` and the failed `approval`.
+ */
+export type AcceptanceMandateApprovalFailedEvent = MandateEventBase &
+  AcceptanceMandateApprovalFailedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateRevocationInitiatedEventAllOfEventType =
+  (typeof AcceptanceMandateRevocationInitiatedEventAllOfEventType)[keyof typeof AcceptanceMandateRevocationInitiatedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateRevocationInitiatedEventAllOfEventType = {
+  acceptancemandaterevocation_initiated: "acceptance.mandate.revocation_initiated",
+} as const;
+
+export type AcceptanceMandateRevocationInitiatedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateRevocationInitiatedEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.revocation_initiated` event. `data` carries the full `mandate` and the `revocation`. Emitted when a wallet revocation is submitted to the network.
+ */
+export type AcceptanceMandateRevocationInitiatedEvent = MandateEventBase &
+  AcceptanceMandateRevocationInitiatedEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateRevocationSucceededEventAllOfEventType =
+  (typeof AcceptanceMandateRevocationSucceededEventAllOfEventType)[keyof typeof AcceptanceMandateRevocationSucceededEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateRevocationSucceededEventAllOfEventType = {
+  acceptancemandaterevocation_succeeded: "acceptance.mandate.revocation_succeeded",
+} as const;
+
+export type AcceptanceMandateRevocationSucceededEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateRevocationSucceededEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.revocation_succeeded` event. `data` carries the full `mandate` and the `revocation`. The spending allowance has been removed on-chain, `mandate.revokedAt` is set, and `mandate.status` becomes `revocation_succeeded`. This is terminal. It applies regardless of whether the mandate was previously canceled (`canceledAt` remains set).
+ */
+export type AcceptanceMandateRevocationSucceededEvent = MandateEventBase &
+  AcceptanceMandateRevocationSucceededEventAllOf;
+
+/**
+ * The type of webhook event.
+ */
+export type AcceptanceMandateRevocationFailedEventAllOfEventType =
+  (typeof AcceptanceMandateRevocationFailedEventAllOfEventType)[keyof typeof AcceptanceMandateRevocationFailedEventAllOfEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AcceptanceMandateRevocationFailedEventAllOfEventType = {
+  acceptancemandaterevocation_failed: "acceptance.mandate.revocation_failed",
+} as const;
+
+export type AcceptanceMandateRevocationFailedEventAllOf = {
+  /** The type of webhook event. */
+  eventType: AcceptanceMandateRevocationFailedEventAllOfEventType;
+};
+
+/**
+ * The `acceptance.mandate.revocation_failed` event. `data` carries the full `mandate` and the failed `revocation`, including its `error`. `mandate.status` becomes `revocation_failed`; the allowance was not removed (`revokedAt` stays unset), so the mandate stays usable if it was usable before. Retry with a new wallet revocation.
+ */
+export type AcceptanceMandateRevocationFailedEvent = MandateEventBase &
+  AcceptanceMandateRevocationFailedEventAllOf;
+
+/**
  * Common fields included in every DisbursementEvent payload.
  */
 export interface DisbursementEventBase {
@@ -11520,6 +12267,11 @@ section of our Authentication docs for more details on how to generate your Wall
  */
 export type XDeveloperAuthParameter = string;
 
+/**
+ * The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+ */
+export type OnrampPartnerIdParameter = string;
+
 export type ListCustomersParams = {
   /**
    * The number of resources to return per page.
@@ -11673,6 +12425,89 @@ export type ListPaymentSessionRefunds200AllOf = {
 };
 
 export type ListPaymentSessionRefunds200 = ListPaymentSessionRefunds200AllOf & ListResponse;
+
+export type ListMandatesParams = {
+  /**
+   * Filter mandates by the customer's wallet address.
+   */
+  address?: BlockchainAddress;
+  /**
+   * Filter mandates by the customer's wallet network. Only applies when `address` is also provided.
+   */
+  network?: PaymentSourceNetwork;
+  /**
+   * Filter mandates by their latest action, e.g. `approval_succeeded` for mandates whose most recent transition was a successful approval. Note that `status` tracks the latest action, not usability; usability is derived from the `approvedAt`, `canceledAt`, and `revokedAt` timestamps.
+   */
+  status?: MandateStatus;
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListMandates200AllOf = {
+  /** The list of mandates. */
+  mandates: Mandate[];
+};
+
+export type ListMandates200 = ListMandates200AllOf & ListResponse;
+
+export type ListMandateRevocationsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListMandateRevocations200AllOf = {
+  /** The list of revocations for the mandate, most recent first. */
+  revocations: Revocation[];
+};
+
+export type ListMandateRevocations200 = ListMandateRevocations200AllOf & ListResponse;
+
+export type ListMandateApprovalsParams = {
+  /**
+   * The number of resources to return per page.
+   */
+  pageSize?: PageSizeParameter;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+export type ListMandateApprovals200AllOf = {
+  /** The list of approvals for the mandate, most recent first. */
+  approvals: Approval[];
+};
+
+export type ListMandateApprovals200 = ListMandateApprovals200AllOf & ListResponse;
+
+export type GetWalletApprovalOptionsParams = {
+  /**
+   * The customer's wallet addresses to generate approval options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible approval options, it appears in `ineligibleAddresses` with a `code` explaining why.
+   * @minItems 1
+   * @maxItems 5
+   */
+  addresses: BlockchainAddress[];
+  /**
+   * Optional filter to restrict options to a specific blockchain network.
+   */
+  network?: PaymentSourceNetwork;
+  /**
+   * Filter options by asset. Currently, only `usdc` and `usdt` return results.
+   */
+  asset?: Asset;
+};
 
 export type ListDisbursementsParams = {
   /**
@@ -12108,7 +12943,7 @@ export type GetDelegationForEndUser200 = {
   expiresAt: string;
 };
 
-export type RevokeDelegationForEndUserParams = {
+export type RevokeDelegationForEndUserDeprecatedParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -12116,12 +12951,12 @@ export type RevokeDelegationForEndUserParams = {
   projectID?: ProjectIDOptionalParameter;
 };
 
-export type RevokeDelegationForEndUserBody = {
+export type RevokeDelegationForEndUserParams = {
   /**
-   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
-  walletSecretId?: string;
+  projectID?: ProjectIDOptionalParameter;
 };
 
 export type CreateDelegationForEndUserAccountParams = {
@@ -12160,7 +12995,7 @@ export type GetDelegationForEndUserAccount200 = {
   expiresAt: string;
 };
 
-export type RevokeDelegationForEndUserAccountParams = {
+export type RevokeDelegationForEndUserAccountDeprecatedParams = {
   /**
    * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
    * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
@@ -12168,12 +13003,12 @@ export type RevokeDelegationForEndUserAccountParams = {
   projectID?: ProjectIDOptionalParameter;
 };
 
-export type RevokeDelegationForEndUserAccountBody = {
+export type RevokeDelegationForEndUserAccountParams = {
   /**
-   * When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   * The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
    */
-  walletSecretId?: string;
+  projectID?: ProjectIDOptionalParameter;
 };
 
 export type CreateEvmEip7702DelegationWithEndUserAccountParams = {

@@ -29,6 +29,7 @@ import type {
   ListPaymentSessionVoidsParams,
   ListPaymentSessions200,
   ListPaymentSessionsParams,
+  MandateAuthorizationRequest,
   PaymentSession,
   PaymentSessionId,
   Refund,
@@ -218,6 +219,31 @@ export const authorizeCoinbasePaymentSession = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: coinbaseAuthorizationRequest,
+    },
+    options,
+  );
+};
+/**
+ * **Merchant-initiated.** The merchant draws against a mandate in `approval_succeeded` status using the mandate's existing approval, so no fresh signature is required and the customer does not need to be present. The session must be in `created` status and the mandate must be in `approval_succeeded` status. When more than one mandate condition applies, the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`).
+
+It requires API key authentication: unlike the payer-present wallet flow there is no per-call signature to prove consent, so the merchant authenticates as the party entitled to draw against the mandate.
+
+The charge must fall within the mandate's `policy`. Exceeding `maxPerAuthorization` or `maxPerPeriod` returns `422` (`mandate_policy_violation`).
+
+On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`. If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+ * @summary Authorize a payment session with a mandate
+ */
+export const authorizeMandatePaymentSession = (
+  paymentSessionId: PaymentSessionId,
+  mandateAuthorizationRequest: MandateAuthorizationRequest,
+  options?: SecondParameter<typeof cdpApiClient<Authorization>>,
+) => {
+  return cdpApiClient<Authorization>(
+    {
+      url: `/v2/payment-sessions/${paymentSessionId}/authorizations/mandate`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: mandateAuthorizationRequest,
     },
     options,
   );
@@ -430,6 +456,9 @@ export type AuthorizeX402PaymentSessionResult = NonNullable<
 >;
 export type AuthorizeCoinbasePaymentSessionResult = NonNullable<
   Awaited<ReturnType<typeof authorizeCoinbasePaymentSession>>
+>;
+export type AuthorizeMandatePaymentSessionResult = NonNullable<
+  Awaited<ReturnType<typeof authorizeMandatePaymentSession>>
 >;
 export type ListPaymentSessionAuthorizationsResult = NonNullable<
   Awaited<ReturnType<typeof listPaymentSessionAuthorizations>>

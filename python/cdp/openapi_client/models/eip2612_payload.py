@@ -18,27 +18,26 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RevokeDelegationForEndUserRequest(BaseModel):
+class EIP2612Payload(BaseModel):
     """
-    RevokeDelegationForEndUserRequest
+    An EIP-2612 Permit typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. Used to set up a mandate's reusable credential; the permit stands in for a live per-authorization signature on later authorizations.
     """ # noqa: E501
-    wallet_secret_id: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.", alias="walletSecretId")
-    __properties: ClassVar[List[str]] = ["walletSecretId"]
+    payload_id: StrictStr = Field(description="The unique identifier of the payload.", alias="payloadId")
+    type: StrictStr = Field(description="The payload type.")
+    data: EIP712Message = Field(description="EIP-712 typed data for an EIP-2612 Permit. Pass to `eth_signTypedData_v4`.")
+    __properties: ClassVar[List[str]] = ["payloadId", "type", "data"]
 
-    @field_validator('wallet_secret_id')
-    def wallet_secret_id_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[a-zA-Z0-9-]{1,100}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9-]{1,100}$/")
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['eip2612']):
+            raise ValueError("must be one of enum values ('eip2612')")
         return value
 
     model_config = ConfigDict(
@@ -59,7 +58,7 @@ class RevokeDelegationForEndUserRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RevokeDelegationForEndUserRequest from a JSON string"""
+        """Create an instance of EIP2612Payload from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,11 +79,14 @@ class RevokeDelegationForEndUserRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of data
+        if self.data:
+            _dict['data'] = self.data.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RevokeDelegationForEndUserRequest from a dict"""
+        """Create an instance of EIP2612Payload from a dict"""
         if obj is None:
             return None
 
@@ -92,7 +94,9 @@ class RevokeDelegationForEndUserRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "walletSecretId": obj.get("walletSecretId")
+            "payloadId": obj.get("payloadId"),
+            "type": obj.get("type"),
+            "data": EIP712Message.from_dict(obj["data"]) if obj.get("data") is not None else None
         })
         return _obj
 
