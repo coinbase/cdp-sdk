@@ -30,6 +30,13 @@ def test_parse_units_rounding():
     assert parse_units("1.4", 1) == 14
     assert parse_units("1.44", 1) == 14
 
+    # The kept digit is 9 and rounds up, so the carry has to move into the integer.
+    assert parse_units("1.95", 1) == 20
+    assert parse_units("1.999", 1) == 20
+    assert parse_units(".999", 2) == 100
+    assert parse_units("-1.95", 1) == -20
+    assert parse_units(".6", 0) == 1
+
 
 def test_parse_units_trailing_zeros():
     """Test handling of trailing zeros."""
