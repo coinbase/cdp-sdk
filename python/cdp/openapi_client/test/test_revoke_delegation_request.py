@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.revoke_delegation_for_end_user_request import RevokeDelegationForEndUserRequest
+from cdp.openapi_client.models.revoke_delegation_request import RevokeDelegationRequest
 
-class TestRevokeDelegationForEndUserRequest(unittest.TestCase):
-    """RevokeDelegationForEndUserRequest unit test stubs"""
+class TestRevokeDelegationRequest(unittest.TestCase):
+    """RevokeDelegationRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,25 +26,25 @@ class TestRevokeDelegationForEndUserRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> RevokeDelegationForEndUserRequest:
-        """Test RevokeDelegationForEndUserRequest
+    def make_instance(self, include_optional) -> RevokeDelegationRequest:
+        """Test RevokeDelegationRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `RevokeDelegationForEndUserRequest`
+        # uncomment below to create an instance of `RevokeDelegationRequest`
         """
-        model = RevokeDelegationForEndUserRequest()
+        model = RevokeDelegationRequest()
         if include_optional:
-            return RevokeDelegationForEndUserRequest(
+            return RevokeDelegationRequest(
                 wallet_secret_id = 'e051beeb-7163-4527-a5b6-35e301529ff2'
             )
         else:
-            return RevokeDelegationForEndUserRequest(
+            return RevokeDelegationRequest(
         )
         """
 
-    def testRevokeDelegationForEndUserRequest(self):
-        """Test RevokeDelegationForEndUserRequest"""
+    def testRevokeDelegationRequest(self):
+        """Test RevokeDelegationRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

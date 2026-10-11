@@ -23,6 +23,8 @@ export interface ListDepositDestinationsRequest {
     type?: CoinbaseApi.DepositDestinationType;
     /** Filter deposit destinations by network. */
     network?: string;
+    /** Filter deposit destinations by status. */
+    status?: CoinbaseApi.DepositDestinationStatus;
     /** The number of resources to return per page. */
     pageSize?: number;
     /** The token for the next page of resources, if any. */

@@ -1236,6 +1236,1428 @@ pub mod types {
             value.parse()
         }
     }
+    ///The `acceptance.mandate.approval_failed` event. `data` carries the full `mandate` and the failed `approval`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.approval_failed` event. `data` carries the full `mandate` and the failed `approval`.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "approval": {
+    ///          "approvalId": "approval_1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+    ///          "createdAt": "2025-06-15T12:03:00.000Z",
+    ///          "error": {
+    ///            "code": "invalid_signature",
+    ///            "message": "The submitted signature was invalid.",
+    ///            "occurredAt": "2025-06-15T12:04:00.000Z"
+    ///          },
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "failed",
+    ///          "updatedAt": "2025-06-15T12:04:00.000Z"
+    ///        },
+    ///        "mandate": {
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "status": "approval_failed",
+    ///          "updatedAt": "2025-06-15T12:04:00.000Z",
+    ///          "url": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///        }
+    ///      },
+    ///      "eventId": "223e4567-e89b-12d3-a456-426614174001",
+    ///      "eventType": "acceptance.mandate.approval_failed",
+    ///      "timestamp": "2025-06-15T12:04:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.approval_failed"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.approval_failed"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.approval_failed"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateApprovalFailedEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateApprovalFailedEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateApprovalFailedEvent>
+        for AcceptanceMandateApprovalFailedEvent
+    {
+        fn from(value: &AcceptanceMandateApprovalFailedEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateApprovalFailedEvent {
+        pub fn builder() -> builder::AcceptanceMandateApprovalFailedEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.approval_failed"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.approval_failed"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateApprovalFailedEventEventType {
+        #[serde(rename = "acceptance.mandate.approval_failed")]
+        AcceptanceMandateApprovalFailed,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateApprovalFailedEventEventType {
+        fn from(value: &AcceptanceMandateApprovalFailedEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateApprovalFailedEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateApprovalFailed => {
+                    f.write_str("acceptance.mandate.approval_failed")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateApprovalFailedEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.approval_failed" => Ok(Self::AcceptanceMandateApprovalFailed),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateApprovalFailedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateApprovalFailedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateApprovalFailedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.approval_initiated` event. `data` carries the full `mandate` and the `approval`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.approval_initiated` event. `data` carries the full `mandate` and the `approval`.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "approval": {
+    ///          "approvalId": "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321",
+    ///          "createdAt": "2025-06-15T12:04:00.000Z",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "pending",
+    ///          "updatedAt": "2025-06-15T12:04:00.000Z"
+    ///        },
+    ///        "mandate": {
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "status": "approval_pending",
+    ///          "updatedAt": "2025-06-15T12:04:00.000Z",
+    ///          "url": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///        }
+    ///      },
+    ///      "eventId": "323e4567-e89b-12d3-a456-426614174002",
+    ///      "eventType": "acceptance.mandate.approval_initiated",
+    ///      "timestamp": "2025-06-15T12:04:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.approval_initiated"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.approval_initiated"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.approval_initiated"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateApprovalInitiatedEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateApprovalInitiatedEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateApprovalInitiatedEvent>
+        for AcceptanceMandateApprovalInitiatedEvent
+    {
+        fn from(value: &AcceptanceMandateApprovalInitiatedEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateApprovalInitiatedEvent {
+        pub fn builder() -> builder::AcceptanceMandateApprovalInitiatedEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.approval_initiated"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.approval_initiated"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateApprovalInitiatedEventEventType {
+        #[serde(rename = "acceptance.mandate.approval_initiated")]
+        AcceptanceMandateApprovalInitiated,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateApprovalInitiatedEventEventType {
+        fn from(value: &AcceptanceMandateApprovalInitiatedEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateApprovalInitiatedEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateApprovalInitiated => {
+                    f.write_str("acceptance.mandate.approval_initiated")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateApprovalInitiatedEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.approval_initiated" => {
+                    Ok(Self::AcceptanceMandateApprovalInitiated)
+                }
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateApprovalInitiatedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateApprovalInitiatedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateApprovalInitiatedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.approval_succeeded` event. `data` carries the full `mandate` and the `approval`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.approval_succeeded` event. `data` carries the full `mandate` and the `approval`.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "approval": {
+    ///          "approvalId": "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321",
+    ///          "createdAt": "2025-06-15T12:04:00.000Z",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xabc123def456789012345678901234567890abcdef1234567890abcdef123456"
+    ///            }
+    ///          ],
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///        },
+    ///        "mandate": {
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "approval_succeeded",
+    ///          "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///        }
+    ///      },
+    ///      "eventId": "423e4567-e89b-12d3-a456-426614174003",
+    ///      "eventType": "acceptance.mandate.approval_succeeded",
+    ///      "timestamp": "2025-06-15T12:05:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.approval_succeeded"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.approval_succeeded"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.approval_succeeded"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateApprovalSucceededEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateApprovalSucceededEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateApprovalSucceededEvent>
+        for AcceptanceMandateApprovalSucceededEvent
+    {
+        fn from(value: &AcceptanceMandateApprovalSucceededEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateApprovalSucceededEvent {
+        pub fn builder() -> builder::AcceptanceMandateApprovalSucceededEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.approval_succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.approval_succeeded"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateApprovalSucceededEventEventType {
+        #[serde(rename = "acceptance.mandate.approval_succeeded")]
+        AcceptanceMandateApprovalSucceeded,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateApprovalSucceededEventEventType {
+        fn from(value: &AcceptanceMandateApprovalSucceededEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateApprovalSucceededEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateApprovalSucceeded => {
+                    f.write_str("acceptance.mandate.approval_succeeded")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateApprovalSucceededEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.approval_succeeded" => {
+                    Ok(Self::AcceptanceMandateApprovalSucceeded)
+                }
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateApprovalSucceededEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateApprovalSucceededEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateApprovalSucceededEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.canceled` event. `data` carries the full `mandate`, now in `canceled` status with `canceledAt` set. The on-chain spending allowance is unaffected; it is gone only if `mandate.revokedAt` is set.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.canceled` event. `data` carries the full `mandate`, now in `canceled` status with `canceledAt` set. The on-chain spending allowance is unaffected; it is gone only if `mandate.revokedAt` is set.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "mandate": {
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "canceledAt": "2026-08-21T14:02:00.000Z",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "canceled",
+    ///          "updatedAt": "2026-08-21T14:02:00.000Z"
+    ///        }
+    ///      },
+    ///      "eventId": "823e4567-e89b-12d3-a456-426614174007",
+    ///      "eventType": "acceptance.mandate.canceled",
+    ///      "timestamp": "2026-08-21T14:02:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.canceled"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.canceled"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.canceled"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateCanceledEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateCanceledEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateCanceledEvent> for AcceptanceMandateCanceledEvent {
+        fn from(value: &AcceptanceMandateCanceledEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateCanceledEvent {
+        pub fn builder() -> builder::AcceptanceMandateCanceledEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.canceled"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.canceled"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateCanceledEventEventType {
+        #[serde(rename = "acceptance.mandate.canceled")]
+        AcceptanceMandateCanceled,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateCanceledEventEventType {
+        fn from(value: &AcceptanceMandateCanceledEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateCanceledEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateCanceled => f.write_str("acceptance.mandate.canceled"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateCanceledEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.canceled" => Ok(Self::AcceptanceMandateCanceled),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateCanceledEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AcceptanceMandateCanceledEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AcceptanceMandateCanceledEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.created` event. `data` carries the full `mandate`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.created` event. `data` carries the full `mandate`.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "mandate": {
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "status": "created",
+    ///          "updatedAt": "2025-06-15T12:00:00.000Z",
+    ///          "url": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///        }
+    ///      },
+    ///      "eventId": "123e4567-e89b-12d3-a456-426614174000",
+    ///      "eventType": "acceptance.mandate.created",
+    ///      "timestamp": "2025-06-15T12:00:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.created"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.created"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.created"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateCreatedEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateCreatedEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateCreatedEvent> for AcceptanceMandateCreatedEvent {
+        fn from(value: &AcceptanceMandateCreatedEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateCreatedEvent {
+        pub fn builder() -> builder::AcceptanceMandateCreatedEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.created"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.created"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateCreatedEventEventType {
+        #[serde(rename = "acceptance.mandate.created")]
+        AcceptanceMandateCreated,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateCreatedEventEventType {
+        fn from(value: &AcceptanceMandateCreatedEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateCreatedEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateCreated => f.write_str("acceptance.mandate.created"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateCreatedEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.created" => Ok(Self::AcceptanceMandateCreated),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateCreatedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for AcceptanceMandateCreatedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for AcceptanceMandateCreatedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.revocation_failed` event. `data` carries the full `mandate` and the failed `revocation`, including its `error`. `mandate.status` becomes `revocation_failed`; the allowance was not removed (`revokedAt` stays unset), so the mandate stays usable if it was usable before. Retry with a new wallet revocation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.revocation_failed` event. `data` carries the full `mandate` and the failed `revocation`, including its `error`. `mandate.status` becomes `revocation_failed`; the allowance was not removed (`revokedAt` stays unset), so the mandate stays usable if it was usable before. Retry with a new wallet revocation.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "mandate": {
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "revocation_failed",
+    ///          "updatedAt": "2026-08-21T14:15:00.000Z"
+    ///        },
+    ///        "revocation": {
+    ///          "createdAt": "2026-08-21T14:10:00.000Z",
+    ///          "error": {
+    ///            "code": "transaction_reverted",
+    ///            "message": "The revocation transaction reverted on-chain.",
+    ///            "occurredAt": "2026-08-21T14:15:00.000Z"
+    ///          },
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "revocationId": "revocation_1a7f2b93-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    ///          "status": "failed",
+    ///          "updatedAt": "2026-08-21T14:15:00.000Z"
+    ///        }
+    ///      },
+    ///      "eventId": "723e4567-e89b-12d3-a456-426614174006",
+    ///      "eventType": "acceptance.mandate.revocation_failed",
+    ///      "timestamp": "2026-08-21T14:15:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.revocation_failed"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.revocation_failed"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.revocation_failed"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateRevocationFailedEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateRevocationFailedEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateRevocationFailedEvent>
+        for AcceptanceMandateRevocationFailedEvent
+    {
+        fn from(value: &AcceptanceMandateRevocationFailedEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateRevocationFailedEvent {
+        pub fn builder() -> builder::AcceptanceMandateRevocationFailedEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.revocation_failed"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.revocation_failed"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateRevocationFailedEventEventType {
+        #[serde(rename = "acceptance.mandate.revocation_failed")]
+        AcceptanceMandateRevocationFailed,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateRevocationFailedEventEventType {
+        fn from(value: &AcceptanceMandateRevocationFailedEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateRevocationFailedEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateRevocationFailed => {
+                    f.write_str("acceptance.mandate.revocation_failed")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateRevocationFailedEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.revocation_failed" => {
+                    Ok(Self::AcceptanceMandateRevocationFailed)
+                }
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateRevocationFailedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateRevocationFailedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateRevocationFailedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.revocation_initiated` event. `data` carries the full `mandate` and the `revocation`. Emitted when a wallet revocation is submitted to the network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.revocation_initiated` event. `data` carries the full `mandate` and the `revocation`. Emitted when a wallet revocation is submitted to the network.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "mandate": {
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "revocation_pending",
+    ///          "updatedAt": "2026-08-21T14:10:00.000Z"
+    ///        },
+    ///        "revocation": {
+    ///          "createdAt": "2026-08-21T14:10:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "revocationId": "revocation_1a7f2b93-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    ///          "status": "pending",
+    ///          "updatedAt": "2026-08-21T14:10:00.000Z"
+    ///        }
+    ///      },
+    ///      "eventId": "523e4567-e89b-12d3-a456-426614174004",
+    ///      "eventType": "acceptance.mandate.revocation_initiated",
+    ///      "timestamp": "2026-08-21T14:10:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.revocation_initiated"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.revocation_initiated"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.revocation_initiated"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateRevocationInitiatedEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateRevocationInitiatedEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateRevocationInitiatedEvent>
+        for AcceptanceMandateRevocationInitiatedEvent
+    {
+        fn from(value: &AcceptanceMandateRevocationInitiatedEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateRevocationInitiatedEvent {
+        pub fn builder() -> builder::AcceptanceMandateRevocationInitiatedEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.revocation_initiated"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.revocation_initiated"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateRevocationInitiatedEventEventType {
+        #[serde(rename = "acceptance.mandate.revocation_initiated")]
+        AcceptanceMandateRevocationInitiated,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateRevocationInitiatedEventEventType {
+        fn from(value: &AcceptanceMandateRevocationInitiatedEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateRevocationInitiatedEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateRevocationInitiated => {
+                    f.write_str("acceptance.mandate.revocation_initiated")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateRevocationInitiatedEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.revocation_initiated" => {
+                    Ok(Self::AcceptanceMandateRevocationInitiated)
+                }
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateRevocationInitiatedEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateRevocationInitiatedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateRevocationInitiatedEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The `acceptance.mandate.revocation_succeeded` event. `data` carries the full `mandate` and the `revocation`. The spending allowance has been removed on-chain, `mandate.revokedAt` is set, and `mandate.status` becomes `revocation_succeeded`. This is terminal. It applies regardless of whether the mandate was previously canceled (`canceledAt` remains set).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `acceptance.mandate.revocation_succeeded` event. `data` carries the full `mandate` and the `revocation`. The spending allowance has been removed on-chain, `mandate.revokedAt` is set, and `mandate.status` becomes `revocation_succeeded`. This is terminal. It applies regardless of whether the mandate was previously canceled (`canceledAt` remains set).",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "mandate": {
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "revokedAt": "2026-08-21T14:12:00.000Z",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "revocation_succeeded",
+    ///          "updatedAt": "2026-08-21T14:12:00.000Z"
+    ///        },
+    ///        "revocation": {
+    ///          "createdAt": "2026-08-21T14:10:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xdef456789012345678901234567890abcdef1234567890abcdef1234567890ab"
+    ///            }
+    ///          ],
+    ///          "revocationId": "revocation_1a7f2b93-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2026-08-21T14:12:00.000Z"
+    ///        }
+    ///      },
+    ///      "eventId": "623e4567-e89b-12d3-a456-426614174005",
+    ///      "eventType": "acceptance.mandate.revocation_succeeded",
+    ///      "timestamp": "2026-08-21T14:12:00Z"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateEventBase"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "eventType"
+    ///      ],
+    ///      "properties": {
+    ///        "eventType": {
+    ///          "description": "The type of webhook event.",
+    ///          "examples": [
+    ///            "acceptance.mandate.revocation_succeeded"
+    ///          ],
+    ///          "type": "string",
+    ///          "enum": [
+    ///            "acceptance.mandate.revocation_succeeded"
+    ///          ]
+    ///        }
+    ///      }
+    ///    }
+    ///  ],
+    ///  "x-event-type": "acceptance.mandate.revocation_succeeded"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct AcceptanceMandateRevocationSucceededEvent {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///The type of webhook event.
+        #[serde(rename = "eventType")]
+        pub event_type: AcceptanceMandateRevocationSucceededEventEventType,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&AcceptanceMandateRevocationSucceededEvent>
+        for AcceptanceMandateRevocationSucceededEvent
+    {
+        fn from(value: &AcceptanceMandateRevocationSucceededEvent) -> Self {
+            value.clone()
+        }
+    }
+    impl AcceptanceMandateRevocationSucceededEvent {
+        pub fn builder() -> builder::AcceptanceMandateRevocationSucceededEvent {
+            Default::default()
+        }
+    }
+    ///The type of webhook event.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of webhook event.",
+    ///  "examples": [
+    ///    "acceptance.mandate.revocation_succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "acceptance.mandate.revocation_succeeded"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum AcceptanceMandateRevocationSucceededEventEventType {
+        #[serde(rename = "acceptance.mandate.revocation_succeeded")]
+        AcceptanceMandateRevocationSucceeded,
+    }
+    impl ::std::convert::From<&Self> for AcceptanceMandateRevocationSucceededEventEventType {
+        fn from(value: &AcceptanceMandateRevocationSucceededEventEventType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for AcceptanceMandateRevocationSucceededEventEventType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::AcceptanceMandateRevocationSucceeded => {
+                    f.write_str("acceptance.mandate.revocation_succeeded")
+                }
+            }
+        }
+    }
+    impl ::std::str::FromStr for AcceptanceMandateRevocationSucceededEventEventType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "acceptance.mandate.revocation_succeeded" => {
+                    Ok(Self::AcceptanceMandateRevocationSucceeded)
+                }
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AcceptanceMandateRevocationSucceededEventEventType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AcceptanceMandateRevocationSucceededEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AcceptanceMandateRevocationSucceededEventEventType
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///`AcceptancePaymentSessionAuthorizationFailedEvent`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5983,6 +7405,498 @@ pub mod types {
             Default::default()
         }
     }
+    ///An attempt to attach a funding source to a mandate and make it usable. A successful approval sets the mandate's `source` and moves the mandate to `approval_succeeded`; a failed one moves the mandate to `approval_failed` and can be retried by submitting a new approval. A mandate holds at most one active source, so at most one approval ever succeeds. The network transactions that grant the spending allowance are on `onchainTransactions`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An attempt to attach a funding source to a mandate and make it usable. A successful approval sets the mandate's `source` and moves the mandate to `approval_succeeded`; a failed one moves the mandate to `approval_failed` and can be retried by submitting a new approval. A mandate holds at most one active source, so at most one approval ever succeeds. The network transactions that grant the spending allowance are on `onchainTransactions`.",
+    ///  "examples": [
+    ///    {
+    ///      "approvalId": "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321",
+    ///      "createdAt": "2025-06-15T12:04:00.000Z",
+    ///      "onchainTransactions": [
+    ///        {
+    ///          "network": "base",
+    ///          "transactionHash": "0xabc123def456789012345678901234567890abcdef1234567890abcdef123456"
+    ///        }
+    ///      ],
+    ///      "source": {
+    ///        "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///        "asset": "usdc",
+    ///        "network": "base"
+    ///      },
+    ///      "status": "succeeded",
+    ///      "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "approvalId",
+    ///    "createdAt",
+    ///    "status",
+    ///    "updatedAt"
+    ///  ],
+    ///  "properties": {
+    ///    "approvalId": {
+    ///      "description": "The unique identifier of the approval.",
+    ///      "examples": [
+    ///        "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/ApprovalId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the approval was created.",
+    ///      "examples": [
+    ///        "2025-06-15T12:04:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "error": {
+    ///      "description": "Details of why the approval failed. Only present when `status` is `failed`.",
+    ///      "examples": [
+    ///        {
+    ///          "code": "invalid_signature",
+    ///          "message": "The submitted signature was invalid.",
+    ///          "occurredAt": "2025-06-15T12:04:00.000Z"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentError"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "onchainTransactions": {
+    ///      "description": "Network transactions that grant the spending allowance on-chain. Empty until the approval has been submitted to the network.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "network": "base",
+    ///            "transactionHash": "0xabc123def456789012345678901234567890abcdef1234567890abcdef123456"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainTransaction"
+    ///      }
+    ///    },
+    ///    "source": {
+    ///      "description": "The funding source this approval binds to the mandate. Present once the source has been determined from the customer's submission.",
+    ///      "examples": [
+    ///        {
+    ///          "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateSource"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "status": {
+    ///      "description": "The current status of the approval attempt.",
+    ///      "examples": [
+    ///        "succeeded"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/ApprovalStatus"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "updatedAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the approval was last updated.",
+    ///      "examples": [
+    ///        "2025-06-15T12:05:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct Approval {
+        ///The unique identifier of the approval.
+        #[serde(rename = "approvalId")]
+        pub approval_id: ApprovalId,
+        ///The UTC ISO 8601 timestamp at which the approval was created.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///Details of why the approval failed. Only present when `status` is `failed`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub error: ::std::option::Option<PaymentError>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///Network transactions that grant the spending allowance on-chain. Empty until the approval has been submitted to the network.
+        #[serde(
+            rename = "onchainTransactions",
+            default,
+            skip_serializing_if = "::std::vec::Vec::is_empty"
+        )]
+        pub onchain_transactions: ::std::vec::Vec<OnchainTransaction>,
+        ///The funding source this approval binds to the mandate. Present once the source has been determined from the customer's submission.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub source: ::std::option::Option<MandateSource>,
+        ///The current status of the approval attempt.
+        pub status: ApprovalStatus,
+        ///The UTC ISO 8601 timestamp at which the approval was last updated.
+        #[serde(rename = "updatedAt")]
+        pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&Approval> for Approval {
+        fn from(value: &Approval) -> Self {
+            value.clone()
+        }
+    }
+    impl Approval {
+        pub fn builder() -> builder::Approval {
+            Default::default()
+        }
+    }
+    ///The ID of an approval, a UUID prefixed by `approval_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of an approval, a UUID prefixed by `approval_`.",
+    ///  "examples": [
+    ///    "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^approval_[a-f0-9\\-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ApprovalId(::std::string::String);
+    impl ::std::ops::Deref for ApprovalId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ApprovalId> for ::std::string::String {
+        fn from(value: ApprovalId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ApprovalId> for ApprovalId {
+        fn from(value: &ApprovalId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ApprovalId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^approval_[a-f0-9\\-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^approval_[a-f0-9\\-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ApprovalId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ApprovalId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ApprovalId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ApprovalId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**A single payload the customer signs to approve a mandate on a wallet source. Mandates support allowance-style credentials only, since a mandate must be reusable for later debits when the customer is not present. Inspect `type` to determine how to handle `data`:
+
+    - `eip2612`: pass `data` to `eth_signTypedData_v4`, return the signature.
+
+    - `permit2`: a Permit2 `PermitSingle` (AllowanceTransfer) granting a
+      reusable allowance; pass `data` to `eth_signTypedData_v4`, return the
+      signature. Preceded by a one-time `erc20_approval` of the Permit2 contract
+      when the wallet has not yet approved Permit2 for this asset.
+
+
+    - `erc20_approval`: send `data` via `eth_sendTransaction`, return the transaction hash.
+    - `solana_subscription`: decode `data.transaction` from base64 and pass the
+      bytes to the Solana Wallet Standard `signTransaction` method (never
+      `signAndSendTransaction`). From the signed transaction, extract the
+      64-byte ed25519 signature for the payer that signed, base58-encode it,
+      and return that string as `OnchainSignedPayload.signature`. Do not
+      submit the signed transaction bytes.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A single payload the customer signs to approve a mandate on a wallet source. Mandates support allowance-style credentials only, since a mandate must be reusable for later debits when the customer is not present. Inspect `type` to determine how to handle `data`:\n\n- `eip2612`: pass `data` to `eth_signTypedData_v4`, return the signature.\n\n- `permit2`: a Permit2 `PermitSingle` (AllowanceTransfer) granting a\n  reusable allowance; pass `data` to `eth_signTypedData_v4`, return the\n  signature. Preceded by a one-time `erc20_approval` of the Permit2 contract\n  when the wallet has not yet approved Permit2 for this asset.\n\n\n- `erc20_approval`: send `data` via `eth_sendTransaction`, return the transaction hash.\n- `solana_subscription`: decode `data.transaction` from base64 and pass the\n  bytes to the Solana Wallet Standard `signTransaction` method (never\n  `signAndSendTransaction`). From the signed transaction, extract the\n  64-byte ed25519 signature for the payer that signed, base58-encode it,\n  and return that string as `OnchainSignedPayload.signature`. Do not\n  submit the signed transaction bytes.",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/EIP2612Payload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/Permit2AllowancePayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/Erc20ApprovalPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/SolanaSubscriptionPayload"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum ApprovalPayload {
+        Eip2612Payload(Eip2612Payload),
+        Permit2AllowancePayload(Permit2AllowancePayload),
+        Erc20ApprovalPayload(Erc20ApprovalPayload),
+        SolanaSubscriptionPayload(SolanaSubscriptionPayload),
+    }
+    impl ::std::convert::From<&Self> for ApprovalPayload {
+        fn from(value: &ApprovalPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<Eip2612Payload> for ApprovalPayload {
+        fn from(value: Eip2612Payload) -> Self {
+            Self::Eip2612Payload(value)
+        }
+    }
+    impl ::std::convert::From<Permit2AllowancePayload> for ApprovalPayload {
+        fn from(value: Permit2AllowancePayload) -> Self {
+            Self::Permit2AllowancePayload(value)
+        }
+    }
+    impl ::std::convert::From<Erc20ApprovalPayload> for ApprovalPayload {
+        fn from(value: Erc20ApprovalPayload) -> Self {
+            Self::Erc20ApprovalPayload(value)
+        }
+    }
+    impl ::std::convert::From<SolanaSubscriptionPayload> for ApprovalPayload {
+        fn from(value: SolanaSubscriptionPayload) -> Self {
+            Self::SolanaSubscriptionPayload(value)
+        }
+    }
+    /**The status of an approval attempt:
+
+    - `pending`: the submitted source is being bound and verified.
+
+    - `succeeded`: the mandate's `source` is attached and its status becomes
+      `approval_succeeded`.
+
+
+    - `failed`: the attempt could not be completed (see `error`). The mandate's
+      status becomes `approval_failed`; submit a new approval to retry (which
+      moves it back to `approval_pending`).*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The status of an approval attempt:\n\n- `pending`: the submitted source is being bound and verified.\n\n- `succeeded`: the mandate's `source` is attached and its status becomes\n  `approval_succeeded`.\n\n\n- `failed`: the attempt could not be completed (see `error`). The mandate's\n  status becomes `approval_failed`; submit a new approval to retry (which\n  moves it back to `approval_pending`).",
+    ///  "examples": [
+    ///    "succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "pending",
+    ///    "succeeded",
+    ///    "failed"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum ApprovalStatus {
+        #[serde(rename = "pending")]
+        Pending,
+        #[serde(rename = "succeeded")]
+        Succeeded,
+        #[serde(rename = "failed")]
+        Failed,
+    }
+    impl ::std::convert::From<&Self> for ApprovalStatus {
+        fn from(value: &ApprovalStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for ApprovalStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Pending => f.write_str("pending"),
+                Self::Succeeded => f.write_str("succeeded"),
+                Self::Failed => f.write_str("failed"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for ApprovalStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "pending" => Ok(Self::Pending),
+                "succeeded" => Ok(Self::Succeeded),
+                "failed" => Ok(Self::Failed),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ApprovalStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ApprovalStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ApprovalStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///`ApproveWalletMandateXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ApproveWalletMandateXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for ApproveWalletMandateXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ApproveWalletMandateXIdempotencyKey> for ::std::string::String {
+        fn from(value: ApproveWalletMandateXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ApproveWalletMandateXIdempotencyKey>
+        for ApproveWalletMandateXIdempotencyKey
+    {
+        fn from(value: &ApproveWalletMandateXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ApproveWalletMandateXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ApproveWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ApproveWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ApproveWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ApproveWalletMandateXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The symbol of the asset (e.g., eth, usd, usdc, usdt).
     ///
     /// <details><summary>JSON schema</summary>
@@ -6711,6 +8625,89 @@ pub mod types {
                 })
         }
     }
+    ///`AuthorizeMandatePaymentSessionXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct AuthorizeMandatePaymentSessionXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for AuthorizeMandatePaymentSessionXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<AuthorizeMandatePaymentSessionXIdempotencyKey> for ::std::string::String {
+        fn from(value: AuthorizeMandatePaymentSessionXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&AuthorizeMandatePaymentSessionXIdempotencyKey>
+        for AuthorizeMandatePaymentSessionXIdempotencyKey
+    {
+        fn from(value: &AuthorizeMandatePaymentSessionXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for AuthorizeMandatePaymentSessionXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for AuthorizeMandatePaymentSessionXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for AuthorizeMandatePaymentSessionXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for AuthorizeMandatePaymentSessionXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for AuthorizeMandatePaymentSessionXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`AuthorizeWalletPaymentSessionXIdempotencyKey`
     ///
     /// <details><summary>JSON schema</summary>
@@ -7110,7 +9107,7 @@ pub mod types {
     ///      "accountNumber": "123456789",
     ///      "accountType": "us_bank",
     ///      "bankAddress": "399 Park Avenue, New York, NY 10022",
-    ///      "bankName": "Citibank, N.A.",
+    ///      "bankName": "Citibank N.A.",
     ///      "beneficiaryName": "John Smith",
     ///      "currency": "usd",
     ///      "routingNumber": "987654321",
@@ -7154,7 +9151,7 @@ pub mod types {
     ///    "bankName": {
     ///      "description": "The name of the bank holding the account.",
     ///      "examples": [
-    ///        "Citibank, N.A."
+    ///        "Citibank N.A."
     ///      ],
     ///      "type": "string"
     ///    },
@@ -9472,6 +11469,131 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for BorrowProductVenueVenueId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///A request to cancel a mandate. The merchant is inferred from the API key.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to cancel a mandate. The merchant is inferred from the API key.",
+    ///  "examples": [
+    ///    {
+    ///      "reason": "Customer canceled their subscription."
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "reason": {
+    ///      "description": "An optional human-readable reason for canceling the mandate.",
+    ///      "examples": [
+    ///        "Customer canceled their subscription."
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CancelMandateRequest {
+        ///An optional human-readable reason for canceling the mandate.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub reason: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&CancelMandateRequest> for CancelMandateRequest {
+        fn from(value: &CancelMandateRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for CancelMandateRequest {
+        fn default() -> Self {
+            Self {
+                reason: Default::default(),
+            }
+        }
+    }
+    impl CancelMandateRequest {
+        pub fn builder() -> builder::CancelMandateRequest {
+            Default::default()
+        }
+    }
+    ///`CancelMandateXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CancelMandateXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for CancelMandateXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CancelMandateXIdempotencyKey> for ::std::string::String {
+        fn from(value: CancelMandateXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CancelMandateXIdempotencyKey> for CancelMandateXIdempotencyKey {
+        fn from(value: &CancelMandateXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CancelMandateXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CancelMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CancelMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CancelMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CancelMandateXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -17952,6 +20074,243 @@ pub mod types {
                 })
         }
     }
+    ///A request to create a new mandate. The merchant is inferred from the API key. The mandate is returned in `created` status with no source. Attach a source next by approving the mandate, using **Get wallet approval options** then **Approve a mandate with a wallet**, which returns a `pending` approval; the mandate becomes `approval_succeeded` once that approval succeeds. The mandate is denominated in `asset`, fixed at creation. `policy` is optional. Omit it or send `{}` to default to a Coinbase-configured monthly max. The response includes the resolved `policy`. If you set `maxPerPeriod`, include both `amount` and `period`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to create a new mandate. The merchant is inferred from the API key. The mandate is returned in `created` status with no source. Attach a source next by approving the mandate, using **Get wallet approval options** then **Approve a mandate with a wallet**, which returns a `pending` approval; the mandate becomes `approval_succeeded` once that approval succeeds. The mandate is denominated in `asset`, fixed at creation. `policy` is optional. Omit it or send `{}` to default to a Coinbase-configured monthly max. The response includes the resolved `policy`. If you set `maxPerPeriod`, include both `amount` and `period`.",
+    ///  "examples": [
+    ///    {
+    ///      "approvalRedirect": {
+    ///        "failureUrl": "https://merchant.example.com/mandate/approval/failed",
+    ///        "successUrl": "https://merchant.example.com/mandate/approval/success"
+    ///      },
+    ///      "asset": "usdc",
+    ///      "customerDisplay": {
+    ///        "merchantName": "Acme Store"
+    ///      },
+    ///      "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///      "metadata": {
+    ///        "customer_id": "cust_12345"
+    ///      },
+    ///      "policy": {
+    ///        "maxPerAuthorization": "50.00",
+    ///        "maxPerPeriod": {
+    ///          "amount": "500.00",
+    ///          "period": "month"
+    ///        }
+    ///      },
+    ///      "revocationRedirect": {
+    ///        "failureUrl": "https://merchant.example.com/mandate/revocation/failed",
+    ///        "successUrl": "https://merchant.example.com/mandate/revocation/success"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "asset"
+    ///  ],
+    ///  "properties": {
+    ///    "approvalRedirect": {
+    ///      "description": "Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.",
+    ///      "examples": [
+    ///        {
+    ///          "failureUrl": "https://merchant.example.com/mandate/approval/failed",
+    ///          "successUrl": "https://merchant.example.com/mandate/approval/success"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentRedirect"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "asset": {
+    ///      "description": "The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.",
+    ///      "examples": [
+    ///        "usdc"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Asset"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "customerDisplay": {
+    ///      "$ref": "#/components/schemas/MandateCustomerDisplay"
+    ///    },
+    ///    "expiresAt": {
+    ///      "description": "The UTC ISO 8601 timestamp after which this mandate can no longer be authorized against. Omit for a mandate with no expiry.",
+    ///      "examples": [
+    ///        "2027-06-15T12:00:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "policy": {
+    ///      "description": "Optional. Omit or send `{}` to default to a Coinbase-configured monthly max. If you set `maxPerPeriod`, include both `amount` and `period`.",
+    ///      "examples": [
+    ///        {
+    ///          "maxPerAuthorization": "50.00",
+    ///          "maxPerPeriod": {
+    ///            "amount": "500.00",
+    ///            "period": "month"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandatePolicy"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "revocationRedirect": {
+    ///      "description": "Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.",
+    ///      "examples": [
+    ///        {
+    ///          "failureUrl": "https://merchant.example.com/mandate/revocation/failed",
+    ///          "successUrl": "https://merchant.example.com/mandate/revocation/success"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentRedirect"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateMandateRequest {
+        ///Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.
+        #[serde(
+            rename = "approvalRedirect",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub approval_redirect: ::std::option::Option<PaymentRedirect>,
+        ///The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.
+        pub asset: Asset,
+        #[serde(
+            rename = "customerDisplay",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub customer_display: ::std::option::Option<MandateCustomerDisplay>,
+        ///The UTC ISO 8601 timestamp after which this mandate can no longer be authorized against. Omit for a mandate with no expiry.
+        #[serde(
+            rename = "expiresAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub expires_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///Optional. Omit or send `{}` to default to a Coinbase-configured monthly max. If you set `maxPerPeriod`, include both `amount` and `period`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub policy: ::std::option::Option<MandatePolicy>,
+        ///Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. Omit to keep the customer on the Coinbase-hosted experience.
+        #[serde(
+            rename = "revocationRedirect",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub revocation_redirect: ::std::option::Option<PaymentRedirect>,
+    }
+    impl ::std::convert::From<&CreateMandateRequest> for CreateMandateRequest {
+        fn from(value: &CreateMandateRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateMandateRequest {
+        pub fn builder() -> builder::CreateMandateRequest {
+            Default::default()
+        }
+    }
+    ///`CreateMandateXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CreateMandateXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for CreateMandateXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CreateMandateXIdempotencyKey> for ::std::string::String {
+        fn from(value: CreateMandateXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CreateMandateXIdempotencyKey> for CreateMandateXIdempotencyKey {
+        fn from(value: &CreateMandateXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CreateMandateXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CreateMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CreateMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CreateMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CreateMandateXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`CreateOnrampOrderBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -26193,6 +28552,271 @@ pub mod types {
             Default::default()
         }
     }
+    ///An EIP-2612 Permit typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. Used to set up a mandate's reusable credential; the permit stands in for a live per-authorization signature on later authorizations.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "EIP-2612 Payload",
+    ///  "description": "An EIP-2612 Permit typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. Used to set up a mandate's reusable credential; the permit stands in for a live per-authorization signature on later authorizations.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "domain": {
+    ///          "chainId": 8453,
+    ///          "name": "USD Coin",
+    ///          "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///          "version": "2"
+    ///        },
+    ///        "message": {
+    ///          "deadline": "1798761600",
+    ///          "nonce": "0",
+    ///          "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///          "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    ///        },
+    ///        "primaryType": "Permit",
+    ///        "types": {
+    ///          "EIP712Domain": [
+    ///            {
+    ///              "name": "name",
+    ///              "type": "string"
+    ///            },
+    ///            {
+    ///              "name": "version",
+    ///              "type": "string"
+    ///            },
+    ///            {
+    ///              "name": "chainId",
+    ///              "type": "uint256"
+    ///            },
+    ///            {
+    ///              "name": "verifyingContract",
+    ///              "type": "address"
+    ///            }
+    ///          ],
+    ///          "Permit": [
+    ///            {
+    ///              "name": "owner",
+    ///              "type": "address"
+    ///            },
+    ///            {
+    ///              "name": "spender",
+    ///              "type": "address"
+    ///            },
+    ///            {
+    ///              "name": "value",
+    ///              "type": "uint256"
+    ///            },
+    ///            {
+    ///              "name": "nonce",
+    ///              "type": "uint256"
+    ///            },
+    ///            {
+    ///              "name": "deadline",
+    ///              "type": "uint256"
+    ///            }
+    ///          ]
+    ///        }
+    ///      },
+    ///      "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///      "type": "eip2612"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "data",
+    ///    "payloadId",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "data": {
+    ///      "description": "EIP-712 typed data for an EIP-2612 Permit. Pass to `eth_signTypedData_v4`.",
+    ///      "examples": [
+    ///        {
+    ///          "domain": {
+    ///            "chainId": 8453,
+    ///            "name": "USD Coin",
+    ///            "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///            "version": "2"
+    ///          },
+    ///          "message": {
+    ///            "deadline": "1798761600",
+    ///            "nonce": "0",
+    ///            "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///            "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    ///          },
+    ///          "primaryType": "Permit",
+    ///          "types": {
+    ///            "EIP712Domain": [
+    ///              {
+    ///                "name": "name",
+    ///                "type": "string"
+    ///              },
+    ///              {
+    ///                "name": "version",
+    ///                "type": "string"
+    ///              },
+    ///              {
+    ///                "name": "chainId",
+    ///                "type": "uint256"
+    ///              },
+    ///              {
+    ///                "name": "verifyingContract",
+    ///                "type": "address"
+    ///              }
+    ///            ],
+    ///            "Permit": [
+    ///              {
+    ///                "name": "owner",
+    ///                "type": "address"
+    ///              },
+    ///              {
+    ///                "name": "spender",
+    ///                "type": "address"
+    ///              },
+    ///              {
+    ///                "name": "value",
+    ///                "type": "uint256"
+    ///              },
+    ///              {
+    ///                "name": "nonce",
+    ///                "type": "uint256"
+    ///              },
+    ///              {
+    ///                "name": "deadline",
+    ///                "type": "uint256"
+    ///              }
+    ///            ]
+    ///          }
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/EIP712Message"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "payloadId": {
+    ///      "description": "The unique identifier of the payload.",
+    ///      "examples": [
+    ///        "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "description": "The payload type.",
+    ///      "examples": [
+    ///        "eip2612"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "eip2612"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct Eip2612Payload {
+        ///EIP-712 typed data for an EIP-2612 Permit. Pass to `eth_signTypedData_v4`.
+        pub data: Eip712Message,
+        ///The unique identifier of the payload.
+        #[serde(rename = "payloadId")]
+        pub payload_id: ::std::string::String,
+        ///The payload type.
+        #[serde(rename = "type")]
+        pub type_: Eip2612PayloadType,
+    }
+    impl ::std::convert::From<&Eip2612Payload> for Eip2612Payload {
+        fn from(value: &Eip2612Payload) -> Self {
+            value.clone()
+        }
+    }
+    impl Eip2612Payload {
+        pub fn builder() -> builder::Eip2612Payload {
+            Default::default()
+        }
+    }
+    ///The payload type.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload type.",
+    ///  "examples": [
+    ///    "eip2612"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "eip2612"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum Eip2612PayloadType {
+        #[serde(rename = "eip2612")]
+        Eip2612,
+    }
+    impl ::std::convert::From<&Self> for Eip2612PayloadType {
+        fn from(value: &Eip2612PayloadType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for Eip2612PayloadType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Eip2612 => f.write_str("eip2612"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for Eip2612PayloadType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "eip2612" => Ok(Self::Eip2612),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for Eip2612PayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for Eip2612PayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for Eip2612PayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///An EIP-3009 TransferWithAuthorization typed-data payload. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature.
     ///
     /// <details><summary>JSON schema</summary>
@@ -28918,8 +31542,11 @@ pub mod types {
     ///    "faucet_limit_exceeded",
     ///    "forbidden",
     ///    "idempotency_error",
+    ///    "incompatible_event_types",
     ///    "internal_server_error",
     ///    "invalid_request",
+    ///    "invalid_webhook_headers",
+    ///    "invalid_webhook_url",
     ///    "invalid_sql_query",
     ///    "invalid_signature",
     ///    "malformed_transaction",
@@ -28931,6 +31558,7 @@ pub mod types {
     ///    "rate_limit_exceeded",
     ///    "request_canceled",
     ///    "service_unavailable",
+    ///    "subscription_limit_exceeded",
     ///    "timed_out",
     ///    "unauthorized",
     ///    "unsupported_tos_language",
@@ -29001,7 +31629,13 @@ pub mod types {
     ///    "daily_transaction_limit_exceeded",
     ///    "daily_amount_limit_exceeded",
     ///    "stale_attestation",
-    ///    "moderation_rejected"
+    ///    "moderation_rejected",
+    ///    "mandate_action_pending",
+    ///    "mandate_policy_violation",
+    ///    "mandate_expired",
+    ///    "mandate_canceled",
+    ///    "mandate_revoked",
+    ///    "mandate_invalid_status"
     ///  ],
     ///  "x-error-instructions": {
     ///    "account_not_ready": "This error occurs when an operation is attempted on an account that is still being provisioned.\n\n**Steps to resolve:**\n1. Wait a few moments and retry the request\n2. If the error persists, the account may still be completing setup — retry with exponential backoff",
@@ -29030,6 +31664,7 @@ pub mod types {
     ///    "guest_transaction_count": "This error occurs when the user has reached the lifetime guest onramp transaction count limit.\n\n**Steps to resolve:**\n1. Redirect the user to create a Coinbase account to buy and send crypto.",
     ///    "guest_transaction_limit": "This error occurs when the user has reached the weekly guest onramp transaction limit.\n\n**Steps to resolve:**\n1. Inform the user they have reached their weekly limit and will have to wait until next week.",
     ///    "idempotency_error": "This error occurs when an idempotency key is reused with different parameters.\n\n**Steps to resolve:**\n1. Generate a new UUID v4 for each unique request\n2. Only reuse idempotency keys for exact request duplicates\n3. Track used keys within your application\n\n**Example idempotency key implementation:**\n```typescript lines wrap\nimport { v4 as uuidv4 } from 'uuid';\n\nfunction createIdempotencyKey() {\n  return uuidv4();\n}\n```",
+    ///    "incompatible_event_types": "The `eventTypes` in a webhook subscription belong to different scopes that cannot be combined in a single subscription.\n\n**Steps to resolve:**\n1. Group `eventTypes` by compatible label requirements.\n2. Create a separate webhook subscription for each group.",
     ///    "insufficient_allowance": "This error occurs when the taker has not approved the Permit2 contract to spend the `fromToken`\non their behalf. ERC-20 swaps require a Permit2 allowance. Native ETH swaps do not.\n\n**Steps to resolve:**\n1. Submit an ERC-20 `approve` transaction on the `fromToken` contract, granting the Permit2\n   contract (`0x000000000022D473030F116dDEE9F6B43aC78BA3`) an allowance of at least `fromAmount`\n2. Wait for the approval transaction to be confirmed on-chain\n3. Retry the swap\n\n**Example:**\n```typescript lines wrap\n// Approve Permit2 to spend fromToken\nawait walletClient.writeContract({\n  address: fromToken,\n  abi: erc20Abi,\n  functionName: \"approve\",\n  args: [\"0x000000000022D473030F116dDEE9F6B43aC78BA3\", fromAmount],\n});\n```",
     ///    "insufficient_balance": "This error occurs when the source account does not have enough funds to complete the transfer including fees.\n\n**Steps to resolve:**\n1. Check the source account balance\n2. Ensure the balance covers both the transfer amount and any fees\n3. Consider using `amountType: \"source\"` to transfer the maximum available amount minus fees\n4. Add funds to the source account if needed\n\n**Common causes:**\n- Transfer amount exceeds available balance\n- Not accounting for transfer fees\n- Pending transactions reducing available balance",
     ///    "insufficient_liquidity": "This error occurs when no swap route is available for the requested token pair or amount.\n\n**Steps to resolve:**\n1. Try a smaller `fromAmount` — large orders may exceed available liquidity\n2. Try a different token pair\n3. Retry after a short delay; liquidity conditions change with market activity",
@@ -29037,7 +31672,15 @@ pub mod types {
     ///    "invalid_request": "This error occurs when the request is malformed or contains invalid data, including issues with the request body, query parameters, path parameters, or headers.\n\n**Steps to resolve:**\n1. Check all required fields and parameters are present\n2. Ensure request body (if applicable) follows the correct schema\n3. Verify all parameter formats match the API specification:\n   - Query parameters\n   - Path parameters\n   - Request headers\n4. Validate any addresses, IDs, or other formatted strings meet requirements\n\n**Common validation issues:**\n- Missing required parameters\n- Invalid parameter types or formats\n- Malformed JSON in request body\n- Invalid enum values\n\n#### Transfer-specific validation errors\n\nThe following transfer validation scenarios return `errorType: \"invalid_request\"`. Use the `errorMessage` field to identify the specific case.\n\n| Scenario | Example `errorMessage` |\n|----------|----------------------|\n| Source account ID is malformed | `\"source is invalid.\"` |\n| Target account ID is malformed | `\"target is invalid.\"` |\n| Source account does not exist | `\"source not found.\"` |\n| Target account does not exist | `\"target not found.\"` |\n| Asset not supported at source | `\"source is not supported.\"` |\n| Asset not supported at target | `\"target is not supported.\"` |\n| Target email address is malformed | `\"target has an invalid email format.\"` |\n| Target onchain address is invalid for network | `\"The recipient address is invalid for the selected network.\"` |\n| Asset not supported for this transfer route | `\"Transfer asset pair is not supported.\"` |\n| Insufficient balance | `\"Insufficient funds to complete this transfer.\"` |\n| Asset mismatch between request fields | `\"Currency mismatch in request.\"` |\n| Metadata has too many keys | `\"Metadata has too many keys. Up to 10 key/value pairs are permitted.\"` |\n| Metadata key exceeds length limit | `\"Metadata key is too long. Each key must be less than or equal to 40 characters.\"` |\n| Metadata value exceeds length limit | `\"Metadata value is too long. Each value must be less than or equal to 500 characters.\"` |\n| Travel rule fields missing | `\"Travel rule information is incomplete. Missing fields: ...\"` |\n| Recipient address not in account allowlist | `\"Your coinbase account allowlist does not include this address. Please update your allowlist at https://www.coinbase.com/settings/allowlist\"` |",
     ///    "invalid_signature": "This error occurs when the signature provided for the given user operation is invalid.\n\n**Steps to resolve:**\n1. Verify the signature was generated by the correct owner account\n2. Ensure the signature corresponds to the exact user operation hash\n3. Check that the signature format matches the expected format\n4. Confirm you're using the correct network for the Smart Account\n\n**Common causes:**\n- Using wrong owner account to sign\n- Signing modified/incorrect user operation data\n- Malformed signature encoding\n- Network mismatch between signature and broadcast",
     ///    "invalid_sql_query": "This error occurs when the SQL query is invalid or not allowed.\n\n**Common causes:**\n- Using non-SELECT SQL statements (INSERT, UPDATE, DELETE, etc.)\n- Invalid table or column names\n- Syntax errors in SQL query\n- Query exceeds character limit\n- Too many JOIN operations",
+    ///    "invalid_webhook_headers": "One or more custom webhook target headers have invalid names or values, duplicate names with different capitalization, or names reserved for delivery metadata and HTTP routing.\n\n**Steps to resolve:**\n1. Check `target.headers` for invalid names, values, and case-insensitive duplicates.\n2. Remove blocked headers such as `Cookie`, `Host`, and `X-Webhook-*`, then retry.",
+    ///    "invalid_webhook_url": "The webhook target URL did not pass scheme, host, address, or endpoint checks.\n\n**Steps to resolve:**\n1. Verify `target.url` uses HTTPS and responds to HEAD requests with a 200.\n2. Confirm the endpoint is reachable and responds without a server error, then retry.",
     ///    "malformed_transaction": "This error occurs when the transaction data provided is not properly formatted or is invalid.\n\n**Steps to resolve:**\n1. Verify transaction encoding:\n   - **EVM networks**: Check RLP encoding is correct\n   - **Solana**: Validate base64 encoding\n2. Ensure all required transaction fields are present\n3. Validate transaction parameters are within acceptable ranges\n4. Check that the transaction type is supported on the target network\n\n**Common causes:**\n- Invalid hex encoding for EVM transactions\n- Missing required transaction fields\n- Incorrect parameter formats\n- Unsupported transaction types\n- Network-specific transaction format mismatches",
+    ///    "mandate_action_pending": "This error occurs when an approval or revocation is already in progress for the mandate.\nGet wallet approval options, approve a mandate, get wallet revocation options, revoke\na mandate, and authorize a payment session with a mandate all return this while an\naction is in flight.\n\n**Steps to resolve:**\n1. Wait for the in-flight approval or revocation to succeed or fail\n2. Check the mandate `status`, then retry the request",
+    ///    "mandate_canceled": "This error occurs when `canceledAt` is set. Authorization, approve a mandate,\nand get wallet approval options return this. If `revokedAt` is also set, those\noperations return `mandate_revoked` instead.\n\n**Steps to resolve:**\n1. Create a new mandate if the customer should continue\n2. Do not retry the request against the canceled mandate",
+    ///    "mandate_expired": "This error occurs when the mandate is past its `expiresAt` and can no longer be used.\nAuthorization, approve a mandate, and get wallet approval options return this error.\n\n**Steps to resolve:**\n1. Create a new mandate if the customer should continue\n2. Do not retry the request against the expired mandate",
+    ///    "mandate_invalid_status": "This error occurs when the mandate's status does not satisfy the operation,\nand a more specific code does not apply. `errorMessage` names the status the\noperation expected.\n\nCheck the specific codes first: `mandate_canceled`, `mandate_revoked`,\n`mandate_expired`, and `mandate_action_pending`.\n\nApprove a mandate and get wallet approval options require `created` or\n`approval_failed` after those checks. `approval_succeeded`,\n`revocation_failed`, and any other remaining status return this. Authorize a\npayment session requires `approval_succeeded`.\nRevoke a mandate and get wallet revocation options return this when\n`approvedAt` was never set, so no spending allowance exists. That is separate\nfrom `mandate_revoked`, which applies only after `revokedAt` is set.\n\n**Steps to resolve:**\n1. Read `errorMessage` for the status this operation requires\n2. Move the mandate to that status, or create a new mandate",
+    ///    "mandate_policy_violation": "This error occurs only when the request breaches the mandate policy: the charge\nexceeds `maxPerAuthorization` or `maxPerPeriod`, or an approval is rejected\nbecause the payer's available balance is below `minSetupBalance`.\n\n**Steps to resolve:**\n1. Lower the charge, raise the mandate policy, or fund the payer above `minSetupBalance`\n2. Retry the request",
+    ///    "mandate_revoked": "This error occurs when the mandate's on-chain spending allowance has been\nremoved (`revokedAt` is set, status `revocation_succeeded`).\n\nAuthorization, approve a mandate, and get wallet approval options return this\nwhen `revokedAt` is set, including when `canceledAt` is also set. Get wallet\nrevocation options and revoke a mandate also return this when the allowance\nwas already removed. Cancel a mandate returns this: a fully revoked mandate\ncannot be canceled. Canceling an already-canceled mandate is a no-op and\nreturns the mandate.\n\n**Steps to resolve:**\n1. Create a new mandate if the customer should continue\n2. Do not retry the request against the revoked mandate",
     ///    "metadata_key_too_long": "This error occurs when a metadata key exceeds the maximum allowed length.\n\n**Steps to resolve:**\n1. Shorten the metadata key to 40 characters or less\n2. Use abbreviations or shorter naming conventions\n3. Consider using a key-value structure where the value contains the longer identifier\n\n**Limits:**\n- Maximum key length: 40 characters",
     ///    "metadata_too_many_entries": "This error occurs when the transfer metadata contains more entries than allowed.\n\n**Steps to resolve:**\n1. Reduce the number of metadata entries (maximum 10 allowed)\n2. Consolidate related data into fewer keys\n3. Store additional data externally and reference it with a single metadata entry\n\n**Limits:**\n- Maximum entries: 10",
     ///    "metadata_value_too_long": "This error occurs when a metadata value exceeds the maximum allowed length.\n\n**Steps to resolve:**\n1. Shorten the metadata value to 500 characters or less\n2. Store longer data externally and reference it with a shorter identifier\n3. Consider compressing or encoding the data if appropriate\n\n**Limits:**\n- Maximum value length: 500 characters",
@@ -29082,6 +31725,7 @@ pub mod types {
     ///    "source_account_not_found": "This error occurs when the source account specified in the transfer does not exist.\n\n**Steps to resolve:**\n1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`",
     ///    "source_asset_not_supported": "This error occurs when the asset specified in the transfer source is not supported for this transfer type.\n\n**Steps to resolve:**\n1. Check the list of supported assets for the source account type\n2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)\n\n**Common causes:**\n- Unsupported asset for the transfer route\n- Incorrect asset symbol",
     ///    "stale_attestation": "The platform attestation (iOS App Attest assertion or Android Play Integrity token) was\ngenerated against a challenge that has since expired. The request was well-formed, but\nthe challenge is no longer valid.\n\n**Steps to resolve:**\n1. Call [Create Onramp Mobile Challenge](#operation/createOnrampMobileChallenge) to obtain\n   a fresh challenge.\n2. Re-run the platform attestation flow against the new challenge.\n3. Submit the new attestation to\n   [Create Onramp Mobile Session](#operation/createOnrampMobileSession) promptly —\n   challenges are short-lived.\n\n**Common causes:**\n- Too much time elapsed between obtaining the challenge and submitting the attestation.",
+    ///    "subscription_limit_exceeded": "The project or entity has reached the maximum number of webhook subscriptions allowed (100).\n\n**Steps to resolve:**\n1. Delete any webhook subscriptions that are no longer needed.\n2. Retry creating the subscription.",
     ///    "target_account_invalid": "This error occurs when the target account specified in the transfer request is invalid or malformed.\n\n**Steps to resolve:**\n1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)\n2. Ensure the account exists and can receive funds\n3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`\n\n**Common causes:**\n- Malformed account ID\n- Typo in the account ID",
     ///    "target_account_not_found": "This error occurs when the target account specified in the transfer does not exist.\n\n**Steps to resolve:**\n1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`",
     ///    "target_asset_not_supported": "This error occurs when the asset specified in the transfer target is not supported for this transfer type.\n\n**Steps to resolve:**\n1. Check the list of supported assets for the target\n2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)\n3. Ensure the target can receive this asset type\n\n**Common causes:**\n- Asset not supported by the target\n- Unsupported conversion between source and target assets",
@@ -29133,10 +31777,16 @@ pub mod types {
         Forbidden,
         #[serde(rename = "idempotency_error")]
         IdempotencyError,
+        #[serde(rename = "incompatible_event_types")]
+        IncompatibleEventTypes,
         #[serde(rename = "internal_server_error")]
         InternalServerError,
         #[serde(rename = "invalid_request")]
         InvalidRequest,
+        #[serde(rename = "invalid_webhook_headers")]
+        InvalidWebhookHeaders,
+        #[serde(rename = "invalid_webhook_url")]
+        InvalidWebhookUrl,
         #[serde(rename = "invalid_sql_query")]
         InvalidSqlQuery,
         #[serde(rename = "invalid_signature")]
@@ -29159,6 +31809,8 @@ pub mod types {
         RequestCanceled,
         #[serde(rename = "service_unavailable")]
         ServiceUnavailable,
+        #[serde(rename = "subscription_limit_exceeded")]
+        SubscriptionLimitExceeded,
         #[serde(rename = "timed_out")]
         TimedOut,
         #[serde(rename = "unauthorized")]
@@ -29301,6 +31953,18 @@ pub mod types {
         StaleAttestation,
         #[serde(rename = "moderation_rejected")]
         ModerationRejected,
+        #[serde(rename = "mandate_action_pending")]
+        MandateActionPending,
+        #[serde(rename = "mandate_policy_violation")]
+        MandatePolicyViolation,
+        #[serde(rename = "mandate_expired")]
+        MandateExpired,
+        #[serde(rename = "mandate_canceled")]
+        MandateCanceled,
+        #[serde(rename = "mandate_revoked")]
+        MandateRevoked,
+        #[serde(rename = "mandate_invalid_status")]
+        MandateInvalidStatus,
     }
     impl ::std::convert::From<&Self> for ErrorType {
         fn from(value: &ErrorType) -> Self {
@@ -29320,8 +31984,11 @@ pub mod types {
                 Self::FaucetLimitExceeded => f.write_str("faucet_limit_exceeded"),
                 Self::Forbidden => f.write_str("forbidden"),
                 Self::IdempotencyError => f.write_str("idempotency_error"),
+                Self::IncompatibleEventTypes => f.write_str("incompatible_event_types"),
                 Self::InternalServerError => f.write_str("internal_server_error"),
                 Self::InvalidRequest => f.write_str("invalid_request"),
+                Self::InvalidWebhookHeaders => f.write_str("invalid_webhook_headers"),
+                Self::InvalidWebhookUrl => f.write_str("invalid_webhook_url"),
                 Self::InvalidSqlQuery => f.write_str("invalid_sql_query"),
                 Self::InvalidSignature => f.write_str("invalid_signature"),
                 Self::MalformedTransaction => f.write_str("malformed_transaction"),
@@ -29333,6 +32000,7 @@ pub mod types {
                 Self::RateLimitExceeded => f.write_str("rate_limit_exceeded"),
                 Self::RequestCanceled => f.write_str("request_canceled"),
                 Self::ServiceUnavailable => f.write_str("service_unavailable"),
+                Self::SubscriptionLimitExceeded => f.write_str("subscription_limit_exceeded"),
                 Self::TimedOut => f.write_str("timed_out"),
                 Self::Unauthorized => f.write_str("unauthorized"),
                 Self::UnsupportedTosLanguage => f.write_str("unsupported_tos_language"),
@@ -29418,6 +32086,12 @@ pub mod types {
                 Self::DailyAmountLimitExceeded => f.write_str("daily_amount_limit_exceeded"),
                 Self::StaleAttestation => f.write_str("stale_attestation"),
                 Self::ModerationRejected => f.write_str("moderation_rejected"),
+                Self::MandateActionPending => f.write_str("mandate_action_pending"),
+                Self::MandatePolicyViolation => f.write_str("mandate_policy_violation"),
+                Self::MandateExpired => f.write_str("mandate_expired"),
+                Self::MandateCanceled => f.write_str("mandate_canceled"),
+                Self::MandateRevoked => f.write_str("mandate_revoked"),
+                Self::MandateInvalidStatus => f.write_str("mandate_invalid_status"),
             }
         }
     }
@@ -29435,8 +32109,11 @@ pub mod types {
                 "faucet_limit_exceeded" => Ok(Self::FaucetLimitExceeded),
                 "forbidden" => Ok(Self::Forbidden),
                 "idempotency_error" => Ok(Self::IdempotencyError),
+                "incompatible_event_types" => Ok(Self::IncompatibleEventTypes),
                 "internal_server_error" => Ok(Self::InternalServerError),
                 "invalid_request" => Ok(Self::InvalidRequest),
+                "invalid_webhook_headers" => Ok(Self::InvalidWebhookHeaders),
+                "invalid_webhook_url" => Ok(Self::InvalidWebhookUrl),
                 "invalid_sql_query" => Ok(Self::InvalidSqlQuery),
                 "invalid_signature" => Ok(Self::InvalidSignature),
                 "malformed_transaction" => Ok(Self::MalformedTransaction),
@@ -29448,6 +32125,7 @@ pub mod types {
                 "rate_limit_exceeded" => Ok(Self::RateLimitExceeded),
                 "request_canceled" => Ok(Self::RequestCanceled),
                 "service_unavailable" => Ok(Self::ServiceUnavailable),
+                "subscription_limit_exceeded" => Ok(Self::SubscriptionLimitExceeded),
                 "timed_out" => Ok(Self::TimedOut),
                 "unauthorized" => Ok(Self::Unauthorized),
                 "unsupported_tos_language" => Ok(Self::UnsupportedTosLanguage),
@@ -29523,6 +32201,12 @@ pub mod types {
                 "daily_amount_limit_exceeded" => Ok(Self::DailyAmountLimitExceeded),
                 "stale_attestation" => Ok(Self::StaleAttestation),
                 "moderation_rejected" => Ok(Self::ModerationRejected),
+                "mandate_action_pending" => Ok(Self::MandateActionPending),
+                "mandate_policy_violation" => Ok(Self::MandatePolicyViolation),
+                "mandate_expired" => Ok(Self::MandateExpired),
+                "mandate_canceled" => Ok(Self::MandateCanceled),
+                "mandate_revoked" => Ok(Self::MandateRevoked),
+                "mandate_invalid_status" => Ok(Self::MandateInvalidStatus),
                 _ => Err("invalid value".into()),
             }
         }
@@ -29930,6 +32614,14 @@ pub mod types {
     ///    "acceptance.payment_session.void_pending",
     ///    "acceptance.payment_session.void_succeeded",
     ///    "acceptance.payment_session.void_failed",
+    ///    "acceptance.mandate.created",
+    ///    "acceptance.mandate.canceled",
+    ///    "acceptance.mandate.approval_initiated",
+    ///    "acceptance.mandate.approval_succeeded",
+    ///    "acceptance.mandate.approval_failed",
+    ///    "acceptance.mandate.revocation_initiated",
+    ///    "acceptance.mandate.revocation_succeeded",
+    ///    "acceptance.mandate.revocation_failed",
     ///    "acceptance.disbursement.pending",
     ///    "acceptance.disbursement.succeeded",
     ///    "acceptance.disbursement.failed",
@@ -30045,6 +32737,22 @@ pub mod types {
         AcceptancePaymentSessionVoidSucceeded,
         #[serde(rename = "acceptance.payment_session.void_failed")]
         AcceptancePaymentSessionVoidFailed,
+        #[serde(rename = "acceptance.mandate.created")]
+        AcceptanceMandateCreated,
+        #[serde(rename = "acceptance.mandate.canceled")]
+        AcceptanceMandateCanceled,
+        #[serde(rename = "acceptance.mandate.approval_initiated")]
+        AcceptanceMandateApprovalInitiated,
+        #[serde(rename = "acceptance.mandate.approval_succeeded")]
+        AcceptanceMandateApprovalSucceeded,
+        #[serde(rename = "acceptance.mandate.approval_failed")]
+        AcceptanceMandateApprovalFailed,
+        #[serde(rename = "acceptance.mandate.revocation_initiated")]
+        AcceptanceMandateRevocationInitiated,
+        #[serde(rename = "acceptance.mandate.revocation_succeeded")]
+        AcceptanceMandateRevocationSucceeded,
+        #[serde(rename = "acceptance.mandate.revocation_failed")]
+        AcceptanceMandateRevocationFailed,
         #[serde(rename = "acceptance.disbursement.pending")]
         AcceptanceDisbursementPending,
         #[serde(rename = "acceptance.disbursement.succeeded")]
@@ -30150,6 +32858,26 @@ pub mod types {
                 Self::AcceptancePaymentSessionVoidFailed => {
                     f.write_str("acceptance.payment_session.void_failed")
                 }
+                Self::AcceptanceMandateCreated => f.write_str("acceptance.mandate.created"),
+                Self::AcceptanceMandateCanceled => f.write_str("acceptance.mandate.canceled"),
+                Self::AcceptanceMandateApprovalInitiated => {
+                    f.write_str("acceptance.mandate.approval_initiated")
+                }
+                Self::AcceptanceMandateApprovalSucceeded => {
+                    f.write_str("acceptance.mandate.approval_succeeded")
+                }
+                Self::AcceptanceMandateApprovalFailed => {
+                    f.write_str("acceptance.mandate.approval_failed")
+                }
+                Self::AcceptanceMandateRevocationInitiated => {
+                    f.write_str("acceptance.mandate.revocation_initiated")
+                }
+                Self::AcceptanceMandateRevocationSucceeded => {
+                    f.write_str("acceptance.mandate.revocation_succeeded")
+                }
+                Self::AcceptanceMandateRevocationFailed => {
+                    f.write_str("acceptance.mandate.revocation_failed")
+                }
                 Self::AcceptanceDisbursementPending => {
                     f.write_str("acceptance.disbursement.pending")
                 }
@@ -30242,6 +32970,24 @@ pub mod types {
                 }
                 "acceptance.payment_session.void_failed" => {
                     Ok(Self::AcceptancePaymentSessionVoidFailed)
+                }
+                "acceptance.mandate.created" => Ok(Self::AcceptanceMandateCreated),
+                "acceptance.mandate.canceled" => Ok(Self::AcceptanceMandateCanceled),
+                "acceptance.mandate.approval_initiated" => {
+                    Ok(Self::AcceptanceMandateApprovalInitiated)
+                }
+                "acceptance.mandate.approval_succeeded" => {
+                    Ok(Self::AcceptanceMandateApprovalSucceeded)
+                }
+                "acceptance.mandate.approval_failed" => Ok(Self::AcceptanceMandateApprovalFailed),
+                "acceptance.mandate.revocation_initiated" => {
+                    Ok(Self::AcceptanceMandateRevocationInitiated)
+                }
+                "acceptance.mandate.revocation_succeeded" => {
+                    Ok(Self::AcceptanceMandateRevocationSucceeded)
+                }
+                "acceptance.mandate.revocation_failed" => {
+                    Ok(Self::AcceptanceMandateRevocationFailed)
                 }
                 "acceptance.disbursement.pending" => Ok(Self::AcceptanceDisbursementPending),
                 "acceptance.disbursement.succeeded" => Ok(Self::AcceptanceDisbursementSucceeded),
@@ -36333,7 +39079,7 @@ pub mod types {
     ///        "accountNumber": "123456789",
     ///        "accountType": "us_bank",
     ///        "bankAddress": "399 Park Avenue, New York, NY 10022",
-    ///        "bankName": "Citibank, N.A.",
+    ///        "bankName": "Citibank N.A.",
     ///        "beneficiaryName": "John Smith",
     ///        "currency": "usd",
     ///        "routingNumber": "987654321",
@@ -44746,6 +47492,219 @@ pub mod types {
             value.parse()
         }
     }
+    ///A requested customer wallet address that has no eligible mandate approval option, along with a machine- and human-readable reason.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Ineligible Wallet Mandate Approval Addresses",
+    ///  "description": "A requested customer wallet address that has no eligible mandate approval option, along with a machine- and human-readable reason.",
+    ///  "examples": [
+    ///    {
+    ///      "address": "0xDeF9876543210FeDcBa9876543210FedcBa987654",
+    ///      "code": "insufficient_funds",
+    ///      "fundsRequired": [
+    ///        {
+    ///          "asset": "usdc",
+    ///          "currentBalance": "0.40",
+    ///          "network": "base",
+    ///          "requiredBalance": "1.00"
+    ///        },
+    ///        {
+    ///          "asset": "usdc",
+    ///          "currentBalance": "0.00",
+    ///          "network": "ethereum",
+    ///          "requiredBalance": "1.00"
+    ///        }
+    ///      ],
+    ///      "message": "The customer does not have sufficient funds."
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "code",
+    ///    "message"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The requested customer wallet address that has no eligible mandate approval option.",
+    ///      "examples": [
+    ///        "0xDeF9876543210FeDcBa9876543210FedcBa987654"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/BlockchainAddress"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "code": {
+    ///      "description": "A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.",
+    ///      "examples": [
+    ///        "insufficient_funds"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "insufficient_funds",
+    ///        "superseded_by_preferred_option"
+    ///      ],
+    ///      "x-enum-descriptions": [
+    ///        "The address does not hold enough of a supported asset on a supported source network to approve the mandate.",
+    ///        "The address was superseded because a preferred funding option was selected instead."
+    ///      ]
+    ///    },
+    ///    "fundsRequired": {
+    ///      "description": "The funding options for this address, one entry per (network, asset) combination the customer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "asset": "usdc",
+    ///            "currentBalance": "0.40",
+    ///            "network": "base",
+    ///            "requiredBalance": "1.00"
+    ///          },
+    ///          {
+    ///            "asset": "usdc",
+    ///            "currentBalance": "0.00",
+    ///            "network": "ethereum",
+    ///            "requiredBalance": "1.00"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/WalletMandateApprovalFundsRequirement"
+    ///      }
+    ///    },
+    ///    "message": {
+    ///      "description": "A human-readable, English-language description of why this address has no eligible mandate approval option. Suitable for surfacing in product UIs; does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations.",
+    ///      "examples": [
+    ///        "The customer does not have sufficient funds."
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct IneligibleWalletMandateApprovalAddresses {
+        ///The requested customer wallet address that has no eligible mandate approval option.
+        pub address: BlockchainAddress,
+        ///A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+        pub code: IneligibleWalletMandateApprovalAddressesCode,
+        ///The funding options for this address, one entry per (network, asset) combination the customer could fund to become eligible. Only present when `code` is `insufficient_funds`, and honors the request's `network` and `asset` filters. May be an empty array.
+        #[serde(
+            rename = "fundsRequired",
+            default,
+            skip_serializing_if = "::std::vec::Vec::is_empty"
+        )]
+        pub funds_required: ::std::vec::Vec<WalletMandateApprovalFundsRequirement>,
+        ///A human-readable, English-language description of why this address has no eligible mandate approval option. Suitable for surfacing in product UIs; does not contain personally identifiable information or internal infrastructure details. Clients that need localized strings should dispatch on `code` and provide their own translations.
+        pub message: ::std::string::String,
+    }
+    impl ::std::convert::From<&IneligibleWalletMandateApprovalAddresses>
+        for IneligibleWalletMandateApprovalAddresses
+    {
+        fn from(value: &IneligibleWalletMandateApprovalAddresses) -> Self {
+            value.clone()
+        }
+    }
+    impl IneligibleWalletMandateApprovalAddresses {
+        pub fn builder() -> builder::IneligibleWalletMandateApprovalAddresses {
+            Default::default()
+        }
+    }
+    ///A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A machine-readable code indicating why this address has no eligible mandate approval option. The enum is closed; any value the server returns must be listed below. Adding a new code is a deliberate, coordinated API change; clients receiving an undocumented value should treat it as a server violating the spec.",
+    ///  "examples": [
+    ///    "insufficient_funds"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "insufficient_funds",
+    ///    "superseded_by_preferred_option"
+    ///  ],
+    ///  "x-enum-descriptions": [
+    ///    "The address does not hold enough of a supported asset on a supported source network to approve the mandate.",
+    ///    "The address was superseded because a preferred funding option was selected instead."
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum IneligibleWalletMandateApprovalAddressesCode {
+        #[serde(rename = "insufficient_funds")]
+        InsufficientFunds,
+        #[serde(rename = "superseded_by_preferred_option")]
+        SupersededByPreferredOption,
+    }
+    impl ::std::convert::From<&Self> for IneligibleWalletMandateApprovalAddressesCode {
+        fn from(value: &IneligibleWalletMandateApprovalAddressesCode) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for IneligibleWalletMandateApprovalAddressesCode {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::InsufficientFunds => f.write_str("insufficient_funds"),
+                Self::SupersededByPreferredOption => f.write_str("superseded_by_preferred_option"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for IneligibleWalletMandateApprovalAddressesCode {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "insufficient_funds" => Ok(Self::InsufficientFunds),
+                "superseded_by_preferred_option" => Ok(Self::SupersededByPreferredOption),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for IneligibleWalletMandateApprovalAddressesCode {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for IneligibleWalletMandateApprovalAddressesCode
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for IneligibleWalletMandateApprovalAddressesCode
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///Request body for initiating an onramp OTP verification.
     ///
     /// <details><summary>JSON schema</summary>
@@ -46723,6 +49682,240 @@ pub mod types {
             Default::default()
         }
     }
+    ///`ListMandateApprovalsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "approvals": [
+    ///        {
+    ///          "approvalId": "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321",
+    ///          "createdAt": "2025-06-15T12:04:00.000Z",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xabc123def456789012345678901234567890abcdef1234567890abcdef123456"
+    ///            }
+    ///          ],
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///        }
+    ///      ],
+    ///      "nextPageToken": "eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ=="
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "approvals"
+    ///      ],
+    ///      "properties": {
+    ///        "approvals": {
+    ///          "description": "The list of approvals for the mandate, most recent first.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/Approval"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListMandateApprovalsResponse {
+        ///The list of approvals for the mandate, most recent first.
+        pub approvals: ::std::vec::Vec<Approval>,
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&ListMandateApprovalsResponse> for ListMandateApprovalsResponse {
+        fn from(value: &ListMandateApprovalsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListMandateApprovalsResponse {
+        pub fn builder() -> builder::ListMandateApprovalsResponse {
+            Default::default()
+        }
+    }
+    ///`ListMandateRevocationsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "nextPageToken": "eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==",
+    ///      "revocations": [
+    ///        {
+    ///          "createdAt": "2026-08-21T14:10:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xdef456789012345678901234567890abcdef1234567890abcdef1234567890ab"
+    ///            }
+    ///          ],
+    ///          "revocationId": "revocation_1a7f2b93-4c5d-4e6f-8a9b-0c1d2e3f4a5b",
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2026-08-21T14:12:00.000Z"
+    ///        }
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "revocations"
+    ///      ],
+    ///      "properties": {
+    ///        "revocations": {
+    ///          "description": "The list of revocations for the mandate, most recent first.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/Revocation"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListMandateRevocationsResponse {
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+        ///The list of revocations for the mandate, most recent first.
+        pub revocations: ::std::vec::Vec<Revocation>,
+    }
+    impl ::std::convert::From<&ListMandateRevocationsResponse> for ListMandateRevocationsResponse {
+        fn from(value: &ListMandateRevocationsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListMandateRevocationsResponse {
+        pub fn builder() -> builder::ListMandateRevocationsResponse {
+            Default::default()
+        }
+    }
+    ///`ListMandatesResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    {
+    ///      "mandates": [
+    ///        {
+    ///          "approvalRedirect": {
+    ///            "failureUrl": "https://merchant.example.com/mandate/approval/failed",
+    ///            "successUrl": "https://merchant.example.com/mandate/approval/success"
+    ///          },
+    ///          "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///          "asset": "usdc",
+    ///          "createdAt": "2025-06-15T12:00:00.000Z",
+    ///          "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "policy": {
+    ///            "maxPerAuthorization": "50.00",
+    ///            "maxPerPeriod": {
+    ///              "amount": "500.00",
+    ///              "period": "month"
+    ///            }
+    ///          },
+    ///          "revocationRedirect": {
+    ///            "failureUrl": "https://merchant.example.com/mandate/revocation/failed",
+    ///            "successUrl": "https://merchant.example.com/mandate/revocation/success"
+    ///          },
+    ///          "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "approval_succeeded",
+    ///          "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///        }
+    ///      ],
+    ///      "nextPageToken": "eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ=="
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "type": "object",
+    ///      "required": [
+    ///        "mandates"
+    ///      ],
+    ///      "properties": {
+    ///        "mandates": {
+    ///          "description": "The list of mandates.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/Mandate"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListMandatesResponse {
+        ///The list of mandates.
+        pub mandates: ::std::vec::Vec<Mandate>,
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&ListMandatesResponse> for ListMandatesResponse {
+        fn from(value: &ListMandatesResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListMandatesResponse {
+        pub fn builder() -> builder::ListMandatesResponse {
+            Default::default()
+        }
+    }
     ///`ListPaymentMethodsResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -48459,6 +51652,1283 @@ pub mod types {
     impl MaintenanceWindow {
         pub fn builder() -> builder::MaintenanceWindow {
             Default::default()
+        }
+    }
+    /**A durable, revocable standing authorization to debit a funding `source` without the customer present each time, within its `policy` caps. Payment sessions draw against it by referencing its `mandateId`.
+
+    `source` is set once an approval succeeds. `status` reflects the most recent action; the `approvedAt`, `canceledAt`, and `revokedAt` timestamps are the durable record of what has happened. Ending one mandate does not affect other mandates on the same `source`.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A durable, revocable standing authorization to debit a funding `source` without the customer present each time, within its `policy` caps. Payment sessions draw against it by referencing its `mandateId`.\n\n`source` is set once an approval succeeds. `status` reflects the most recent action; the `approvedAt`, `canceledAt`, and `revokedAt` timestamps are the durable record of what has happened. Ending one mandate does not affect other mandates on the same `source`.",
+    ///  "examples": [
+    ///    {
+    ///      "approvalRedirect": {
+    ///        "failureUrl": "https://merchant.example.com/mandate/approval/failed",
+    ///        "successUrl": "https://merchant.example.com/mandate/approval/success"
+    ///      },
+    ///      "approvedAt": "2025-06-15T12:05:00.000Z",
+    ///      "asset": "usdc",
+    ///      "createdAt": "2025-06-15T12:00:00.000Z",
+    ///      "customerDisplay": {
+    ///        "merchantName": "Acme Store"
+    ///      },
+    ///      "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///      "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///      "metadata": {
+    ///        "customer_id": "cust_12345"
+    ///      },
+    ///      "policy": {
+    ///        "maxPerAuthorization": "50.00",
+    ///        "maxPerPeriod": {
+    ///          "amount": "500.00",
+    ///          "period": "month"
+    ///        }
+    ///      },
+    ///      "revocationRedirect": {
+    ///        "failureUrl": "https://merchant.example.com/mandate/revocation/failed",
+    ///        "successUrl": "https://merchant.example.com/mandate/revocation/success"
+    ///      },
+    ///      "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///      "source": {
+    ///        "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///        "asset": "usdc",
+    ///        "network": "base"
+    ///      },
+    ///      "status": "approval_succeeded",
+    ///      "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "asset",
+    ///    "createdAt",
+    ///    "mandateId",
+    ///    "policy",
+    ///    "status",
+    ///    "updatedAt"
+    ///  ],
+    ///  "properties": {
+    ///    "approvalRedirect": {
+    ///      "description": "Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. When omitted, the approval page keeps the customer on the Coinbase-hosted experience.",
+    ///      "examples": [
+    ///        {
+    ///          "failureUrl": "https://merchant.example.com/mandate/approval/failed",
+    ///          "successUrl": "https://merchant.example.com/mandate/approval/success"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentRedirect"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "approvedAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which an approval succeeded and the mandate became usable. Present only once the mandate has been approved; set once, on the successful approval, and unchanged by later transitions. Its presence is the durable signal that the mandate was approved, independent of `status`.",
+    ///      "examples": [
+    ///        "2026-08-21T13:55:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "asset": {
+    ///      "description": "The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.",
+    ///      "examples": [
+    ///        "usdc"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Asset"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "canceledAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the merchant canceled the mandate off-chain. Present only once the mandate has been canceled. Canceling does not touch the on-chain spending allowance; check `revokedAt` for that.",
+    ///      "examples": [
+    ///        "2026-08-21T14:02:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the mandate was created.",
+    ///      "examples": [
+    ///        "2025-06-15T12:00:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "customerDisplay": {
+    ///      "$ref": "#/components/schemas/MandateCustomerDisplay"
+    ///    },
+    ///    "expiresAt": {
+    ///      "description": "The UTC ISO 8601 timestamp after which the mandate can no longer be authorized against. Authorization attempts after this time return `422`; `status` does not change. Omit for no expiry.",
+    ///      "examples": [
+    ///        "2027-06-15T12:00:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "mandateId": {
+    ///      "description": "The unique identifier of the mandate.",
+    ///      "examples": [
+    ///        "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "policy": {
+    ///      "description": "Debit caps. Always present. If you omitted `policy` at create, this is a Coinbase-configured monthly max.",
+    ///      "examples": [
+    ///        {
+    ///          "maxPerAuthorization": "50.00",
+    ///          "maxPerPeriod": {
+    ///            "amount": "500.00",
+    ///            "period": "month"
+    ///          }
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandatePolicy"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "revocationRedirect": {
+    ///      "description": "Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. When omitted, the revocation page keeps the customer on the Coinbase-hosted experience.",
+    ///      "examples": [
+    ///        {
+    ///          "failureUrl": "https://merchant.example.com/mandate/revocation/failed",
+    ///          "successUrl": "https://merchant.example.com/mandate/revocation/success"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentRedirect"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "revocationUrl": {
+    ///      "description": "Hosted page where the customer can remove their spending allowance for this mandate. Present once the mandate has a `source` (from `approval_succeeded` onward); absent before approval, when there is nothing to revoke.",
+    ///      "readOnly": true,
+    ///      "examples": [
+    ///        "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "revokedAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the spending allowance was removed on-chain by a wallet revocation. Present only once that has happened. Its presence is the single signal that the allowance is gone, independent of `status` (for example, it can be set on a `canceled` mandate whose allowance was later cleaned up).",
+    ///      "examples": [
+    ///        "2026-08-21T14:12:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "source": {
+    ///      "description": "The funding source the mandate draws against. Set when an approval succeeds. Not present before the mandate is `approval_succeeded`.",
+    ///      "examples": [
+    ///        {
+    ///          "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateSource"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "status": {
+    ///      "description": "The current status of the mandate.",
+    ///      "examples": [
+    ///        "approval_succeeded"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateStatus"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "updatedAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the mandate was last updated.",
+    ///      "examples": [
+    ///        "2025-06-15T12:00:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "url": {
+    ///      "description": "Hosted page where the customer approves this mandate. Present only before the mandate reaches `approval_succeeded`; complemented by `revocationUrl` afterward.",
+    ///      "readOnly": true,
+    ///      "examples": [
+    ///        "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct Mandate {
+        ///Optional merchant URLs used by the hosted mandate approval flow. The approval page redirects to `successUrl` when approval succeeds, or `failureUrl` when it fails. When omitted, the approval page keeps the customer on the Coinbase-hosted experience.
+        #[serde(
+            rename = "approvalRedirect",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub approval_redirect: ::std::option::Option<PaymentRedirect>,
+        ///The UTC ISO 8601 timestamp at which an approval succeeded and the mandate became usable. Present only once the mandate has been approved; set once, on the successful approval, and unchanged by later transitions. Its presence is the durable signal that the mandate was approved, independent of `status`.
+        #[serde(
+            rename = "approvedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub approved_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        ///The unit of account the mandate's `policy` caps are denominated in (e.g., `500` means 500 of this asset). Fixed at creation. This is only the denomination for the limits; the funding `source` may hold a different asset (for example, limits in `usdc` against a `usdt` source). Each authorization's amount is converted into this asset at authorization time to evaluate the caps, so the caps are always enforced in a single denomination.
+        pub asset: Asset,
+        ///The UTC ISO 8601 timestamp at which the merchant canceled the mandate off-chain. Present only once the mandate has been canceled. Canceling does not touch the on-chain spending allowance; check `revokedAt` for that.
+        #[serde(
+            rename = "canceledAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub canceled_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        ///The UTC ISO 8601 timestamp at which the mandate was created.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        #[serde(
+            rename = "customerDisplay",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub customer_display: ::std::option::Option<MandateCustomerDisplay>,
+        ///The UTC ISO 8601 timestamp after which the mandate can no longer be authorized against. Authorization attempts after this time return `422`; `status` does not change. Omit for no expiry.
+        #[serde(
+            rename = "expiresAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub expires_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        ///The unique identifier of the mandate.
+        #[serde(rename = "mandateId")]
+        pub mandate_id: MandateId,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///Debit caps. Always present. If you omitted `policy` at create, this is a Coinbase-configured monthly max.
+        pub policy: MandatePolicy,
+        ///Optional merchant URLs used by the hosted mandate revocation flow. The revocation page redirects to `successUrl` when revocation succeeds, or `failureUrl` when it fails. When omitted, the revocation page keeps the customer on the Coinbase-hosted experience.
+        #[serde(
+            rename = "revocationRedirect",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub revocation_redirect: ::std::option::Option<PaymentRedirect>,
+        ///Hosted page where the customer can remove their spending allowance for this mandate. Present once the mandate has a `source` (from `approval_succeeded` onward); absent before approval, when there is nothing to revoke.
+        #[serde(
+            rename = "revocationUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub revocation_url: ::std::option::Option<Url>,
+        ///The UTC ISO 8601 timestamp at which the spending allowance was removed on-chain by a wallet revocation. Present only once that has happened. Its presence is the single signal that the allowance is gone, independent of `status` (for example, it can be set on a `canceled` mandate whose allowance was later cleaned up).
+        #[serde(
+            rename = "revokedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub revoked_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        ///The funding source the mandate draws against. Set when an approval succeeds. Not present before the mandate is `approval_succeeded`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub source: ::std::option::Option<MandateSource>,
+        ///The current status of the mandate.
+        pub status: MandateStatus,
+        ///The UTC ISO 8601 timestamp at which the mandate was last updated.
+        #[serde(rename = "updatedAt")]
+        pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///Hosted page where the customer approves this mandate. Present only before the mandate reaches `approval_succeeded`; complemented by `revocationUrl` afterward.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub url: ::std::option::Option<Url>,
+    }
+    impl ::std::convert::From<&Mandate> for Mandate {
+        fn from(value: &Mandate) -> Self {
+            value.clone()
+        }
+    }
+    impl Mandate {
+        pub fn builder() -> builder::Mandate {
+            Default::default()
+        }
+    }
+    ///A request to authorize a payment session against a mandate in `approval_succeeded` status, using the mandate's existing approval. No fresh signature is required. The charge must fall within the mandate's `policy`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to authorize a payment session against a mandate in `approval_succeeded` status, using the mandate's existing approval. No fresh signature is required. The charge must fall within the mandate's `policy`.",
+    ///  "examples": [
+    ///    {
+    ///      "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "mandateId"
+    ///  ],
+    ///  "properties": {
+    ///    "customerDisplay": {
+    ///      "description": "Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.",
+    ///      "examples": [
+    ///        {
+    ///          "referenceCode": "REF-ABC123"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/OperationCustomerDisplay"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "externalReferenceId": {
+    ///      "description": "An optional merchant-provided internal identifier for this mandate authorization, from the merchant's own system—not visible to the payer.",
+    ///      "examples": [
+    ///        "merchant-authorization-abc123"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/ExternalReferenceId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "mandateId": {
+    ///      "description": "The ID of the mandate to authorize against. Must be in `approval_succeeded` status.",
+    ///      "examples": [
+    ///        "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandateAuthorizationRequest {
+        ///Optional customer-facing display data for this authorization, shown to the payer. Falls back to the session's `orderCode` when `referenceCode` is omitted.
+        #[serde(
+            rename = "customerDisplay",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub customer_display: ::std::option::Option<OperationCustomerDisplay>,
+        ///An optional merchant-provided internal identifier for this mandate authorization, from the merchant's own system—not visible to the payer.
+        #[serde(
+            rename = "externalReferenceId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub external_reference_id: ::std::option::Option<ExternalReferenceId>,
+        ///The ID of the mandate to authorize against. Must be in `approval_succeeded` status.
+        #[serde(rename = "mandateId")]
+        pub mandate_id: MandateId,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+    }
+    impl ::std::convert::From<&MandateAuthorizationRequest> for MandateAuthorizationRequest {
+        fn from(value: &MandateAuthorizationRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl MandateAuthorizationRequest {
+        pub fn builder() -> builder::MandateAuthorizationRequest {
+            Default::default()
+        }
+    }
+    ///Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Mandate Customer Display",
+    ///  "description": "Merchant-provided display data shown to the customer on the hosted mandate pages. All fields are informational only. They are stored and returned as-is and do not affect mandate approval, authorization, or policy enforcement.",
+    ///  "examples": [
+    ///    {
+    ///      "merchantName": "Acme Store"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "merchantName": {
+    ///      "description": "The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.",
+    ///      "examples": [
+    ///        "Acme Store"
+    ///      ],
+    ///      "type": "string",
+    ///      "maxLength": 128
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandateCustomerDisplay {
+        ///The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+        #[serde(
+            rename = "merchantName",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub merchant_name: ::std::option::Option<MandateCustomerDisplayMerchantName>,
+    }
+    impl ::std::convert::From<&MandateCustomerDisplay> for MandateCustomerDisplay {
+        fn from(value: &MandateCustomerDisplay) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for MandateCustomerDisplay {
+        fn default() -> Self {
+            Self {
+                merchant_name: Default::default(),
+            }
+        }
+    }
+    impl MandateCustomerDisplay {
+        pub fn builder() -> builder::MandateCustomerDisplay {
+            Default::default()
+        }
+    }
+    ///The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The merchant name to display on the hosted mandate pages. When provided, this overrides the default name derived from the entity's profile. Useful when a merchant operates multiple storefronts or brands under a single entity.",
+    ///  "examples": [
+    ///    "Acme Store"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 128
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MandateCustomerDisplayMerchantName(::std::string::String);
+    impl ::std::ops::Deref for MandateCustomerDisplayMerchantName {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MandateCustomerDisplayMerchantName> for ::std::string::String {
+        fn from(value: MandateCustomerDisplayMerchantName) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MandateCustomerDisplayMerchantName>
+        for MandateCustomerDisplayMerchantName
+    {
+        fn from(value: &MandateCustomerDisplayMerchantName) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MandateCustomerDisplayMerchantName {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MandateCustomerDisplayMerchantName {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MandateCustomerDisplayMerchantName {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MandateCustomerDisplayMerchantName {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MandateCustomerDisplayMerchantName {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Common fields included in every mandate webhook event payload.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Common fields included in every mandate webhook event payload.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "data",
+    ///    "eventId",
+    ///    "timestamp"
+    ///  ],
+    ///  "properties": {
+    ///    "data": {
+    ///      "$ref": "#/components/schemas/MandateEventData"
+    ///    },
+    ///    "eventId": {
+    ///      "description": "Unique identifier for this webhook event. Use this for idempotency.",
+    ///      "examples": [
+    ///        "123e4567-e89b-12d3-a456-426614174000"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "uuid"
+    ///    },
+    ///    "timestamp": {
+    ///      "description": "When this event occurred (ISO 8601 format).",
+    ///      "examples": [
+    ///        "2025-06-01T12:00:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandateEventBase {
+        pub data: MandateEventData,
+        ///Unique identifier for this webhook event. Use this for idempotency.
+        #[serde(rename = "eventId")]
+        pub event_id: ::uuid::Uuid,
+        ///When this event occurred (ISO 8601 format).
+        pub timestamp: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&MandateEventBase> for MandateEventBase {
+        fn from(value: &MandateEventBase) -> Self {
+            value.clone()
+        }
+    }
+    impl MandateEventBase {
+        pub fn builder() -> builder::MandateEventBase {
+            Default::default()
+        }
+    }
+    /**The `data` payload for every mandate webhook event. Always contains the full `mandate`. Action events also carry the relevant sub-resource: `approval` on the three `approval_*` events, `revocation` on the three `revocation_*` events. The `created` and `canceled` events carry only the `mandate`.
+
+    `mandate.status` reflects only the latest action. Read `mandate.canceledAt` and `mandate.revokedAt` to know what has durably happened: the on-chain spending allowance is gone precisely when `revokedAt` is set, and canceling alone does not remove it.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The `data` payload for every mandate webhook event. Always contains the full `mandate`. Action events also carry the relevant sub-resource: `approval` on the three `approval_*` events, `revocation` on the three `revocation_*` events. The `created` and `canceled` events carry only the `mandate`.\n\n`mandate.status` reflects only the latest action. Read `mandate.canceledAt` and `mandate.revokedAt` to know what has durably happened: the on-chain spending allowance is gone precisely when `revokedAt` is set, and canceling alone does not remove it.",
+    ///  "examples": [
+    ///    {
+    ///      "mandate": {
+    ///        "asset": "usdc",
+    ///        "createdAt": "2025-06-15T12:00:00.000Z",
+    ///        "expiresAt": "2027-06-15T12:00:00.000Z",
+    ///        "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///        "policy": {
+    ///          "maxPerAuthorization": "50.00",
+    ///          "maxPerPeriod": {
+    ///            "amount": "500.00",
+    ///            "period": "month"
+    ///          }
+    ///        },
+    ///        "revocationUrl": "https://payments.coinbase.com/mandates/mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad/revoke",
+    ///        "source": {
+    ///          "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        },
+    ///        "status": "approval_succeeded",
+    ///        "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "mandate"
+    ///  ],
+    ///  "properties": {
+    ///    "approval": {
+    ///      "description": "The approval attempt this event concerns. Present only on the approval events (`acceptance.mandate.approval_initiated`, `acceptance.mandate.approval_succeeded`, and `acceptance.mandate.approval_failed`); absent on all other events. A `failed` approval carries an `error`.",
+    ///      "examples": [
+    ///        {
+    ///          "approvalId": "approval_5f0e9d8c-7b6a-4321-fedc-ba0987654321",
+    ///          "createdAt": "2025-06-15T12:04:00.000Z",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xabc123def456789012345678901234567890abcdef1234567890abcdef123456"
+    ///            }
+    ///          ],
+    ///          "source": {
+    ///            "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///            "asset": "usdc",
+    ///            "network": "base"
+    ///          },
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2025-06-15T12:05:00.000Z"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Approval"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "mandate": {
+    ///      "$ref": "#/components/schemas/Mandate"
+    ///    },
+    ///    "revocation": {
+    ///      "description": "The wallet revocation this event concerns. Present only on revocation events (`revocation_initiated`, `revocation_succeeded`, `revocation_failed`); absent on all others. A `failed` revocation carries an `error`.",
+    ///      "examples": [
+    ///        {
+    ///          "createdAt": "2026-08-21T14:10:00.000Z",
+    ///          "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///          "onchainTransactions": [
+    ///            {
+    ///              "network": "base",
+    ///              "transactionHash": "0xdef456789012345678901234567890abcdef1234567890abcdef1234567890ab"
+    ///            }
+    ///          ],
+    ///          "revocationId": "revocation_9d2e7c14-3b8a-4f21-9c66-2a1e5d7b8f03",
+    ///          "status": "succeeded",
+    ///          "updatedAt": "2026-08-21T14:12:00.000Z"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Revocation"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandateEventData {
+        ///The approval attempt this event concerns. Present only on the approval events (`acceptance.mandate.approval_initiated`, `acceptance.mandate.approval_succeeded`, and `acceptance.mandate.approval_failed`); absent on all other events. A `failed` approval carries an `error`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub approval: ::std::option::Option<Approval>,
+        pub mandate: Mandate,
+        ///The wallet revocation this event concerns. Present only on revocation events (`revocation_initiated`, `revocation_succeeded`, `revocation_failed`); absent on all others. A `failed` revocation carries an `error`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub revocation: ::std::option::Option<Revocation>,
+    }
+    impl ::std::convert::From<&MandateEventData> for MandateEventData {
+        fn from(value: &MandateEventData) -> Self {
+            value.clone()
+        }
+    }
+    impl MandateEventData {
+        pub fn builder() -> builder::MandateEventData {
+            Default::default()
+        }
+    }
+    ///The ID of the mandate, a UUID prefixed by `mandate_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The ID of the mandate, a UUID prefixed by `mandate_`.",
+    ///  "examples": [
+    ///    "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^mandate_[a-f0-9\\-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MandateId(::std::string::String);
+    impl ::std::ops::Deref for MandateId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MandateId> for ::std::string::String {
+        fn from(value: MandateId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MandateId> for MandateId {
+        fn from(value: &MandateId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MandateId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^mandate_[a-f0-9\\-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^mandate_[a-f0-9\\-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MandateId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MandateId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MandateId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MandateId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Debit caps in the mandate's `asset`. Omit `policy` or send `{}` to default to a Coinbase-configured monthly max. Supplied amounts are capped at Coinbase ceilings. If you set `maxPerPeriod`, include both `amount` and `period`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Mandate Policy",
+    ///  "description": "Debit caps in the mandate's `asset`. Omit `policy` or send `{}` to default to a Coinbase-configured monthly max. Supplied amounts are capped at Coinbase ceilings. If you set `maxPerPeriod`, include both `amount` and `period`.",
+    ///  "examples": [
+    ///    {
+    ///      "maxPerAuthorization": "50.00",
+    ///      "maxPerPeriod": {
+    ///        "amount": "500.00",
+    ///        "period": "month"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "maxPerAuthorization": {
+    ///      "description": "Max amount for one authorization. Omit to use the Coinbase default. Capped at the Coinbase ceiling.",
+    ///      "examples": [
+    ///        "50.00"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "maxPerPeriod": {
+    ///      "description": "One rolling cap. Omit to use a Coinbase-configured monthly max. If set, both `amount` and `period` are required. Amount is capped at that period's ceiling.",
+    ///      "examples": [
+    ///        {
+    ///          "amount": "500.00",
+    ///          "period": "month"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandatePolicyPeriodCap"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "minSetupBalance": {
+    ///      "description": "Optional minimum available balance the payer must have to set up the mandate, denominated in the mandate's `asset`. When set, the mandate can only be approved if the payer's available balance is at least this amount; an approval attempted while the balance is below it is rejected with a `422` (`mandate_policy_violation`). This does not dictate the amount debited: the payment session amount remains the source of truth for what is debited. Omit to use the Coinbase-configured default.",
+    ///      "examples": [
+    ///        "10.00"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandatePolicy {
+        ///Max amount for one authorization. Omit to use the Coinbase default. Capped at the Coinbase ceiling.
+        #[serde(
+            rename = "maxPerAuthorization",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub max_per_authorization: ::std::option::Option<::std::string::String>,
+        ///One rolling cap. Omit to use a Coinbase-configured monthly max. If set, both `amount` and `period` are required. Amount is capped at that period's ceiling.
+        #[serde(
+            rename = "maxPerPeriod",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub max_per_period: ::std::option::Option<MandatePolicyPeriodCap>,
+        ///Optional minimum available balance the payer must have to set up the mandate, denominated in the mandate's `asset`. When set, the mandate can only be approved if the payer's available balance is at least this amount; an approval attempted while the balance is below it is rejected with a `422` (`mandate_policy_violation`). This does not dictate the amount debited: the payment session amount remains the source of truth for what is debited. Omit to use the Coinbase-configured default.
+        #[serde(
+            rename = "minSetupBalance",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub min_setup_balance: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&MandatePolicy> for MandatePolicy {
+        fn from(value: &MandatePolicy) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for MandatePolicy {
+        fn default() -> Self {
+            Self {
+                max_per_authorization: Default::default(),
+                max_per_period: Default::default(),
+                min_setup_balance: Default::default(),
+            }
+        }
+    }
+    impl MandatePolicy {
+        pub fn builder() -> builder::MandatePolicy {
+            Default::default()
+        }
+    }
+    ///The rolling window that `maxPerPeriod.amount` applies over. It is a fixed duration measured back from now, not a calendar window. For example, `month` means the trailing 30 days, not the current calendar month.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The rolling window that `maxPerPeriod.amount` applies over. It is a fixed duration measured back from now, not a calendar window. For example, `month` means the trailing 30 days, not the current calendar month.",
+    ///  "examples": [
+    ///    "month"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "day",
+    ///    "week",
+    ///    "month",
+    ///    "year"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum MandatePolicyPeriod {
+        #[serde(rename = "day")]
+        Day,
+        #[serde(rename = "week")]
+        Week,
+        #[serde(rename = "month")]
+        Month,
+        #[serde(rename = "year")]
+        Year,
+    }
+    impl ::std::convert::From<&Self> for MandatePolicyPeriod {
+        fn from(value: &MandatePolicyPeriod) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for MandatePolicyPeriod {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Day => f.write_str("day"),
+                Self::Week => f.write_str("week"),
+                Self::Month => f.write_str("month"),
+                Self::Year => f.write_str("year"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for MandatePolicyPeriod {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "day" => Ok(Self::Day),
+                "week" => Ok(Self::Week),
+                "month" => Ok(Self::Month),
+                "year" => Ok(Self::Year),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MandatePolicyPeriod {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MandatePolicyPeriod {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MandatePolicyPeriod {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///One rolling cap over `period` (a trailing window, not a calendar period). Send both `amount` and `period`, or omit the object. The stored amount is capped at the Coinbase ceiling for that period. Enforced atomically at authorization so concurrent charges cannot exceed the cap.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Mandate Policy Period Cap",
+    ///  "description": "One rolling cap over `period` (a trailing window, not a calendar period). Send both `amount` and `period`, or omit the object. The stored amount is capped at the Coinbase ceiling for that period. Enforced atomically at authorization so concurrent charges cannot exceed the cap.",
+    ///  "examples": [
+    ///    {
+    ///      "amount": "500.00",
+    ///      "period": "month"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "period"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "Max total authorizable in the rolling `period`. Capped at the Coinbase ceiling for `period`.",
+    ///      "examples": [
+    ///        "500.00"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "period": {
+    ///      "$ref": "#/components/schemas/MandatePolicyPeriod"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandatePolicyPeriodCap {
+        ///Max total authorizable in the rolling `period`. Capped at the Coinbase ceiling for `period`.
+        pub amount: ::std::string::String,
+        pub period: MandatePolicyPeriod,
+    }
+    impl ::std::convert::From<&MandatePolicyPeriodCap> for MandatePolicyPeriodCap {
+        fn from(value: &MandatePolicyPeriodCap) -> Self {
+            value.clone()
+        }
+    }
+    impl MandatePolicyPeriodCap {
+        pub fn builder() -> builder::MandatePolicyPeriodCap {
+            Default::default()
+        }
+    }
+    ///The funding source the mandate draws against. A wallet is the only supported source type today.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The funding source the mandate draws against. A wallet is the only supported source type today.",
+    ///  "examples": [
+    ///    {
+    ///      "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///      "asset": "usdc",
+    ///      "network": "base"
+    ///    }
+    ///  ],
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/MandateSourceWallet"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct MandateSource(pub MandateSourceWallet);
+    impl ::std::ops::Deref for MandateSource {
+        type Target = MandateSourceWallet;
+        fn deref(&self) -> &MandateSourceWallet {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MandateSource> for MandateSourceWallet {
+        fn from(value: MandateSource) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MandateSource> for MandateSource {
+        fn from(value: &MandateSource) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<MandateSourceWallet> for MandateSource {
+        fn from(value: MandateSourceWallet) -> Self {
+            Self(value)
+        }
+    }
+    ///A blockchain wallet the mandate draws funds from. Extends the shared payment source wallet, requiring `network` and `asset` alongside `address` (the `asset` is what debits against the mandate are drawn in).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Mandate Source Wallet",
+    ///  "description": "A blockchain wallet the mandate draws funds from. Extends the shared payment source wallet, requiring `network` and `asset` alongside `address` (the `asset` is what debits against the mandate are drawn in).",
+    ///  "examples": [
+    ///    {
+    ///      "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///      "asset": "usdc",
+    ///      "network": "base"
+    ///    }
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/PaymentSourceWallet"
+    ///    },
+    ///    {
+    ///      "required": [
+    ///        "address",
+    ///        "asset",
+    ///        "network"
+    ///      ]
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MandateSourceWallet {
+        ///The blockchain address of the payer.
+        pub address: BlockchainAddress,
+        ///The asset used for the payment.
+        pub asset: Asset,
+        ///The blockchain network for the payment.
+        pub network: PaymentSourceNetwork,
+    }
+    impl ::std::convert::From<&MandateSourceWallet> for MandateSourceWallet {
+        fn from(value: &MandateSourceWallet) -> Self {
+            value.clone()
+        }
+    }
+    impl MandateSourceWallet {
+        pub fn builder() -> builder::MandateSourceWallet {
+            Default::default()
+        }
+    }
+    /**The most recent action on the mandate. `status` is an informational indicator of the latest transition; it is not the source of truth for what has durably happened. Read the timestamps for that: `approvedAt`, `canceledAt`, and `revokedAt` each record a durable milestone independently of `status`.
+
+    - `created`: the mandate exists but no approval has been attempted. No
+      source attached. Not usable.
+
+
+    - `approval_pending`: an approval is in flight. Not usable. Emits
+      `acceptance.mandate.approval_initiated`.
+
+
+    - `approval_succeeded`: the mandate has a source and is usable.
+
+    - `approval_failed`: the last approval attempt failed. Not usable. Submit
+      a new approval to retry.
+
+
+    - `revocation_pending`: a wallet revocation is being confirmed on the
+      network. Emits `acceptance.mandate.revocation_initiated`. Resolves to
+      `revocation_succeeded` on success or `revocation_failed` on failure.
+
+
+    - `revocation_succeeded`: a wallet revocation removed the spending allowance
+      on-chain (`revokedAt` is set). Terminal.
+
+
+    - `revocation_failed`: the last wallet revocation attempt did not complete.
+      The spending allowance was not removed, so the mandate remains usable if it
+      was usable before. Submit a new revocation to retry.
+
+
+    - `canceled`: the merchant ended the mandate off-chain (`canceledAt` is set).
+      The on-chain spending allowance may still be live; a later wallet
+      revocation can still move `status` through the `revocation_*` values and
+      set `revokedAt`.
+
+
+    **Usable when** `approvedAt` is set, `canceledAt` is null, `revokedAt` is null, and `expiresAt` is null or in the future. Usability is derived from these timestamps, not from `status`: a failed revocation, for example, leaves `status` at `revocation_failed` but the mandate stays usable because the allowance was never removed. Authorization checks the durable conditions in order, and the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`). Approve a mandate and get wallet approval options use that same order for the in-flight, revoked, canceled, and expired checks. Any other status except `created` or `approval_failed` returns `422` (`mandate_invalid_status`). Those rejections do not change the timestamps. Debit limits are enforced at authorization time.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The most recent action on the mandate. `status` is an informational indicator of the latest transition; it is not the source of truth for what has durably happened. Read the timestamps for that: `approvedAt`, `canceledAt`, and `revokedAt` each record a durable milestone independently of `status`.\n\n- `created`: the mandate exists but no approval has been attempted. No\n  source attached. Not usable.\n\n\n- `approval_pending`: an approval is in flight. Not usable. Emits\n  `acceptance.mandate.approval_initiated`.\n\n\n- `approval_succeeded`: the mandate has a source and is usable.\n\n- `approval_failed`: the last approval attempt failed. Not usable. Submit\n  a new approval to retry.\n\n\n- `revocation_pending`: a wallet revocation is being confirmed on the\n  network. Emits `acceptance.mandate.revocation_initiated`. Resolves to\n  `revocation_succeeded` on success or `revocation_failed` on failure.\n\n\n- `revocation_succeeded`: a wallet revocation removed the spending allowance\n  on-chain (`revokedAt` is set). Terminal.\n\n\n- `revocation_failed`: the last wallet revocation attempt did not complete.\n  The spending allowance was not removed, so the mandate remains usable if it\n  was usable before. Submit a new revocation to retry.\n\n\n- `canceled`: the merchant ended the mandate off-chain (`canceledAt` is set).\n  The on-chain spending allowance may still be live; a later wallet\n  revocation can still move `status` through the `revocation_*` values and\n  set `revokedAt`.\n\n\n**Usable when** `approvedAt` is set, `canceledAt` is null, `revokedAt` is null, and `expiresAt` is null or in the future. Usability is derived from these timestamps, not from `status`: a failed revocation, for example, leaves `status` at `revocation_failed` but the mandate stays usable because the allowance was never removed. Authorization checks the durable conditions in order, and the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`). Approve a mandate and get wallet approval options use that same order for the in-flight, revoked, canceled, and expired checks. Any other status except `created` or `approval_failed` returns `422` (`mandate_invalid_status`). Those rejections do not change the timestamps. Debit limits are enforced at authorization time.",
+    ///  "examples": [
+    ///    "approval_succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "created",
+    ///    "approval_pending",
+    ///    "approval_succeeded",
+    ///    "approval_failed",
+    ///    "revocation_pending",
+    ///    "revocation_succeeded",
+    ///    "revocation_failed",
+    ///    "canceled"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum MandateStatus {
+        #[serde(rename = "created")]
+        Created,
+        #[serde(rename = "approval_pending")]
+        ApprovalPending,
+        #[serde(rename = "approval_succeeded")]
+        ApprovalSucceeded,
+        #[serde(rename = "approval_failed")]
+        ApprovalFailed,
+        #[serde(rename = "revocation_pending")]
+        RevocationPending,
+        #[serde(rename = "revocation_succeeded")]
+        RevocationSucceeded,
+        #[serde(rename = "revocation_failed")]
+        RevocationFailed,
+        #[serde(rename = "canceled")]
+        Canceled,
+    }
+    impl ::std::convert::From<&Self> for MandateStatus {
+        fn from(value: &MandateStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for MandateStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Created => f.write_str("created"),
+                Self::ApprovalPending => f.write_str("approval_pending"),
+                Self::ApprovalSucceeded => f.write_str("approval_succeeded"),
+                Self::ApprovalFailed => f.write_str("approval_failed"),
+                Self::RevocationPending => f.write_str("revocation_pending"),
+                Self::RevocationSucceeded => f.write_str("revocation_succeeded"),
+                Self::RevocationFailed => f.write_str("revocation_failed"),
+                Self::Canceled => f.write_str("canceled"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for MandateStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "created" => Ok(Self::Created),
+                "approval_pending" => Ok(Self::ApprovalPending),
+                "approval_succeeded" => Ok(Self::ApprovalSucceeded),
+                "approval_failed" => Ok(Self::ApprovalFailed),
+                "revocation_pending" => Ok(Self::RevocationPending),
+                "revocation_succeeded" => Ok(Self::RevocationSucceeded),
+                "revocation_failed" => Ok(Self::RevocationFailed),
+                "canceled" => Ok(Self::Canceled),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MandateStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MandateStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MandateStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -52849,13 +57319,16 @@ pub mod types {
     }
     /**A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:
     - `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.
-    - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.*/
+    - `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.
+    - `solana_subscription` — the 64-byte ed25519 signature for the payer that
+      signed, extracted from the signed Solana transaction and base58-encoded.
+      Not the signed transaction bytes, and not `0x`-prefixed hex.*/
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:\n- `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.\n- `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.",
+    ///  "description": "A processed onchain payload containing the payload ID and the payer's signature or transaction hash. The `signature` value depends on the original payload `type`:\n- `eip3009` / `permit2` / `spend_permission` — a hex-encoded signature from `eth_signTypedData_v4`.\n- `erc20_approval` — a hex-encoded transaction hash from `eth_sendTransaction`.\n- `solana_subscription` — the 64-byte ed25519 signature for the payer that\n  signed, extracted from the signed Solana transaction and base58-encoded.\n  Not the signed transaction bytes, and not `0x`-prefixed hex.",
     ///  "examples": [
     ///    {
     ///      "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
@@ -52872,7 +57345,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "signature": {
-    ///      "description": "The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`.",
+    ///      "description": "The output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. For `solana_subscription`, this is the payer's 64-byte ed25519 signature extracted from the signed Solana transaction and base58-encoded, not the signed transaction bytes or `0x`-prefixed hex.",
     ///      "examples": [
     ///        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab"
     ///      ],
@@ -52891,7 +57364,7 @@ pub mod types {
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub payload_id: ::std::option::Option<::std::string::String>,
-        ///The hex-encoded output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`.
+        ///The output from processing the payload. For `eip3009`, `permit2`, and `spend_permission` types, this is the cryptographic signature returned by `eth_signTypedData_v4`. For `erc20_approval` types, this is the transaction hash returned by `eth_sendTransaction`. For `solana_subscription`, this is the payer's 64-byte ed25519 signature extracted from the signed Solana transaction and base58-encoded, not the signed transaction bytes or `0x`-prefixed hex.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub signature: ::std::option::Option<::std::string::String>,
     }
@@ -60736,7 +65209,9 @@ pub mod types {
     ///    "optimism",
     ///    "optimism-sepolia",
     ///    "polygon",
-    ///    "polygon-amoy"
+    ///    "polygon-amoy",
+    ///    "solana",
+    ///    "solana-devnet"
     ///  ]
     ///}
     /// ```
@@ -60776,6 +65251,10 @@ pub mod types {
         Polygon,
         #[serde(rename = "polygon-amoy")]
         PolygonAmoy,
+        #[serde(rename = "solana")]
+        Solana,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
     }
     impl ::std::convert::From<&Self> for PaymentSourceNetwork {
         fn from(value: &PaymentSourceNetwork) -> Self {
@@ -60796,6 +65275,8 @@ pub mod types {
                 Self::OptimismSepolia => f.write_str("optimism-sepolia"),
                 Self::Polygon => f.write_str("polygon"),
                 Self::PolygonAmoy => f.write_str("polygon-amoy"),
+                Self::Solana => f.write_str("solana"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
             }
         }
     }
@@ -60814,6 +65295,8 @@ pub mod types {
                 "optimism-sepolia" => Ok(Self::OptimismSepolia),
                 "polygon" => Ok(Self::Polygon),
                 "polygon-amoy" => Ok(Self::PolygonAmoy),
+                "solana" => Ok(Self::Solana),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
                 _ => Err("invalid value".into()),
             }
         }
@@ -62051,6 +66534,287 @@ pub mod types {
     impl ::std::convert::TryFrom<::std::string::String>
         for PaymentsTransfersTravelRuleIncompleteEventEventType
     {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///A Permit2 `PermitSingle` (AllowanceTransfer) typed-data payload. It grants the spender a reusable allowance through the canonical Permit2 contract, so it can back repeated charges rather than a single transfer. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. A one-time ERC-20 approval of the Permit2 contract (an `erc20_approval` payload) is required first if the wallet has not yet approved Permit2 for this asset.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Permit2 Allowance Payload",
+    ///  "description": "A Permit2 `PermitSingle` (AllowanceTransfer) typed-data payload. It grants the spender a reusable allowance through the canonical Permit2 contract, so it can back repeated charges rather than a single transfer. The payer must pass `data` to `eth_signTypedData_v4` and return the resulting signature. A one-time ERC-20 approval of the Permit2 contract (an `erc20_approval` payload) is required first if the wallet has not yet approved Permit2 for this asset.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "domain": {
+    ///          "chainId": 8453,
+    ///          "name": "Permit2",
+    ///          "verifyingContract": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+    ///        },
+    ///        "message": {
+    ///          "details": {
+    ///            "amount": "1461501637330902918203684832716283019655932542975",
+    ///            "expiration": "1798761600",
+    ///            "nonce": "0",
+    ///            "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    ///          },
+    ///          "sigDeadline": "1798761600",
+    ///          "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c"
+    ///        },
+    ///        "primaryType": "PermitSingle",
+    ///        "types": {
+    ///          "EIP712Domain": [
+    ///            {
+    ///              "name": "name",
+    ///              "type": "string"
+    ///            },
+    ///            {
+    ///              "name": "chainId",
+    ///              "type": "uint256"
+    ///            },
+    ///            {
+    ///              "name": "verifyingContract",
+    ///              "type": "address"
+    ///            }
+    ///          ],
+    ///          "PermitDetails": [
+    ///            {
+    ///              "name": "token",
+    ///              "type": "address"
+    ///            },
+    ///            {
+    ///              "name": "amount",
+    ///              "type": "uint160"
+    ///            },
+    ///            {
+    ///              "name": "expiration",
+    ///              "type": "uint48"
+    ///            },
+    ///            {
+    ///              "name": "nonce",
+    ///              "type": "uint48"
+    ///            }
+    ///          ],
+    ///          "PermitSingle": [
+    ///            {
+    ///              "name": "details",
+    ///              "type": "PermitDetails"
+    ///            },
+    ///            {
+    ///              "name": "spender",
+    ///              "type": "address"
+    ///            },
+    ///            {
+    ///              "name": "sigDeadline",
+    ///              "type": "uint256"
+    ///            }
+    ///          ]
+    ///        }
+    ///      },
+    ///      "payloadId": "payload_cg4059d2-b068-6ih9-dha1-eee44f157336",
+    ///      "type": "permit2"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "data",
+    ///    "payloadId",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "data": {
+    ///      "description": "EIP-712 typed data for a Permit2 `PermitSingle`. Pass to `eth_signTypedData_v4`.",
+    ///      "examples": [
+    ///        {
+    ///          "domain": {
+    ///            "chainId": 8453,
+    ///            "name": "Permit2",
+    ///            "verifyingContract": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+    ///          },
+    ///          "message": {
+    ///            "details": {
+    ///              "amount": "1461501637330902918203684832716283019655932542975",
+    ///              "expiration": "1798761600",
+    ///              "nonce": "0",
+    ///              "token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    ///            },
+    ///            "sigDeadline": "1798761600",
+    ///            "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c"
+    ///          },
+    ///          "primaryType": "PermitSingle",
+    ///          "types": {
+    ///            "EIP712Domain": [
+    ///              {
+    ///                "name": "name",
+    ///                "type": "string"
+    ///              },
+    ///              {
+    ///                "name": "chainId",
+    ///                "type": "uint256"
+    ///              },
+    ///              {
+    ///                "name": "verifyingContract",
+    ///                "type": "address"
+    ///              }
+    ///            ],
+    ///            "PermitDetails": [
+    ///              {
+    ///                "name": "token",
+    ///                "type": "address"
+    ///              },
+    ///              {
+    ///                "name": "amount",
+    ///                "type": "uint160"
+    ///              },
+    ///              {
+    ///                "name": "expiration",
+    ///                "type": "uint48"
+    ///              },
+    ///              {
+    ///                "name": "nonce",
+    ///                "type": "uint48"
+    ///              }
+    ///            ],
+    ///            "PermitSingle": [
+    ///              {
+    ///                "name": "details",
+    ///                "type": "PermitDetails"
+    ///              },
+    ///              {
+    ///                "name": "spender",
+    ///                "type": "address"
+    ///              },
+    ///              {
+    ///                "name": "sigDeadline",
+    ///                "type": "uint256"
+    ///              }
+    ///            ]
+    ///          }
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/EIP712Message"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "payloadId": {
+    ///      "description": "The unique identifier of the payload.",
+    ///      "examples": [
+    ///        "payload_cg4059d2-b068-6ih9-dha1-eee44f157336"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "description": "The payload type.",
+    ///      "examples": [
+    ///        "permit2"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "permit2"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct Permit2AllowancePayload {
+        ///EIP-712 typed data for a Permit2 `PermitSingle`. Pass to `eth_signTypedData_v4`.
+        pub data: Eip712Message,
+        ///The unique identifier of the payload.
+        #[serde(rename = "payloadId")]
+        pub payload_id: ::std::string::String,
+        ///The payload type.
+        #[serde(rename = "type")]
+        pub type_: Permit2AllowancePayloadType,
+    }
+    impl ::std::convert::From<&Permit2AllowancePayload> for Permit2AllowancePayload {
+        fn from(value: &Permit2AllowancePayload) -> Self {
+            value.clone()
+        }
+    }
+    impl Permit2AllowancePayload {
+        pub fn builder() -> builder::Permit2AllowancePayload {
+            Default::default()
+        }
+    }
+    ///The payload type.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload type.",
+    ///  "examples": [
+    ///    "permit2"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "permit2"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum Permit2AllowancePayloadType {
+        #[serde(rename = "permit2")]
+        Permit2,
+    }
+    impl ::std::convert::From<&Self> for Permit2AllowancePayloadType {
+        fn from(value: &Permit2AllowancePayloadType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for Permit2AllowancePayloadType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Permit2 => f.write_str("permit2"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for Permit2AllowancePayloadType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "permit2" => Ok(Self::Permit2),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for Permit2AllowancePayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for Permit2AllowancePayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for Permit2AllowancePayloadType {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -65948,63 +70712,512 @@ pub mod types {
             Self(value)
         }
     }
-    ///`RevokeDelegationForEndUserAccountBody`
+    /**A record of a wallet revocation: the customer removing the mandate's spending allowance on-chain (see `onchainTransactions`). While it is confirming, the mandate's `status` is `revocation_pending`; on success it becomes `revocation_succeeded` and the mandate's `revokedAt` is set, and on failure it becomes `revocation_failed`. This applies regardless of whether the mandate was previously canceled: a revocation on an already-canceled mandate still moves `status` through the `revocation_*` values and sets `revokedAt`.
+
+    To check whether the spending allowance is still active, read the mandate: `revokedAt` is set once the allowance has been removed.*/
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "description": "A record of a wallet revocation: the customer removing the mandate's spending allowance on-chain (see `onchainTransactions`). While it is confirming, the mandate's `status` is `revocation_pending`; on success it becomes `revocation_succeeded` and the mandate's `revokedAt` is set, and on failure it becomes `revocation_failed`. This applies regardless of whether the mandate was previously canceled: a revocation on an already-canceled mandate still moves `status` through the `revocation_*` values and sets `revokedAt`.\n\nTo check whether the spending allowance is still active, read the mandate: `revokedAt` is set once the allowance has been removed.",
+    ///  "examples": [
+    ///    {
+    ///      "createdAt": "2026-08-21T14:10:00.000Z",
+    ///      "mandateId": "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad",
+    ///      "onchainTransactions": [
+    ///        {
+    ///          "network": "base",
+    ///          "transactionHash": "0xdef456789012345678901234567890abcdef1234567890abcdef1234567890ab"
+    ///        }
+    ///      ],
+    ///      "revocationId": "revocation_9d2e7c14-3b8a-4f21-9c66-2a1e5d7b8f03",
+    ///      "status": "succeeded",
+    ///      "updatedAt": "2026-08-21T14:12:00.000Z"
+    ///    }
+    ///  ],
     ///  "type": "object",
+    ///  "required": [
+    ///    "createdAt",
+    ///    "mandateId",
+    ///    "revocationId",
+    ///    "status",
+    ///    "updatedAt"
+    ///  ],
     ///  "properties": {
-    ///    "walletSecretId": {
-    ///      "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///    "createdAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the revocation was created.",
     ///      "examples": [
-    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///        "2026-08-21T14:10:00.000Z"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///      "format": "date-time"
+    ///    },
+    ///    "error": {
+    ///      "description": "Details of why the revocation failed. Only present when `status` is `failed`.",
+    ///      "examples": [
+    ///        {
+    ///          "code": "transaction_reverted",
+    ///          "message": "The revocation transaction reverted on-chain.",
+    ///          "occurredAt": "2026-08-21T14:12:00.000Z"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentError"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "mandateId": {
+    ///      "description": "The unique identifier of the mandate this revocation applies to.",
+    ///      "examples": [
+    ///        "mandate_82c879c1-84e1-44ed-a8c2-1ac239cf09ad"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "onchainTransactions": {
+    ///      "description": "Network transactions that remove the spending allowance on-chain. Empty until the revocation has been submitted to the network.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "network": "base",
+    ///            "transactionHash": "0xdef456789012345678901234567890abcdef1234567890abcdef1234567890ab"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainTransaction"
+    ///      }
+    ///    },
+    ///    "revocationId": {
+    ///      "description": "The unique identifier of the revocation.",
+    ///      "examples": [
+    ///        "revocation_9d2e7c14-3b8a-4f21-9c66-2a1e5d7b8f03"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/RevocationId"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "status": {
+    ///      "description": "The current status of the revocation attempt.",
+    ///      "examples": [
+    ///        "succeeded"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/RevocationStatus"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "updatedAt": {
+    ///      "description": "The UTC ISO 8601 timestamp at which the revocation was last updated.",
+    ///      "examples": [
+    ///        "2026-08-21T14:12:00.000Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
     ///    }
     ///  }
     ///}
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct RevokeDelegationForEndUserAccountBody {
-        ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    pub struct Revocation {
+        ///The UTC ISO 8601 timestamp at which the revocation was created.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///Details of why the revocation failed. Only present when `status` is `failed`.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub error: ::std::option::Option<PaymentError>,
+        ///The unique identifier of the mandate this revocation applies to.
+        #[serde(rename = "mandateId")]
+        pub mandate_id: MandateId,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///Network transactions that remove the spending allowance on-chain. Empty until the revocation has been submitted to the network.
         #[serde(
-            rename = "walletSecretId",
+            rename = "onchainTransactions",
             default,
-            skip_serializing_if = "::std::option::Option::is_none"
+            skip_serializing_if = "::std::vec::Vec::is_empty"
         )]
-        pub wallet_secret_id:
-            ::std::option::Option<RevokeDelegationForEndUserAccountBodyWalletSecretId>,
+        pub onchain_transactions: ::std::vec::Vec<OnchainTransaction>,
+        ///The unique identifier of the revocation.
+        #[serde(rename = "revocationId")]
+        pub revocation_id: RevocationId,
+        ///The current status of the revocation attempt.
+        pub status: RevocationStatus,
+        ///The UTC ISO 8601 timestamp at which the revocation was last updated.
+        #[serde(rename = "updatedAt")]
+        pub updated_at: ::chrono::DateTime<::chrono::offset::Utc>,
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountBody>
-        for RevokeDelegationForEndUserAccountBody
-    {
-        fn from(value: &RevokeDelegationForEndUserAccountBody) -> Self {
+    impl ::std::convert::From<&Revocation> for Revocation {
+        fn from(value: &Revocation) -> Self {
             value.clone()
         }
     }
-    impl ::std::default::Default for RevokeDelegationForEndUserAccountBody {
-        fn default() -> Self {
-            Self {
-                wallet_secret_id: Default::default(),
-            }
-        }
-    }
-    impl RevokeDelegationForEndUserAccountBody {
-        pub fn builder() -> builder::RevokeDelegationForEndUserAccountBody {
+    impl Revocation {
+        pub fn builder() -> builder::Revocation {
             Default::default()
         }
     }
-    ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///The ID of a revocation, a UUID prefixed by `revocation_`.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "description": "The ID of a revocation, a UUID prefixed by `revocation_`.",
+    ///  "examples": [
+    ///    "revocation_9d2e7c14-3b8a-4f21-9c66-2a1e5d7b8f03"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^revocation_[a-f0-9\\-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevocationId(::std::string::String);
+    impl ::std::ops::Deref for RevocationId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevocationId> for ::std::string::String {
+        fn from(value: RevocationId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevocationId> for RevocationId {
+        fn from(value: &RevocationId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevocationId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^revocation_[a-f0-9\\-]{36}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^revocation_[a-f0-9\\-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevocationId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevocationId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevocationId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevocationId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**A single payload the customer signs to remove the mandate's spending allowance on-chain. Each payload sets the allowance to zero using the same credential type that granted it. Inspect `type` to determine how to handle `data`:
+
+    - `eip2612`: an EIP-2612 `Permit` with `value` of `0`; pass `data` to
+      `eth_signTypedData_v4`, return the signature.
+
+
+    - `permit2`: a Permit2 `PermitSingle` with `amount` of `0`; pass `data` to
+      `eth_signTypedData_v4`, return the signature.
+
+
+    - `erc20_approval`: an ERC-20 `approve` of `0`; send `data` via
+      `eth_sendTransaction`, return the transaction hash.
+
+    - `solana_subscription`: decode `data.transaction` from base64 and pass the
+      bytes to the Solana Wallet Standard `signTransaction` method (never
+      `signAndSendTransaction`). The transaction is `revokeDelegation`.
+      From the signed transaction, extract the 64-byte ed25519 signature for
+      the payer that signed, base58-encode it, and return that string as
+      `OnchainSignedPayload.signature`.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A single payload the customer signs to remove the mandate's spending allowance on-chain. Each payload sets the allowance to zero using the same credential type that granted it. Inspect `type` to determine how to handle `data`:\n\n- `eip2612`: an EIP-2612 `Permit` with `value` of `0`; pass `data` to\n  `eth_signTypedData_v4`, return the signature.\n\n\n- `permit2`: a Permit2 `PermitSingle` with `amount` of `0`; pass `data` to\n  `eth_signTypedData_v4`, return the signature.\n\n\n- `erc20_approval`: an ERC-20 `approve` of `0`; send `data` via\n  `eth_sendTransaction`, return the transaction hash.\n\n- `solana_subscription`: decode `data.transaction` from base64 and pass the\n  bytes to the Solana Wallet Standard `signTransaction` method (never\n  `signAndSendTransaction`). The transaction is `revokeDelegation`.\n  From the signed transaction, extract the 64-byte ed25519 signature for\n  the payer that signed, base58-encode it, and return that string as\n  `OnchainSignedPayload.signature`.",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/EIP2612Payload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/Permit2AllowancePayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/Erc20ApprovalPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/SolanaSubscriptionPayload"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum RevocationPayload {
+        Eip2612Payload(Eip2612Payload),
+        Permit2AllowancePayload(Permit2AllowancePayload),
+        Erc20ApprovalPayload(Erc20ApprovalPayload),
+        SolanaSubscriptionPayload(SolanaSubscriptionPayload),
+    }
+    impl ::std::convert::From<&Self> for RevocationPayload {
+        fn from(value: &RevocationPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<Eip2612Payload> for RevocationPayload {
+        fn from(value: Eip2612Payload) -> Self {
+            Self::Eip2612Payload(value)
+        }
+    }
+    impl ::std::convert::From<Permit2AllowancePayload> for RevocationPayload {
+        fn from(value: Permit2AllowancePayload) -> Self {
+            Self::Permit2AllowancePayload(value)
+        }
+    }
+    impl ::std::convert::From<Erc20ApprovalPayload> for RevocationPayload {
+        fn from(value: Erc20ApprovalPayload) -> Self {
+            Self::Erc20ApprovalPayload(value)
+        }
+    }
+    impl ::std::convert::From<SolanaSubscriptionPayload> for RevocationPayload {
+        fn from(value: SolanaSubscriptionPayload) -> Self {
+            Self::SolanaSubscriptionPayload(value)
+        }
+    }
+    /**The status of a wallet revocation attempt:
+
+    - `pending`: awaiting network confirmation.
+
+    - `succeeded`: the spending allowance has been removed on-chain.
+
+    - `failed`: the revocation did not complete (see `error`).*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The status of a wallet revocation attempt:\n\n- `pending`: awaiting network confirmation.\n\n- `succeeded`: the spending allowance has been removed on-chain.\n\n- `failed`: the revocation did not complete (see `error`).",
+    ///  "examples": [
+    ///    "succeeded"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "pending",
+    ///    "succeeded",
+    ///    "failed"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum RevocationStatus {
+        #[serde(rename = "pending")]
+        Pending,
+        #[serde(rename = "succeeded")]
+        Succeeded,
+        #[serde(rename = "failed")]
+        Failed,
+    }
+    impl ::std::convert::From<&Self> for RevocationStatus {
+        fn from(value: &RevocationStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for RevocationStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Pending => f.write_str("pending"),
+                Self::Succeeded => f.write_str("succeeded"),
+                Self::Failed => f.write_str("failed"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for RevocationStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "pending" => Ok(Self::Pending),
+                "succeeded" => Ok(Self::Succeeded),
+                "failed" => Ok(Self::Failed),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevocationStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevocationStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevocationStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountDeprecatedProjectId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountDeprecatedProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedProjectId>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedProjectId>
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedProjectId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserAccountDeprecatedProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountDeprecatedUserId`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
     ///  "examples": [
     ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
     ///  ],
@@ -66015,28 +71228,28 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserAccountBodyWalletSecretId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+    pub struct RevokeDelegationForEndUserAccountDeprecatedUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserAccountBodyWalletSecretId>
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedUserId>
         for ::std::string::String
     {
-        fn from(value: RevokeDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedUserId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserAccountBodyWalletSecretId>
-        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedUserId>
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
-        fn from(value: &RevokeDelegationForEndUserAccountBodyWalletSecretId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedUserId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66049,14 +71262,14 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedUserId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66066,7 +71279,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserAccountBodyWalletSecretId
+        for RevokeDelegationForEndUserAccountDeprecatedUserId
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66075,7 +71288,92 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountBodyWalletSecretId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
+    {
+        fn from(value: &RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66344,60 +71642,104 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeDelegationForEndUserBody`
+    ///`RevokeDelegationForEndUserDeprecatedProjectId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "type": "object",
-    ///  "properties": {
-    ///    "walletSecretId": {
-    ///      "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
-    ///      "examples": [
-    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
-    ///      ],
-    ///      "type": "string",
-    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
-    ///    }
-    ///  }
+    ///  "examples": [
+    ///    "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     ///}
     /// ```
     /// </details>
-    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct RevokeDelegationForEndUserBody {
-        ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
-        #[serde(
-            rename = "walletSecretId",
-            default,
-            skip_serializing_if = "::std::option::Option::is_none"
-        )]
-        pub wallet_secret_id: ::std::option::Option<RevokeDelegationForEndUserBodyWalletSecretId>,
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserDeprecatedProjectId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedProjectId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserBody> for RevokeDelegationForEndUserBody {
-        fn from(value: &RevokeDelegationForEndUserBody) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedProjectId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserDeprecatedProjectId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedProjectId>
+        for RevokeDelegationForEndUserDeprecatedProjectId
+    {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedProjectId) -> Self {
             value.clone()
         }
     }
-    impl ::std::default::Default for RevokeDelegationForEndUserBody {
-        fn default() -> Self {
-            Self {
-                wallet_secret_id: Default::default(),
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedProjectId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$\""
+                        .into(),
+                );
             }
+            Ok(Self(value.to_string()))
         }
     }
-    impl RevokeDelegationForEndUserBody {
-        pub fn builder() -> builder::RevokeDelegationForEndUserBody {
-            Default::default()
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedProjectId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
-    ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedProjectId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedProjectId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserDeprecatedUserId`
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
-    ///  "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
     ///  "examples": [
     ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
     ///  ],
@@ -66408,26 +71750,26 @@ pub mod types {
     /// </details>
     #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
     #[serde(transparent)]
-    pub struct RevokeDelegationForEndUserBodyWalletSecretId(::std::string::String);
-    impl ::std::ops::Deref for RevokeDelegationForEndUserBodyWalletSecretId {
+    pub struct RevokeDelegationForEndUserDeprecatedUserId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedUserId {
         type Target = ::std::string::String;
         fn deref(&self) -> &::std::string::String {
             &self.0
         }
     }
-    impl ::std::convert::From<RevokeDelegationForEndUserBodyWalletSecretId> for ::std::string::String {
-        fn from(value: RevokeDelegationForEndUserBodyWalletSecretId) -> Self {
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedUserId> for ::std::string::String {
+        fn from(value: RevokeDelegationForEndUserDeprecatedUserId) -> Self {
             value.0
         }
     }
-    impl ::std::convert::From<&RevokeDelegationForEndUserBodyWalletSecretId>
-        for RevokeDelegationForEndUserBodyWalletSecretId
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedUserId>
+        for RevokeDelegationForEndUserDeprecatedUserId
     {
-        fn from(value: &RevokeDelegationForEndUserBodyWalletSecretId) -> Self {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedUserId) -> Self {
             value.clone()
         }
     }
-    impl ::std::str::FromStr for RevokeDelegationForEndUserBodyWalletSecretId {
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedUserId {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
@@ -66440,14 +71782,97 @@ pub mod types {
             Ok(Self(value.to_string()))
         }
     }
-    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserBodyWalletSecretId {
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedUserId {
         type Error = self::error::ConversionError;
         fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
         }
     }
     impl ::std::convert::TryFrom<&::std::string::String>
-        for RevokeDelegationForEndUserBodyWalletSecretId
+        for RevokeDelegationForEndUserDeprecatedUserId
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationForEndUserDeprecatedUserId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedUserId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeDelegationForEndUserDeprecatedXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationForEndUserDeprecatedXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationForEndUserDeprecatedXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: RevokeDelegationForEndUserDeprecatedXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationForEndUserDeprecatedXIdempotencyKey>
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
+    {
+        fn from(value: &RevokeDelegationForEndUserDeprecatedXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66457,7 +71882,7 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String>
-        for RevokeDelegationForEndUserBodyWalletSecretId
+        for RevokeDelegationForEndUserDeprecatedXIdempotencyKey
     {
         type Error = self::error::ConversionError;
         fn try_from(
@@ -66466,7 +71891,7 @@ pub mod types {
             value.parse()
         }
     }
-    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserBodyWalletSecretId {
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationForEndUserDeprecatedXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -66725,6 +72150,142 @@ pub mod types {
                 })
         }
     }
+    ///The request body for revoking a user-scoped or account-scoped delegation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The request body for revoking a user-scoped or account-scoped delegation.",
+    ///  "examples": [
+    ///    {
+    ///      "walletSecretId": "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "walletSecretId": {
+    ///      "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///      "examples": [
+    ///        "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct RevokeDelegationRequest {
+        ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+        #[serde(
+            rename = "walletSecretId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub wallet_secret_id: ::std::option::Option<RevokeDelegationRequestWalletSecretId>,
+    }
+    impl ::std::convert::From<&RevokeDelegationRequest> for RevokeDelegationRequest {
+        fn from(value: &RevokeDelegationRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for RevokeDelegationRequest {
+        fn default() -> Self {
+            Self {
+                wallet_secret_id: Default::default(),
+            }
+        }
+    }
+    impl RevokeDelegationRequest {
+        pub fn builder() -> builder::RevokeDelegationRequest {
+            Default::default()
+        }
+    }
+    ///When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "When revoking with a wallet authentication scheme, the ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.",
+    ///  "examples": [
+    ///    "e051beeb-7163-4527-a5b6-35e301529ff2"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[a-zA-Z0-9-]{1,100}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeDelegationRequestWalletSecretId(::std::string::String);
+    impl ::std::ops::Deref for RevokeDelegationRequestWalletSecretId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeDelegationRequestWalletSecretId> for ::std::string::String {
+        fn from(value: RevokeDelegationRequestWalletSecretId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeDelegationRequestWalletSecretId>
+        for RevokeDelegationRequestWalletSecretId
+    {
+        fn from(value: &RevokeDelegationRequestWalletSecretId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeDelegationRequestWalletSecretId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[a-zA-Z0-9-]{1,100}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[a-zA-Z0-9-]{1,100}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeDelegationRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeDelegationRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeDelegationRequestWalletSecretId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeDelegationRequestWalletSecretId {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`RevokeSpendPermissionAddress`
     ///
     /// <details><summary>JSON schema</summary>
@@ -66932,6 +72493,85 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for RevokeSpendPermissionXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`RevokeWalletMandateXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct RevokeWalletMandateXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for RevokeWalletMandateXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<RevokeWalletMandateXIdempotencyKey> for ::std::string::String {
+        fn from(value: RevokeWalletMandateXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&RevokeWalletMandateXIdempotencyKey>
+        for RevokeWalletMandateXIdempotencyKey
+    {
+        fn from(value: &RevokeWalletMandateXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for RevokeWalletMandateXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for RevokeWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for RevokeWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for RevokeWalletMandateXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for RevokeWalletMandateXIdempotencyKey {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -87241,6 +92881,195 @@ pub mod types {
                 })
         }
     }
+    ///An unsigned Solana transaction the payer must sign to approve or revoke a mandate on a Solana wallet source. Decode `data.transaction` from base64 and pass the bytes to the Solana Wallet Standard `signTransaction` method (never `signAndSendTransaction`). Do not submit the signed transaction bytes. From the signed transaction, take the 64-byte ed25519 signature for the payer that signed, base58-encode those 64 bytes, and return that string as `OnchainSignedPayload.signature`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Solana Subscription Payload",
+    ///  "description": "An unsigned Solana transaction the payer must sign to approve or revoke a mandate on a Solana wallet source. Decode `data.transaction` from base64 and pass the bytes to the Solana Wallet Standard `signTransaction` method (never `signAndSendTransaction`). Do not submit the signed transaction bytes. From the signed transaction, take the 64-byte ed25519 signature for the payer that signed, base58-encode those 64 bytes, and return that string as `OnchainSignedPayload.signature`.",
+    ///  "examples": [
+    ///    {
+    ///      "data": {
+    ///        "transaction": "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      },
+    ///      "payloadId": "payload_7c18e4a2-9d53-4b61-8f20-1a6e9c0d4b87",
+    ///      "type": "solana_subscription"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "data",
+    ///    "payloadId",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "data": {
+    ///      "$ref": "#/components/schemas/SolanaSubscriptionPayloadData"
+    ///    },
+    ///    "payloadId": {
+    ///      "description": "The unique identifier of the payload.",
+    ///      "examples": [
+    ///        "payload_7c18e4a2-9d53-4b61-8f20-1a6e9c0d4b87"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "description": "The payload type.",
+    ///      "examples": [
+    ///        "solana_subscription"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solana_subscription"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SolanaSubscriptionPayload {
+        pub data: SolanaSubscriptionPayloadData,
+        ///The unique identifier of the payload.
+        #[serde(rename = "payloadId")]
+        pub payload_id: ::std::string::String,
+        ///The payload type.
+        #[serde(rename = "type")]
+        pub type_: SolanaSubscriptionPayloadType,
+    }
+    impl ::std::convert::From<&SolanaSubscriptionPayload> for SolanaSubscriptionPayload {
+        fn from(value: &SolanaSubscriptionPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl SolanaSubscriptionPayload {
+        pub fn builder() -> builder::SolanaSubscriptionPayload {
+            Default::default()
+        }
+    }
+    ///The unsigned Solana transaction the payer signs to approve or revoke a mandate on a Solana wallet source. Decode `transaction` and pass it to the Solana Wallet Standard `signTransaction` method. Submit only the extracted per-signer signature, not the signed transaction.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Solana Subscription Payload Data",
+    ///  "description": "The unsigned Solana transaction the payer signs to approve or revoke a mandate on a Solana wallet source. Decode `transaction` and pass it to the Solana Wallet Standard `signTransaction` method. Submit only the extracted per-signer signature, not the signed transaction.",
+    ///  "examples": [
+    ///    {
+    ///      "transaction": "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "transaction": {
+    ///      "description": "The unsigned Solana transaction, serialized to bytes and encoded as base64. Pass the decoded bytes to the Solana Wallet Standard `signTransaction` method. Do not POST this field (or the signed transaction bytes) as `OnchainSignedPayload.signature`.",
+    ///      "examples": [
+    ///        "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "byte"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SolanaSubscriptionPayloadData {
+        ///The unsigned Solana transaction, serialized to bytes and encoded as base64. Pass the decoded bytes to the Solana Wallet Standard `signTransaction` method. Do not POST this field (or the signed transaction bytes) as `OnchainSignedPayload.signature`.
+        pub transaction: ::std::string::String,
+    }
+    impl ::std::convert::From<&SolanaSubscriptionPayloadData> for SolanaSubscriptionPayloadData {
+        fn from(value: &SolanaSubscriptionPayloadData) -> Self {
+            value.clone()
+        }
+    }
+    impl SolanaSubscriptionPayloadData {
+        pub fn builder() -> builder::SolanaSubscriptionPayloadData {
+            Default::default()
+        }
+    }
+    ///The payload type.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload type.",
+    ///  "examples": [
+    ///    "solana_subscription"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana_subscription"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SolanaSubscriptionPayloadType {
+        #[serde(rename = "solana_subscription")]
+        SolanaSubscription,
+    }
+    impl ::std::convert::From<&Self> for SolanaSubscriptionPayloadType {
+        fn from(value: &SolanaSubscriptionPayloadType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SolanaSubscriptionPayloadType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SolanaSubscription => f.write_str("solana_subscription"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SolanaSubscriptionPayloadType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana_subscription" => Ok(Self::SolanaSubscription),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SolanaSubscriptionPayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SolanaSubscriptionPayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SolanaSubscriptionPayloadType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///General information about a Solana token. Includes the mint address, and other identifying information.
     ///
     /// <details><summary>JSON schema</summary>
@@ -97617,6 +103446,80 @@ pub mod types {
             Self(value)
         }
     }
+    ///A request to approve a mandate on a wallet source. Submit the `optionId` the customer chose from **Get wallet approval options** along with the signed payloads. This creates a `pending` approval; the mandate becomes `approval_succeeded` once the approval succeeds.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to approve a mandate on a wallet source. Submit the `optionId` the customer chose from **Get wallet approval options** along with the signed payloads. This creates a `pending` approval; the mandate becomes `approval_succeeded` once the approval succeeds.",
+    ///  "examples": [
+    ///    {
+    ///      "optionId": "opt_a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    ///      "signedPayloads": [
+    ///        {
+    ///          "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///          "signature": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab"
+    ///        }
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "optionId",
+    ///    "signedPayloads"
+    ///  ],
+    ///  "properties": {
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "optionId": {
+    ///      "description": "The identifier of the chosen option. Must match an `optionId` from the **Get wallet approval options** response.",
+    ///      "examples": [
+    ///        "opt_a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "signedPayloads": {
+    ///      "description": "The processed payloads from the customer, corresponding to the payloads in the selected option.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///            "signature": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainSignedPayload"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletApprovalRequest {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///The identifier of the chosen option. Must match an `optionId` from the **Get wallet approval options** response.
+        #[serde(rename = "optionId")]
+        pub option_id: ::std::string::String,
+        ///The processed payloads from the customer, corresponding to the payloads in the selected option.
+        #[serde(rename = "signedPayloads")]
+        pub signed_payloads: ::std::vec::Vec<OnchainSignedPayload>,
+    }
+    impl ::std::convert::From<&WalletApprovalRequest> for WalletApprovalRequest {
+        fn from(value: &WalletApprovalRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletApprovalRequest {
+        pub fn builder() -> builder::WalletApprovalRequest {
+            Default::default()
+        }
+    }
     ///Describes, for one enabled (network, asset) combination, what the payer would need to fund a source address with so that it becomes eligible to authorize the payment. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings, formatted the same way as `WalletAuthorizationOption.amount`.
     ///
     /// <details><summary>JSON schema</summary>
@@ -98855,6 +104758,611 @@ pub mod types {
             Self::ApiKeyWalletSolana(value)
         }
     }
+    ///Describes, for one enabled (network, asset) combination, what the customer would need to fund a source address with so that it becomes eligible to approve the mandate. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Wallet Mandate Approval Funds Requirement",
+    ///  "description": "Describes, for one enabled (network, asset) combination, what the customer would need to fund a source address with so that it becomes eligible to approve the mandate. Appears in the `fundsRequired` list of an ineligible address whose `code` is `insufficient_funds`. All amounts are human-readable decimal strings.",
+    ///  "examples": [
+    ///    {
+    ///      "asset": "usdc",
+    ///      "currentBalance": "0.40",
+    ///      "network": "base",
+    ///      "requiredBalance": "1.00"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "asset",
+    ///    "currentBalance",
+    ///    "network",
+    ///    "requiredBalance"
+    ///  ],
+    ///  "properties": {
+    ///    "asset": {
+    ///      "description": "The symbol of the asset the customer would fund on this network.",
+    ///      "examples": [
+    ///        "usdc"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Asset"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "currentBalance": {
+    ///      "description": "A decimal representation of the address's current balance of `asset` on this `network`.",
+    ///      "examples": [
+    ///        "0.40"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "network": {
+    ///      "description": "The blockchain network this funding requirement applies to.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/PaymentSourceNetwork"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "requiredBalance": {
+    ///      "description": "A decimal representation of the balance of `asset` the customer must hold on this `network` to become eligible to approve the mandate.",
+    ///      "examples": [
+    ///        "1.00"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletMandateApprovalFundsRequirement {
+        ///The symbol of the asset the customer would fund on this network.
+        pub asset: Asset,
+        ///A decimal representation of the address's current balance of `asset` on this `network`.
+        #[serde(rename = "currentBalance")]
+        pub current_balance: ::std::string::String,
+        ///The blockchain network this funding requirement applies to.
+        pub network: PaymentSourceNetwork,
+        ///A decimal representation of the balance of `asset` the customer must hold on this `network` to become eligible to approve the mandate.
+        #[serde(rename = "requiredBalance")]
+        pub required_balance: ::std::string::String,
+    }
+    impl ::std::convert::From<&WalletMandateApprovalFundsRequirement>
+        for WalletMandateApprovalFundsRequirement
+    {
+        fn from(value: &WalletMandateApprovalFundsRequirement) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletMandateApprovalFundsRequirement {
+        pub fn builder() -> builder::WalletMandateApprovalFundsRequirement {
+            Default::default()
+        }
+    }
+    ///An option for approving a mandate on a wallet source. Specifies the source (address, network, asset) and the payloads the customer must sign to approve the mandate on that source.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Wallet Mandate Approval Option",
+    ///  "description": "An option for approving a mandate on a wallet source. Specifies the source (address, network, asset) and the payloads the customer must sign to approve the mandate on that source.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "optionId",
+    ///    "payloads",
+    ///    "source"
+    ///  ],
+    ///  "properties": {
+    ///    "optionId": {
+    ///      "description": "The unique identifier of the wallet mandate approval option.",
+    ///      "examples": [
+    ///        "opt_a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "payloads": {
+    ///      "description": "The payloads the customer must sign to approve this source.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "data": {
+    ///              "domain": {
+    ///                "chainId": 8453,
+    ///                "name": "USD Coin",
+    ///                "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///                "version": "2"
+    ///              },
+    ///              "message": {
+    ///                "deadline": "1798761600",
+    ///                "nonce": "0",
+    ///                "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///                "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///                "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    ///              },
+    ///              "primaryType": "Permit",
+    ///              "types": {
+    ///                "EIP712Domain": [
+    ///                  {
+    ///                    "name": "name",
+    ///                    "type": "string"
+    ///                  },
+    ///                  {
+    ///                    "name": "version",
+    ///                    "type": "string"
+    ///                  },
+    ///                  {
+    ///                    "name": "chainId",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "verifyingContract",
+    ///                    "type": "address"
+    ///                  }
+    ///                ],
+    ///                "Permit": [
+    ///                  {
+    ///                    "name": "owner",
+    ///                    "type": "address"
+    ///                  },
+    ///                  {
+    ///                    "name": "spender",
+    ///                    "type": "address"
+    ///                  },
+    ///                  {
+    ///                    "name": "value",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "nonce",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "deadline",
+    ///                    "type": "uint256"
+    ///                  }
+    ///                ]
+    ///              }
+    ///            },
+    ///            "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///            "type": "eip2612"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/ApprovalPayload"
+    ///      }
+    ///    },
+    ///    "source": {
+    ///      "description": "The source this option would attach to the mandate.",
+    ///      "examples": [
+    ///        {
+    ///          "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateSourceWallet"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletMandateApprovalOption {
+        ///The unique identifier of the wallet mandate approval option.
+        #[serde(rename = "optionId")]
+        pub option_id: ::std::string::String,
+        ///The payloads the customer must sign to approve this source.
+        pub payloads: ::std::vec::Vec<ApprovalPayload>,
+        ///The source this option would attach to the mandate.
+        pub source: MandateSourceWallet,
+    }
+    impl ::std::convert::From<&WalletMandateApprovalOption> for WalletMandateApprovalOption {
+        fn from(value: &WalletMandateApprovalOption) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletMandateApprovalOption {
+        pub fn builder() -> builder::WalletMandateApprovalOption {
+            Default::default()
+        }
+    }
+    ///The available options for approving this mandate on a wallet source, one per eligible asset the address can back. Present them to the customer, have them sign the chosen option's payloads, then call **Approve a mandate with a wallet**. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why. This is a stateless read operation and does not modify the mandate.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Wallet Mandate Approval Options Response",
+    ///  "description": "The available options for approving this mandate on a wallet source, one per eligible asset the address can back. Present them to the customer, have them sign the chosen option's payloads, then call **Approve a mandate with a wallet**. Requested addresses with no eligible option appear in `ineligibleAddresses` with a `code` explaining why. This is a stateless read operation and does not modify the mandate.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "ineligibleAddresses",
+    ///    "options"
+    ///  ],
+    ///  "properties": {
+    ///    "ineligibleAddresses": {
+    ///      "description": "Requested customer addresses that have no eligible mandate approval option, each with a `code` explaining why. Empty when every requested address can approve the mandate.",
+    ///      "examples": [
+    ///        []
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/IneligibleWalletMandateApprovalAddresses"
+    ///      }
+    ///    },
+    ///    "options": {
+    ///      "description": "The available wallet mandate approval options.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "optionId": "opt_a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    ///            "payloads": [
+    ///              {
+    ///                "data": {
+    ///                  "domain": {
+    ///                    "chainId": 8453,
+    ///                    "name": "USD Coin",
+    ///                    "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///                    "version": "2"
+    ///                  },
+    ///                  "message": {
+    ///                    "deadline": "1798761600",
+    ///                    "nonce": "0",
+    ///                    "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///                    "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///                    "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+    ///                  },
+    ///                  "primaryType": "Permit",
+    ///                  "types": {
+    ///                    "EIP712Domain": [
+    ///                      {
+    ///                        "name": "name",
+    ///                        "type": "string"
+    ///                      },
+    ///                      {
+    ///                        "name": "version",
+    ///                        "type": "string"
+    ///                      },
+    ///                      {
+    ///                        "name": "chainId",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "verifyingContract",
+    ///                        "type": "address"
+    ///                      }
+    ///                    ],
+    ///                    "Permit": [
+    ///                      {
+    ///                        "name": "owner",
+    ///                        "type": "address"
+    ///                      },
+    ///                      {
+    ///                        "name": "spender",
+    ///                        "type": "address"
+    ///                      },
+    ///                      {
+    ///                        "name": "value",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "nonce",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "deadline",
+    ///                        "type": "uint256"
+    ///                      }
+    ///                    ]
+    ///                  }
+    ///                },
+    ///                "payloadId": "payload_af2937b0-9846-4fe7-bfe9-ccc22d935114",
+    ///                "type": "eip2612"
+    ///              }
+    ///            ],
+    ///            "source": {
+    ///              "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///              "asset": "usdc",
+    ///              "network": "base"
+    ///            }
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/WalletMandateApprovalOption"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletMandateApprovalOptionsResponse {
+        ///Requested customer addresses that have no eligible mandate approval option, each with a `code` explaining why. Empty when every requested address can approve the mandate.
+        #[serde(rename = "ineligibleAddresses")]
+        pub ineligible_addresses: ::std::vec::Vec<IneligibleWalletMandateApprovalAddresses>,
+        ///The available wallet mandate approval options.
+        pub options: ::std::vec::Vec<WalletMandateApprovalOption>,
+    }
+    impl ::std::convert::From<&WalletMandateApprovalOptionsResponse>
+        for WalletMandateApprovalOptionsResponse
+    {
+        fn from(value: &WalletMandateApprovalOptionsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletMandateApprovalOptionsResponse {
+        pub fn builder() -> builder::WalletMandateApprovalOptionsResponse {
+            Default::default()
+        }
+    }
+    ///One way the customer can remove the mandate's spending allowance on-chain: a source and the payloads to sign for it.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Wallet Mandate Revocation Option",
+    ///  "description": "One way the customer can remove the mandate's spending allowance on-chain: a source and the payloads to sign for it.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "optionId",
+    ///    "payloads",
+    ///    "source"
+    ///  ],
+    ///  "properties": {
+    ///    "optionId": {
+    ///      "description": "The unique identifier of the wallet mandate revocation option.",
+    ///      "examples": [
+    ///        "opt_b2c3d4e5-f6a7-8901-bcde-f23456789012"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "payloads": {
+    ///      "description": "The payloads the customer must sign to remove the spending allowance.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "data": {
+    ///              "domain": {
+    ///                "chainId": 8453,
+    ///                "name": "USD Coin",
+    ///                "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///                "version": "2"
+    ///              },
+    ///              "message": {
+    ///                "deadline": "1798761600",
+    ///                "nonce": "1",
+    ///                "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///                "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///                "value": "0"
+    ///              },
+    ///              "primaryType": "Permit",
+    ///              "types": {
+    ///                "EIP712Domain": [
+    ///                  {
+    ///                    "name": "name",
+    ///                    "type": "string"
+    ///                  },
+    ///                  {
+    ///                    "name": "version",
+    ///                    "type": "string"
+    ///                  },
+    ///                  {
+    ///                    "name": "chainId",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "verifyingContract",
+    ///                    "type": "address"
+    ///                  }
+    ///                ],
+    ///                "Permit": [
+    ///                  {
+    ///                    "name": "owner",
+    ///                    "type": "address"
+    ///                  },
+    ///                  {
+    ///                    "name": "spender",
+    ///                    "type": "address"
+    ///                  },
+    ///                  {
+    ///                    "name": "value",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "nonce",
+    ///                    "type": "uint256"
+    ///                  },
+    ///                  {
+    ///                    "name": "deadline",
+    ///                    "type": "uint256"
+    ///                  }
+    ///                ]
+    ///              }
+    ///            },
+    ///            "payloadId": "payload_bf3048c1-0957-5gf8-cgf0-ddd33e046225",
+    ///            "type": "eip2612"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/RevocationPayload"
+    ///      }
+    ///    },
+    ///    "source": {
+    ///      "description": "The funding source whose spending allowance this option removes.",
+    ///      "examples": [
+    ///        {
+    ///          "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///          "asset": "usdc",
+    ///          "network": "base"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MandateSourceWallet"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletMandateRevocationOption {
+        ///The unique identifier of the wallet mandate revocation option.
+        #[serde(rename = "optionId")]
+        pub option_id: ::std::string::String,
+        ///The payloads the customer must sign to remove the spending allowance.
+        pub payloads: ::std::vec::Vec<RevocationPayload>,
+        ///The funding source whose spending allowance this option removes.
+        pub source: MandateSourceWallet,
+    }
+    impl ::std::convert::From<&WalletMandateRevocationOption> for WalletMandateRevocationOption {
+        fn from(value: &WalletMandateRevocationOption) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletMandateRevocationOption {
+        pub fn builder() -> builder::WalletMandateRevocationOption {
+            Default::default()
+        }
+    }
+    ///The ways the customer can remove this mandate's spending allowance on-chain.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "Wallet Mandate Revocation Options Response",
+    ///  "description": "The ways the customer can remove this mandate's spending allowance on-chain.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "options"
+    ///  ],
+    ///  "properties": {
+    ///    "options": {
+    ///      "description": "The available revocation options. At least one is present; when there is no active spending allowance to remove, the request fails with a `422` instead.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "optionId": "opt_b2c3d4e5-f6a7-8901-bcde-f23456789012",
+    ///            "payloads": [
+    ///              {
+    ///                "data": {
+    ///                  "domain": {
+    ///                    "chainId": 8453,
+    ///                    "name": "USD Coin",
+    ///                    "verifyingContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    ///                    "version": "2"
+    ///                  },
+    ///                  "message": {
+    ///                    "deadline": "1798761600",
+    ///                    "nonce": "1",
+    ///                    "owner": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///                    "spender": "0x9Fb909eA400c2b8D99Be292DADf07e63B814527c",
+    ///                    "value": "0"
+    ///                  },
+    ///                  "primaryType": "Permit",
+    ///                  "types": {
+    ///                    "EIP712Domain": [
+    ///                      {
+    ///                        "name": "name",
+    ///                        "type": "string"
+    ///                      },
+    ///                      {
+    ///                        "name": "version",
+    ///                        "type": "string"
+    ///                      },
+    ///                      {
+    ///                        "name": "chainId",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "verifyingContract",
+    ///                        "type": "address"
+    ///                      }
+    ///                    ],
+    ///                    "Permit": [
+    ///                      {
+    ///                        "name": "owner",
+    ///                        "type": "address"
+    ///                      },
+    ///                      {
+    ///                        "name": "spender",
+    ///                        "type": "address"
+    ///                      },
+    ///                      {
+    ///                        "name": "value",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "nonce",
+    ///                        "type": "uint256"
+    ///                      },
+    ///                      {
+    ///                        "name": "deadline",
+    ///                        "type": "uint256"
+    ///                      }
+    ///                    ]
+    ///                  }
+    ///                },
+    ///                "payloadId": "payload_bf3048c1-0957-5gf8-cgf0-ddd33e046225",
+    ///                "type": "eip2612"
+    ///              }
+    ///            ],
+    ///            "source": {
+    ///              "address": "0xAbC1234567890aBcDeF1234567890AbCdEf123456",
+    ///              "asset": "usdc",
+    ///              "network": "base"
+    ///            }
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/WalletMandateRevocationOption"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletMandateRevocationOptionsResponse {
+        ///The available revocation options. At least one is present; when there is no active spending allowance to remove, the request fails with a `422` instead.
+        pub options: ::std::vec::Vec<WalletMandateRevocationOption>,
+    }
+    impl ::std::convert::From<&WalletMandateRevocationOptionsResponse>
+        for WalletMandateRevocationOptionsResponse
+    {
+        fn from(value: &WalletMandateRevocationOptionsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletMandateRevocationOptionsResponse {
+        pub fn builder() -> builder::WalletMandateRevocationOptionsResponse {
+            Default::default()
+        }
+    }
     ///Delivered when a message is signed. Emitted for both EVM and Solana wallets. The payload is one of six variants: API Key Wallet, User Wallet, or User Wallet (Delegated Signing), each delivered as an EVM or Solana variant.
     ///
     /// <details><summary>JSON schema</summary>
@@ -98985,6 +105493,91 @@ pub mod types {
     impl ::std::convert::From<WalletSolanaSigningPayload> for WalletMessageSignedEvent {
         fn from(value: WalletSolanaSigningPayload) -> Self {
             Self::ApiKeyWalletSolana(value)
+        }
+    }
+    ///A request to remove a mandate's spending allowance on-chain. Submit the `optionId` the customer chose from **Get wallet revocation options** along with their signed payloads. Returns a `pending` revocation that resolves once the network transaction confirms.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A request to remove a mandate's spending allowance on-chain. Submit the `optionId` the customer chose from **Get wallet revocation options** along with their signed payloads. Returns a `pending` revocation that resolves once the network transaction confirms.",
+    ///  "examples": [
+    ///    {
+    ///      "optionId": "opt_b2c3d4e5-f6a7-8901-bcde-f23456789012",
+    ///      "reason": "Customer requested that the allowance be removed.",
+    ///      "signedPayloads": [
+    ///        {
+    ///          "payloadId": "payload_bf3048c1-0957-5gf8-cgf0-ddd33e046225",
+    ///          "signature": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab"
+    ///        }
+    ///      ]
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "optionId",
+    ///    "signedPayloads"
+    ///  ],
+    ///  "properties": {
+    ///    "metadata": {
+    ///      "$ref": "#/components/schemas/Metadata"
+    ///    },
+    ///    "optionId": {
+    ///      "description": "The identifier of the chosen option. Must match an `optionId` from the **Get wallet revocation options** response.",
+    ///      "examples": [
+    ///        "opt_b2c3d4e5-f6a7-8901-bcde-f23456789012"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "reason": {
+    ///      "description": "An optional human-readable reason for revoking the spending allowance.",
+    ///      "examples": [
+    ///        "Customer requested that the allowance be removed."
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "signedPayloads": {
+    ///      "description": "The processed payloads from the customer, corresponding to the payloads in the selected option.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "payloadId": "payload_bf3048c1-0957-5gf8-cgf0-ddd33e046225",
+    ///            "signature": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnchainSignedPayload"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WalletRevocationRequest {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metadata: ::std::option::Option<Metadata>,
+        ///The identifier of the chosen option. Must match an `optionId` from the **Get wallet revocation options** response.
+        #[serde(rename = "optionId")]
+        pub option_id: ::std::string::String,
+        ///An optional human-readable reason for revoking the spending allowance.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub reason: ::std::option::Option<::std::string::String>,
+        ///The processed payloads from the customer, corresponding to the payloads in the selected option.
+        #[serde(rename = "signedPayloads")]
+        pub signed_payloads: ::std::vec::Vec<OnchainSignedPayload>,
+    }
+    impl ::std::convert::From<&WalletRevocationRequest> for WalletRevocationRequest {
+        fn from(value: &WalletRevocationRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl WalletRevocationRequest {
+        pub fn builder() -> builder::WalletRevocationRequest {
+            Default::default()
         }
     }
     ///Payload for Solana wallet signing events. Carries the Solana signing `address` and timestamp; no network or transaction identifier.
@@ -101710,7 +108303,7 @@ pub mod types {
     ///      }
     ///    },
     ///    "url": {
-    ///      "description": "The webhook URL to deliver events to.",
+    ///      "description": "The webhook URL to deliver events to.\n\nMust be a publicly accessible HTTPS URL that responds to HEAD requests with a 200 status code.\n\nIf the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400.\n",
     ///      "examples": [
     ///        "https://api.example.com/webhooks"
     ///      ],
@@ -101732,7 +108325,12 @@ pub mod types {
             skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
         )]
         pub headers: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-        ///The webhook URL to deliver events to.
+        /**The webhook URL to deliver events to.
+
+        Must be a publicly accessible HTTPS URL that responds to HEAD requests with a 200 status code.
+
+        If the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400.
+        */
         pub url: Url,
     }
     impl ::std::convert::From<&WebhookTarget> for WebhookTarget {
@@ -114207,6 +120805,7 @@ pub mod types {
     ///    "request_blocked_by_location",
     ///    "self_send_not_allowed",
     ///    "invalid_bazaar_extension",
+    ///    "node_failure",
     ///    "unknown_error"
     ///  ]
     ///}
@@ -114635,6 +121234,8 @@ pub mod types {
         SelfSendNotAllowed,
         #[serde(rename = "invalid_bazaar_extension")]
         InvalidBazaarExtension,
+        #[serde(rename = "node_failure")]
+        NodeFailure,
         #[serde(rename = "unknown_error")]
         UnknownError,
     }
@@ -115256,6 +121857,7 @@ pub mod types {
                 }
                 Self::SelfSendNotAllowed => f.write_str("self_send_not_allowed"),
                 Self::InvalidBazaarExtension => f.write_str("invalid_bazaar_extension"),
+                Self::NodeFailure => f.write_str("node_failure"),
                 Self::UnknownError => f.write_str("unknown_error"),
             }
         }
@@ -115784,6 +122386,7 @@ pub mod types {
                 "request_blocked_by_location" => Ok(Self::RequestBlockedByLocation),
                 "self_send_not_allowed" => Ok(Self::SelfSendNotAllowed),
                 "invalid_bazaar_extension" => Ok(Self::InvalidBazaarExtension),
+                "node_failure" => Ok(Self::NodeFailure),
                 "unknown_error" => Ok(Self::UnknownError),
                 _ => Err("invalid value".into()),
             }
@@ -117106,6 +123709,744 @@ pub mod types {
             for AcceptanceDisbursementSucceededEvent
         {
             fn from(value: super::AcceptanceDisbursementSucceededEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateApprovalFailedEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateApprovalFailedEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateApprovalFailedEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateApprovalFailedEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateApprovalFailedEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateApprovalFailedEvent>
+            for super::AcceptanceMandateApprovalFailedEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateApprovalFailedEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateApprovalFailedEvent>
+            for AcceptanceMandateApprovalFailedEvent
+        {
+            fn from(value: super::AcceptanceMandateApprovalFailedEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateApprovalInitiatedEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateApprovalInitiatedEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateApprovalInitiatedEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateApprovalInitiatedEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateApprovalInitiatedEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateApprovalInitiatedEvent>
+            for super::AcceptanceMandateApprovalInitiatedEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateApprovalInitiatedEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateApprovalInitiatedEvent>
+            for AcceptanceMandateApprovalInitiatedEvent
+        {
+            fn from(value: super::AcceptanceMandateApprovalInitiatedEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateApprovalSucceededEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateApprovalSucceededEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateApprovalSucceededEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateApprovalSucceededEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateApprovalSucceededEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateApprovalSucceededEvent>
+            for super::AcceptanceMandateApprovalSucceededEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateApprovalSucceededEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateApprovalSucceededEvent>
+            for AcceptanceMandateApprovalSucceededEvent
+        {
+            fn from(value: super::AcceptanceMandateApprovalSucceededEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateCanceledEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateCanceledEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateCanceledEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateCanceledEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateCanceledEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateCanceledEvent>
+            for super::AcceptanceMandateCanceledEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateCanceledEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateCanceledEvent>
+            for AcceptanceMandateCanceledEvent
+        {
+            fn from(value: super::AcceptanceMandateCanceledEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateCreatedEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateCreatedEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateCreatedEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateCreatedEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateCreatedEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateCreatedEvent>
+            for super::AcceptanceMandateCreatedEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateCreatedEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateCreatedEvent> for AcceptanceMandateCreatedEvent {
+            fn from(value: super::AcceptanceMandateCreatedEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateRevocationFailedEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateRevocationFailedEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateRevocationFailedEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateRevocationFailedEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::AcceptanceMandateRevocationFailedEventEventType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateRevocationFailedEvent>
+            for super::AcceptanceMandateRevocationFailedEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateRevocationFailedEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateRevocationFailedEvent>
+            for AcceptanceMandateRevocationFailedEvent
+        {
+            fn from(value: super::AcceptanceMandateRevocationFailedEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateRevocationInitiatedEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateRevocationInitiatedEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateRevocationInitiatedEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateRevocationInitiatedEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::AcceptanceMandateRevocationInitiatedEventEventType,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateRevocationInitiatedEvent>
+            for super::AcceptanceMandateRevocationInitiatedEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateRevocationInitiatedEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateRevocationInitiatedEvent>
+            for AcceptanceMandateRevocationInitiatedEvent
+        {
+            fn from(value: super::AcceptanceMandateRevocationInitiatedEvent) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    event_type: Ok(value.event_type),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct AcceptanceMandateRevocationSucceededEvent {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            event_type: ::std::result::Result<
+                super::AcceptanceMandateRevocationSucceededEventEventType,
+                ::std::string::String,
+            >,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for AcceptanceMandateRevocationSucceededEvent {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    event_type: Err("no value supplied for event_type".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl AcceptanceMandateRevocationSucceededEvent {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn event_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    super::AcceptanceMandateRevocationSucceededEventEventType,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_type: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<AcceptanceMandateRevocationSucceededEvent>
+            for super::AcceptanceMandateRevocationSucceededEvent
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: AcceptanceMandateRevocationSucceededEvent,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    event_type: value.event_type?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::AcceptanceMandateRevocationSucceededEvent>
+            for AcceptanceMandateRevocationSucceededEvent
+        {
+            fn from(value: super::AcceptanceMandateRevocationSucceededEvent) -> Self {
                 Self {
                     data: Ok(value.data),
                     event_id: Ok(value.event_id),
@@ -119148,6 +126489,165 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct Approval {
+            approval_id: ::std::result::Result<super::ApprovalId, ::std::string::String>,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            error: ::std::result::Result<
+                ::std::option::Option<super::PaymentError>,
+                ::std::string::String,
+            >,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            onchain_transactions: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainTransaction>,
+                ::std::string::String,
+            >,
+            source: ::std::result::Result<
+                ::std::option::Option<super::MandateSource>,
+                ::std::string::String,
+            >,
+            status: ::std::result::Result<super::ApprovalStatus, ::std::string::String>,
+            updated_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for Approval {
+            fn default() -> Self {
+                Self {
+                    approval_id: Err("no value supplied for approval_id".to_string()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    error: Ok(Default::default()),
+                    metadata: Ok(Default::default()),
+                    onchain_transactions: Ok(Default::default()),
+                    source: Ok(Default::default()),
+                    status: Err("no value supplied for status".to_string()),
+                    updated_at: Err("no value supplied for updated_at".to_string()),
+                }
+            }
+        }
+        impl Approval {
+            pub fn approval_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ApprovalId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approval_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for approval_id: {}", e));
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn error<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentError>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for error: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn onchain_transactions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainTransaction>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.onchain_transactions = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for onchain_transactions: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn source<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandateSource>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.source = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for source: {}", e));
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ApprovalStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+            pub fn updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.updated_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for updated_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<Approval> for super::Approval {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: Approval,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    approval_id: value.approval_id?,
+                    created_at: value.created_at?,
+                    error: value.error?,
+                    metadata: value.metadata?,
+                    onchain_transactions: value.onchain_transactions?,
+                    source: value.source?,
+                    status: value.status?,
+                    updated_at: value.updated_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::Approval> for Approval {
+            fn from(value: super::Approval) -> Self {
+                Self {
+                    approval_id: Ok(value.approval_id),
+                    created_at: Ok(value.created_at),
+                    error: Ok(value.error),
+                    metadata: Ok(value.metadata),
+                    onchain_transactions: Ok(value.onchain_transactions),
+                    source: Ok(value.source),
+                    status: Ok(value.status),
+                    updated_at: Ok(value.updated_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct Authorization {
             amount: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
@@ -120504,6 +128004,49 @@ pub mod types {
                     entrypoint_address: Ok(value.entrypoint_address),
                     name: Ok(value.name),
                     venue_id: Ok(value.venue_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CancelMandateRequest {
+            reason: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CancelMandateRequest {
+            fn default() -> Self {
+                Self {
+                    reason: Ok(Default::default()),
+                }
+            }
+        }
+        impl CancelMandateRequest {
+            pub fn reason<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.reason = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for reason: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CancelMandateRequest> for super::CancelMandateRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CancelMandateRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    reason: value.reason?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CancelMandateRequest> for CancelMandateRequest {
+            fn from(value: super::CancelMandateRequest) -> Self {
+                Self {
+                    reason: Ok(value.reason),
                 }
             }
         }
@@ -123999,6 +131542,159 @@ pub mod types {
                     metadata: Ok(value.metadata),
                     target: Ok(value.target),
                     type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateMandateRequest {
+            approval_redirect: ::std::result::Result<
+                ::std::option::Option<super::PaymentRedirect>,
+                ::std::string::String,
+            >,
+            asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            customer_display: ::std::result::Result<
+                ::std::option::Option<super::MandateCustomerDisplay>,
+                ::std::string::String,
+            >,
+            expires_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            policy: ::std::result::Result<
+                ::std::option::Option<super::MandatePolicy>,
+                ::std::string::String,
+            >,
+            revocation_redirect: ::std::result::Result<
+                ::std::option::Option<super::PaymentRedirect>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateMandateRequest {
+            fn default() -> Self {
+                Self {
+                    approval_redirect: Ok(Default::default()),
+                    asset: Err("no value supplied for asset".to_string()),
+                    customer_display: Ok(Default::default()),
+                    expires_at: Ok(Default::default()),
+                    metadata: Ok(Default::default()),
+                    policy: Ok(Default::default()),
+                    revocation_redirect: Ok(Default::default()),
+                }
+            }
+        }
+        impl CreateMandateRequest {
+            pub fn approval_redirect<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentRedirect>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approval_redirect = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for approval_redirect: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn customer_display<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandateCustomerDisplay>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.customer_display = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for customer_display: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn policy<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandatePolicy>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.policy = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for policy: {}", e));
+                self
+            }
+            pub fn revocation_redirect<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentRedirect>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocation_redirect = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for revocation_redirect: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateMandateRequest> for super::CreateMandateRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateMandateRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    approval_redirect: value.approval_redirect?,
+                    asset: value.asset?,
+                    customer_display: value.customer_display?,
+                    expires_at: value.expires_at?,
+                    metadata: value.metadata?,
+                    policy: value.policy?,
+                    revocation_redirect: value.revocation_redirect?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateMandateRequest> for CreateMandateRequest {
+            fn from(value: super::CreateMandateRequest) -> Self {
+                Self {
+                    approval_redirect: Ok(value.approval_redirect),
+                    asset: Ok(value.asset),
+                    customer_display: Ok(value.customer_display),
+                    expires_at: Ok(value.expires_at),
+                    metadata: Ok(value.metadata),
+                    policy: Ok(value.policy),
+                    revocation_redirect: Ok(value.revocation_redirect),
                 }
             }
         }
@@ -128047,6 +135743,74 @@ pub mod types {
                 Self {
                     address: Ok(value.address),
                     network: Ok(value.network),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct Eip2612Payload {
+            data: ::std::result::Result<super::Eip712Message, ::std::string::String>,
+            payload_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_: ::std::result::Result<super::Eip2612PayloadType, ::std::string::String>,
+        }
+        impl ::std::default::Default for Eip2612Payload {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    payload_id: Err("no value supplied for payload_id".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl Eip2612Payload {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Eip712Message>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn payload_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payload_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payload_id: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Eip2612PayloadType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<Eip2612Payload> for super::Eip2612Payload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: Eip2612Payload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    payload_id: value.payload_id?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::Eip2612Payload> for Eip2612Payload {
+            fn from(value: super::Eip2612Payload) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    payload_id: Ok(value.payload_id),
+                    type_: Ok(value.type_),
                 }
             }
         }
@@ -134489,6 +142253,100 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct IneligibleWalletMandateApprovalAddresses {
+            address: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            code: ::std::result::Result<
+                super::IneligibleWalletMandateApprovalAddressesCode,
+                ::std::string::String,
+            >,
+            funds_required: ::std::result::Result<
+                ::std::vec::Vec<super::WalletMandateApprovalFundsRequirement>,
+                ::std::string::String,
+            >,
+            message: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for IneligibleWalletMandateApprovalAddresses {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    code: Err("no value supplied for code".to_string()),
+                    funds_required: Ok(Default::default()),
+                    message: Err("no value supplied for message".to_string()),
+                }
+            }
+        }
+        impl IneligibleWalletMandateApprovalAddresses {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn code<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::IneligibleWalletMandateApprovalAddressesCode>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.code = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for code: {}", e));
+                self
+            }
+            pub fn funds_required<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::vec::Vec<super::WalletMandateApprovalFundsRequirement>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.funds_required = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for funds_required: {}", e)
+                });
+                self
+            }
+            pub fn message<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.message = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for message: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<IneligibleWalletMandateApprovalAddresses>
+            for super::IneligibleWalletMandateApprovalAddresses
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: IneligibleWalletMandateApprovalAddresses,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    code: value.code?,
+                    funds_required: value.funds_required?,
+                    message: value.message?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::IneligibleWalletMandateApprovalAddresses>
+            for IneligibleWalletMandateApprovalAddresses
+        {
+            fn from(value: super::IneligibleWalletMandateApprovalAddresses) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    code: Ok(value.code),
+                    funds_required: Ok(value.funds_required),
+                    message: Ok(value.message),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct InitiateOnrampVerificationRequest {
             channel: ::std::result::Result<
                 super::InitiateOnrampVerificationRequestChannel,
@@ -135272,6 +143130,183 @@ pub mod types {
             fn from(value: super::ListFoundationAccountsResponse) -> Self {
                 Self {
                     accounts: Ok(value.accounts),
+                    next_page_token: Ok(value.next_page_token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListMandateApprovalsResponse {
+            approvals:
+                ::std::result::Result<::std::vec::Vec<super::Approval>, ::std::string::String>,
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ListMandateApprovalsResponse {
+            fn default() -> Self {
+                Self {
+                    approvals: Err("no value supplied for approvals".to_string()),
+                    next_page_token: Ok(Default::default()),
+                }
+            }
+        }
+        impl ListMandateApprovalsResponse {
+            pub fn approvals<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::Approval>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approvals = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for approvals: {}", e));
+                self
+            }
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListMandateApprovalsResponse> for super::ListMandateApprovalsResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListMandateApprovalsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    approvals: value.approvals?,
+                    next_page_token: value.next_page_token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListMandateApprovalsResponse> for ListMandateApprovalsResponse {
+            fn from(value: super::ListMandateApprovalsResponse) -> Self {
+                Self {
+                    approvals: Ok(value.approvals),
+                    next_page_token: Ok(value.next_page_token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListMandateRevocationsResponse {
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            revocations:
+                ::std::result::Result<::std::vec::Vec<super::Revocation>, ::std::string::String>,
+        }
+        impl ::std::default::Default for ListMandateRevocationsResponse {
+            fn default() -> Self {
+                Self {
+                    next_page_token: Ok(Default::default()),
+                    revocations: Err("no value supplied for revocations".to_string()),
+                }
+            }
+        }
+        impl ListMandateRevocationsResponse {
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+            pub fn revocations<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::Revocation>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocations = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for revocations: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListMandateRevocationsResponse>
+            for super::ListMandateRevocationsResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListMandateRevocationsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    next_page_token: value.next_page_token?,
+                    revocations: value.revocations?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListMandateRevocationsResponse>
+            for ListMandateRevocationsResponse
+        {
+            fn from(value: super::ListMandateRevocationsResponse) -> Self {
+                Self {
+                    next_page_token: Ok(value.next_page_token),
+                    revocations: Ok(value.revocations),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListMandatesResponse {
+            mandates: ::std::result::Result<::std::vec::Vec<super::Mandate>, ::std::string::String>,
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ListMandatesResponse {
+            fn default() -> Self {
+                Self {
+                    mandates: Err("no value supplied for mandates".to_string()),
+                    next_page_token: Ok(Default::default()),
+                }
+            }
+        }
+        impl ListMandatesResponse {
+            pub fn mandates<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::Mandate>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mandates = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mandates: {}", e));
+                self
+            }
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListMandatesResponse> for super::ListMandatesResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListMandatesResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    mandates: value.mandates?,
+                    next_page_token: value.next_page_token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListMandatesResponse> for ListMandatesResponse {
+            fn from(value: super::ListMandatesResponse) -> Self {
+                Self {
+                    mandates: Ok(value.mandates),
                     next_page_token: Ok(value.next_page_token),
                 }
             }
@@ -136205,6 +144240,813 @@ pub mod types {
                     service: Ok(value.service),
                     starts_at: Ok(value.starts_at),
                     status: Ok(value.status),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct Mandate {
+            approval_redirect: ::std::result::Result<
+                ::std::option::Option<super::PaymentRedirect>,
+                ::std::string::String,
+            >,
+            approved_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            canceled_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            customer_display: ::std::result::Result<
+                ::std::option::Option<super::MandateCustomerDisplay>,
+                ::std::string::String,
+            >,
+            expires_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            mandate_id: ::std::result::Result<super::MandateId, ::std::string::String>,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            policy: ::std::result::Result<super::MandatePolicy, ::std::string::String>,
+            revocation_redirect: ::std::result::Result<
+                ::std::option::Option<super::PaymentRedirect>,
+                ::std::string::String,
+            >,
+            revocation_url:
+                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+            revoked_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            source: ::std::result::Result<
+                ::std::option::Option<super::MandateSource>,
+                ::std::string::String,
+            >,
+            status: ::std::result::Result<super::MandateStatus, ::std::string::String>,
+            updated_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            url: ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+        }
+        impl ::std::default::Default for Mandate {
+            fn default() -> Self {
+                Self {
+                    approval_redirect: Ok(Default::default()),
+                    approved_at: Ok(Default::default()),
+                    asset: Err("no value supplied for asset".to_string()),
+                    canceled_at: Ok(Default::default()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    customer_display: Ok(Default::default()),
+                    expires_at: Ok(Default::default()),
+                    mandate_id: Err("no value supplied for mandate_id".to_string()),
+                    metadata: Ok(Default::default()),
+                    policy: Err("no value supplied for policy".to_string()),
+                    revocation_redirect: Ok(Default::default()),
+                    revocation_url: Ok(Default::default()),
+                    revoked_at: Ok(Default::default()),
+                    source: Ok(Default::default()),
+                    status: Err("no value supplied for status".to_string()),
+                    updated_at: Err("no value supplied for updated_at".to_string()),
+                    url: Ok(Default::default()),
+                }
+            }
+        }
+        impl Mandate {
+            pub fn approval_redirect<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentRedirect>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approval_redirect = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for approval_redirect: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn approved_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approved_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for approved_at: {}", e));
+                self
+            }
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn canceled_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.canceled_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for canceled_at: {}", e));
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn customer_display<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandateCustomerDisplay>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.customer_display = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for customer_display: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn expires_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.expires_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for expires_at: {}", e));
+                self
+            }
+            pub fn mandate_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mandate_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mandate_id: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn policy<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandatePolicy>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.policy = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for policy: {}", e));
+                self
+            }
+            pub fn revocation_redirect<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentRedirect>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocation_redirect = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for revocation_redirect: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn revocation_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocation_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for revocation_url: {}", e)
+                });
+                self
+            }
+            pub fn revoked_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revoked_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for revoked_at: {}", e));
+                self
+            }
+            pub fn source<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandateSource>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.source = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for source: {}", e));
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+            pub fn updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.updated_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for updated_at: {}", e));
+                self
+            }
+            pub fn url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.url = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for url: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<Mandate> for super::Mandate {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: Mandate,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    approval_redirect: value.approval_redirect?,
+                    approved_at: value.approved_at?,
+                    asset: value.asset?,
+                    canceled_at: value.canceled_at?,
+                    created_at: value.created_at?,
+                    customer_display: value.customer_display?,
+                    expires_at: value.expires_at?,
+                    mandate_id: value.mandate_id?,
+                    metadata: value.metadata?,
+                    policy: value.policy?,
+                    revocation_redirect: value.revocation_redirect?,
+                    revocation_url: value.revocation_url?,
+                    revoked_at: value.revoked_at?,
+                    source: value.source?,
+                    status: value.status?,
+                    updated_at: value.updated_at?,
+                    url: value.url?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::Mandate> for Mandate {
+            fn from(value: super::Mandate) -> Self {
+                Self {
+                    approval_redirect: Ok(value.approval_redirect),
+                    approved_at: Ok(value.approved_at),
+                    asset: Ok(value.asset),
+                    canceled_at: Ok(value.canceled_at),
+                    created_at: Ok(value.created_at),
+                    customer_display: Ok(value.customer_display),
+                    expires_at: Ok(value.expires_at),
+                    mandate_id: Ok(value.mandate_id),
+                    metadata: Ok(value.metadata),
+                    policy: Ok(value.policy),
+                    revocation_redirect: Ok(value.revocation_redirect),
+                    revocation_url: Ok(value.revocation_url),
+                    revoked_at: Ok(value.revoked_at),
+                    source: Ok(value.source),
+                    status: Ok(value.status),
+                    updated_at: Ok(value.updated_at),
+                    url: Ok(value.url),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandateAuthorizationRequest {
+            customer_display: ::std::result::Result<
+                ::std::option::Option<super::OperationCustomerDisplay>,
+                ::std::string::String,
+            >,
+            external_reference_id: ::std::result::Result<
+                ::std::option::Option<super::ExternalReferenceId>,
+                ::std::string::String,
+            >,
+            mandate_id: ::std::result::Result<super::MandateId, ::std::string::String>,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MandateAuthorizationRequest {
+            fn default() -> Self {
+                Self {
+                    customer_display: Ok(Default::default()),
+                    external_reference_id: Ok(Default::default()),
+                    mandate_id: Err("no value supplied for mandate_id".to_string()),
+                    metadata: Ok(Default::default()),
+                }
+            }
+        }
+        impl MandateAuthorizationRequest {
+            pub fn customer_display<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::OperationCustomerDisplay>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.customer_display = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for customer_display: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn external_reference_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::ExternalReferenceId>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.external_reference_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for external_reference_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn mandate_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mandate_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mandate_id: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandateAuthorizationRequest> for super::MandateAuthorizationRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandateAuthorizationRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    customer_display: value.customer_display?,
+                    external_reference_id: value.external_reference_id?,
+                    mandate_id: value.mandate_id?,
+                    metadata: value.metadata?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandateAuthorizationRequest> for MandateAuthorizationRequest {
+            fn from(value: super::MandateAuthorizationRequest) -> Self {
+                Self {
+                    customer_display: Ok(value.customer_display),
+                    external_reference_id: Ok(value.external_reference_id),
+                    mandate_id: Ok(value.mandate_id),
+                    metadata: Ok(value.metadata),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandateCustomerDisplay {
+            merchant_name: ::std::result::Result<
+                ::std::option::Option<super::MandateCustomerDisplayMerchantName>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MandateCustomerDisplay {
+            fn default() -> Self {
+                Self {
+                    merchant_name: Ok(Default::default()),
+                }
+            }
+        }
+        impl MandateCustomerDisplay {
+            pub fn merchant_name<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::MandateCustomerDisplayMerchantName>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.merchant_name = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for merchant_name: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandateCustomerDisplay> for super::MandateCustomerDisplay {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandateCustomerDisplay,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    merchant_name: value.merchant_name?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandateCustomerDisplay> for MandateCustomerDisplay {
+            fn from(value: super::MandateCustomerDisplay) -> Self {
+                Self {
+                    merchant_name: Ok(value.merchant_name),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandateEventBase {
+            data: ::std::result::Result<super::MandateEventData, ::std::string::String>,
+            event_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
+            timestamp: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MandateEventBase {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    event_id: Err("no value supplied for event_id".to_string()),
+                    timestamp: Err("no value supplied for timestamp".to_string()),
+                }
+            }
+        }
+        impl MandateEventBase {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateEventData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn event_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.event_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for event_id: {}", e));
+                self
+            }
+            pub fn timestamp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.timestamp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for timestamp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandateEventBase> for super::MandateEventBase {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandateEventBase,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    event_id: value.event_id?,
+                    timestamp: value.timestamp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandateEventBase> for MandateEventBase {
+            fn from(value: super::MandateEventBase) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    event_id: Ok(value.event_id),
+                    timestamp: Ok(value.timestamp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandateEventData {
+            approval: ::std::result::Result<
+                ::std::option::Option<super::Approval>,
+                ::std::string::String,
+            >,
+            mandate: ::std::result::Result<super::Mandate, ::std::string::String>,
+            revocation: ::std::result::Result<
+                ::std::option::Option<super::Revocation>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MandateEventData {
+            fn default() -> Self {
+                Self {
+                    approval: Ok(Default::default()),
+                    mandate: Err("no value supplied for mandate".to_string()),
+                    revocation: Ok(Default::default()),
+                }
+            }
+        }
+        impl MandateEventData {
+            pub fn approval<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Approval>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.approval = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for approval: {}", e));
+                self
+            }
+            pub fn mandate<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Mandate>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mandate = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mandate: {}", e));
+                self
+            }
+            pub fn revocation<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Revocation>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocation = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for revocation: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandateEventData> for super::MandateEventData {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandateEventData,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    approval: value.approval?,
+                    mandate: value.mandate?,
+                    revocation: value.revocation?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandateEventData> for MandateEventData {
+            fn from(value: super::MandateEventData) -> Self {
+                Self {
+                    approval: Ok(value.approval),
+                    mandate: Ok(value.mandate),
+                    revocation: Ok(value.revocation),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandatePolicy {
+            max_per_authorization: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            max_per_period: ::std::result::Result<
+                ::std::option::Option<super::MandatePolicyPeriodCap>,
+                ::std::string::String,
+            >,
+            min_setup_balance: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MandatePolicy {
+            fn default() -> Self {
+                Self {
+                    max_per_authorization: Ok(Default::default()),
+                    max_per_period: Ok(Default::default()),
+                    min_setup_balance: Ok(Default::default()),
+                }
+            }
+        }
+        impl MandatePolicy {
+            pub fn max_per_authorization<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_per_authorization = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_per_authorization: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn max_per_period<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MandatePolicyPeriodCap>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_per_period = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for max_per_period: {}", e)
+                });
+                self
+            }
+            pub fn min_setup_balance<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.min_setup_balance = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for min_setup_balance: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandatePolicy> for super::MandatePolicy {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandatePolicy,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    max_per_authorization: value.max_per_authorization?,
+                    max_per_period: value.max_per_period?,
+                    min_setup_balance: value.min_setup_balance?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandatePolicy> for MandatePolicy {
+            fn from(value: super::MandatePolicy) -> Self {
+                Self {
+                    max_per_authorization: Ok(value.max_per_authorization),
+                    max_per_period: Ok(value.max_per_period),
+                    min_setup_balance: Ok(value.min_setup_balance),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandatePolicyPeriodCap {
+            amount: ::std::result::Result<::std::string::String, ::std::string::String>,
+            period: ::std::result::Result<super::MandatePolicyPeriod, ::std::string::String>,
+        }
+        impl ::std::default::Default for MandatePolicyPeriodCap {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    period: Err("no value supplied for period".to_string()),
+                }
+            }
+        }
+        impl MandatePolicyPeriodCap {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn period<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandatePolicyPeriod>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.period = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for period: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandatePolicyPeriodCap> for super::MandatePolicyPeriodCap {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandatePolicyPeriodCap,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    period: value.period?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandatePolicyPeriodCap> for MandatePolicyPeriodCap {
+            fn from(value: super::MandatePolicyPeriodCap) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    period: Ok(value.period),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MandateSourceWallet {
+            address: ::std::result::Result<super::BlockchainAddress, ::std::string::String>,
+            asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            network: ::std::result::Result<super::PaymentSourceNetwork, ::std::string::String>,
+        }
+        impl ::std::default::Default for MandateSourceWallet {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    asset: Err("no value supplied for asset".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                }
+            }
+        }
+        impl MandateSourceWallet {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::BlockchainAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PaymentSourceNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MandateSourceWallet> for super::MandateSourceWallet {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MandateSourceWallet,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    asset: value.asset?,
+                    network: value.network?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MandateSourceWallet> for MandateSourceWallet {
+            fn from(value: super::MandateSourceWallet) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    asset: Ok(value.asset),
+                    network: Ok(value.network),
                 }
             }
         }
@@ -144238,6 +153080,74 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct Permit2AllowancePayload {
+            data: ::std::result::Result<super::Eip712Message, ::std::string::String>,
+            payload_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_: ::std::result::Result<super::Permit2AllowancePayloadType, ::std::string::String>,
+        }
+        impl ::std::default::Default for Permit2AllowancePayload {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    payload_id: Err("no value supplied for payload_id".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl Permit2AllowancePayload {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Eip712Message>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn payload_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payload_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payload_id: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Permit2AllowancePayloadType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<Permit2AllowancePayload> for super::Permit2AllowancePayload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: Permit2AllowancePayload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    payload_id: value.payload_id?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::Permit2AllowancePayload> for Permit2AllowancePayload {
+            fn from(value: super::Permit2AllowancePayload) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    payload_id: Ok(value.payload_id),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct Permit2Payload {
             data: ::std::result::Result<super::Eip712Message, ::std::string::String>,
             payload_id: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -145665,78 +154575,180 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct RevokeDelegationForEndUserAccountBody {
-            wallet_secret_id: ::std::result::Result<
-                ::std::option::Option<super::RevokeDelegationForEndUserAccountBodyWalletSecretId>,
+        pub struct Revocation {
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            error: ::std::result::Result<
+                ::std::option::Option<super::PaymentError>,
+                ::std::string::String,
+            >,
+            mandate_id: ::std::result::Result<super::MandateId, ::std::string::String>,
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            onchain_transactions: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainTransaction>,
+                ::std::string::String,
+            >,
+            revocation_id: ::std::result::Result<super::RevocationId, ::std::string::String>,
+            status: ::std::result::Result<super::RevocationStatus, ::std::string::String>,
+            updated_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
                 ::std::string::String,
             >,
         }
-        impl ::std::default::Default for RevokeDelegationForEndUserAccountBody {
+        impl ::std::default::Default for Revocation {
             fn default() -> Self {
                 Self {
-                    wallet_secret_id: Ok(Default::default()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    error: Ok(Default::default()),
+                    mandate_id: Err("no value supplied for mandate_id".to_string()),
+                    metadata: Ok(Default::default()),
+                    onchain_transactions: Ok(Default::default()),
+                    revocation_id: Err("no value supplied for revocation_id".to_string()),
+                    status: Err("no value supplied for status".to_string()),
+                    updated_at: Err("no value supplied for updated_at".to_string()),
                 }
             }
         }
-        impl RevokeDelegationForEndUserAccountBody {
-            pub fn wallet_secret_id<T>(mut self, value: T) -> Self
+        impl Revocation {
+            pub fn created_at<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<
-                    ::std::option::Option<
-                        super::RevokeDelegationForEndUserAccountBodyWalletSecretId,
-                    >,
-                >,
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
                 T::Error: ::std::fmt::Display,
             {
-                self.wallet_secret_id = value.try_into().map_err(|e| {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn error<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymentError>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.error = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for error: {}", e));
+                self
+            }
+            pub fn mandate_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mandate_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mandate_id: {}", e));
+                self
+            }
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn onchain_transactions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainTransaction>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.onchain_transactions = value.try_into().map_err(|e| {
                     format!(
-                        "error converting supplied value for wallet_secret_id: {}",
+                        "error converting supplied value for onchain_transactions: {}",
                         e
                     )
                 });
                 self
             }
+            pub fn revocation_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::RevocationId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.revocation_id = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for revocation_id: {}", e)
+                });
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::RevocationStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+            pub fn updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.updated_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for updated_at: {}", e));
+                self
+            }
         }
-        impl ::std::convert::TryFrom<RevokeDelegationForEndUserAccountBody>
-            for super::RevokeDelegationForEndUserAccountBody
-        {
+        impl ::std::convert::TryFrom<Revocation> for super::Revocation {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: RevokeDelegationForEndUserAccountBody,
+                value: Revocation,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
-                    wallet_secret_id: value.wallet_secret_id?,
+                    created_at: value.created_at?,
+                    error: value.error?,
+                    mandate_id: value.mandate_id?,
+                    metadata: value.metadata?,
+                    onchain_transactions: value.onchain_transactions?,
+                    revocation_id: value.revocation_id?,
+                    status: value.status?,
+                    updated_at: value.updated_at?,
                 })
             }
         }
-        impl ::std::convert::From<super::RevokeDelegationForEndUserAccountBody>
-            for RevokeDelegationForEndUserAccountBody
-        {
-            fn from(value: super::RevokeDelegationForEndUserAccountBody) -> Self {
+        impl ::std::convert::From<super::Revocation> for Revocation {
+            fn from(value: super::Revocation) -> Self {
                 Self {
-                    wallet_secret_id: Ok(value.wallet_secret_id),
+                    created_at: Ok(value.created_at),
+                    error: Ok(value.error),
+                    mandate_id: Ok(value.mandate_id),
+                    metadata: Ok(value.metadata),
+                    onchain_transactions: Ok(value.onchain_transactions),
+                    revocation_id: Ok(value.revocation_id),
+                    status: Ok(value.status),
+                    updated_at: Ok(value.updated_at),
                 }
             }
         }
         #[derive(Clone, Debug)]
-        pub struct RevokeDelegationForEndUserBody {
+        pub struct RevokeDelegationRequest {
             wallet_secret_id: ::std::result::Result<
-                ::std::option::Option<super::RevokeDelegationForEndUserBodyWalletSecretId>,
+                ::std::option::Option<super::RevokeDelegationRequestWalletSecretId>,
                 ::std::string::String,
             >,
         }
-        impl ::std::default::Default for RevokeDelegationForEndUserBody {
+        impl ::std::default::Default for RevokeDelegationRequest {
             fn default() -> Self {
                 Self {
                     wallet_secret_id: Ok(Default::default()),
                 }
             }
         }
-        impl RevokeDelegationForEndUserBody {
+        impl RevokeDelegationRequest {
             pub fn wallet_secret_id<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<
-                    ::std::option::Option<super::RevokeDelegationForEndUserBodyWalletSecretId>,
+                    ::std::option::Option<super::RevokeDelegationRequestWalletSecretId>,
                 >,
                 T::Error: ::std::fmt::Display,
             {
@@ -145749,22 +154761,18 @@ pub mod types {
                 self
             }
         }
-        impl ::std::convert::TryFrom<RevokeDelegationForEndUserBody>
-            for super::RevokeDelegationForEndUserBody
-        {
+        impl ::std::convert::TryFrom<RevokeDelegationRequest> for super::RevokeDelegationRequest {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: RevokeDelegationForEndUserBody,
+                value: RevokeDelegationRequest,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     wallet_secret_id: value.wallet_secret_id?,
                 })
             }
         }
-        impl ::std::convert::From<super::RevokeDelegationForEndUserBody>
-            for RevokeDelegationForEndUserBody
-        {
-            fn from(value: super::RevokeDelegationForEndUserBody) -> Self {
+        impl ::std::convert::From<super::RevokeDelegationRequest> for RevokeDelegationRequest {
+            fn from(value: super::RevokeDelegationRequest) -> Self {
                 Self {
                     wallet_secret_id: Ok(value.wallet_secret_id),
                 }
@@ -151239,6 +160247,118 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SolanaSubscriptionPayload {
+            data:
+                ::std::result::Result<super::SolanaSubscriptionPayloadData, ::std::string::String>,
+            payload_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_:
+                ::std::result::Result<super::SolanaSubscriptionPayloadType, ::std::string::String>,
+        }
+        impl ::std::default::Default for SolanaSubscriptionPayload {
+            fn default() -> Self {
+                Self {
+                    data: Err("no value supplied for data".to_string()),
+                    payload_id: Err("no value supplied for payload_id".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl SolanaSubscriptionPayload {
+            pub fn data<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SolanaSubscriptionPayloadData>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.data = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for data: {}", e));
+                self
+            }
+            pub fn payload_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payload_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payload_id: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SolanaSubscriptionPayloadType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SolanaSubscriptionPayload> for super::SolanaSubscriptionPayload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SolanaSubscriptionPayload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    data: value.data?,
+                    payload_id: value.payload_id?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SolanaSubscriptionPayload> for SolanaSubscriptionPayload {
+            fn from(value: super::SolanaSubscriptionPayload) -> Self {
+                Self {
+                    data: Ok(value.data),
+                    payload_id: Ok(value.payload_id),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SolanaSubscriptionPayloadData {
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for SolanaSubscriptionPayloadData {
+            fn default() -> Self {
+                Self {
+                    transaction: Err("no value supplied for transaction".to_string()),
+                }
+            }
+        }
+        impl SolanaSubscriptionPayloadData {
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SolanaSubscriptionPayloadData>
+            for super::SolanaSubscriptionPayloadData
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SolanaSubscriptionPayloadData,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction: value.transaction?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SolanaSubscriptionPayloadData> for SolanaSubscriptionPayloadData {
+            fn from(value: super::SolanaSubscriptionPayloadData) -> Self {
+                Self {
+                    transaction: Ok(value.transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SolanaToken {
             mint_address:
                 ::std::result::Result<super::SolanaTokenMintAddress, ::std::string::String>,
@@ -155813,6 +164933,80 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct WalletApprovalRequest {
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            option_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            signed_payloads: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainSignedPayload>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WalletApprovalRequest {
+            fn default() -> Self {
+                Self {
+                    metadata: Ok(Default::default()),
+                    option_id: Err("no value supplied for option_id".to_string()),
+                    signed_payloads: Err("no value supplied for signed_payloads".to_string()),
+                }
+            }
+        }
+        impl WalletApprovalRequest {
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn option_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.option_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for option_id: {}", e));
+                self
+            }
+            pub fn signed_payloads<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainSignedPayload>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signed_payloads = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for signed_payloads: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletApprovalRequest> for super::WalletApprovalRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletApprovalRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    metadata: value.metadata?,
+                    option_id: value.option_id?,
+                    signed_payloads: value.signed_payloads?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletApprovalRequest> for WalletApprovalRequest {
+            fn from(value: super::WalletApprovalRequest) -> Self {
+                Self {
+                    metadata: Ok(value.metadata),
+                    option_id: Ok(value.option_id),
+                    signed_payloads: Ok(value.signed_payloads),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct WalletAuthorizationFundsRequirement {
             asset: ::std::result::Result<super::Asset, ::std::string::String>,
             current_balance: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -156817,6 +166011,448 @@ pub mod types {
                     failed_at: Ok(value.failed_at),
                     network: Ok(value.network),
                     transaction_hash: Ok(value.transaction_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletMandateApprovalFundsRequirement {
+            asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            current_balance: ::std::result::Result<::std::string::String, ::std::string::String>,
+            network: ::std::result::Result<super::PaymentSourceNetwork, ::std::string::String>,
+            required_balance: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for WalletMandateApprovalFundsRequirement {
+            fn default() -> Self {
+                Self {
+                    asset: Err("no value supplied for asset".to_string()),
+                    current_balance: Err("no value supplied for current_balance".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    required_balance: Err("no value supplied for required_balance".to_string()),
+                }
+            }
+        }
+        impl WalletMandateApprovalFundsRequirement {
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn current_balance<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.current_balance = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for current_balance: {}", e)
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::PaymentSourceNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn required_balance<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.required_balance = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for required_balance: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletMandateApprovalFundsRequirement>
+            for super::WalletMandateApprovalFundsRequirement
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletMandateApprovalFundsRequirement,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    asset: value.asset?,
+                    current_balance: value.current_balance?,
+                    network: value.network?,
+                    required_balance: value.required_balance?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletMandateApprovalFundsRequirement>
+            for WalletMandateApprovalFundsRequirement
+        {
+            fn from(value: super::WalletMandateApprovalFundsRequirement) -> Self {
+                Self {
+                    asset: Ok(value.asset),
+                    current_balance: Ok(value.current_balance),
+                    network: Ok(value.network),
+                    required_balance: Ok(value.required_balance),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletMandateApprovalOption {
+            option_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            payloads: ::std::result::Result<
+                ::std::vec::Vec<super::ApprovalPayload>,
+                ::std::string::String,
+            >,
+            source: ::std::result::Result<super::MandateSourceWallet, ::std::string::String>,
+        }
+        impl ::std::default::Default for WalletMandateApprovalOption {
+            fn default() -> Self {
+                Self {
+                    option_id: Err("no value supplied for option_id".to_string()),
+                    payloads: Err("no value supplied for payloads".to_string()),
+                    source: Err("no value supplied for source".to_string()),
+                }
+            }
+        }
+        impl WalletMandateApprovalOption {
+            pub fn option_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.option_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for option_id: {}", e));
+                self
+            }
+            pub fn payloads<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::ApprovalPayload>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payloads = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payloads: {}", e));
+                self
+            }
+            pub fn source<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateSourceWallet>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.source = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for source: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletMandateApprovalOption> for super::WalletMandateApprovalOption {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletMandateApprovalOption,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    option_id: value.option_id?,
+                    payloads: value.payloads?,
+                    source: value.source?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletMandateApprovalOption> for WalletMandateApprovalOption {
+            fn from(value: super::WalletMandateApprovalOption) -> Self {
+                Self {
+                    option_id: Ok(value.option_id),
+                    payloads: Ok(value.payloads),
+                    source: Ok(value.source),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletMandateApprovalOptionsResponse {
+            ineligible_addresses: ::std::result::Result<
+                ::std::vec::Vec<super::IneligibleWalletMandateApprovalAddresses>,
+                ::std::string::String,
+            >,
+            options: ::std::result::Result<
+                ::std::vec::Vec<super::WalletMandateApprovalOption>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WalletMandateApprovalOptionsResponse {
+            fn default() -> Self {
+                Self {
+                    ineligible_addresses: Err(
+                        "no value supplied for ineligible_addresses".to_string()
+                    ),
+                    options: Err("no value supplied for options".to_string()),
+                }
+            }
+        }
+        impl WalletMandateApprovalOptionsResponse {
+            pub fn ineligible_addresses<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::vec::Vec<super::IneligibleWalletMandateApprovalAddresses>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.ineligible_addresses = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for ineligible_addresses: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn options<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::WalletMandateApprovalOption>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.options = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for options: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletMandateApprovalOptionsResponse>
+            for super::WalletMandateApprovalOptionsResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletMandateApprovalOptionsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    ineligible_addresses: value.ineligible_addresses?,
+                    options: value.options?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletMandateApprovalOptionsResponse>
+            for WalletMandateApprovalOptionsResponse
+        {
+            fn from(value: super::WalletMandateApprovalOptionsResponse) -> Self {
+                Self {
+                    ineligible_addresses: Ok(value.ineligible_addresses),
+                    options: Ok(value.options),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletMandateRevocationOption {
+            option_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            payloads: ::std::result::Result<
+                ::std::vec::Vec<super::RevocationPayload>,
+                ::std::string::String,
+            >,
+            source: ::std::result::Result<super::MandateSourceWallet, ::std::string::String>,
+        }
+        impl ::std::default::Default for WalletMandateRevocationOption {
+            fn default() -> Self {
+                Self {
+                    option_id: Err("no value supplied for option_id".to_string()),
+                    payloads: Err("no value supplied for payloads".to_string()),
+                    source: Err("no value supplied for source".to_string()),
+                }
+            }
+        }
+        impl WalletMandateRevocationOption {
+            pub fn option_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.option_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for option_id: {}", e));
+                self
+            }
+            pub fn payloads<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::RevocationPayload>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payloads = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payloads: {}", e));
+                self
+            }
+            pub fn source<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MandateSourceWallet>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.source = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for source: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletMandateRevocationOption>
+            for super::WalletMandateRevocationOption
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletMandateRevocationOption,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    option_id: value.option_id?,
+                    payloads: value.payloads?,
+                    source: value.source?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletMandateRevocationOption> for WalletMandateRevocationOption {
+            fn from(value: super::WalletMandateRevocationOption) -> Self {
+                Self {
+                    option_id: Ok(value.option_id),
+                    payloads: Ok(value.payloads),
+                    source: Ok(value.source),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletMandateRevocationOptionsResponse {
+            options: ::std::result::Result<
+                ::std::vec::Vec<super::WalletMandateRevocationOption>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WalletMandateRevocationOptionsResponse {
+            fn default() -> Self {
+                Self {
+                    options: Err("no value supplied for options".to_string()),
+                }
+            }
+        }
+        impl WalletMandateRevocationOptionsResponse {
+            pub fn options<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::WalletMandateRevocationOption>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.options = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for options: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletMandateRevocationOptionsResponse>
+            for super::WalletMandateRevocationOptionsResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletMandateRevocationOptionsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    options: value.options?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletMandateRevocationOptionsResponse>
+            for WalletMandateRevocationOptionsResponse
+        {
+            fn from(value: super::WalletMandateRevocationOptionsResponse) -> Self {
+                Self {
+                    options: Ok(value.options),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WalletRevocationRequest {
+            metadata: ::std::result::Result<
+                ::std::option::Option<super::Metadata>,
+                ::std::string::String,
+            >,
+            option_id: ::std::result::Result<::std::string::String, ::std::string::String>,
+            reason: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            signed_payloads: ::std::result::Result<
+                ::std::vec::Vec<super::OnchainSignedPayload>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WalletRevocationRequest {
+            fn default() -> Self {
+                Self {
+                    metadata: Ok(Default::default()),
+                    option_id: Err("no value supplied for option_id".to_string()),
+                    reason: Ok(Default::default()),
+                    signed_payloads: Err("no value supplied for signed_payloads".to_string()),
+                }
+            }
+        }
+        impl WalletRevocationRequest {
+            pub fn metadata<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::Metadata>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metadata = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metadata: {}", e));
+                self
+            }
+            pub fn option_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.option_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for option_id: {}", e));
+                self
+            }
+            pub fn reason<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.reason = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for reason: {}", e));
+                self
+            }
+            pub fn signed_payloads<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnchainSignedPayload>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signed_payloads = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for signed_payloads: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WalletRevocationRequest> for super::WalletRevocationRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WalletRevocationRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    metadata: value.metadata?,
+                    option_id: value.option_id?,
+                    reason: value.reason?,
+                    signed_payloads: value.signed_payloads?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WalletRevocationRequest> for WalletRevocationRequest {
+            fn from(value: super::WalletRevocationRequest) -> Self {
+                Self {
+                    metadata: Ok(value.metadata),
+                    option_id: Ok(value.option_id),
+                    reason: Ok(value.reason),
+                    signed_payloads: Ok(value.signed_payloads),
                 }
             }
         }
@@ -163238,12 +172874,15 @@ impl Client {
 
     - **Entity-owned**: when `owner` is omitted, the account is owned by the
       Entity making the request. Returns an account with `owner: entity_<uuid>`.
+      Omit `compliance`; it has no effect for Entity-owned accounts.
 
     - **Customer-owned**: pass a Customer ID as `owner`
       (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer
       must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
       capabilities enabled, otherwise the request is rejected with
-      `customer_not_authorized` (HTTP 403).
+      `customer_not_authorized` (HTTP 403). `compliance.requesterIpAddress`
+      is required; use the IP address of the end-customer who initiated the
+      request (not the partner server's IP).
 
     Sends a `POST` request to `/v2/accounts`
 
@@ -163706,6 +173345,8 @@ impl Client {
 
     Subscribe to real-time events across CDP products. A webhook subscription provides a `targetURL` and other relevant endpoint configuration to enable receiving webhooks when events occur.
 
+    An entity can have up to 100 webhook subscriptions. Once this limit is reached, new webhook subscription creation requests return a `400` error with `errorType: subscription_limit_exceeded`.
+
     ### Webhook Signature Verification
 
     All webhooks include an HMAC-SHA256 signed header for security. The signature is signed with the secret that is returned in the `secret` field when creating a subscription.
@@ -163847,7 +173488,7 @@ impl Client {
     }
     /**List deposit destinations
 
-    List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+    List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
 
     Sends a `GET` request to `/v2/deposit-destinations`
 
@@ -163857,6 +173498,7 @@ impl Client {
     - `network`: Filter deposit destinations by network.
     - `page_size`: The number of resources to return per page.
     - `page_token`: The token for the next page of resources, if any.
+    - `status`: Filter deposit destinations by status.
     - `type_`: Filter deposit destinations by type.
     ```ignore
     let response = client.list_deposit_destinations()
@@ -163865,6 +173507,7 @@ impl Client {
         .network(network)
         .page_size(page_size)
         .page_token(page_token)
+        .status(status)
         .type_(type_)
         .send()
         .await;
@@ -164064,12 +173707,62 @@ impl Client {
     ) -> builder::CreateDelegationForEndUserAccount<'_> {
         builder::CreateDelegationForEndUserAccount::new(self)
     }
+    /**Revoke account-scoped delegation for end user (deprecated)
+
+    > **Deprecation Notice:** Prefer
+    > [Revoke account-scoped delegation for end user](#operation/revokeDelegationForEndUserAccount)
+    > (`POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`),
+    > which takes the same request body. This `DELETE` path will be removed on **2026-10-22**.
+
+    Revokes the active account-scoped delegation for the specified end user account.
+    Other account-scoped delegations for the same user are unaffected. This operation
+    can be performed by the end user themselves or by a developer using their API key.
+
+    When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+    Smart Account's owner EOA.
+
+    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `address`: The blockchain address of the end user account whose delegation should be revoked. For EVM addresses, matching is case-insensitive.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user_account_deprecated()
+        .user_id(user_id)
+        .address(address)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user_account_deprecated(
+        &self,
+    ) -> builder::RevokeDelegationForEndUserAccountDeprecated<'_> {
+        builder::RevokeDelegationForEndUserAccountDeprecated::new(self)
+    }
     /**Revoke account-scoped delegation for end user
 
     Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
     When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
 
-    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`
 
     Arguments:
     - `user_id`: The ID of the end user.
@@ -164124,11 +173817,56 @@ impl Client {
     pub fn get_delegation_for_end_user(&self) -> builder::GetDelegationForEndUser<'_> {
         builder::GetDelegationForEndUser::new(self)
     }
+    /**Revoke delegation for end user (deprecated)
+
+    > **Deprecation Notice:** Prefer
+    > [Revoke delegation for end user](#operation/revokeDelegationForEndUser)
+    > (`POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`), which takes the
+    > same request body. This `DELETE` path will be removed on **2026-10-22**.
+
+    Revokes all active delegations for the specified end user. This operation
+    can be performed by the end user themselves or by a developer using their
+    API key.
+
+    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+
+    Arguments:
+    - `user_id`: The ID of the end user.
+    - `project_id`: The ID of the CDP Project. Required for end users authenticated using custom auth (i.e. a non-CDP JWT provider).
+    - `x_developer_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_delegation_for_end_user_deprecated()
+        .user_id(user_id)
+        .project_id(project_id)
+        .x_developer_auth(x_developer_auth)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_delegation_for_end_user_deprecated(
+        &self,
+    ) -> builder::RevokeDelegationForEndUserDeprecated<'_> {
+        builder::RevokeDelegationForEndUserDeprecated::new(self)
+    }
     /**Revoke delegation for end user
 
     Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
 
-    Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+    Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`
 
     Arguments:
     - `user_id`: The ID of the end user.
@@ -165923,6 +175661,284 @@ impl Client {
     pub fn list_evm_token_balances(&self) -> builder::ListEvmTokenBalances<'_> {
         builder::ListEvmTokenBalances::new(self)
     }
+    /**List mandates
+
+    Returns a paginated list of mandates that the API key has permission to access. Filter by `address` (the funding `source`), `network`, and `status`.
+
+    Sends a `GET` request to `/v2/mandates`
+
+    Arguments:
+    - `address`: Filter mandates by the customer's wallet address.
+    - `network`: Filter mandates by the customer's wallet network. Only applies when `address` is also provided.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    - `status`: Filter mandates by their latest action, e.g. `approval_succeeded` for mandates whose most recent transition was a successful approval. Note that `status` tracks the latest action, not usability; usability is derived from the `approvedAt`, `canceledAt`, and `revokedAt` timestamps.
+    ```ignore
+    let response = client.list_mandates()
+        .address(address)
+        .network(network)
+        .page_size(page_size)
+        .page_token(page_token)
+        .status(status)
+        .send()
+        .await;
+    ```*/
+    pub fn list_mandates(&self) -> builder::ListMandates<'_> {
+        builder::ListMandates::new(self)
+    }
+    /**Create a mandate
+
+    Creates a mandate denominated in `asset`. Optionally set `policy` to cap debits; if omitted, a Coinbase-configured monthly max applies. The response always includes the resolved `policy`.
+
+    Returns the mandate in `created` status with no `source`; it is not yet usable. Next step: have the customer approve it with **Get wallet approval options** then **Approve a mandate with a wallet**, which attaches the `source` and moves the mandate to `approval_succeeded`.
+
+    A mandate's terms can't be modified once created. To change them, cancel the mandate and create a new one.
+
+    Sends a `POST` request to `/v2/mandates`
+
+    Arguments:
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `body`
+    ```ignore
+    let response = client.create_mandate()
+        .x_idempotency_key(x_idempotency_key)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_mandate(&self) -> builder::CreateMandate<'_> {
+        builder::CreateMandate::new(self)
+    }
+    /**Get a mandate
+
+    Retrieves a single mandate by its ID, including its current `status`, `policy`, and `source`.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    ```ignore
+    let response = client.get_mandate()
+        .mandate_id(mandate_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_mandate(&self) -> builder::GetMandate<'_> {
+        builder::GetMandate::new(self)
+    }
+    /**List mandate approvals
+
+    Returns the approvals for a mandate, most recent first. Each approval is an attempt to attach a funding `source`; inspect them to see why a mandate is not yet `approval_succeeded`: a `pending` attempt is still in progress, a `failed` one carries an `error`.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/approvals`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    ```ignore
+    let response = client.list_mandate_approvals()
+        .mandate_id(mandate_id)
+        .page_size(page_size)
+        .page_token(page_token)
+        .send()
+        .await;
+    ```*/
+    pub fn list_mandate_approvals(&self) -> builder::ListMandateApprovals<'_> {
+        builder::ListMandateApprovals::new(self)
+    }
+    /**Approve a mandate with a wallet
+
+    **Customer-initiated.** Approves a mandate on a wallet source using the customer's signed payloads from **Get wallet approval options**. The customer signs the payloads themselves, so this call is unauthenticated. The mandate must be in `created` or `approval_failed` status, not expired, and have no approval or revocation in flight.
+
+    Returns a `pending` approval and moves the mandate to `approval_pending`. On success the mandate's `source` is set and `status` becomes `approval_succeeded`; it can then be used by **Authorize a payment session with a mandate**. On failure `status` becomes `approval_failed` and a new approval can be submitted. Follow progress with **Get a mandate approval** or the `acceptance.mandate.approval_*` webhooks.
+
+    Sends a `POST` request to `/v2/mandates/{mandateId}/approvals/wallet`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate to approve.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `body`
+    ```ignore
+    let response = client.approve_wallet_mandate()
+        .mandate_id(mandate_id)
+        .x_idempotency_key(x_idempotency_key)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn approve_wallet_mandate(&self) -> builder::ApproveWalletMandate<'_> {
+        builder::ApproveWalletMandate::new(self)
+    }
+    /**Get wallet approval options
+
+    Returns the available wallet approval options for a mandate. The mandate must be in `created` or `approval_failed` status, not expired, and have no approval or revocation in flight.
+
+    Provide one or more customer wallet addresses as query parameters. Each option specifies the network, asset, and payloads the customer must sign to approve the mandate. Present the options to the customer and let them choose one, then call **Approve a mandate with a wallet** with the selected option and its signed payloads.
+
+    This is a stateless read operation and does not modify the mandate. The payloads embed fresh on-chain signing data such as a `nonce` and `deadline`, so sign and submit the payloads from a single response rather than caching them.
+
+    If a requested address has no eligible approval options, it appears in `ineligibleAddresses` with a `code` and `message` instead of being absent from `options`.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/approvals/wallet/options`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    - `addresses`: The customer's wallet addresses to generate approval options for. Provide between 1 and 5 unique addresses, comma-separated (e.g. `?addresses=0xA,0xB`). Each returned option's `source.address` identifies which requested address it applies to. If a requested address has no eligible approval options, it appears in `ineligibleAddresses` with a `code` explaining why.
+    - `asset`: Filter options by asset. Currently, only `usdc` and `usdt` return results.
+    - `network`: Optional filter to restrict options to a specific blockchain network.
+    ```ignore
+    let response = client.get_wallet_approval_options()
+        .mandate_id(mandate_id)
+        .addresses(addresses)
+        .asset(asset)
+        .network(network)
+        .send()
+        .await;
+    ```*/
+    pub fn get_wallet_approval_options(&self) -> builder::GetWalletApprovalOptions<'_> {
+        builder::GetWalletApprovalOptions::new(self)
+    }
+    /**Get a mandate approval
+
+    Retrieves a single approval by its ID, including its current `status`, its `onchainTransactions` once submitted, and, when it failed, its `error`. Poll this after **Approve a mandate with a wallet** to follow a `pending` approval to `succeeded` or `failed`, or consume the mandate webhooks instead.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/approvals/{approvalId}`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    - `approval_id`: The unique identifier of the approval.
+    ```ignore
+    let response = client.get_mandate_approval()
+        .mandate_id(mandate_id)
+        .approval_id(approval_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_mandate_approval(&self) -> builder::GetMandateApproval<'_> {
+        builder::GetMandateApproval::new(self)
+    }
+    /**Cancel a mandate
+
+    Ends the mandate off-chain. `status` becomes `canceled`, `canceledAt` is set, and new authorizations are blocked immediately; authorizations already in progress are not affected. Cancel can be called from any status except a fully revoked one (`revokedAt` set); canceling an already canceled mandate is a no-op that returns the mandate unchanged.
+
+    Canceling does not touch the on-chain spending allowance, which may still be live afterward. The customer removes it separately with **Revoke a mandate with a wallet**; that later revocation sets `revokedAt` while `canceledAt` remains set.
+
+    Sends a `POST` request to `/v2/mandates/{mandateId}/cancel`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate to cancel.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `body`
+    ```ignore
+    let response = client.cancel_mandate()
+        .mandate_id(mandate_id)
+        .x_idempotency_key(x_idempotency_key)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn cancel_mandate(&self) -> builder::CancelMandate<'_> {
+        builder::CancelMandate::new(self)
+    }
+    /**List mandate revocations
+
+    Returns all wallet revocations for the mandate, newest first. Each records an attempt to remove the spending allowance on-chain. A `succeeded` entry means the allowance has been removed.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/revocations`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    ```ignore
+    let response = client.list_mandate_revocations()
+        .mandate_id(mandate_id)
+        .page_size(page_size)
+        .page_token(page_token)
+        .send()
+        .await;
+    ```*/
+    pub fn list_mandate_revocations(&self) -> builder::ListMandateRevocations<'_> {
+        builder::ListMandateRevocations::new(self)
+    }
+    /**Revoke a mandate with a wallet
+
+    **Customer-initiated.** Removes the mandate's spending allowance on-chain using the customer's signed payloads from **Get wallet revocation options**. The customer signs the payloads themselves, so this call is unauthenticated. The mandate must have an active allowance and no approval or revocation in flight.
+
+    Returns a `pending` revocation and moves the mandate to `revocation_pending`. When the network transaction confirms, `revokedAt` is set and `status` becomes `revocation_succeeded`; if it does not complete, `status` becomes `revocation_failed` and a new revocation can be submitted. Follow progress with **Get a mandate revocation** or the `acceptance.mandate.revocation_*` webhooks.
+
+    A canceled mandate can still be revoked: the revocation sets `revokedAt` while `canceledAt` remains set.
+
+    Sends a `POST` request to `/v2/mandates/{mandateId}/revocations/wallet`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate to revoke.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `body`
+    ```ignore
+    let response = client.revoke_wallet_mandate()
+        .mandate_id(mandate_id)
+        .x_idempotency_key(x_idempotency_key)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn revoke_wallet_mandate(&self) -> builder::RevokeWalletMandate<'_> {
+        builder::RevokeWalletMandate::new(self)
+    }
+    /**Get wallet revocation options
+
+    Returns the payloads the customer must sign to remove the mandate's spending allowance on-chain. The mandate must have an active allowance (approval succeeded, not yet revoked) and no approval or revocation in flight. A canceled mandate can still be revoked while its allowance is live.
+
+    Present the payloads to the customer to sign, then call **Revoke a mandate with a wallet** with the signed payloads.
+
+    This is a stateless read operation and does not modify the mandate. The payloads embed fresh signing data on each call, so sign and submit the payloads from a single response rather than caching them.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/revocations/wallet/options`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    ```ignore
+    let response = client.get_wallet_revocation_options()
+        .mandate_id(mandate_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_wallet_revocation_options(&self) -> builder::GetWalletRevocationOptions<'_> {
+        builder::GetWalletRevocationOptions::new(self)
+    }
+    /**Get a mandate revocation
+
+    Retrieves a single revocation by ID.
+
+    Sends a `GET` request to `/v2/mandates/{mandateId}/revocations/{revocationId}`
+
+    Arguments:
+    - `mandate_id`: The unique identifier of the mandate.
+    - `revocation_id`: The unique identifier of the revocation.
+    ```ignore
+    let response = client.get_mandate_revocation()
+        .mandate_id(mandate_id)
+        .revocation_id(revocation_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_mandate_revocation(&self) -> builder::GetMandateRevocation<'_> {
+        builder::GetMandateRevocation::new(self)
+    }
     /**Get onramp user limits
 
     Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction.
@@ -165983,8 +175999,12 @@ impl Client {
 
     Sends a `POST` request to `/v2/onramp/orders`
 
+    Arguments:
+    - `x_onramp_partner_id`: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+    - `body`
     ```ignore
     let response = client.create_onramp_order()
+        .x_onramp_partner_id(x_onramp_partner_id)
         .body(body)
         .send()
         .await;
@@ -166032,8 +176052,12 @@ impl Client {
 
     Sends a `POST` request to `/v2/onramp/sessions`
 
+    Arguments:
+    - `x_onramp_partner_id`: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+    - `body`
     ```ignore
     let response = client.create_onramp_session()
+        .x_onramp_partner_id(x_onramp_partner_id)
         .body(body)
         .send()
         .await;
@@ -166254,6 +176278,36 @@ impl Client {
         &self,
     ) -> builder::AuthorizeCoinbasePaymentSession<'_> {
         builder::AuthorizeCoinbasePaymentSession::new(self)
+    }
+    /**Authorize a payment session with a mandate
+
+    **Merchant-initiated.** The merchant draws against a mandate in `approval_succeeded` status using the mandate's existing approval, so no fresh signature is required and the customer does not need to be present. The session must be in `created` status and the mandate must be in `approval_succeeded` status. When more than one mandate condition applies, the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`).
+
+    It requires API key authentication: unlike the payer-present wallet flow there is no per-call signature to prove consent, so the merchant authenticates as the party entitled to draw against the mandate.
+
+    The charge must fall within the mandate's `policy`. Exceeding `maxPerAuthorization` or `maxPerPeriod` returns `422` (`mandate_policy_violation`).
+
+    On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`. If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+
+    Sends a `POST` request to `/v2/payment-sessions/{paymentSessionId}/authorizations/mandate`
+
+    Arguments:
+    - `payment_session_id`: The unique identifier of the payment session to authorize.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `body`
+    ```ignore
+    let response = client.authorize_mandate_payment_session()
+        .payment_session_id(payment_session_id)
+        .x_idempotency_key(x_idempotency_key)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn authorize_mandate_payment_session(&self) -> builder::AuthorizeMandatePaymentSession<'_> {
+        builder::AuthorizeMandatePaymentSession::new(self)
     }
     /**Authorize a payment session with a wallet
 
@@ -167071,6 +177125,8 @@ impl Client {
 
     List transfers for your organization. Use this to view and monitor your transfer activity.
 
+    **Sorting**: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.
+
     **Status Filtering**: Filter by specific status to efficiently manage transfers:
     * `?status=processing` - Monitor active transfers.
     * `?status=quoted` - Find transfers awaiting execution.
@@ -167081,7 +177137,7 @@ impl Client {
     * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics).
     * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound).
     * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound).
-    Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a validation error and returns HTTP 400.
+    Providing `accountId` together with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail` is a validation error and returns HTTP 400.
 
     **Date Range Filtering**: Filter by creation or last-updated time for reconciliation:
     * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range.
@@ -167098,23 +177154,29 @@ impl Client {
     * `?targetEmail=user@example.com` - Transfers to a specific email recipient.
     * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.
 
+    **Filter Combinations**: The following combinations are validation errors and return HTTP 400:
+    * `accountId` with any of `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
+    * `sourceAccountId` with `sourceAddress`.
+    * More than one of `targetAccountId`, `targetAddress`, and `targetEmail`.
+    * `transferId` with any other filter. Pagination parameters are permitted.
+
     Sends a `GET` request to `/v2/transfers`
 
     Arguments:
-    - `account_id`: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
+    - `account_id`: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
     - `created_after`: Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
     - `created_before`: Filter transfers to those created at or before this datetime (inclusive). ISO 8601 format.
     - `page_size`: The number of resources to return per page.
     - `page_token`: The token for the next page of resources, if any.
-    - `source_account_id`: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
-    - `source_address`: Filter transfers by the on-chain address of the source.
+    - `source_account_id`: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.
+    - `source_address`: Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.
     - `source_asset`: Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).
     - `status`: Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
-    - `target_account_id`: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
-    - `target_address`: Filter transfers by the on-chain destination address of the target.
+    - `target_account_id`: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.
+    - `target_address`: Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.
     - `target_asset`: Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
-    - `target_email`: Filter transfers by the email address of the target recipient.
-    - `transfer_id`: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+    - `target_email`: Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.
+    - `transfer_id`: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
     - `updated_after`: Filter transfers to those updated at or after this datetime (inclusive). ISO 8601 format. Useful for incremental sync — poll for transfers that changed state since your last check.
     - `updated_before`: Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.
     ```ignore
@@ -169750,6 +179812,7 @@ pub mod builder {
         network: Result<Option<::std::string::String>, String>,
         page_size: Result<Option<i64>, String>,
         page_token: Result<Option<::std::string::String>, String>,
+        status: Result<Option<types::DepositDestinationStatus>, String>,
         type_: Result<Option<types::DepositDestinationType>, String>,
     }
     impl<'a> ListDepositDestinations<'a> {
@@ -169761,6 +179824,7 @@ pub mod builder {
                 network: Ok(None),
                 page_size: Ok(None),
                 page_token: Ok(None),
+                status: Ok(None),
                 type_: Ok(None),
             }
         }
@@ -169811,6 +179875,15 @@ pub mod builder {
             });
             self
         }
+        pub fn status<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositDestinationStatus>,
+        {
+            self.status = value.try_into().map(Some).map_err(|_| {
+                "conversion to `DepositDestinationStatus` for status failed".to_string()
+            });
+            self
+        }
         pub fn type_<V>(mut self, value: V) -> Self
         where
             V: std::convert::TryInto<types::DepositDestinationType>,
@@ -169833,6 +179906,7 @@ pub mod builder {
                 network,
                 page_size,
                 page_token,
+                status,
                 type_,
             } = self;
             let account_id = account_id.map_err(Error::InvalidRequest)?;
@@ -169840,6 +179914,7 @@ pub mod builder {
             let network = network.map_err(Error::InvalidRequest)?;
             let page_size = page_size.map_err(Error::InvalidRequest)?;
             let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let status = status.map_err(Error::InvalidRequest)?;
             let type_ = type_.map_err(Error::InvalidRequest)?;
             let url = format!("{}/v2/deposit-destinations", client.baseurl,);
             let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
@@ -169871,6 +179946,9 @@ pub mod builder {
                 .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "status", &status,
                 ))
                 .query(&progenitor_middleware_client::QueryParam::new(
                     "type", &type_,
@@ -170737,6 +180815,212 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::revoke_delegation_for_end_user_account_deprecated`]
+
+    [`Client::revoke_delegation_for_end_user_account_deprecated`]: super::Client::revoke_delegation_for_end_user_account_deprecated*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUserAccountDeprecated<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserAccountDeprecatedUserId, String>,
+        address: Result<types::BlockchainAddress, String>,
+        project_id:
+            Result<Option<types::RevokeDelegationForEndUserAccountDeprecatedProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key: Result<
+            Option<types::RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey>,
+            String,
+        >,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationRequest, String>,
+    }
+    impl<'a> RevokeDelegationForEndUserAccountDeprecated<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                address: Err("address was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountDeprecatedUserId>,
+        {
+            self.user_id = value
+                .try_into()
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedUserId` for user_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountDeprecatedProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<
+                types::RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey,
+            >,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserAccountDeprecatedXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationRequest>,
+            <V as std::convert::TryInto<types::RevokeDelegationRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `RevokeDelegationRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationRequest,
+            ) -> types::builder::RevokeDelegationRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                address,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user_account_deprecated",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::revoke_delegation_for_end_user_account`]
 
     [`Client::revoke_delegation_for_end_user_account`]: super::Client::revoke_delegation_for_end_user_account*/
@@ -170750,7 +181034,7 @@ pub mod builder {
         x_idempotency_key:
             Result<Option<types::RevokeDelegationForEndUserAccountXIdempotencyKey>, String>,
         x_wallet_auth: Result<Option<::std::string::String>, String>,
-        body: Result<types::builder::RevokeDelegationForEndUserAccountBody, String>,
+        body: Result<types::builder::RevokeDelegationRequest, String>,
     }
     impl<'a> RevokeDelegationForEndUserAccount<'a> {
         pub fn new(client: &'a super::Client) -> Self {
@@ -170827,13 +181111,12 @@ pub mod builder {
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserAccountBody>,
-            <V as std::convert::TryInto<types::RevokeDelegationForEndUserAccountBody>>::Error:
-                std::fmt::Display,
+            V: std::convert::TryInto<types::RevokeDelegationRequest>,
+            <V as std::convert::TryInto<types::RevokeDelegationRequest>>::Error: std::fmt::Display,
         {
             self.body = value.try_into().map(From::from).map_err(|s| {
                 format!(
-                    "conversion to `RevokeDelegationForEndUserAccountBody` for body failed: {}",
+                    "conversion to `RevokeDelegationRequest` for body failed: {}",
                     s
                 )
             });
@@ -170842,14 +181125,13 @@ pub mod builder {
         pub fn body_map<F>(mut self, f: F) -> Self
         where
             F: std::ops::FnOnce(
-                types::builder::RevokeDelegationForEndUserAccountBody,
-            )
-                -> types::builder::RevokeDelegationForEndUserAccountBody,
+                types::builder::RevokeDelegationRequest,
+            ) -> types::builder::RevokeDelegationRequest,
         {
             self.body = self.body.map(f);
             self
         }
-        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation`
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke`
         pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
             let Self {
                 client,
@@ -170869,12 +181151,11 @@ pub mod builder {
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| {
-                    types::RevokeDelegationForEndUserAccountBody::try_from(v)
-                        .map_err(|e| e.to_string())
+                    types::RevokeDelegationRequest::try_from(v).map_err(|e| e.to_string())
                 })
                 .map_err(Error::InvalidRequest)?;
             let url = format!(
-                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation",
+                "{}/v2/embedded-wallet-api/end-users/{}/address/{}/delegation/revoke",
                 client.baseurl,
                 encode_path(&user_id.to_string()),
                 encode_path(&address.to_string()),
@@ -170896,7 +181177,7 @@ pub mod builder {
             #[allow(unused_mut)]
             let mut request = client
                 .client
-                .delete(url)
+                .post(url)
                 .header(
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
@@ -171035,6 +181316,191 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::revoke_delegation_for_end_user_deprecated`]
+
+    [`Client::revoke_delegation_for_end_user_deprecated`]: super::Client::revoke_delegation_for_end_user_deprecated*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeDelegationForEndUserDeprecated<'a> {
+        client: &'a super::Client,
+        user_id: Result<types::RevokeDelegationForEndUserDeprecatedUserId, String>,
+        project_id: Result<Option<types::RevokeDelegationForEndUserDeprecatedProjectId>, String>,
+        x_developer_auth: Result<Option<::std::string::String>, String>,
+        x_idempotency_key:
+            Result<Option<types::RevokeDelegationForEndUserDeprecatedXIdempotencyKey>, String>,
+        x_wallet_auth: Result<Option<::std::string::String>, String>,
+        body: Result<types::builder::RevokeDelegationRequest, String>,
+    }
+    impl<'a> RevokeDelegationForEndUserDeprecated<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                user_id: Err("user_id was not initialized".to_string()),
+                project_id: Ok(None),
+                x_developer_auth: Ok(None),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn user_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedUserId>,
+        {
+            self.user_id = value.try_into().map_err(|_| {
+                "conversion to `RevokeDelegationForEndUserDeprecatedUserId` for user_id failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn project_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedProjectId>,
+        {
+            self.project_id = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserDeprecatedProjectId` for project_id failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_developer_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_developer_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_developer_auth failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationForEndUserDeprecatedXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `RevokeDelegationForEndUserDeprecatedXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeDelegationRequest>,
+            <V as std::convert::TryInto<types::RevokeDelegationRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `RevokeDelegationRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::RevokeDelegationRequest,
+            ) -> types::builder::RevokeDelegationRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+        pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
+            let Self {
+                client,
+                user_id,
+                project_id,
+                x_developer_auth,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let user_id = user_id.map_err(Error::InvalidRequest)?;
+            let project_id = project_id.map_err(Error::InvalidRequest)?;
+            let x_developer_auth = x_developer_auth.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::RevokeDelegationRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
+                client.baseurl,
+                encode_path(&user_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(4usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_developer_auth {
+                header_map.append("X-Developer-Auth", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            if let Some(value) = x_wallet_auth {
+                header_map.append("X-Wallet-Auth", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .delete(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "projectID",
+                    &project_id,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_delegation_for_end_user_deprecated",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                204u16 => Ok(ResponseValue::empty(response)),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::revoke_delegation_for_end_user`]
 
     [`Client::revoke_delegation_for_end_user`]: super::Client::revoke_delegation_for_end_user*/
@@ -171046,7 +181512,7 @@ pub mod builder {
         x_developer_auth: Result<Option<::std::string::String>, String>,
         x_idempotency_key: Result<Option<types::RevokeDelegationForEndUserXIdempotencyKey>, String>,
         x_wallet_auth: Result<Option<::std::string::String>, String>,
-        body: Result<types::builder::RevokeDelegationForEndUserBody, String>,
+        body: Result<types::builder::RevokeDelegationRequest, String>,
     }
     impl<'a> RevokeDelegationForEndUser<'a> {
         pub fn new(client: &'a super::Client) -> Self {
@@ -171112,13 +181578,12 @@ pub mod builder {
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
-            V: std::convert::TryInto<types::RevokeDelegationForEndUserBody>,
-            <V as std::convert::TryInto<types::RevokeDelegationForEndUserBody>>::Error:
-                std::fmt::Display,
+            V: std::convert::TryInto<types::RevokeDelegationRequest>,
+            <V as std::convert::TryInto<types::RevokeDelegationRequest>>::Error: std::fmt::Display,
         {
             self.body = value.try_into().map(From::from).map_err(|s| {
                 format!(
-                    "conversion to `RevokeDelegationForEndUserBody` for body failed: {}",
+                    "conversion to `RevokeDelegationRequest` for body failed: {}",
                     s
                 )
             });
@@ -171127,13 +181592,13 @@ pub mod builder {
         pub fn body_map<F>(mut self, f: F) -> Self
         where
             F: std::ops::FnOnce(
-                types::builder::RevokeDelegationForEndUserBody,
-            ) -> types::builder::RevokeDelegationForEndUserBody,
+                types::builder::RevokeDelegationRequest,
+            ) -> types::builder::RevokeDelegationRequest,
         {
             self.body = self.body.map(f);
             self
         }
-        ///Sends a `DELETE` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation`
+        ///Sends a `POST` request to `/v2/embedded-wallet-api/end-users/{userId}/delegation/revoke`
         pub async fn send(self) -> Result<ResponseValue<()>, Error<types::Error>> {
             let Self {
                 client,
@@ -171151,11 +181616,11 @@ pub mod builder {
             let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| {
-                    types::RevokeDelegationForEndUserBody::try_from(v).map_err(|e| e.to_string())
+                    types::RevokeDelegationRequest::try_from(v).map_err(|e| e.to_string())
                 })
                 .map_err(Error::InvalidRequest)?;
             let url = format!(
-                "{}/v2/embedded-wallet-api/end-users/{}/delegation",
+                "{}/v2/embedded-wallet-api/end-users/{}/delegation/revoke",
                 client.baseurl,
                 encode_path(&user_id.to_string()),
             );
@@ -171176,7 +181641,7 @@ pub mod builder {
             #[allow(unused_mut)]
             let mut request = client
                 .client
-                .delete(url)
+                .post(url)
                 .header(
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
@@ -179799,6 +190264,1346 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::list_mandates`]
+
+    [`Client::list_mandates`]: super::Client::list_mandates*/
+    #[derive(Debug, Clone)]
+    pub struct ListMandates<'a> {
+        client: &'a super::Client,
+        address: Result<Option<types::BlockchainAddress>, String>,
+        network: Result<Option<types::PaymentSourceNetwork>, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+        status: Result<Option<types::MandateStatus>, String>,
+    }
+    impl<'a> ListMandates<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Ok(None),
+                network: Ok(None),
+                page_size: Ok(None),
+                page_token: Ok(None),
+                status: Ok(None),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::BlockchainAddress>,
+        {
+            self.address = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `BlockchainAddress` for address failed".to_string());
+            self
+        }
+        pub fn network<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::PaymentSourceNetwork>,
+        {
+            self.network = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `PaymentSourceNetwork` for network failed".to_string());
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        pub fn status<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateStatus>,
+        {
+            self.status = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `MandateStatus` for status failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListMandatesResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                address,
+                network,
+                page_size,
+                page_token,
+                status,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let network = network.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let status = status.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/mandates", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "address", &address,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "status", &status,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_mandates",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_mandate`]
+
+    [`Client::create_mandate`]: super::Client::create_mandate*/
+    #[derive(Debug, Clone)]
+    pub struct CreateMandate<'a> {
+        client: &'a super::Client,
+        x_idempotency_key: Result<Option<types::CreateMandateXIdempotencyKey>, String>,
+        body: Result<types::builder::CreateMandateRequest, String>,
+    }
+    impl<'a> CreateMandate<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                x_idempotency_key: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateMandateXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `CreateMandateXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateMandateRequest>,
+            <V as std::convert::TryInto<types::CreateMandateRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CreateMandateRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateMandateRequest,
+            ) -> types::builder::CreateMandateRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/mandates`
+        pub async fn send(self) -> Result<ResponseValue<types::Mandate>, Error<types::Error>> {
+            let Self {
+                client,
+                x_idempotency_key,
+                body,
+            } = self;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| types::CreateMandateRequest::try_from(v).map_err(|e| e.to_string()))
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/mandates", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_mandate",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_mandate`]
+
+    [`Client::get_mandate`]: super::Client::get_mandate*/
+    #[derive(Debug, Clone)]
+    pub struct GetMandate<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+    }
+    impl<'a> GetMandate<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}`
+        pub async fn send(self) -> Result<ResponseValue<types::Mandate>, Error<types::Error>> {
+            let Self { client, mandate_id } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_mandate",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_mandate_approvals`]
+
+    [`Client::list_mandate_approvals`]: super::Client::list_mandate_approvals*/
+    #[derive(Debug, Clone)]
+    pub struct ListMandateApprovals<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+    }
+    impl<'a> ListMandateApprovals<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                page_size: Ok(None),
+                page_token: Ok(None),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/approvals`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListMandateApprovalsResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                mandate_id,
+                page_size,
+                page_token,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/approvals",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_mandate_approvals",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::approve_wallet_mandate`]
+
+    [`Client::approve_wallet_mandate`]: super::Client::approve_wallet_mandate*/
+    #[derive(Debug, Clone)]
+    pub struct ApproveWalletMandate<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        x_idempotency_key: Result<Option<types::ApproveWalletMandateXIdempotencyKey>, String>,
+        body: Result<types::builder::WalletApprovalRequest, String>,
+    }
+    impl<'a> ApproveWalletMandate<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ApproveWalletMandateXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `ApproveWalletMandateXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WalletApprovalRequest>,
+            <V as std::convert::TryInto<types::WalletApprovalRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `WalletApprovalRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::WalletApprovalRequest,
+            ) -> types::builder::WalletApprovalRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/mandates/{mandateId}/approvals/wallet`
+        pub async fn send(self) -> Result<ResponseValue<types::Approval>, Error<types::Error>> {
+            let Self {
+                client,
+                mandate_id,
+                x_idempotency_key,
+                body,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| types::WalletApprovalRequest::try_from(v).map_err(|e| e.to_string()))
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/approvals/wallet",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "approve_wallet_mandate",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_wallet_approval_options`]
+
+    [`Client::get_wallet_approval_options`]: super::Client::get_wallet_approval_options*/
+    #[derive(Debug, Clone)]
+    pub struct GetWalletApprovalOptions<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        addresses: Result<Vec<types::BlockchainAddress>, String>,
+        asset: Result<Option<types::Asset>, String>,
+        network: Result<Option<types::PaymentSourceNetwork>, String>,
+    }
+    impl<'a> GetWalletApprovalOptions<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                addresses: Err("addresses was not initialized".to_string()),
+                asset: Ok(None),
+                network: Ok(None),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn addresses<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<Vec<types::BlockchainAddress>>,
+        {
+            self.addresses = value.try_into().map_err(|_| {
+                "conversion to `Vec < BlockchainAddress >` for addresses failed".to_string()
+            });
+            self
+        }
+        pub fn asset<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::Asset>,
+        {
+            self.asset = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `Asset` for asset failed".to_string());
+            self
+        }
+        pub fn network<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::PaymentSourceNetwork>,
+        {
+            self.network = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `PaymentSourceNetwork` for network failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/approvals/wallet/options`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::WalletMandateApprovalOptionsResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                mandate_id,
+                addresses,
+                asset,
+                network,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let addresses = addresses.map_err(Error::InvalidRequest)?;
+            let asset = asset.map_err(Error::InvalidRequest)?;
+            let network = network.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/approvals/wallet/options",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "addresses",
+                    &addresses,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "asset", &asset,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_wallet_approval_options",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_mandate_approval`]
+
+    [`Client::get_mandate_approval`]: super::Client::get_mandate_approval*/
+    #[derive(Debug, Clone)]
+    pub struct GetMandateApproval<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        approval_id: Result<types::ApprovalId, String>,
+    }
+    impl<'a> GetMandateApproval<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                approval_id: Err("approval_id was not initialized".to_string()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn approval_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ApprovalId>,
+        {
+            self.approval_id = value
+                .try_into()
+                .map_err(|_| "conversion to `ApprovalId` for approval_id failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/approvals/{approvalId}`
+        pub async fn send(self) -> Result<ResponseValue<types::Approval>, Error<types::Error>> {
+            let Self {
+                client,
+                mandate_id,
+                approval_id,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let approval_id = approval_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/approvals/{}",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+                encode_path(&approval_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_mandate_approval",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::cancel_mandate`]
+
+    [`Client::cancel_mandate`]: super::Client::cancel_mandate*/
+    #[derive(Debug, Clone)]
+    pub struct CancelMandate<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        x_idempotency_key: Result<Option<types::CancelMandateXIdempotencyKey>, String>,
+        body: Result<types::builder::CancelMandateRequest, String>,
+    }
+    impl<'a> CancelMandate<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CancelMandateXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `CancelMandateXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CancelMandateRequest>,
+            <V as std::convert::TryInto<types::CancelMandateRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CancelMandateRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CancelMandateRequest,
+            ) -> types::builder::CancelMandateRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/mandates/{mandateId}/cancel`
+        pub async fn send(self) -> Result<ResponseValue<types::Mandate>, Error<types::Error>> {
+            let Self {
+                client,
+                mandate_id,
+                x_idempotency_key,
+                body,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| types::CancelMandateRequest::try_from(v).map_err(|e| e.to_string()))
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/cancel",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "cancel_mandate",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_mandate_revocations`]
+
+    [`Client::list_mandate_revocations`]: super::Client::list_mandate_revocations*/
+    #[derive(Debug, Clone)]
+    pub struct ListMandateRevocations<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+    }
+    impl<'a> ListMandateRevocations<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                page_size: Ok(None),
+                page_token: Ok(None),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/revocations`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListMandateRevocationsResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                mandate_id,
+                page_size,
+                page_token,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/revocations",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_mandate_revocations",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::revoke_wallet_mandate`]
+
+    [`Client::revoke_wallet_mandate`]: super::Client::revoke_wallet_mandate*/
+    #[derive(Debug, Clone)]
+    pub struct RevokeWalletMandate<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        x_idempotency_key: Result<Option<types::RevokeWalletMandateXIdempotencyKey>, String>,
+        body: Result<types::builder::WalletRevocationRequest, String>,
+    }
+    impl<'a> RevokeWalletMandate<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevokeWalletMandateXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value.try_into().map(Some).map_err(|_| {
+                "conversion to `RevokeWalletMandateXIdempotencyKey` for x_idempotency_key failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WalletRevocationRequest>,
+            <V as std::convert::TryInto<types::WalletRevocationRequest>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `WalletRevocationRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::WalletRevocationRequest,
+            ) -> types::builder::WalletRevocationRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/mandates/{mandateId}/revocations/wallet`
+        pub async fn send(self) -> Result<ResponseValue<types::Revocation>, Error<types::Error>> {
+            let Self {
+                client,
+                mandate_id,
+                x_idempotency_key,
+                body,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::WalletRevocationRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/revocations/wallet",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "revoke_wallet_mandate",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_wallet_revocation_options`]
+
+    [`Client::get_wallet_revocation_options`]: super::Client::get_wallet_revocation_options*/
+    #[derive(Debug, Clone)]
+    pub struct GetWalletRevocationOptions<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+    }
+    impl<'a> GetWalletRevocationOptions<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/revocations/wallet/options`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::WalletMandateRevocationOptionsResponse>, Error<types::Error>>
+        {
+            let Self { client, mandate_id } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/revocations/wallet/options",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_wallet_revocation_options",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_mandate_revocation`]
+
+    [`Client::get_mandate_revocation`]: super::Client::get_mandate_revocation*/
+    #[derive(Debug, Clone)]
+    pub struct GetMandateRevocation<'a> {
+        client: &'a super::Client,
+        mandate_id: Result<types::MandateId, String>,
+        revocation_id: Result<types::RevocationId, String>,
+    }
+    impl<'a> GetMandateRevocation<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                mandate_id: Err("mandate_id was not initialized".to_string()),
+                revocation_id: Err("revocation_id was not initialized".to_string()),
+            }
+        }
+        pub fn mandate_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateId>,
+        {
+            self.mandate_id = value
+                .try_into()
+                .map_err(|_| "conversion to `MandateId` for mandate_id failed".to_string());
+            self
+        }
+        pub fn revocation_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::RevocationId>,
+        {
+            self.revocation_id = value
+                .try_into()
+                .map_err(|_| "conversion to `RevocationId` for revocation_id failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/mandates/{mandateId}/revocations/{revocationId}`
+        pub async fn send(self) -> Result<ResponseValue<types::Revocation>, Error<types::Error>> {
+            let Self {
+                client,
+                mandate_id,
+                revocation_id,
+            } = self;
+            let mandate_id = mandate_id.map_err(Error::InvalidRequest)?;
+            let revocation_id = revocation_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/mandates/{}/revocations/{}",
+                client.baseurl,
+                encode_path(&mandate_id.to_string()),
+                encode_path(&revocation_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_mandate_revocation",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::get_onramp_user_limits`]
 
     [`Client::get_onramp_user_limits`]: super::Client::get_onramp_user_limits*/
@@ -180007,14 +191812,25 @@ pub mod builder {
     #[derive(Debug, Clone)]
     pub struct CreateOnrampOrder<'a> {
         client: &'a super::Client,
+        x_onramp_partner_id: Result<Option<::uuid::Uuid>, String>,
         body: Result<types::builder::CreateOnrampOrderBody, String>,
     }
     impl<'a> CreateOnrampOrder<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
+                x_onramp_partner_id: Ok(None),
                 body: Ok(::std::default::Default::default()),
             }
+        }
+        pub fn x_onramp_partner_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::uuid::Uuid>,
+        {
+            self.x_onramp_partner_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: uuid :: Uuid` for x_onramp_partner_id failed".to_string()
+            });
+            self
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
@@ -180042,16 +191858,24 @@ pub mod builder {
         pub async fn send(
             self,
         ) -> Result<ResponseValue<types::CreateOnrampOrderResponse>, Error<types::Error>> {
-            let Self { client, body } = self;
+            let Self {
+                client,
+                x_onramp_partner_id,
+                body,
+            } = self;
+            let x_onramp_partner_id = x_onramp_partner_id.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| types::CreateOnrampOrderBody::try_from(v).map_err(|e| e.to_string()))
                 .map_err(Error::InvalidRequest)?;
             let url = format!("{}/v2/onramp/orders", client.baseurl,);
-            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
             header_map.append(
                 ::reqwest::header::HeaderName::from_static("api-version"),
                 ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
             );
+            if let Some(value) = x_onramp_partner_id {
+                header_map.append("X-Onramp-Partner-Id", value.to_string().try_into()?);
+            }
             #[allow(unused_mut)]
             let mut request = client
                 .client
@@ -180169,14 +191993,25 @@ pub mod builder {
     #[derive(Debug, Clone)]
     pub struct CreateOnrampSession<'a> {
         client: &'a super::Client,
+        x_onramp_partner_id: Result<Option<::uuid::Uuid>, String>,
         body: Result<types::builder::OnrampSessionRequest, String>,
     }
     impl<'a> CreateOnrampSession<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
+                x_onramp_partner_id: Ok(None),
                 body: Ok(::std::default::Default::default()),
             }
+        }
+        pub fn x_onramp_partner_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::uuid::Uuid>,
+        {
+            self.x_onramp_partner_id = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: uuid :: Uuid` for x_onramp_partner_id failed".to_string()
+            });
+            self
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
@@ -180205,16 +192040,24 @@ pub mod builder {
             self,
         ) -> Result<ResponseValue<types::CreateOnrampSessionResponse>, Error<types::Error>>
         {
-            let Self { client, body } = self;
+            let Self {
+                client,
+                x_onramp_partner_id,
+                body,
+            } = self;
+            let x_onramp_partner_id = x_onramp_partner_id.map_err(Error::InvalidRequest)?;
             let body = body
                 .and_then(|v| types::OnrampSessionRequest::try_from(v).map_err(|e| e.to_string()))
                 .map_err(Error::InvalidRequest)?;
             let url = format!("{}/v2/onramp/sessions", client.baseurl,);
-            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
             header_map.append(
                 ::reqwest::header::HeaderName::from_static("api-version"),
                 ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
             );
+            if let Some(value) = x_onramp_partner_id {
+                header_map.append("X-Onramp-Partner-Id", value.to_string().try_into()?);
+            }
             #[allow(unused_mut)]
             let mut request = client
                 .client
@@ -180239,6 +192082,9 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 429u16 => Err(Error::ErrorResponse(
@@ -181226,6 +193072,146 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::authorize_mandate_payment_session`]
+
+    [`Client::authorize_mandate_payment_session`]: super::Client::authorize_mandate_payment_session*/
+    #[derive(Debug, Clone)]
+    pub struct AuthorizeMandatePaymentSession<'a> {
+        client: &'a super::Client,
+        payment_session_id: Result<types::PaymentSessionId, String>,
+        x_idempotency_key:
+            Result<Option<types::AuthorizeMandatePaymentSessionXIdempotencyKey>, String>,
+        body: Result<types::builder::MandateAuthorizationRequest, String>,
+    }
+    impl<'a> AuthorizeMandatePaymentSession<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                payment_session_id: Err("payment_session_id was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn payment_session_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::PaymentSessionId>,
+        {
+            self.payment_session_id = value.try_into().map_err(|_| {
+                "conversion to `PaymentSessionId` for payment_session_id failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::AuthorizeMandatePaymentSessionXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `AuthorizeMandatePaymentSessionXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::MandateAuthorizationRequest>,
+            <V as std::convert::TryInto<types::MandateAuthorizationRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `MandateAuthorizationRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::MandateAuthorizationRequest,
+            ) -> types::builder::MandateAuthorizationRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/payment-sessions/{paymentSessionId}/authorizations/mandate`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::Authorization>, Error<types::Error>> {
+            let Self {
+                client,
+                payment_session_id,
+                x_idempotency_key,
+                body,
+            } = self;
+            let payment_session_id = payment_session_id.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::MandateAuthorizationRequest::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/payment-sessions/{}/authorizations/mandate",
+                client.baseurl,
+                encode_path(&payment_session_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(2usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "authorize_mandate_payment_session",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 422u16 => Err(Error::ErrorResponse(
@@ -185565,6 +197551,9 @@ pub mod builder {
             let response = result?;
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
                 404u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),

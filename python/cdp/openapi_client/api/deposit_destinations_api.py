@@ -22,6 +22,7 @@ from typing import Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.create_deposit_destination_request import CreateDepositDestinationRequest
 from cdp.openapi_client.models.deposit_destination import DepositDestination
+from cdp.openapi_client.models.deposit_destination_status import DepositDestinationStatus
 from cdp.openapi_client.models.list_deposit_destinations200_response import ListDepositDestinations200Response
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -635,6 +636,7 @@ class DepositDestinationsApi:
         address: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by the cryptocurrency address.")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by type.")] = None,
         network: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by network.")] = None,
+        status: Annotated[Optional[DepositDestinationStatus], Field(description="Filter deposit destinations by status.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -652,7 +654,7 @@ class DepositDestinationsApi:
     ) -> ListDepositDestinations200Response:
         """List deposit destinations
 
-        List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+        List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
 
         :param account_id: Filter deposit destinations by account ID.
         :type account_id: str
@@ -662,6 +664,8 @@ class DepositDestinationsApi:
         :type type: str
         :param network: Filter deposit destinations by network.
         :type network: str
+        :param status: Filter deposit destinations by status.
+        :type status: DepositDestinationStatus
         :param page_size: The number of resources to return per page.
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
@@ -693,6 +697,7 @@ class DepositDestinationsApi:
             address=address,
             type=type,
             network=network,
+            status=status,
             page_size=page_size,
             page_token=page_token,
             _request_auth=_request_auth,
@@ -725,6 +730,7 @@ class DepositDestinationsApi:
         address: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by the cryptocurrency address.")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by type.")] = None,
         network: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by network.")] = None,
+        status: Annotated[Optional[DepositDestinationStatus], Field(description="Filter deposit destinations by status.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -742,7 +748,7 @@ class DepositDestinationsApi:
     ) -> ApiResponse[ListDepositDestinations200Response]:
         """List deposit destinations
 
-        List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+        List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
 
         :param account_id: Filter deposit destinations by account ID.
         :type account_id: str
@@ -752,6 +758,8 @@ class DepositDestinationsApi:
         :type type: str
         :param network: Filter deposit destinations by network.
         :type network: str
+        :param status: Filter deposit destinations by status.
+        :type status: DepositDestinationStatus
         :param page_size: The number of resources to return per page.
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
@@ -783,6 +791,7 @@ class DepositDestinationsApi:
             address=address,
             type=type,
             network=network,
+            status=status,
             page_size=page_size,
             page_token=page_token,
             _request_auth=_request_auth,
@@ -815,6 +824,7 @@ class DepositDestinationsApi:
         address: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by the cryptocurrency address.")] = None,
         type: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by type.")] = None,
         network: Annotated[Optional[StrictStr], Field(description="Filter deposit destinations by network.")] = None,
+        status: Annotated[Optional[DepositDestinationStatus], Field(description="Filter deposit destinations by status.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -832,7 +842,7 @@ class DepositDestinationsApi:
     ) -> RESTResponseType:
         """List deposit destinations
 
-        List deposit destinations. You can optionally filter the results by type, account ID, network, or cryptocurrency address. Results are sorted by creation date in descending order (newest first).
+        List deposit destinations. You can optionally filter the results by type, account ID, network, cryptocurrency address, or status. Results are sorted by creation date in descending order (newest first).
 
         :param account_id: Filter deposit destinations by account ID.
         :type account_id: str
@@ -842,6 +852,8 @@ class DepositDestinationsApi:
         :type type: str
         :param network: Filter deposit destinations by network.
         :type network: str
+        :param status: Filter deposit destinations by status.
+        :type status: DepositDestinationStatus
         :param page_size: The number of resources to return per page.
         :type page_size: int
         :param page_token: The token for the next page of resources, if any.
@@ -873,6 +885,7 @@ class DepositDestinationsApi:
             address=address,
             type=type,
             network=network,
+            status=status,
             page_size=page_size,
             page_token=page_token,
             _request_auth=_request_auth,
@@ -900,6 +913,7 @@ class DepositDestinationsApi:
         address,
         type,
         network,
+        status,
         page_size,
         page_token,
         _request_auth,
@@ -939,6 +953,10 @@ class DepositDestinationsApi:
         if network is not None:
             
             _query_params.append(('network', network))
+            
+        if status is not None:
+            
+            _query_params.append(('status', status.value))
             
         if page_size is not None:
             

@@ -702,6 +702,7 @@ class TransfersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Transfer",
+            '400': "Error",
             '404': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -770,6 +771,7 @@ class TransfersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Transfer",
+            '400': "Error",
             '404': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -838,6 +840,7 @@ class TransfersApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "Transfer",
+            '400': "Error",
             '404': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -915,19 +918,19 @@ class TransfersApi:
     async def list_transfers(
         self,
         status: Annotated[Optional[TransferStatus], Field(description="Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.")] = None,
-        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.")] = None,
-        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.")] = None,
+        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.")] = None,
+        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.")] = None,
         created_after: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.")] = None,
         created_before: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or before this datetime (inclusive). ISO 8601 format.")] = None,
         updated_after: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or after this datetime (inclusive). ISO 8601 format. Useful for incremental sync — poll for transfers that changed state since your last check.")] = None,
         updated_before: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.")] = None,
         source_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).")] = None,
         target_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).")] = None,
-        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source.")] = None,
-        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target.")] = None,
-        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient.")] = None,
-        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.")] = None,
+        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.")] = None,
+        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.")] = None,
+        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.")] = None,
+        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -945,15 +948,15 @@ class TransfersApi:
     ) -> ListTransfers200Response:
         """List transfers
 
-        List transfers for your organization. Use this to view and monitor your transfer activity.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.
+        List transfers for your organization. Use this to view and monitor your transfer activity.  **Sorting**: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.  **Filter Combinations**: The following combinations are validation errors and return HTTP 400: * `accountId` with any of `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`. * `sourceAccountId` with `sourceAddress`. * More than one of `targetAccountId`, `targetAddress`, and `targetEmail`. * `transferId` with any other filter. Pagination parameters are permitted.
 
         :param status: Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
         :type status: TransferStatus
-        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
+        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
         :type account_id: str
-        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
+        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.
         :type source_account_id: str
-        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
+        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.
         :type target_account_id: str
         :param created_after: Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
         :type created_after: datetime
@@ -967,13 +970,13 @@ class TransfersApi:
         :type source_asset: str
         :param target_asset: Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
         :type target_asset: str
-        :param source_address: Filter transfers by the on-chain address of the source.
+        :param source_address: Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.
         :type source_address: str
-        :param target_address: Filter transfers by the on-chain destination address of the target.
+        :param target_address: Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.
         :type target_address: str
-        :param target_email: Filter transfers by the email address of the target recipient.
+        :param target_email: Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.
         :type target_email: str
-        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
         :type transfer_id: str
         :param page_size: The number of resources to return per page.
         :type page_size: int
@@ -1043,19 +1046,19 @@ class TransfersApi:
     async def list_transfers_with_http_info(
         self,
         status: Annotated[Optional[TransferStatus], Field(description="Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.")] = None,
-        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.")] = None,
-        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.")] = None,
+        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.")] = None,
+        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.")] = None,
         created_after: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.")] = None,
         created_before: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or before this datetime (inclusive). ISO 8601 format.")] = None,
         updated_after: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or after this datetime (inclusive). ISO 8601 format. Useful for incremental sync — poll for transfers that changed state since your last check.")] = None,
         updated_before: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.")] = None,
         source_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).")] = None,
         target_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).")] = None,
-        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source.")] = None,
-        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target.")] = None,
-        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient.")] = None,
-        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.")] = None,
+        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.")] = None,
+        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.")] = None,
+        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.")] = None,
+        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -1073,15 +1076,15 @@ class TransfersApi:
     ) -> ApiResponse[ListTransfers200Response]:
         """List transfers
 
-        List transfers for your organization. Use this to view and monitor your transfer activity.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.
+        List transfers for your organization. Use this to view and monitor your transfer activity.  **Sorting**: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.  **Filter Combinations**: The following combinations are validation errors and return HTTP 400: * `accountId` with any of `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`. * `sourceAccountId` with `sourceAddress`. * More than one of `targetAccountId`, `targetAddress`, and `targetEmail`. * `transferId` with any other filter. Pagination parameters are permitted.
 
         :param status: Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
         :type status: TransferStatus
-        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
+        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
         :type account_id: str
-        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
+        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.
         :type source_account_id: str
-        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
+        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.
         :type target_account_id: str
         :param created_after: Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
         :type created_after: datetime
@@ -1095,13 +1098,13 @@ class TransfersApi:
         :type source_asset: str
         :param target_asset: Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
         :type target_asset: str
-        :param source_address: Filter transfers by the on-chain address of the source.
+        :param source_address: Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.
         :type source_address: str
-        :param target_address: Filter transfers by the on-chain destination address of the target.
+        :param target_address: Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.
         :type target_address: str
-        :param target_email: Filter transfers by the email address of the target recipient.
+        :param target_email: Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.
         :type target_email: str
-        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
         :type transfer_id: str
         :param page_size: The number of resources to return per page.
         :type page_size: int
@@ -1171,19 +1174,19 @@ class TransfersApi:
     async def list_transfers_without_preload_content(
         self,
         status: Annotated[Optional[TransferStatus], Field(description="Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.")] = None,
-        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.")] = None,
-        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.")] = None,
+        source_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.")] = None,
+        target_account_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.")] = None,
         created_after: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.")] = None,
         created_before: Annotated[Optional[datetime], Field(description="Filter transfers to those created at or before this datetime (inclusive). ISO 8601 format.")] = None,
         updated_after: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or after this datetime (inclusive). ISO 8601 format. Useful for incremental sync — poll for transfers that changed state since your last check.")] = None,
         updated_before: Annotated[Optional[datetime], Field(description="Filter transfers to those updated at or before this datetime (inclusive). ISO 8601 format.")] = None,
         source_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by source asset symbol (e.g., `usd`, `usdc`, `eurc`, `eur`).")] = None,
         target_asset: Annotated[Optional[StrictStr], Field(description="Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).")] = None,
-        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source.")] = None,
-        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target.")] = None,
-        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient.")] = None,
-        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.")] = None,
+        source_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.")] = None,
+        target_address: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.")] = None,
+        target_email: Annotated[Optional[Annotated[str, Field(strict=True, max_length=254)]], Field(description="Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.")] = None,
+        transfer_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.")] = None,
         page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
         page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
@@ -1201,15 +1204,15 @@ class TransfersApi:
     ) -> RESTResponseType:
         """List transfers
 
-        List transfers for your organization. Use this to view and monitor your transfer activity.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.
+        List transfers for your organization. Use this to view and monitor your transfer activity.  **Sorting**: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.  **Status Filtering**: Filter by specific status to efficiently manage transfers: * `?status=processing` - Monitor active transfers. * `?status=quoted` - Find transfers awaiting execution. * `?status=failed` - Review failed transfers for troubleshooting. * `?status=completed` - Find completed transfers.  **Account Filtering**: Filter by account ID to find transfers involving a specific account: * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics). * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound). * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound). Providing `accountId` together with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail` is a validation error and returns HTTP 400.  **Date Range Filtering**: Filter by creation or last-updated time for reconciliation: * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range. * `?updatedAfter=2026-01-01T00:00:00Z` - Transfers updated since a given time. Useful for incremental sync.  **Asset Filtering**: Filter by source or target asset symbol: * `?sourceAsset=usd` - Transfers funded from a USD account. * `?targetAsset=usdc` - Transfers delivering USDC to the target. Supported asset symbols include `usdc`, `eurc`, `usd`, and `eur`.  **Other Filters**: * `?sourceAddress=0x...` - Transfers from a specific on-chain source address. * `?targetAddress=0x...` - Transfers to a specific on-chain destination address. * `?targetEmail=user@example.com` - Transfers to a specific email recipient. * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.  **Filter Combinations**: The following combinations are validation errors and return HTTP 400: * `accountId` with any of `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`. * `sourceAccountId` with `sourceAddress`. * More than one of `targetAccountId`, `targetAddress`, and `targetEmail`. * `transferId` with any other filter. Pagination parameters are permitted.
 
         :param status: Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
         :type status: TransferStatus
-        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId` or `targetAccountId`.
+        :param account_id: Filter transfers by account ID. Returns transfers where the specified account is either the source or target (OR semantics). Cannot be combined with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
         :type account_id: str
-        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId`.
+        :param source_account_id: Filter transfers by source account ID. Returns only transfers where the specified account is the source. Cannot be combined with `accountId` or `sourceAddress`.
         :type source_account_id: str
-        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`.
+        :param target_account_id: Filter transfers by target account ID. Returns only transfers where the specified account is the target. Cannot be combined with `accountId`, `targetAddress`, or `targetEmail`.
         :type target_account_id: str
         :param created_after: Filter transfers to those created at or after this datetime (inclusive). ISO 8601 format.
         :type created_after: datetime
@@ -1223,13 +1226,13 @@ class TransfersApi:
         :type source_asset: str
         :param target_asset: Filter transfers by target asset symbol (e.g., `usdc`, `eurc`, `usd`, `eur`).
         :type target_asset: str
-        :param source_address: Filter transfers by the on-chain address of the source.
+        :param source_address: Filter transfers by the on-chain address of the source. Cannot be combined with `accountId` or `sourceAccountId`.
         :type source_address: str
-        :param target_address: Filter transfers by the on-chain destination address of the target.
+        :param target_address: Filter transfers by the on-chain destination address of the target. Cannot be combined with `accountId`, `targetAccountId`, or `targetEmail`.
         :type target_address: str
-        :param target_email: Filter transfers by the email address of the target recipient.
+        :param target_email: Filter transfers by the email address of the target recipient. Cannot be combined with `accountId`, `targetAccountId`, or `targetAddress`.
         :type target_email: str
-        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination.
+        :param transfer_id: Filter to a specific transfer by ID. When provided, returns only the matching transfer and bypasses pagination. Cannot be combined with any other filter.
         :type transfer_id: str
         :param page_size: The number of resources to return per page.
         :type page_size: int

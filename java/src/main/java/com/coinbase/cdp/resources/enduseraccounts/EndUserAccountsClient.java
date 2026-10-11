@@ -16,7 +16,9 @@ import com.coinbase.cdp.resources.enduseraccounts.requests.GetEvmBorrowProductRe
 import com.coinbase.cdp.resources.enduseraccounts.requests.GetUserOperationWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.ListBorrowPositionsWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.ListEvmBorrowProductsRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserAccountDeprecatedRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserAccountRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserDeprecatedRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.SendEvmAssetWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.SendEvmTransactionWithEndUserAccountRequest;
@@ -50,6 +52,7 @@ import com.coinbase.cdp.types.BlockchainAddress;
 import com.coinbase.cdp.types.BorrowProduct;
 import com.coinbase.cdp.types.BorrowProductId;
 import com.coinbase.cdp.types.EvmUserOperation;
+import com.coinbase.cdp.types.RevokeDelegationRequest;
 import java.lang.String;
 
 public class EndUserAccountsClient {
@@ -334,17 +337,81 @@ public class EndUserAccountsClient {
   }
 
   /**
-   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes all active delegations for the specified end user. This operation
+   * can be performed by the end user themselves or by a developer using their
+   * API key.</p>
    */
-  public void revokeDelegationForEndUser(String userId) {
-    this.rawClient.revokeDelegationForEndUser(userId).body();
+  public void revokeDelegationForEndUserDeprecated(String userId, RevokeDelegationRequest body) {
+    this.rawClient.revokeDelegationForEndUserDeprecated(userId, body).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes all active delegations for the specified end user. This operation
+   * can be performed by the end user themselves or by a developer using their
+   * API key.</p>
+   */
+  public void revokeDelegationForEndUserDeprecated(String userId, RevokeDelegationRequest body,
+      RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUserDeprecated(userId, body, requestOptions).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes all active delegations for the specified end user. This operation
+   * can be performed by the end user themselves or by a developer using their
+   * API key.</p>
+   */
+  public void revokeDelegationForEndUserDeprecated(String userId,
+      RevokeDelegationForEndUserDeprecatedRequest request) {
+    this.rawClient.revokeDelegationForEndUserDeprecated(userId, request).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes all active delegations for the specified end user. This operation
+   * can be performed by the end user themselves or by a developer using their
+   * API key.</p>
+   */
+  public void revokeDelegationForEndUserDeprecated(String userId,
+      RevokeDelegationForEndUserDeprecatedRequest request, RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUserDeprecated(userId, request, requestOptions).body();
   }
 
   /**
    * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
    */
-  public void revokeDelegationForEndUser(String userId, RequestOptions requestOptions) {
-    this.rawClient.revokeDelegationForEndUser(userId, requestOptions).body();
+  public void revokeDelegationForEndUser(String userId, RevokeDelegationRequest body) {
+    this.rawClient.revokeDelegationForEndUser(userId, body).body();
+  }
+
+  /**
+   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+   */
+  public void revokeDelegationForEndUser(String userId, RevokeDelegationRequest body,
+      RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUser(userId, body, requestOptions).body();
   }
 
   /**
@@ -400,11 +467,75 @@ public class EndUserAccountsClient {
   }
 
   /**
-   * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-   * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+   * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes the active account-scoped delegation for the specified end user account.
+   * Other account-scoped delegations for the same user are unaffected. This operation
+   * can be performed by the end user themselves or by a developer using their API key.</p>
+   * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+   * Smart Account's owner EOA.</p>
    */
-  public void revokeDelegationForEndUserAccount(String userId, BlockchainAddress address) {
-    this.rawClient.revokeDelegationForEndUserAccount(userId, address).body();
+  public void revokeDelegationForEndUserAccountDeprecated(String userId, BlockchainAddress address,
+      RevokeDelegationRequest body) {
+    this.rawClient.revokeDelegationForEndUserAccountDeprecated(userId, address, body).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+   * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes the active account-scoped delegation for the specified end user account.
+   * Other account-scoped delegations for the same user are unaffected. This operation
+   * can be performed by the end user themselves or by a developer using their API key.</p>
+   * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+   * Smart Account's owner EOA.</p>
+   */
+  public void revokeDelegationForEndUserAccountDeprecated(String userId, BlockchainAddress address,
+      RevokeDelegationRequest body, RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUserAccountDeprecated(userId, address, body, requestOptions).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+   * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes the active account-scoped delegation for the specified end user account.
+   * Other account-scoped delegations for the same user are unaffected. This operation
+   * can be performed by the end user themselves or by a developer using their API key.</p>
+   * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+   * Smart Account's owner EOA.</p>
+   */
+  public void revokeDelegationForEndUserAccountDeprecated(String userId, BlockchainAddress address,
+      RevokeDelegationForEndUserAccountDeprecatedRequest request) {
+    this.rawClient.revokeDelegationForEndUserAccountDeprecated(userId, address, request).body();
+  }
+
+  /**
+   * <blockquote>
+   * <strong>Deprecation Notice:</strong> Prefer
+   * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+   * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+   * </blockquote>
+   * <p>Revokes the active account-scoped delegation for the specified end user account.
+   * Other account-scoped delegations for the same user are unaffected. This operation
+   * can be performed by the end user themselves or by a developer using their API key.</p>
+   * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+   * Smart Account's owner EOA.</p>
+   */
+  public void revokeDelegationForEndUserAccountDeprecated(String userId, BlockchainAddress address,
+      RevokeDelegationForEndUserAccountDeprecatedRequest request, RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUserAccountDeprecated(userId, address, request, requestOptions).body();
   }
 
   /**
@@ -412,8 +543,17 @@ public class EndUserAccountsClient {
    * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
    */
   public void revokeDelegationForEndUserAccount(String userId, BlockchainAddress address,
-      RequestOptions requestOptions) {
-    this.rawClient.revokeDelegationForEndUserAccount(userId, address, requestOptions).body();
+      RevokeDelegationRequest body) {
+    this.rawClient.revokeDelegationForEndUserAccount(userId, address, body).body();
+  }
+
+  /**
+   * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+   * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+   */
+  public void revokeDelegationForEndUserAccount(String userId, BlockchainAddress address,
+      RevokeDelegationRequest body, RequestOptions requestOptions) {
+    this.rawClient.revokeDelegationForEndUserAccount(userId, address, body, requestOptions).body();
   }
 
   /**

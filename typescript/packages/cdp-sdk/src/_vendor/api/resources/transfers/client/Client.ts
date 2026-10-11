@@ -74,6 +74,8 @@ export class TransfersClient {
     /**
      * List transfers for your organization. Use this to view and monitor your transfer activity.
      *
+     * **Sorting**: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.
+     *
      * **Status Filtering**: Filter by specific status to efficiently manage transfers:
      * * `?status=processing` - Monitor active transfers.
      * * `?status=quoted` - Find transfers awaiting execution.
@@ -84,7 +86,7 @@ export class TransfersClient {
      * * `?accountId=<ID>` - All transfers where the account is either source or target (OR semantics).
      * * `?sourceAccountId=<ID>` - Only transfers where the account is the source (outbound).
      * * `?targetAccountId=<ID>` - Only transfers where the account is the target (inbound).
-     * Providing `accountId` together with `sourceAccountId` or `targetAccountId` is a validation error and returns HTTP 400.
+     * Providing `accountId` together with `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail` is a validation error and returns HTTP 400.
      *
      * **Date Range Filtering**: Filter by creation or last-updated time for reconciliation:
      * * `?createdAfter=2026-01-01T00:00:00Z&createdBefore=2026-01-31T23:59:59Z` - Transfers created within a date range.
@@ -100,6 +102,12 @@ export class TransfersClient {
      * * `?targetAddress=0x...` - Transfers to a specific on-chain destination address.
      * * `?targetEmail=user@example.com` - Transfers to a specific email recipient.
      * * `?transferId=transfer_...` - Look up a single transfer by ID; bypasses pagination.
+     *
+     * **Filter Combinations**: The following combinations are validation errors and return HTTP 400:
+     * * `accountId` with any of `sourceAccountId`, `targetAccountId`, `sourceAddress`, `targetAddress`, or `targetEmail`.
+     * * `sourceAccountId` with `sourceAddress`.
+     * * More than one of `targetAccountId`, `targetAddress`, and `targetEmail`.
+     * * `transferId` with any other filter. Pagination parameters are permitted.
      *
      * @param {CoinbaseApi.ListTransfersRequest} request
      * @param {TransfersClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -408,6 +416,7 @@ export class TransfersClient {
      * @param {CoinbaseApi.GetTransferByIdRequest} request
      * @param {TransfersClient.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws CoinbaseApi.BadRequestError
      * @throws CoinbaseApi.NotFoundError
      *
      * @example
@@ -470,6 +479,11 @@ export class TransfersClient {
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
+                case 400:
+                    throw new CoinbaseApi.BadRequestError(
+                        _response.error.body as CoinbaseApi.Error_,
+                        _response.rawResponse,
+                    );
                 case 404:
                     throw new CoinbaseApi.NotFoundError(
                         _response.error.body as CoinbaseApi.Error_,

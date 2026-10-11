@@ -163,14 +163,17 @@ public class AsyncWithRawResponseAccountsClient {
      * <ul>
      * <li>
      * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.
+     * Omit <code>compliance</code>; it has no effect for Entity-owned accounts.</p>
      * </li>
      * <li>
      * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
      * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
      * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
      * capabilities enabled, otherwise the request is rejected with
-     * <code>customer_not_authorized</code> (HTTP 403).</p>
+     * <code>customer_not_authorized</code> (HTTP 403). <code>compliance.requesterIpAddress</code>
+     * is required; use the IP address of the end-customer who initiated the
+     * request (not the partner server's IP).</p>
      * </li>
      * </ul>
      */
@@ -183,14 +186,17 @@ public class AsyncWithRawResponseAccountsClient {
      * <ul>
      * <li>
      * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.
+     * Omit <code>compliance</code>; it has no effect for Entity-owned accounts.</p>
      * </li>
      * <li>
      * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
      * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
      * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
      * capabilities enabled, otherwise the request is rejected with
-     * <code>customer_not_authorized</code> (HTTP 403).</p>
+     * <code>customer_not_authorized</code> (HTTP 403). <code>compliance.requesterIpAddress</code>
+     * is required; use the IP address of the end-customer who initiated the
+     * request (not the partner server's IP).</p>
      * </li>
      * </ul>
      */
@@ -204,14 +210,17 @@ public class AsyncWithRawResponseAccountsClient {
      * <ul>
      * <li>
      * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.
+     * Omit <code>compliance</code>; it has no effect for Entity-owned accounts.</p>
      * </li>
      * <li>
      * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
      * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
      * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
      * capabilities enabled, otherwise the request is rejected with
-     * <code>customer_not_authorized</code> (HTTP 403).</p>
+     * <code>customer_not_authorized</code> (HTTP 403). <code>compliance.requesterIpAddress</code>
+     * is required; use the IP address of the end-customer who initiated the
+     * request (not the partner server's IP).</p>
      * </li>
      * </ul>
      */
@@ -225,14 +234,17 @@ public class AsyncWithRawResponseAccountsClient {
      * <ul>
      * <li>
      * <p><strong>Entity-owned</strong>: when <code>owner</code> is omitted, the account is owned by the
-     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.</p>
+     * Entity making the request. Returns an account with <code>owner: entity_&lt;uuid&gt;</code>.
+     * Omit <code>compliance</code>; it has no effect for Entity-owned accounts.</p>
      * </li>
      * <li>
      * <p><strong>Customer-owned</strong>: pass a Customer ID as <code>owner</code>
      * (e.g. <code>customer_af2937b0-9846-4fe7-bfe9-ccc22d935114</code>). The Customer
      * must have the <code>custodyCrypto</code>, <code>custodyFiat</code>, and <code>custodyStablecoin</code>
      * capabilities enabled, otherwise the request is rejected with
-     * <code>customer_not_authorized</code> (HTTP 403).</p>
+     * <code>customer_not_authorized</code> (HTTP 403). <code>compliance.requesterIpAddress</code>
+     * is required; use the IP address of the end-customer who initiated the
+     * request (not the partner server's IP).</p>
      * </li>
      * </ul>
      */

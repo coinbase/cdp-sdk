@@ -55,6 +55,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_order(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
@@ -73,6 +74,8 @@ class OnrampApi:
 
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API supports two modes:  **Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user's contact details before calling this endpoint — `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are required and enforced server-side.  **Embedded mode**: returns a webview that collects and verifies the user's contact and identity information, then shows the payment screen. Omit both `phoneNumber` and `email` from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.  Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).  This API supports the `GUEST_CHECKOUT_APPLE_PAY` and `GUEST_CHECKOUT_GOOGLE_PAY` payment methods.  For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param create_onramp_order_request:
         :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -98,6 +101,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_order_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -127,6 +131,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_order_with_http_info(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
@@ -145,6 +150,8 @@ class OnrampApi:
 
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API supports two modes:  **Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user's contact details before calling this endpoint — `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are required and enforced server-side.  **Embedded mode**: returns a webview that collects and verifies the user's contact and identity information, then shows the payment screen. Omit both `phoneNumber` and `email` from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.  Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).  This API supports the `GUEST_CHECKOUT_APPLE_PAY` and `GUEST_CHECKOUT_GOOGLE_PAY` payment methods.  For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param create_onramp_order_request:
         :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -170,6 +177,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_order_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -199,6 +207,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_order_without_preload_content(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         create_onramp_order_request: Optional[CreateOnrampOrderRequest] = None,
         _request_timeout: Union[
             None,
@@ -217,6 +226,8 @@ class OnrampApi:
 
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.  This API supports two modes:  **Headless mode (standard)**: returns a seamless Apple Pay or Google Pay button that you integrate directly into your app. Your app collects and verifies the user's contact details before calling this endpoint — `phoneNumber`, `email`, `phoneNumberVerifiedAt`, and `agreementAcceptedAt` are required and enforced server-side.  **Embedded mode**: returns a webview that collects and verifies the user's contact and identity information, then shows the payment screen. Omit both `phoneNumber` and `email` from the request to select this mode. Embedded mode requires account enablement; contact the Onramp team for access.  Read more about the difference between the two modes in the [Headless Onramp overview](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).  This API supports the `GUEST_CHECKOUT_APPLE_PAY` and `GUEST_CHECKOUT_GOOGLE_PAY` payment methods.  For detailed integration instructions and to get access to this API, refer to the  [Guest Checkout Onramp API docs](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param create_onramp_order_request:
         :type create_onramp_order_request: CreateOnrampOrderRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -242,6 +253,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_order_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             create_onramp_order_request=create_onramp_order_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -266,6 +278,7 @@ class OnrampApi:
 
     def _create_onramp_order_serialize(
         self,
+        x_onramp_partner_id,
         create_onramp_order_request,
         _request_auth,
         _content_type,
@@ -290,6 +303,8 @@ class OnrampApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if x_onramp_partner_id is not None:
+            _header_params['X-Onramp-Partner-Id'] = x_onramp_partner_id
         # process the form parameters
         # process the body parameter
         if create_onramp_order_request is not None:
@@ -344,6 +359,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
@@ -362,6 +378,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param onramp_session_request:
         :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -387,6 +405,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -398,6 +417,7 @@ class OnrampApi:
             '201': "CreateOnrampSession201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -415,6 +435,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session_with_http_info(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
@@ -433,6 +454,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param onramp_session_request:
         :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -458,6 +481,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -469,6 +493,7 @@ class OnrampApi:
             '201': "CreateOnrampSession201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -486,6 +511,7 @@ class OnrampApi:
     @validate_call
     async def create_onramp_session_without_preload_content(
         self,
+        x_onramp_partner_id: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.")] = None,
         onramp_session_request: Optional[OnrampSessionRequest] = None,
         _request_timeout: Union[
             None,
@@ -504,6 +530,8 @@ class OnrampApi:
 
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:  **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it. ## Use Cases ### 1. Basic Session (Minimum Parameters) **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`  **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response. ### 2. One-Click Onramp URL **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`  **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response. ### 3. One-Click Onramp URL with Quote **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`  **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.  **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
 
+        :param x_onramp_partner_id: The Onramp-issued identifier of a disclosed end partner, scoped to an aggregator's developer app. Aggregators integrating Onramp on behalf of multiple end partners set this header to attribute a request to one of their registered partners; omit it for standard, non-aggregator integrations. Only honored for developer apps registered as an aggregator — requires Onramp aggregator onboarding, including registration of each end partner. Contact the Onramp team for access.
+        :type x_onramp_partner_id: str
         :param onramp_session_request:
         :type onramp_session_request: OnrampSessionRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -529,6 +557,7 @@ class OnrampApi:
         """ # noqa: E501
 
         _param = self._create_onramp_session_serialize(
+            x_onramp_partner_id=x_onramp_partner_id,
             onramp_session_request=onramp_session_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -540,6 +569,7 @@ class OnrampApi:
             '201': "CreateOnrampSession201Response",
             '400': "Error",
             '401': "Error",
+            '404': "Error",
             '429': "Error",
             '500': "Error",
         }
@@ -552,6 +582,7 @@ class OnrampApi:
 
     def _create_onramp_session_serialize(
         self,
+        x_onramp_partner_id,
         onramp_session_request,
         _request_auth,
         _content_type,
@@ -576,6 +607,8 @@ class OnrampApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if x_onramp_partner_id is not None:
+            _header_params['X-Onramp-Partner-Id'] = x_onramp_partner_id
         # process the form parameters
         # process the body parameter
         if onramp_session_request is not None:

@@ -34,7 +34,9 @@ import com.coinbase.cdp.resources.enduseraccounts.requests.GetEvmBorrowProductRe
 import com.coinbase.cdp.resources.enduseraccounts.requests.GetUserOperationWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.ListBorrowPositionsWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.ListEvmBorrowProductsRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserAccountDeprecatedRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserAccountRequest;
+import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserDeprecatedRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.RevokeDelegationForEndUserRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.SendEvmAssetWithEndUserAccountRequest;
 import com.coinbase.cdp.resources.enduseraccounts.requests.SendEvmTransactionWithEndUserAccountRequest;
@@ -69,6 +71,7 @@ import com.coinbase.cdp.types.BorrowProduct;
 import com.coinbase.cdp.types.BorrowProductId;
 import com.coinbase.cdp.types.Error;
 import com.coinbase.cdp.types.EvmUserOperation;
+import com.coinbase.cdp.types.RevokeDelegationRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.lang.Exception;
@@ -1041,34 +1044,66 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                   }
 
                   /**
-                   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+                   * <blockquote>
+                   * <strong>Deprecation Notice:</strong> Prefer
+                   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+                   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+                   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                   * </blockquote>
+                   * <p>Revokes all active delegations for the specified end user. This operation
+                   * can be performed by the end user themselves or by a developer using their
+                   * API key.</p>
                    */
-                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
-                      String userId) {
-                    return revokeDelegationForEndUser(userId,RevokeDelegationForEndUserRequest.builder().build());
+                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserDeprecated(
+                      String userId, RevokeDelegationRequest body) {
+                    return revokeDelegationForEndUserDeprecated(userId, RevokeDelegationForEndUserDeprecatedRequest.builder().body(body).build());
                   }
 
                   /**
-                   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+                   * <blockquote>
+                   * <strong>Deprecation Notice:</strong> Prefer
+                   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+                   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+                   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                   * </blockquote>
+                   * <p>Revokes all active delegations for the specified end user. This operation
+                   * can be performed by the end user themselves or by a developer using their
+                   * API key.</p>
                    */
-                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
-                      String userId, RequestOptions requestOptions) {
-                    return revokeDelegationForEndUser(userId,RevokeDelegationForEndUserRequest.builder().build(),requestOptions);
+                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserDeprecated(
+                      String userId, RevokeDelegationRequest body, RequestOptions requestOptions) {
+                    return revokeDelegationForEndUserDeprecated(userId, RevokeDelegationForEndUserDeprecatedRequest.builder().body(body).build(), requestOptions);
                   }
 
                   /**
-                   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+                   * <blockquote>
+                   * <strong>Deprecation Notice:</strong> Prefer
+                   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+                   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+                   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                   * </blockquote>
+                   * <p>Revokes all active delegations for the specified end user. This operation
+                   * can be performed by the end user themselves or by a developer using their
+                   * API key.</p>
                    */
-                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
-                      String userId, RevokeDelegationForEndUserRequest request) {
-                    return revokeDelegationForEndUser(userId,request,null);
+                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserDeprecated(
+                      String userId, RevokeDelegationForEndUserDeprecatedRequest request) {
+                    return revokeDelegationForEndUserDeprecated(userId,request,null);
                   }
 
                   /**
-                   * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
+                   * <blockquote>
+                   * <strong>Deprecation Notice:</strong> Prefer
+                   * <a href="#operation/revokeDelegationForEndUser">Revoke delegation for end user</a>
+                   * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/delegation/revoke</code>), which takes the
+                   * same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                   * </blockquote>
+                   * <p>Revokes all active delegations for the specified end user. This operation
+                   * can be performed by the end user themselves or by a developer using their
+                   * API key.</p>
                    */
-                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
-                      String userId, RevokeDelegationForEndUserRequest request,
+                  public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserDeprecated(
+                      String userId, RevokeDelegationForEndUserDeprecatedRequest request,
                       RequestOptions requestOptions) {
                     HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -1084,7 +1119,7 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                       }
                       RequestBody body;
                       try {
-                        body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+                        body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request.getBody()), MediaTypes.APPLICATION_JSON);
                       }
                       catch(Exception e) {
                         throw new RuntimeException(e);
@@ -1155,48 +1190,42 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                     }
 
                     /**
-                     * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
-                     * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+                     * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
                      */
-                    public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
-                        String userId, BlockchainAddress address) {
-                      return getDelegationForEndUserAccount(userId,address,GetDelegationForEndUserAccountRequest.builder().build());
+                    public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
+                        String userId, RevokeDelegationRequest body) {
+                      return revokeDelegationForEndUser(userId, RevokeDelegationForEndUserRequest.builder().body(body).build());
                     }
 
                     /**
-                     * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
-                     * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+                     * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
                      */
-                    public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
-                        String userId, BlockchainAddress address, RequestOptions requestOptions) {
-                      return getDelegationForEndUserAccount(userId,address,GetDelegationForEndUserAccountRequest.builder().build(),requestOptions);
+                    public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
+                        String userId, RevokeDelegationRequest body,
+                        RequestOptions requestOptions) {
+                      return revokeDelegationForEndUser(userId, RevokeDelegationForEndUserRequest.builder().body(body).build(), requestOptions);
                     }
 
                     /**
-                     * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
-                     * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+                     * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
                      */
-                    public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
-                        String userId, BlockchainAddress address,
-                        GetDelegationForEndUserAccountRequest request) {
-                      return getDelegationForEndUserAccount(userId,address,request,null);
+                    public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
+                        String userId, RevokeDelegationForEndUserRequest request) {
+                      return revokeDelegationForEndUser(userId,request,null);
                     }
 
                     /**
-                     * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
-                     * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
+                     * Revokes all active delegations for the specified end user. This operation can be performed by the end user themselves or by a developer using their API key.
                      */
-                    public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
-                        String userId, BlockchainAddress address,
-                        GetDelegationForEndUserAccountRequest request,
+                    public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUser(
+                        String userId, RevokeDelegationForEndUserRequest request,
                         RequestOptions requestOptions) {
                       HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                         .addPathSegments("v2/embedded-wallet-api/end-users")
                         .addPathSegment(userId)
-                        .addPathSegments("address")
-                        .addPathSegment(address.toString())
-                        .addPathSegments("delegation");if (request.getProjectId().isPresent()) {
+                        .addPathSegments("delegation")
+                        .addPathSegments("revoke");if (request.getProjectId().isPresent()) {
                           QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                         }
                         if (requestOptions != null) {
@@ -1204,27 +1233,41 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                             httpUrl.addQueryParameter(_key, _value);
                           } );
                         }
+                        RequestBody body;
+                        try {
+                          body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request.getBody()), MediaTypes.APPLICATION_JSON);
+                        }
+                        catch(Exception e) {
+                          throw new RuntimeException(e);
+                        }
                         Request.Builder _requestBuilder = new Request.Builder()
                           .url(httpUrl.build())
-                          .method("GET", null)
+                          .method("POST", body)
                           .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                           .headers(Headers.of(clientOptions.headers(requestOptions)))
+                          .addHeader("Content-Type", "application/json")
                           .addHeader("Accept", "application/json");
+                        if (request.getDeveloperAuth().isPresent()) {
+                          _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                        }
+                        if (request.getIdempotencyKey().isPresent()) {
+                          _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                        }
                         Request okhttpRequest = _requestBuilder.build();
                         OkHttpClient client = clientOptions.httpClient();
                         if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                           client = clientOptions.httpClientWithTimeout(requestOptions);
                         }
-                        CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> future = new CompletableFuture<>();
+                        CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
                         client.newCall(okhttpRequest).enqueue(new Callback() {
                           @Override
                           public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                             try (ResponseBody responseBody = response.body()) {
-                              String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                               if (response.isSuccessful()) {
-                                future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, GetDelegationForEndUserAccountResponse.class), response));
+                                future.complete(new CdpClientHttpResponse<>(null, response));
                                 return;
                               }
+                              String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                               try {
                                 switch (response.code()) {
                                   case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -1263,40 +1306,40 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                       }
 
                       /**
-                       * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-                       * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+                       * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+                       * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
                        */
-                      public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                      public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
                           String userId, BlockchainAddress address) {
-                        return revokeDelegationForEndUserAccount(userId,address,RevokeDelegationForEndUserAccountRequest.builder().build());
+                        return getDelegationForEndUserAccount(userId,address,GetDelegationForEndUserAccountRequest.builder().build());
                       }
 
                       /**
-                       * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-                       * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+                       * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+                       * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
                        */
-                      public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                      public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
                           String userId, BlockchainAddress address, RequestOptions requestOptions) {
-                        return revokeDelegationForEndUserAccount(userId,address,RevokeDelegationForEndUserAccountRequest.builder().build(),requestOptions);
+                        return getDelegationForEndUserAccount(userId,address,GetDelegationForEndUserAccountRequest.builder().build(),requestOptions);
                       }
 
                       /**
-                       * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-                       * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+                       * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+                       * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
                        */
-                      public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                      public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
                           String userId, BlockchainAddress address,
-                          RevokeDelegationForEndUserAccountRequest request) {
-                        return revokeDelegationForEndUserAccount(userId,address,request,null);
+                          GetDelegationForEndUserAccountRequest request) {
+                        return getDelegationForEndUserAccount(userId,address,request,null);
                       }
 
                       /**
-                       * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
-                       * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
+                       * Returns the active account-scoped delegation for the specified end user account, if one exists. Useful for showing delegation status in a UI.
+                       * When the address corresponds to an EVM Smart Account, this returns the delegation for the Smart Account's owner EOA.
                        */
-                      public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                      public CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> getDelegationForEndUserAccount(
                           String userId, BlockchainAddress address,
-                          RevokeDelegationForEndUserAccountRequest request,
+                          GetDelegationForEndUserAccountRequest request,
                           RequestOptions requestOptions) {
                         HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -1312,41 +1355,27 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                               httpUrl.addQueryParameter(_key, _value);
                             } );
                           }
-                          RequestBody body;
-                          try {
-                            body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
-                          }
-                          catch(Exception e) {
-                            throw new RuntimeException(e);
-                          }
                           Request.Builder _requestBuilder = new Request.Builder()
                             .url(httpUrl.build())
-                            .method("DELETE", body)
+                            .method("GET", null)
                             .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                             .headers(Headers.of(clientOptions.headers(requestOptions)))
-                            .addHeader("Content-Type", "application/json")
                             .addHeader("Accept", "application/json");
-                          if (request.getDeveloperAuth().isPresent()) {
-                            _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
-                          }
-                          if (request.getIdempotencyKey().isPresent()) {
-                            _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
-                          }
                           Request okhttpRequest = _requestBuilder.build();
                           OkHttpClient client = clientOptions.httpClient();
                           if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                             client = clientOptions.httpClientWithTimeout(requestOptions);
                           }
-                          CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
+                          CompletableFuture<CdpClientHttpResponse<GetDelegationForEndUserAccountResponse>> future = new CompletableFuture<>();
                           client.newCall(okhttpRequest).enqueue(new Callback() {
                             @Override
                             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                               try (ResponseBody responseBody = response.body()) {
+                                String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                 if (response.isSuccessful()) {
-                                  future.complete(new CdpClientHttpResponse<>(null, response));
+                                  future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, GetDelegationForEndUserAccountResponse.class), response));
                                   return;
                                 }
-                                String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                 try {
                                   switch (response.code()) {
                                     case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -1385,42 +1414,85 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                         }
 
                         /**
-                         * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
-                         * <p>This endpoint:</p>
-                         * <ul>
-                         * <li>Retrieves delegation artifacts from onchain</li>
-                         * <li>Signs the EIP-7702 authorization for delegation</li>
-                         * <li>Assembles and submits a Type 4 transaction</li>
-                         * <li>Creates an associated smart account object</li>
-                         * </ul>
-                         * <p>The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.</p>
+                         * <blockquote>
+                         * <strong>Deprecation Notice:</strong> Prefer
+                         * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+                         * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+                         * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                         * </blockquote>
+                         * <p>Revokes the active account-scoped delegation for the specified end user account.
+                         * Other account-scoped delegations for the same user are unaffected. This operation
+                         * can be performed by the end user themselves or by a developer using their API key.</p>
+                         * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+                         * Smart Account's owner EOA.</p>
                          */
-                        public CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> createEvmEip7702DelegationWithEndUserAccount(
-                            String userId,
-                            CreateEvmEip7702DelegationWithEndUserAccountRequest request) {
-                          return createEvmEip7702DelegationWithEndUserAccount(userId,request,null);
+                        public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccountDeprecated(
+                            String userId, BlockchainAddress address,
+                            RevokeDelegationRequest body) {
+                          return revokeDelegationForEndUserAccountDeprecated(userId, address, RevokeDelegationForEndUserAccountDeprecatedRequest.builder().body(body).build());
                         }
 
                         /**
-                         * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
-                         * <p>This endpoint:</p>
-                         * <ul>
-                         * <li>Retrieves delegation artifacts from onchain</li>
-                         * <li>Signs the EIP-7702 authorization for delegation</li>
-                         * <li>Assembles and submits a Type 4 transaction</li>
-                         * <li>Creates an associated smart account object</li>
-                         * </ul>
-                         * <p>The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.</p>
+                         * <blockquote>
+                         * <strong>Deprecation Notice:</strong> Prefer
+                         * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+                         * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+                         * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                         * </blockquote>
+                         * <p>Revokes the active account-scoped delegation for the specified end user account.
+                         * Other account-scoped delegations for the same user are unaffected. This operation
+                         * can be performed by the end user themselves or by a developer using their API key.</p>
+                         * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+                         * Smart Account's owner EOA.</p>
                          */
-                        public CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> createEvmEip7702DelegationWithEndUserAccount(
-                            String userId,
-                            CreateEvmEip7702DelegationWithEndUserAccountRequest request,
+                        public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccountDeprecated(
+                            String userId, BlockchainAddress address, RevokeDelegationRequest body,
+                            RequestOptions requestOptions) {
+                          return revokeDelegationForEndUserAccountDeprecated(userId, address, RevokeDelegationForEndUserAccountDeprecatedRequest.builder().body(body).build(), requestOptions);
+                        }
+
+                        /**
+                         * <blockquote>
+                         * <strong>Deprecation Notice:</strong> Prefer
+                         * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+                         * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+                         * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                         * </blockquote>
+                         * <p>Revokes the active account-scoped delegation for the specified end user account.
+                         * Other account-scoped delegations for the same user are unaffected. This operation
+                         * can be performed by the end user themselves or by a developer using their API key.</p>
+                         * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+                         * Smart Account's owner EOA.</p>
+                         */
+                        public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccountDeprecated(
+                            String userId, BlockchainAddress address,
+                            RevokeDelegationForEndUserAccountDeprecatedRequest request) {
+                          return revokeDelegationForEndUserAccountDeprecated(userId,address,request,null);
+                        }
+
+                        /**
+                         * <blockquote>
+                         * <strong>Deprecation Notice:</strong> Prefer
+                         * <a href="#operation/revokeDelegationForEndUserAccount">Revoke account-scoped delegation for end user</a>
+                         * (<code>POST /v2/embedded-wallet-api/end-users/{userId}/address/{address}/delegation/revoke</code>),
+                         * which takes the same request body. This <code>DELETE</code> path will be removed on <strong>2026-10-22</strong>.
+                         * </blockquote>
+                         * <p>Revokes the active account-scoped delegation for the specified end user account.
+                         * Other account-scoped delegations for the same user are unaffected. This operation
+                         * can be performed by the end user themselves or by a developer using their API key.</p>
+                         * <p>When the address corresponds to an EVM Smart Account, this revokes the delegation for the
+                         * Smart Account's owner EOA.</p>
+                         */
+                        public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccountDeprecated(
+                            String userId, BlockchainAddress address,
+                            RevokeDelegationForEndUserAccountDeprecatedRequest request,
                             RequestOptions requestOptions) {
                           HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                             .addPathSegments("v2/embedded-wallet-api/end-users")
                             .addPathSegment(userId)
-                            .addPathSegments("evm/eip7702")
+                            .addPathSegments("address")
+                            .addPathSegment(address.toString())
                             .addPathSegments("delegation");if (request.getProjectId().isPresent()) {
                               QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                             }
@@ -1431,56 +1503,44 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                             }
                             RequestBody body;
                             try {
-                              body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+                              body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request.getBody()), MediaTypes.APPLICATION_JSON);
                             }
                             catch(Exception e) {
                               throw new RuntimeException(e);
                             }
                             Request.Builder _requestBuilder = new Request.Builder()
                               .url(httpUrl.build())
-                              .method("POST", body)
+                              .method("DELETE", body)
                               .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                               .headers(Headers.of(clientOptions.headers(requestOptions)))
                               .addHeader("Content-Type", "application/json")
                               .addHeader("Accept", "application/json");
-                            if (request.getIdempotencyKey().isPresent()) {
-                              _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
-                            }
                             if (request.getDeveloperAuth().isPresent()) {
                               _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                            }
+                            if (request.getIdempotencyKey().isPresent()) {
+                              _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
                             }
                             Request okhttpRequest = _requestBuilder.build();
                             OkHttpClient client = clientOptions.httpClient();
                             if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                               client = clientOptions.httpClientWithTimeout(requestOptions);
                             }
-                            CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                            CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
                             client.newCall(okhttpRequest).enqueue(new Callback() {
                               @Override
                               public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                 try (ResponseBody responseBody = response.body()) {
-                                  String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                   if (response.isSuccessful()) {
-                                    future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, CreateEvmEip7702DelegationWithEndUserAccountResponse.class), response));
+                                    future.complete(new CdpClientHttpResponse<>(null, response));
                                     return;
                                   }
+                                  String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                   try {
                                     switch (response.code()) {
-                                      case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
                                       case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                       return;
-                                      case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
-                                      case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
                                       case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
-                                      case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
-                                      case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                      return;
-                                      case 429:future.completeExceptionally(new TooManyRequestsError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                       return;
                                       case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                       return;
@@ -1514,46 +1574,51 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                           }
 
                           /**
-                           * Gets a user operation by its hash for an end user's EVM Smart Account.
+                           * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+                           * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
                            */
-                          public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
-                              String userId, String address, String userOpHash) {
-                            return getUserOperationWithEndUserAccount(userId,address,userOpHash,GetUserOperationWithEndUserAccountRequest.builder().build());
+                          public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                              String userId, BlockchainAddress address,
+                              RevokeDelegationRequest body) {
+                            return revokeDelegationForEndUserAccount(userId, address, RevokeDelegationForEndUserAccountRequest.builder().body(body).build());
                           }
 
                           /**
-                           * Gets a user operation by its hash for an end user's EVM Smart Account.
+                           * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+                           * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
                            */
-                          public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
-                              String userId, String address, String userOpHash,
-                              RequestOptions requestOptions) {
-                            return getUserOperationWithEndUserAccount(userId,address,userOpHash,GetUserOperationWithEndUserAccountRequest.builder().build(),requestOptions);
+                          public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                              String userId, BlockchainAddress address,
+                              RevokeDelegationRequest body, RequestOptions requestOptions) {
+                            return revokeDelegationForEndUserAccount(userId, address, RevokeDelegationForEndUserAccountRequest.builder().body(body).build(), requestOptions);
                           }
 
                           /**
-                           * Gets a user operation by its hash for an end user's EVM Smart Account.
+                           * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+                           * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
                            */
-                          public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
-                              String userId, String address, String userOpHash,
-                              GetUserOperationWithEndUserAccountRequest request) {
-                            return getUserOperationWithEndUserAccount(userId,address,userOpHash,request,null);
+                          public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                              String userId, BlockchainAddress address,
+                              RevokeDelegationForEndUserAccountRequest request) {
+                            return revokeDelegationForEndUserAccount(userId,address,request,null);
                           }
 
                           /**
-                           * Gets a user operation by its hash for an end user's EVM Smart Account.
+                           * Revokes the active account-scoped delegation for the specified end user account. Other account-scoped delegations for the same user are unaffected. This operation can be performed by the end user themselves or by a developer using their API key.
+                           * When the address corresponds to an EVM Smart Account, this revokes the delegation for the Smart Account's owner EOA.
                            */
-                          public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
-                              String userId, String address, String userOpHash,
-                              GetUserOperationWithEndUserAccountRequest request,
+                          public CompletableFuture<CdpClientHttpResponse<Void>> revokeDelegationForEndUserAccount(
+                              String userId, BlockchainAddress address,
+                              RevokeDelegationForEndUserAccountRequest request,
                               RequestOptions requestOptions) {
                             HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                               .addPathSegments("v2/embedded-wallet-api/end-users")
                               .addPathSegment(userId)
-                              .addPathSegments("evm/smart-accounts")
-                              .addPathSegment(address)
-                              .addPathSegments("user-operations")
-                              .addPathSegment(userOpHash);if (request.getProjectId().isPresent()) {
+                              .addPathSegments("address")
+                              .addPathSegment(address.toString())
+                              .addPathSegments("delegation")
+                              .addPathSegments("revoke");if (request.getProjectId().isPresent()) {
                                 QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                               }
                               if (requestOptions != null) {
@@ -1561,31 +1626,43 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                   httpUrl.addQueryParameter(_key, _value);
                                 } );
                               }
+                              RequestBody body;
+                              try {
+                                body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request.getBody()), MediaTypes.APPLICATION_JSON);
+                              }
+                              catch(Exception e) {
+                                throw new RuntimeException(e);
+                              }
                               Request.Builder _requestBuilder = new Request.Builder()
                                 .url(httpUrl.build())
-                                .method("GET", null)
+                                .method("POST", body)
                                 .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                                 .headers(Headers.of(clientOptions.headers(requestOptions)))
+                                .addHeader("Content-Type", "application/json")
                                 .addHeader("Accept", "application/json");
+                              if (request.getDeveloperAuth().isPresent()) {
+                                _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                              }
+                              if (request.getIdempotencyKey().isPresent()) {
+                                _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                              }
                               Request okhttpRequest = _requestBuilder.build();
                               OkHttpClient client = clientOptions.httpClient();
                               if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                 client = clientOptions.httpClientWithTimeout(requestOptions);
                               }
-                              CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
+                              CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
                               client.newCall(okhttpRequest).enqueue(new Callback() {
                                 @Override
                                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                   try (ResponseBody responseBody = response.body()) {
-                                    String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                     if (response.isSuccessful()) {
-                                      future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
+                                      future.complete(new CdpClientHttpResponse<>(null, response));
                                       return;
                                     }
+                                    String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                     try {
                                       switch (response.code()) {
-                                        case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                        return;
                                         case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                         return;
                                         case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -1622,28 +1699,43 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                             }
 
                             /**
-                             * Prepares, signs, and sends a user operation for an end user's Smart Account.
+                             * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
+                             * <p>This endpoint:</p>
+                             * <ul>
+                             * <li>Retrieves delegation artifacts from onchain</li>
+                             * <li>Signs the EIP-7702 authorization for delegation</li>
+                             * <li>Assembles and submits a Type 4 transaction</li>
+                             * <li>Creates an associated smart account object</li>
+                             * </ul>
+                             * <p>The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.</p>
                              */
-                            public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> sendUserOperationWithEndUserAccount(
-                                String userId, String address,
-                                SendUserOperationWithEndUserAccountRequest request) {
-                              return sendUserOperationWithEndUserAccount(userId,address,request,null);
+                            public CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> createEvmEip7702DelegationWithEndUserAccount(
+                                String userId,
+                                CreateEvmEip7702DelegationWithEndUserAccountRequest request) {
+                              return createEvmEip7702DelegationWithEndUserAccount(userId,request,null);
                             }
 
                             /**
-                             * Prepares, signs, and sends a user operation for an end user's Smart Account.
+                             * Creates an EIP-7702 delegation for an end user's EVM EOA account, upgrading it with smart account capabilities.
+                             * <p>This endpoint:</p>
+                             * <ul>
+                             * <li>Retrieves delegation artifacts from onchain</li>
+                             * <li>Signs the EIP-7702 authorization for delegation</li>
+                             * <li>Assembles and submits a Type 4 transaction</li>
+                             * <li>Creates an associated smart account object</li>
+                             * </ul>
+                             * <p>The delegation allows the EVM EOA to be used as a smart account, which enables batched transactions and gas sponsorship via paymaster.</p>
                              */
-                            public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> sendUserOperationWithEndUserAccount(
-                                String userId, String address,
-                                SendUserOperationWithEndUserAccountRequest request,
+                            public CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> createEvmEip7702DelegationWithEndUserAccount(
+                                String userId,
+                                CreateEvmEip7702DelegationWithEndUserAccountRequest request,
                                 RequestOptions requestOptions) {
                               HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                 .addPathSegments("v2/embedded-wallet-api/end-users")
                                 .addPathSegment(userId)
-                                .addPathSegments("evm/smart-accounts")
-                                .addPathSegment(address)
-                                .addPathSegments("send");if (request.getProjectId().isPresent()) {
+                                .addPathSegments("evm/eip7702")
+                                .addPathSegments("delegation");if (request.getProjectId().isPresent()) {
                                   QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                 }
                                 if (requestOptions != null) {
@@ -1676,14 +1768,14 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                 if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                   client = clientOptions.httpClientWithTimeout(requestOptions);
                                 }
-                                CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
+                                CompletableFuture<CdpClientHttpResponse<CreateEvmEip7702DelegationWithEndUserAccountResponse>> future = new CompletableFuture<>();
                                 client.newCall(okhttpRequest).enqueue(new Callback() {
                                   @Override
                                   public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                     try (ResponseBody responseBody = response.body()) {
                                       String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                       if (response.isSuccessful()) {
-                                        future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
+                                        future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, CreateEvmEip7702DelegationWithEndUserAccountResponse.class), response));
                                         return;
                                       }
                                       try {
@@ -1697,6 +1789,10 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                           case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                           return;
                                           case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                          return;
+                                          case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                          return;
+                                          case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                           return;
                                           case 429:future.completeExceptionally(new TooManyRequestsError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                           return;
@@ -1732,40 +1828,37 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                               }
 
                               /**
-                               * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
-                               * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                               * Gets a user operation by its hash for an end user's EVM Smart Account.
                                */
-                              public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
-                                  String userId, String address) {
-                                return listBorrowPositionsWithEndUserAccount(userId,address,ListBorrowPositionsWithEndUserAccountRequest.builder().build());
+                              public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
+                                  String userId, String address, String userOpHash) {
+                                return getUserOperationWithEndUserAccount(userId,address,userOpHash,GetUserOperationWithEndUserAccountRequest.builder().build());
                               }
 
                               /**
-                               * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
-                               * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                               * Gets a user operation by its hash for an end user's EVM Smart Account.
                                */
-                              public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
-                                  String userId, String address, RequestOptions requestOptions) {
-                                return listBorrowPositionsWithEndUserAccount(userId,address,ListBorrowPositionsWithEndUserAccountRequest.builder().build(),requestOptions);
+                              public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
+                                  String userId, String address, String userOpHash,
+                                  RequestOptions requestOptions) {
+                                return getUserOperationWithEndUserAccount(userId,address,userOpHash,GetUserOperationWithEndUserAccountRequest.builder().build(),requestOptions);
                               }
 
                               /**
-                               * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
-                               * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                               * Gets a user operation by its hash for an end user's EVM Smart Account.
                                */
-                              public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
-                                  String userId, String address,
-                                  ListBorrowPositionsWithEndUserAccountRequest request) {
-                                return listBorrowPositionsWithEndUserAccount(userId,address,request,null);
+                              public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
+                                  String userId, String address, String userOpHash,
+                                  GetUserOperationWithEndUserAccountRequest request) {
+                                return getUserOperationWithEndUserAccount(userId,address,userOpHash,request,null);
                               }
 
                               /**
-                               * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
-                               * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                               * Gets a user operation by its hash for an end user's EVM Smart Account.
                                */
-                              public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
-                                  String userId, String address,
-                                  ListBorrowPositionsWithEndUserAccountRequest request,
+                              public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> getUserOperationWithEndUserAccount(
+                                  String userId, String address, String userOpHash,
+                                  GetUserOperationWithEndUserAccountRequest request,
                                   RequestOptions requestOptions) {
                                 HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -1773,13 +1866,8 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                   .addPathSegment(userId)
                                   .addPathSegments("evm/smart-accounts")
                                   .addPathSegment(address)
-                                  .addPathSegments("borrow-positions");if (request.getPageSize().isPresent()) {
-                                    QueryStringMapper.addQueryParameter(httpUrl, "pageSize", request.getPageSize().get(), false);
-                                  }
-                                  if (request.getPageToken().isPresent()) {
-                                    QueryStringMapper.addQueryParameter(httpUrl, "pageToken", request.getPageToken().get(), false);
-                                  }
-                                  if (request.getProjectId().isPresent()) {
+                                  .addPathSegments("user-operations")
+                                  .addPathSegment(userOpHash);if (request.getProjectId().isPresent()) {
                                     QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                   }
                                   if (requestOptions != null) {
@@ -1798,14 +1886,14 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                   if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                     client = clientOptions.httpClientWithTimeout(requestOptions);
                                   }
-                                  CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                  CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
                                   client.newCall(okhttpRequest).enqueue(new Callback() {
                                     @Override
                                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                       try (ResponseBody responseBody = response.body()) {
                                         String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                         if (response.isSuccessful()) {
-                                          future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListBorrowPositionsWithEndUserAccountResponse.class), response));
+                                          future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
                                           return;
                                         }
                                         try {
@@ -1848,24 +1936,20 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                 }
 
                                 /**
-                                 * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
-                                 * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
-                                 * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+                                 * Prepares, signs, and sends a user operation for an end user's Smart Account.
                                  */
-                                public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> createBorrowPositionWithEndUserAccount(
+                                public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> sendUserOperationWithEndUserAccount(
                                     String userId, String address,
-                                    CreateBorrowPositionRequest request) {
-                                  return createBorrowPositionWithEndUserAccount(userId,address,request,null);
+                                    SendUserOperationWithEndUserAccountRequest request) {
+                                  return sendUserOperationWithEndUserAccount(userId,address,request,null);
                                 }
 
                                 /**
-                                 * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
-                                 * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
-                                 * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
+                                 * Prepares, signs, and sends a user operation for an end user's Smart Account.
                                  */
-                                public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> createBorrowPositionWithEndUserAccount(
+                                public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> sendUserOperationWithEndUserAccount(
                                     String userId, String address,
-                                    CreateBorrowPositionRequest request,
+                                    SendUserOperationWithEndUserAccountRequest request,
                                     RequestOptions requestOptions) {
                                   HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -1873,7 +1957,7 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                     .addPathSegment(userId)
                                     .addPathSegments("evm/smart-accounts")
                                     .addPathSegment(address)
-                                    .addPathSegments("borrow-positions");if (request.getProjectId().isPresent()) {
+                                    .addPathSegments("send");if (request.getProjectId().isPresent()) {
                                       QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                     }
                                     if (requestOptions != null) {
@@ -1891,10 +1975,16 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                     Request.Builder _requestBuilder = new Request.Builder()
                                       .url(httpUrl.build())
                                       .method("POST", body)
-                                      .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Arrays.asList("X-Wallet-Auth")))
+                                      .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                                       .headers(Headers.of(clientOptions.headers(requestOptions)))
                                       .addHeader("Content-Type", "application/json")
                                       .addHeader("Accept", "application/json");
+                                    if (request.getIdempotencyKey().isPresent()) {
+                                      _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                                    }
+                                    if (request.getDeveloperAuth().isPresent()) {
+                                      _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                                    }
                                     Request okhttpRequest = _requestBuilder.build();
                                     OkHttpClient client = clientOptions.httpClient();
                                     if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
@@ -1918,11 +2008,11 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                               return;
                                               case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                               return;
+                                              case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                              return;
                                               case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                               return;
-                                              case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                              return;
-                                              case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                              case 429:future.completeExceptionally(new TooManyRequestsError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                               return;
                                               case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                               return;
@@ -1956,26 +2046,41 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                   }
 
                                   /**
-                                   * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
-                                   * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
-                                   * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
-                                   * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+                                   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+                                   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
                                    */
-                                  public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> adjustBorrowPositionWithEndUserAccount(
-                                      String userId, String address,
-                                      AdjustBorrowPositionRequest request) {
-                                    return adjustBorrowPositionWithEndUserAccount(userId,address,request,null);
+                                  public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
+                                      String userId, String address) {
+                                    return listBorrowPositionsWithEndUserAccount(userId,address,ListBorrowPositionsWithEndUserAccountRequest.builder().build());
                                   }
 
                                   /**
-                                   * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
-                                   * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
-                                   * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
-                                   * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
+                                   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+                                   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
                                    */
-                                  public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> adjustBorrowPositionWithEndUserAccount(
+                                  public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
                                       String userId, String address,
-                                      AdjustBorrowPositionRequest request,
+                                      RequestOptions requestOptions) {
+                                    return listBorrowPositionsWithEndUserAccount(userId,address,ListBorrowPositionsWithEndUserAccountRequest.builder().build(),requestOptions);
+                                  }
+
+                                  /**
+                                   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+                                   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                                   */
+                                  public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
+                                      String userId, String address,
+                                      ListBorrowPositionsWithEndUserAccountRequest request) {
+                                    return listBorrowPositionsWithEndUserAccount(userId,address,request,null);
+                                  }
+
+                                  /**
+                                   * Lists the borrow positions held by an end user smart account, with the live onchain state of each position read at a point-in-time snapshot.
+                                   * A borrow position represents collateral posted and a loan borrowed against it in a borrow product, such as a Morpho Blue market that lends USDC against cbBTC. Each position reports its current collateral and debt balances, its health factor, and its health status. Returns an empty list if the smart account has no borrow positions.
+                                   */
+                                  public CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> listBorrowPositionsWithEndUserAccount(
+                                      String userId, String address,
+                                      ListBorrowPositionsWithEndUserAccountRequest request,
                                       RequestOptions requestOptions) {
                                     HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -1983,8 +2088,13 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                       .addPathSegment(userId)
                                       .addPathSegments("evm/smart-accounts")
                                       .addPathSegment(address)
-                                      .addPathSegments("borrow-positions")
-                                      .addPathSegments("adjust");if (request.getProjectId().isPresent()) {
+                                      .addPathSegments("borrow-positions");if (request.getPageSize().isPresent()) {
+                                        QueryStringMapper.addQueryParameter(httpUrl, "pageSize", request.getPageSize().get(), false);
+                                      }
+                                      if (request.getPageToken().isPresent()) {
+                                        QueryStringMapper.addQueryParameter(httpUrl, "pageToken", request.getPageToken().get(), false);
+                                      }
+                                      if (request.getProjectId().isPresent()) {
                                         QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                       }
                                       if (requestOptions != null) {
@@ -1992,33 +2102,25 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                           httpUrl.addQueryParameter(_key, _value);
                                         } );
                                       }
-                                      RequestBody body;
-                                      try {
-                                        body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
-                                      }
-                                      catch(Exception e) {
-                                        throw new RuntimeException(e);
-                                      }
                                       Request.Builder _requestBuilder = new Request.Builder()
                                         .url(httpUrl.build())
-                                        .method("POST", body)
-                                        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Arrays.asList("X-Wallet-Auth")))
+                                        .method("GET", null)
+                                        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                                         .headers(Headers.of(clientOptions.headers(requestOptions)))
-                                        .addHeader("Content-Type", "application/json")
                                         .addHeader("Accept", "application/json");
                                       Request okhttpRequest = _requestBuilder.build();
                                       OkHttpClient client = clientOptions.httpClient();
                                       if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                         client = clientOptions.httpClientWithTimeout(requestOptions);
                                       }
-                                      CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
+                                      CompletableFuture<CdpClientHttpResponse<ListBorrowPositionsWithEndUserAccountResponse>> future = new CompletableFuture<>();
                                       client.newCall(okhttpRequest).enqueue(new Callback() {
                                         @Override
                                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                           try (ResponseBody responseBody = response.body()) {
                                             String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                             if (response.isSuccessful()) {
-                                              future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
+                                              future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, ListBorrowPositionsWithEndUserAccountResponse.class), response));
                                               return;
                                             }
                                             try {
@@ -2027,11 +2129,7 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                 return;
                                                 case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                 return;
-                                                case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                return;
                                                 case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                return;
-                                                case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                 return;
                                                 case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                 return;
@@ -2065,24 +2163,24 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                     }
 
                                     /**
-                                     * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
-                                     * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
-                                     * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+                                     * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+                                     * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+                                     * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
                                      */
-                                    public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> closeBorrowPositionWithEndUserAccount(
+                                    public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> createBorrowPositionWithEndUserAccount(
                                         String userId, String address,
-                                        CloseBorrowPositionRequest request) {
-                                      return closeBorrowPositionWithEndUserAccount(userId,address,request,null);
+                                        CreateBorrowPositionRequest request) {
+                                      return createBorrowPositionWithEndUserAccount(userId,address,request,null);
                                     }
 
                                     /**
-                                     * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
-                                     * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
-                                     * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
+                                     * Creates a borrow position for a specific borrow product, by posting collateral from an end user smart account and borrowing a loan against it. One position can be opened per borrow product for a given smart account.
+                                     * A borrow product is a protocol-native representation of a borrowable market, such as a Morpho Blue market that lends USDC against cbBTC. The <code>borrowProductId</code> identifies the product to borrow against, and the <code>collateralAmount</code> and <code>loanAmount</code> specify the collateral to post and the loan to take, both expressed as decimal strings in standard unit denomination of their respective tokens.
+                                     * A user operation is broadcast to open the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's active positions.
                                      */
-                                    public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> closeBorrowPositionWithEndUserAccount(
+                                    public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> createBorrowPositionWithEndUserAccount(
                                         String userId, String address,
-                                        CloseBorrowPositionRequest request,
+                                        CreateBorrowPositionRequest request,
                                         RequestOptions requestOptions) {
                                       HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
@@ -2090,8 +2188,7 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                         .addPathSegment(userId)
                                         .addPathSegments("evm/smart-accounts")
                                         .addPathSegment(address)
-                                        .addPathSegments("borrow-positions")
-                                        .addPathSegments("close");if (request.getProjectId().isPresent()) {
+                                        .addPathSegments("borrow-positions");if (request.getProjectId().isPresent()) {
                                           QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                         }
                                         if (requestOptions != null) {
@@ -2140,6 +2237,8 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                   return;
                                                   case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                   return;
+                                                  case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                  return;
                                                   case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                   return;
                                                   case 502:future.completeExceptionally(new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -2172,29 +2271,35 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                       }
 
                                       /**
-                                       * Signs an arbitrary Base64 encoded message with the given Solana account.
-                                       * <strong>WARNING:</strong>  Never sign a message that you didn't generate as it may put your funds at risk.
+                                       * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+                                       * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+                                       * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+                                       * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
                                        */
-                                      public CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> signSolanaMessageWithEndUserAccount(
-                                          String userId,
-                                          SignSolanaMessageWithEndUserAccountRequest request) {
-                                        return signSolanaMessageWithEndUserAccount(userId,request,null);
+                                      public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> adjustBorrowPositionWithEndUserAccount(
+                                          String userId, String address,
+                                          AdjustBorrowPositionRequest request) {
+                                        return adjustBorrowPositionWithEndUserAccount(userId,address,request,null);
                                       }
 
                                       /**
-                                       * Signs an arbitrary Base64 encoded message with the given Solana account.
-                                       * <strong>WARNING:</strong>  Never sign a message that you didn't generate as it may put your funds at risk.
+                                       * Adjusts an existing borrow position for a specific borrow product by supplying collateral, withdrawing collateral, repaying debt, and/or borrowing more of the loan asset from an end user smart account.
+                                       * The <code>borrowProductId</code> identifies the product whose position to adjust, and the <code>addCollateralAmount</code>, <code>removeCollateralAmount</code>, <code>repayLoanAmount</code>, and <code>borrowLoanAmount</code> fields specify the changes to apply, each expressed as a decimal string in standard unit denomination of the respective token.
+                                       * A single request must not combine <code>addCollateralAmount</code> with <code>removeCollateralAmount</code> or <code>repayLoanAmount</code>, and must not combine <code>borrowLoanAmount</code> with <code>repayLoanAmount</code> or <code>removeCollateralAmount</code>. Otherwise any subset of the four amount fields may be supplied; at least one is required.
+                                       * A user operation is broadcast to adjust the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, use the borrow positions list endpoint to view the user's adjusted positions.
                                        */
-                                      public CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> signSolanaMessageWithEndUserAccount(
-                                          String userId,
-                                          SignSolanaMessageWithEndUserAccountRequest request,
+                                      public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> adjustBorrowPositionWithEndUserAccount(
+                                          String userId, String address,
+                                          AdjustBorrowPositionRequest request,
                                           RequestOptions requestOptions) {
                                         HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                           .addPathSegments("v2/embedded-wallet-api/end-users")
                                           .addPathSegment(userId)
-                                          .addPathSegments("solana/sign")
-                                          .addPathSegments("message");if (request.getProjectId().isPresent()) {
+                                          .addPathSegments("evm/smart-accounts")
+                                          .addPathSegment(address)
+                                          .addPathSegments("borrow-positions")
+                                          .addPathSegments("adjust");if (request.getProjectId().isPresent()) {
                                             QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                           }
                                           if (requestOptions != null) {
@@ -2212,29 +2317,23 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                           Request.Builder _requestBuilder = new Request.Builder()
                                             .url(httpUrl.build())
                                             .method("POST", body)
-                                            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                                            .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Arrays.asList("X-Wallet-Auth")))
                                             .headers(Headers.of(clientOptions.headers(requestOptions)))
                                             .addHeader("Content-Type", "application/json")
                                             .addHeader("Accept", "application/json");
-                                          if (request.getIdempotencyKey().isPresent()) {
-                                            _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
-                                          }
-                                          if (request.getDeveloperAuth().isPresent()) {
-                                            _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
-                                          }
                                           Request okhttpRequest = _requestBuilder.build();
                                           OkHttpClient client = clientOptions.httpClient();
                                           if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                             client = clientOptions.httpClientWithTimeout(requestOptions);
                                           }
-                                          CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                          CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
                                           client.newCall(okhttpRequest).enqueue(new Callback() {
                                             @Override
                                             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                               try (ResponseBody responseBody = response.body()) {
                                                 String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                                 if (response.isSuccessful()) {
-                                                  future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaMessageWithEndUserAccountResponse.class), response));
+                                                  future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
                                                   return;
                                                 }
                                                 try {
@@ -2245,13 +2344,9 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                     return;
                                                     case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                     return;
-                                                    case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                    return;
                                                     case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                     return;
                                                     case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                    return;
-                                                    case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                     return;
                                                     case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                     return;
@@ -2285,43 +2380,33 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                         }
 
                                         /**
-                                         * Signs a transaction with the given end user Solana account.
-                                         * The unsigned transaction should be serialized into a byte array and then encoded as base64.
-                                         * <strong>Transaction types</strong>
-                                         * The following transaction types are supported:
-                                         * <ul>
-                                         * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/Transaction.html">Legacy transactions</a></li>
-                                         * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html">Versioned transactions</a>
-                                         * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
-                                         * </ul>
+                                         * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+                                         * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
+                                         * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
                                          */
-                                        public CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> signSolanaTransactionWithEndUserAccount(
-                                            String userId,
-                                            SignSolanaTransactionWithEndUserAccountRequest request) {
-                                          return signSolanaTransactionWithEndUserAccount(userId,request,null);
+                                        public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> closeBorrowPositionWithEndUserAccount(
+                                            String userId, String address,
+                                            CloseBorrowPositionRequest request) {
+                                          return closeBorrowPositionWithEndUserAccount(userId,address,request,null);
                                         }
 
                                         /**
-                                         * Signs a transaction with the given end user Solana account.
-                                         * The unsigned transaction should be serialized into a byte array and then encoded as base64.
-                                         * <strong>Transaction types</strong>
-                                         * The following transaction types are supported:
-                                         * <ul>
-                                         * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/Transaction.html">Legacy transactions</a></li>
-                                         * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html">Versioned transactions</a>
-                                         * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
-                                         * </ul>
+                                         * Closes an end user smart account's borrow position by fully repaying its outstanding loan and withdrawing all remaining collateral back to the smart account, in a single user operation.
+                                         * A borrow position is identified by the smart account <code>address</code> and the <code>borrowProductId</code> in the request body, since a smart account holds at most one position per borrow product. Closing repays the entire accrued debt and withdraws the full collateral balance; there is no partial close. To adjust a position without closing it, use <code>adjustBorrowPositionWithEndUserAccount</code> instead.
+                                         * A user operation is broadcast to close the position onchain. Poll <code>getUserOperationWithEndUserAccount</code> with the returned <code>userOpHash</code> until it reaches a terminal state. Once the user operation succeeds onchain, the position is closed and no longer appears in the borrow positions list.
                                          */
-                                        public CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> signSolanaTransactionWithEndUserAccount(
-                                            String userId,
-                                            SignSolanaTransactionWithEndUserAccountRequest request,
+                                        public CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> closeBorrowPositionWithEndUserAccount(
+                                            String userId, String address,
+                                            CloseBorrowPositionRequest request,
                                             RequestOptions requestOptions) {
                                           HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                             .addPathSegments("v2/embedded-wallet-api/end-users")
                                             .addPathSegment(userId)
-                                            .addPathSegments("solana/sign")
-                                            .addPathSegments("transaction");if (request.getProjectId().isPresent()) {
+                                            .addPathSegments("evm/smart-accounts")
+                                            .addPathSegment(address)
+                                            .addPathSegments("borrow-positions")
+                                            .addPathSegments("close");if (request.getProjectId().isPresent()) {
                                               QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                             }
                                             if (requestOptions != null) {
@@ -2339,29 +2424,23 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                             Request.Builder _requestBuilder = new Request.Builder()
                                               .url(httpUrl.build())
                                               .method("POST", body)
-                                              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                                              .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Arrays.asList("X-Wallet-Auth")))
                                               .headers(Headers.of(clientOptions.headers(requestOptions)))
                                               .addHeader("Content-Type", "application/json")
                                               .addHeader("Accept", "application/json");
-                                            if (request.getIdempotencyKey().isPresent()) {
-                                              _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
-                                            }
-                                            if (request.getDeveloperAuth().isPresent()) {
-                                              _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
-                                            }
                                             Request okhttpRequest = _requestBuilder.build();
                                             OkHttpClient client = clientOptions.httpClient();
                                             if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                               client = clientOptions.httpClientWithTimeout(requestOptions);
                                             }
-                                            CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                            CompletableFuture<CdpClientHttpResponse<EvmUserOperation>> future = new CompletableFuture<>();
                                             client.newCall(okhttpRequest).enqueue(new Callback() {
                                               @Override
                                               public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                                 try (ResponseBody responseBody = response.body()) {
                                                   String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                                   if (response.isSuccessful()) {
-                                                    future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaTransactionWithEndUserAccountResponse.class), response));
+                                                    future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, EvmUserOperation.class), response));
                                                     return;
                                                   }
                                                   try {
@@ -2372,13 +2451,9 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                       return;
                                                       case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                       return;
-                                                      case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                      return;
                                                       case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                       return;
                                                       case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                                                      return;
-                                                      case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                       return;
                                                       case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                       return;
@@ -2412,33 +2487,29 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                           }
 
                                           /**
-                                           * Signs an x402 payment payload using the end user's given Solana account.
-                                           * Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope's x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted.
-                                           * Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request.
-                                           * If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
+                                           * Signs an arbitrary Base64 encoded message with the given Solana account.
+                                           * <strong>WARNING:</strong>  Never sign a message that you didn't generate as it may put your funds at risk.
                                            */
-                                          public CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> signSolanaX402PaymentWithEndUserAccount(
+                                          public CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> signSolanaMessageWithEndUserAccount(
                                               String userId,
-                                              SignSolanaX402PaymentWithEndUserAccountRequest request) {
-                                            return signSolanaX402PaymentWithEndUserAccount(userId,request,null);
+                                              SignSolanaMessageWithEndUserAccountRequest request) {
+                                            return signSolanaMessageWithEndUserAccount(userId,request,null);
                                           }
 
                                           /**
-                                           * Signs an x402 payment payload using the end user's given Solana account.
-                                           * Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope's x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted.
-                                           * Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request.
-                                           * If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
+                                           * Signs an arbitrary Base64 encoded message with the given Solana account.
+                                           * <strong>WARNING:</strong>  Never sign a message that you didn't generate as it may put your funds at risk.
                                            */
-                                          public CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> signSolanaX402PaymentWithEndUserAccount(
+                                          public CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> signSolanaMessageWithEndUserAccount(
                                               String userId,
-                                              SignSolanaX402PaymentWithEndUserAccountRequest request,
+                                              SignSolanaMessageWithEndUserAccountRequest request,
                                               RequestOptions requestOptions) {
                                             HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                               .addPathSegments("v2/embedded-wallet-api/end-users")
                                               .addPathSegment(userId)
                                               .addPathSegments("solana/sign")
-                                              .addPathSegments("x402-payment");if (request.getProjectId().isPresent()) {
+                                              .addPathSegments("message");if (request.getProjectId().isPresent()) {
                                                 QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                               }
                                               if (requestOptions != null) {
@@ -2471,14 +2542,14 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                               if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                                 client = clientOptions.httpClientWithTimeout(requestOptions);
                                               }
-                                              CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                              CompletableFuture<CdpClientHttpResponse<SignSolanaMessageWithEndUserAccountResponse>> future = new CompletableFuture<>();
                                               client.newCall(okhttpRequest).enqueue(new Callback() {
                                                 @Override
                                                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                                   try (ResponseBody responseBody = response.body()) {
                                                     String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                                     if (response.isSuccessful()) {
-                                                      future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaX402PaymentWithEndUserAccountResponse.class), response));
+                                                      future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaMessageWithEndUserAccountResponse.class), response));
                                                       return;
                                                     }
                                                     try {
@@ -2529,56 +2600,42 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                             }
 
                                             /**
-                                             * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
-                                             * The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+                                             * Signs a transaction with the given end user Solana account.
                                              * The unsigned transaction should be serialized into a byte array and then encoded as base64.
                                              * <strong>Transaction types</strong>
                                              * The following transaction types are supported:
                                              * <ul>
-                                             * <li><a href="https://solana.com/developers/guides/advanced/versions#current-transaction-versions">Legacy transactions</a></li>
-                                             * <li><a href="https://solana.com/developers/guides/advanced/versions">Versioned transactions</a>
-                                             * <strong>Instruction Batching</strong>
-                                             * To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
-                                             * <strong>Network Support</strong>
-                                             * The following Solana networks are supported:</li>
-                                             * <li><code>solana</code> - Solana Mainnet</li>
-                                             * <li><code>solana-devnet</code> - Solana Devnet
+                                             * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/Transaction.html">Legacy transactions</a></li>
+                                             * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html">Versioned transactions</a>
                                              * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
                                              * </ul>
                                              */
-                                            public CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> sendSolanaTransactionWithEndUserAccount(
+                                            public CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> signSolanaTransactionWithEndUserAccount(
                                                 String userId,
-                                                SendSolanaTransactionWithEndUserAccountRequest request) {
-                                              return sendSolanaTransactionWithEndUserAccount(userId,request,null);
+                                                SignSolanaTransactionWithEndUserAccountRequest request) {
+                                              return signSolanaTransactionWithEndUserAccount(userId,request,null);
                                             }
 
                                             /**
-                                             * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
-                                             * The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+                                             * Signs a transaction with the given end user Solana account.
                                              * The unsigned transaction should be serialized into a byte array and then encoded as base64.
                                              * <strong>Transaction types</strong>
                                              * The following transaction types are supported:
                                              * <ul>
-                                             * <li><a href="https://solana.com/developers/guides/advanced/versions#current-transaction-versions">Legacy transactions</a></li>
-                                             * <li><a href="https://solana.com/developers/guides/advanced/versions">Versioned transactions</a>
-                                             * <strong>Instruction Batching</strong>
-                                             * To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
-                                             * <strong>Network Support</strong>
-                                             * The following Solana networks are supported:</li>
-                                             * <li><code>solana</code> - Solana Mainnet</li>
-                                             * <li><code>solana-devnet</code> - Solana Devnet
+                                             * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/Transaction.html">Legacy transactions</a></li>
+                                             * <li><a href="https://solana-labs.github.io/solana-web3.js/classes/VersionedTransaction.html">Versioned transactions</a>
                                              * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
                                              * </ul>
                                              */
-                                            public CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> sendSolanaTransactionWithEndUserAccount(
+                                            public CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> signSolanaTransactionWithEndUserAccount(
                                                 String userId,
-                                                SendSolanaTransactionWithEndUserAccountRequest request,
+                                                SignSolanaTransactionWithEndUserAccountRequest request,
                                                 RequestOptions requestOptions) {
                                               HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                                 .addPathSegments("v2/embedded-wallet-api/end-users")
                                                 .addPathSegment(userId)
-                                                .addPathSegments("solana/send")
+                                                .addPathSegments("solana/sign")
                                                 .addPathSegments("transaction");if (request.getProjectId().isPresent()) {
                                                   QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                                 }
@@ -2612,14 +2669,14 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                 if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                                   client = clientOptions.httpClientWithTimeout(requestOptions);
                                                 }
-                                                CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                                CompletableFuture<CdpClientHttpResponse<SignSolanaTransactionWithEndUserAccountResponse>> future = new CompletableFuture<>();
                                                 client.newCall(okhttpRequest).enqueue(new Callback() {
                                                   @Override
                                                   public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                                     try (ResponseBody responseBody = response.body()) {
                                                       String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                                       if (response.isSuccessful()) {
-                                                        future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SendSolanaTransactionWithEndUserAccountResponse.class), response));
+                                                        future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaTransactionWithEndUserAccountResponse.class), response));
                                                         return;
                                                       }
                                                       try {
@@ -2633,6 +2690,8 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                           case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                           return;
                                                           case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                          return;
+                                                          case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                           return;
                                                           case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                           return;
@@ -2668,35 +2727,33 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                               }
 
                                               /**
-                                               * Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
-                                               * The <code>amount</code> field accepts human-readable amounts as decimal strings (e.g., &quot;1.5&quot;, &quot;25.50&quot;).
-                                               * Use the optional <code>createRecipientAta</code> parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+                                               * Signs an x402 payment payload using the end user's given Solana account.
+                                               * Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope's x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted.
+                                               * Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request.
+                                               * If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
                                                */
-                                              public CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> sendSolanaAssetWithEndUserAccount(
-                                                  String userId, BlockchainAddress address,
-                                                  SendSolanaAssetWithEndUserAccountRequestAsset asset,
-                                                  SendSolanaAssetWithEndUserAccountRequest request) {
-                                                return sendSolanaAssetWithEndUserAccount(userId,address,asset,request,null);
+                                              public CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> signSolanaX402PaymentWithEndUserAccount(
+                                                  String userId,
+                                                  SignSolanaX402PaymentWithEndUserAccountRequest request) {
+                                                return signSolanaX402PaymentWithEndUserAccount(userId,request,null);
                                               }
 
                                               /**
-                                               * Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
-                                               * The <code>amount</code> field accepts human-readable amounts as decimal strings (e.g., &quot;1.5&quot;, &quot;25.50&quot;).
-                                               * Use the optional <code>createRecipientAta</code> parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+                                               * Signs an x402 payment payload using the end user's given Solana account.
+                                               * Accepts the full x402 payment required response body from a resource server plus an index into the accepts array selecting which payment option to sign. The paymentRequired envelope's x402Version, resource, and extensions are carried through into the signed payment payload; only the selected accept entry becomes paymentPayload.accepted.
+                                               * Returns a signed payment payload that can be base64-encoded and sent in the PAYMENT-SIGNATURE header of the resource request.
+                                               * If acceptsIndex is out of range for paymentRequired.accepts, or the selected accept is not a Solana network payment option, the request fails with 422.
                                                */
-                                              public CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> sendSolanaAssetWithEndUserAccount(
-                                                  String userId, BlockchainAddress address,
-                                                  SendSolanaAssetWithEndUserAccountRequestAsset asset,
-                                                  SendSolanaAssetWithEndUserAccountRequest request,
+                                              public CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> signSolanaX402PaymentWithEndUserAccount(
+                                                  String userId,
+                                                  SignSolanaX402PaymentWithEndUserAccountRequest request,
                                                   RequestOptions requestOptions) {
                                                 HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
                                                   .addPathSegments("v2/embedded-wallet-api/end-users")
                                                   .addPathSegment(userId)
-                                                  .addPathSegments("solana")
-                                                  .addPathSegment(address.toString())
-                                                  .addPathSegments("send")
-                                                  .addPathSegment(asset.toString());if (request.getProjectId().isPresent()) {
+                                                  .addPathSegments("solana/sign")
+                                                  .addPathSegments("x402-payment");if (request.getProjectId().isPresent()) {
                                                     QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
                                                   }
                                                   if (requestOptions != null) {
@@ -2729,14 +2786,14 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                   if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                                                     client = clientOptions.httpClientWithTimeout(requestOptions);
                                                   }
-                                                  CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                                  CompletableFuture<CdpClientHttpResponse<SignSolanaX402PaymentWithEndUserAccountResponse>> future = new CompletableFuture<>();
                                                   client.newCall(okhttpRequest).enqueue(new Callback() {
                                                     @Override
                                                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                                                       try (ResponseBody responseBody = response.body()) {
                                                         String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                                                         if (response.isSuccessful()) {
-                                                          future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SendSolanaAssetWithEndUserAccountResponse.class), response));
+                                                          future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SignSolanaX402PaymentWithEndUserAccountResponse.class), response));
                                                           return;
                                                         }
                                                         try {
@@ -2750,6 +2807,8 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                             case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                             return;
                                                             case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                            return;
+                                                            case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                             return;
                                                             case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                                                             return;
@@ -2783,4 +2842,260 @@ public class AsyncWithRawResponseEndUserAccountsClient {
                                                   });
                                                   return future;
                                                 }
-                                              }
+
+                                                /**
+                                                 * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
+                                                 * The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+                                                 * The unsigned transaction should be serialized into a byte array and then encoded as base64.
+                                                 * <strong>Transaction types</strong>
+                                                 * The following transaction types are supported:
+                                                 * <ul>
+                                                 * <li><a href="https://solana.com/developers/guides/advanced/versions#current-transaction-versions">Legacy transactions</a></li>
+                                                 * <li><a href="https://solana.com/developers/guides/advanced/versions">Versioned transactions</a>
+                                                 * <strong>Instruction Batching</strong>
+                                                 * To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+                                                 * <strong>Network Support</strong>
+                                                 * The following Solana networks are supported:</li>
+                                                 * <li><code>solana</code> - Solana Mainnet</li>
+                                                 * <li><code>solana-devnet</code> - Solana Devnet
+                                                 * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
+                                                 * </ul>
+                                                 */
+                                                public CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> sendSolanaTransactionWithEndUserAccount(
+                                                    String userId,
+                                                    SendSolanaTransactionWithEndUserAccountRequest request) {
+                                                  return sendSolanaTransactionWithEndUserAccount(userId,request,null);
+                                                }
+
+                                                /**
+                                                 * Signs a transaction with the given end user Solana account and sends it to the indicated supported network.
+                                                 * The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+                                                 * The unsigned transaction should be serialized into a byte array and then encoded as base64.
+                                                 * <strong>Transaction types</strong>
+                                                 * The following transaction types are supported:
+                                                 * <ul>
+                                                 * <li><a href="https://solana.com/developers/guides/advanced/versions#current-transaction-versions">Legacy transactions</a></li>
+                                                 * <li><a href="https://solana.com/developers/guides/advanced/versions">Versioned transactions</a>
+                                                 * <strong>Instruction Batching</strong>
+                                                 * To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+                                                 * <strong>Network Support</strong>
+                                                 * The following Solana networks are supported:</li>
+                                                 * <li><code>solana</code> - Solana Mainnet</li>
+                                                 * <li><code>solana-devnet</code> - Solana Devnet
+                                                 * The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.</li>
+                                                 * </ul>
+                                                 */
+                                                public CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> sendSolanaTransactionWithEndUserAccount(
+                                                    String userId,
+                                                    SendSolanaTransactionWithEndUserAccountRequest request,
+                                                    RequestOptions requestOptions) {
+                                                  HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
+
+                                                    .addPathSegments("v2/embedded-wallet-api/end-users")
+                                                    .addPathSegment(userId)
+                                                    .addPathSegments("solana/send")
+                                                    .addPathSegments("transaction");if (request.getProjectId().isPresent()) {
+                                                      QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
+                                                    }
+                                                    if (requestOptions != null) {
+                                                      requestOptions.getQueryParameters().forEach((_key, _value) -> {
+                                                        httpUrl.addQueryParameter(_key, _value);
+                                                      } );
+                                                    }
+                                                    RequestBody body;
+                                                    try {
+                                                      body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+                                                    }
+                                                    catch(Exception e) {
+                                                      throw new RuntimeException(e);
+                                                    }
+                                                    Request.Builder _requestBuilder = new Request.Builder()
+                                                      .url(httpUrl.build())
+                                                      .method("POST", body)
+                                                      .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                                                      .headers(Headers.of(clientOptions.headers(requestOptions)))
+                                                      .addHeader("Content-Type", "application/json")
+                                                      .addHeader("Accept", "application/json");
+                                                    if (request.getIdempotencyKey().isPresent()) {
+                                                      _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                                                    }
+                                                    if (request.getDeveloperAuth().isPresent()) {
+                                                      _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                                                    }
+                                                    Request okhttpRequest = _requestBuilder.build();
+                                                    OkHttpClient client = clientOptions.httpClient();
+                                                    if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
+                                                      client = clientOptions.httpClientWithTimeout(requestOptions);
+                                                    }
+                                                    CompletableFuture<CdpClientHttpResponse<SendSolanaTransactionWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                                    client.newCall(okhttpRequest).enqueue(new Callback() {
+                                                      @Override
+                                                      public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                                        try (ResponseBody responseBody = response.body()) {
+                                                          String responseBodyString = responseBody != null ? responseBody.string() : "{}";
+                                                          if (response.isSuccessful()) {
+                                                            future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SendSolanaTransactionWithEndUserAccountResponse.class), response));
+                                                            return;
+                                                          }
+                                                          try {
+                                                            switch (response.code()) {
+                                                              case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 502:future.completeExceptionally(new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                              case 503:future.completeExceptionally(new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                              return;
+                                                            }
+                                                          }
+                                                          catch (JsonProcessingException ignored) {
+                                                            // unable to map error response, throwing generic error
+                                                          }
+                                                          Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
+                                                          future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
+                                                          return;
+                                                        }
+                                                        catch (JsonProcessingException e) {
+                                                          future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
+                                                        }
+                                                        catch (IOException e) {
+                                                          future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                                                        }
+                                                      }
+
+                                                      @Override
+                                                      public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                                        future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                                                      }
+                                                    });
+                                                    return future;
+                                                  }
+
+                                                  /**
+                                                   * Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
+                                                   * The <code>amount</code> field accepts human-readable amounts as decimal strings (e.g., &quot;1.5&quot;, &quot;25.50&quot;).
+                                                   * Use the optional <code>createRecipientAta</code> parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+                                                   */
+                                                  public CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> sendSolanaAssetWithEndUserAccount(
+                                                      String userId, BlockchainAddress address,
+                                                      SendSolanaAssetWithEndUserAccountRequestAsset asset,
+                                                      SendSolanaAssetWithEndUserAccountRequest request) {
+                                                    return sendSolanaAssetWithEndUserAccount(userId,address,asset,request,null);
+                                                  }
+
+                                                  /**
+                                                   * Sends USDC from an end user's Solana account to a recipient address on the Solana network. This endpoint simplifies USDC transfers by automatically handling mint resolution, Associated Token Account (ATA) creation, decimal conversion, and transaction encoding.
+                                                   * The <code>amount</code> field accepts human-readable amounts as decimal strings (e.g., &quot;1.5&quot;, &quot;25.50&quot;).
+                                                   * Use the optional <code>createRecipientAta</code> parameter to control whether the sender pays for creating the recipient's Associated Token Account if it doesn't exist.
+                                                   */
+                                                  public CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> sendSolanaAssetWithEndUserAccount(
+                                                      String userId, BlockchainAddress address,
+                                                      SendSolanaAssetWithEndUserAccountRequestAsset asset,
+                                                      SendSolanaAssetWithEndUserAccountRequest request,
+                                                      RequestOptions requestOptions) {
+                                                    HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
+
+                                                      .addPathSegments("v2/embedded-wallet-api/end-users")
+                                                      .addPathSegment(userId)
+                                                      .addPathSegments("solana")
+                                                      .addPathSegment(address.toString())
+                                                      .addPathSegments("send")
+                                                      .addPathSegment(asset.toString());if (request.getProjectId().isPresent()) {
+                                                        QueryStringMapper.addQueryParameter(httpUrl, "projectID", request.getProjectId().get(), false);
+                                                      }
+                                                      if (requestOptions != null) {
+                                                        requestOptions.getQueryParameters().forEach((_key, _value) -> {
+                                                          httpUrl.addQueryParameter(_key, _value);
+                                                        } );
+                                                      }
+                                                      RequestBody body;
+                                                      try {
+                                                        body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+                                                      }
+                                                      catch(Exception e) {
+                                                        throw new RuntimeException(e);
+                                                      }
+                                                      Request.Builder _requestBuilder = new Request.Builder()
+                                                        .url(httpUrl.build())
+                                                        .method("POST", body)
+                                                        .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                                                        .headers(Headers.of(clientOptions.headers(requestOptions)))
+                                                        .addHeader("Content-Type", "application/json")
+                                                        .addHeader("Accept", "application/json");
+                                                      if (request.getIdempotencyKey().isPresent()) {
+                                                        _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                                                      }
+                                                      if (request.getDeveloperAuth().isPresent()) {
+                                                        _requestBuilder.addHeader("X-Developer-Auth", request.getDeveloperAuth().get());
+                                                      }
+                                                      Request okhttpRequest = _requestBuilder.build();
+                                                      OkHttpClient client = clientOptions.httpClient();
+                                                      if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
+                                                        client = clientOptions.httpClientWithTimeout(requestOptions);
+                                                      }
+                                                      CompletableFuture<CdpClientHttpResponse<SendSolanaAssetWithEndUserAccountResponse>> future = new CompletableFuture<>();
+                                                      client.newCall(okhttpRequest).enqueue(new Callback() {
+                                                        @Override
+                                                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                                          try (ResponseBody responseBody = response.body()) {
+                                                            String responseBodyString = responseBody != null ? responseBody.string() : "{}";
+                                                            if (response.isSuccessful()) {
+                                                              future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, SendSolanaAssetWithEndUserAccountResponse.class), response));
+                                                              return;
+                                                            }
+                                                            try {
+                                                              switch (response.code()) {
+                                                                case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 402:future.completeExceptionally(new PaymentRequiredError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 403:future.completeExceptionally(new ForbiddenError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 502:future.completeExceptionally(new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                                case 503:future.completeExceptionally(new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                                                                return;
+                                                              }
+                                                            }
+                                                            catch (JsonProcessingException ignored) {
+                                                              // unable to map error response, throwing generic error
+                                                            }
+                                                            Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
+                                                            future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
+                                                            return;
+                                                          }
+                                                          catch (JsonProcessingException e) {
+                                                            future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
+                                                          }
+                                                          catch (IOException e) {
+                                                            future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                                                          }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                                          future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                                                        }
+                                                      });
+                                                      return future;
+                                                    }
+                                                  }

@@ -1,1 +1,1 @@
-src/README.md
+packages/cdp-sdk/README.md

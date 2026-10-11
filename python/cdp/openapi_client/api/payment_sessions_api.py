@@ -34,6 +34,7 @@ from cdp.openapi_client.models.list_payment_session_captures200_response import 
 from cdp.openapi_client.models.list_payment_session_refunds200_response import ListPaymentSessionRefunds200Response
 from cdp.openapi_client.models.list_payment_session_voids200_response import ListPaymentSessionVoids200Response
 from cdp.openapi_client.models.list_payment_sessions200_response import ListPaymentSessions200Response
+from cdp.openapi_client.models.mandate_authorization_request import MandateAuthorizationRequest
 from cdp.openapi_client.models.payment_session import PaymentSession
 from cdp.openapi_client.models.payment_source_network import PaymentSourceNetwork
 from cdp.openapi_client.models.refund import Refund
@@ -383,6 +384,331 @@ class PaymentSessionsApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/payment-sessions/{paymentSessionId}/authorizations/coinbase',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def authorize_mandate_payment_session(
+        self,
+        payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        mandate_authorization_request: Optional[MandateAuthorizationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Authorization:
+        """Authorize a payment session with a mandate
+
+        **Merchant-initiated.** The merchant draws against a mandate in `approval_succeeded` status using the mandate's existing approval, so no fresh signature is required and the customer does not need to be present. The session must be in `created` status and the mandate must be in `approval_succeeded` status. When more than one mandate condition applies, the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`).  It requires API key authentication: unlike the payer-present wallet flow there is no per-call signature to prove consent, so the merchant authenticates as the party entitled to draw against the mandate.  The charge must fall within the mandate's `policy`. Exceeding `maxPerAuthorization` or `maxPerPeriod` returns `422` (`mandate_policy_violation`).  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`. If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+
+        :param payment_session_id: The unique identifier of the payment session to authorize. (required)
+        :type payment_session_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param mandate_authorization_request:
+        :type mandate_authorization_request: MandateAuthorizationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._authorize_mandate_payment_session_serialize(
+            payment_session_id=payment_session_id,
+            x_idempotency_key=x_idempotency_key,
+            mandate_authorization_request=mandate_authorization_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Authorization",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def authorize_mandate_payment_session_with_http_info(
+        self,
+        payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        mandate_authorization_request: Optional[MandateAuthorizationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Authorization]:
+        """Authorize a payment session with a mandate
+
+        **Merchant-initiated.** The merchant draws against a mandate in `approval_succeeded` status using the mandate's existing approval, so no fresh signature is required and the customer does not need to be present. The session must be in `created` status and the mandate must be in `approval_succeeded` status. When more than one mandate condition applies, the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`).  It requires API key authentication: unlike the payer-present wallet flow there is no per-call signature to prove consent, so the merchant authenticates as the party entitled to draw against the mandate.  The charge must fall within the mandate's `policy`. Exceeding `maxPerAuthorization` or `maxPerPeriod` returns `422` (`mandate_policy_violation`).  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`. If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+
+        :param payment_session_id: The unique identifier of the payment session to authorize. (required)
+        :type payment_session_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param mandate_authorization_request:
+        :type mandate_authorization_request: MandateAuthorizationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._authorize_mandate_payment_session_serialize(
+            payment_session_id=payment_session_id,
+            x_idempotency_key=x_idempotency_key,
+            mandate_authorization_request=mandate_authorization_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Authorization",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def authorize_mandate_payment_session_without_preload_content(
+        self,
+        payment_session_id: Annotated[str, Field(strict=True, description="The unique identifier of the payment session to authorize.")],
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        mandate_authorization_request: Optional[MandateAuthorizationRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Authorize a payment session with a mandate
+
+        **Merchant-initiated.** The merchant draws against a mandate in `approval_succeeded` status using the mandate's existing approval, so no fresh signature is required and the customer does not need to be present. The session must be in `created` status and the mandate must be in `approval_succeeded` status. When more than one mandate condition applies, the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`).  It requires API key authentication: unlike the payer-present wallet flow there is no per-call signature to prove consent, so the merchant authenticates as the party entitled to draw against the mandate.  The charge must fall within the mandate's `policy`. Exceeding `maxPerAuthorization` or `maxPerPeriod` returns `422` (`mandate_policy_violation`).  On authorization, a hold is placed on the payer's funds. The authorization is returned in `pending` status and transitions asynchronously to `succeeded` or `failed`. If `autoCapture` is enabled on the session, a capture is automatically created after a successful authorization.
+
+        :param payment_session_id: The unique identifier of the payment session to authorize. (required)
+        :type payment_session_id: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param mandate_authorization_request:
+        :type mandate_authorization_request: MandateAuthorizationRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._authorize_mandate_payment_session_serialize(
+            payment_session_id=payment_session_id,
+            x_idempotency_key=x_idempotency_key,
+            mandate_authorization_request=mandate_authorization_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Authorization",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _authorize_mandate_payment_session_serialize(
+        self,
+        payment_session_id,
+        x_idempotency_key,
+        mandate_authorization_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if payment_session_id is not None:
+            _path_params['paymentSessionId'] = payment_session_id
+        # process the query parameters
+        # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if mandate_authorization_request is not None:
+            _body_params = mandate_authorization_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/payment-sessions/{paymentSessionId}/authorizations/mandate',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

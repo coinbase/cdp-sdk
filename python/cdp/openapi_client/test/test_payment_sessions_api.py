@@ -34,6 +34,13 @@ class TestPaymentSessionsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_authorize_mandate_payment_session(self) -> None:
+        """Test case for authorize_mandate_payment_session
+
+        Authorize a payment session with a mandate
+        """
+        pass
+
     async def test_authorize_wallet_payment_session(self) -> None:
         """Test case for authorize_wallet_payment_session
 

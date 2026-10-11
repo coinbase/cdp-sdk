@@ -118,6 +118,20 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_revoke_delegation_for_end_user_account_deprecated(self) -> None:
+        """Test case for revoke_delegation_for_end_user_account_deprecated
+
+        Revoke account-scoped delegation for end user (deprecated)
+        """
+        pass
+
+    async def test_revoke_delegation_for_end_user_deprecated(self) -> None:
+        """Test case for revoke_delegation_for_end_user_deprecated
+
+        Revoke delegation for end user (deprecated)
+        """
+        pass
+
     async def test_send_evm_asset_with_end_user_account(self) -> None:
         """Test case for send_evm_asset_with_end_user_account
 

@@ -38,7 +38,7 @@ class TestBankAccountUS(unittest.TestCase):
             return BankAccountUS(
                 account_type = 'us_bank',
                 currency = 'usd',
-                bank_name = 'Citibank, N.A.',
+                bank_name = 'Citibank N.A.',
                 beneficiary_name = 'John Smith',
                 routing_number = '987654321',
                 account_number = '123456789',
@@ -50,7 +50,7 @@ class TestBankAccountUS(unittest.TestCase):
             return BankAccountUS(
                 account_type = 'us_bank',
                 currency = 'usd',
-                bank_name = 'Citibank, N.A.',
+                bank_name = 'Citibank N.A.',
                 beneficiary_name = 'John Smith',
                 routing_number = '987654321',
                 account_number = '123456789',

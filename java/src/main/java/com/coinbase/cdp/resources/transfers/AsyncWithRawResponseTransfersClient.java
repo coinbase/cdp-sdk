@@ -60,6 +60,7 @@ public class AsyncWithRawResponseTransfersClient {
 
   /**
    * List transfers for your organization. Use this to view and monitor your transfer activity.
+   * <p><strong>Sorting</strong>: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.</p>
    * <p><strong>Status Filtering</strong>: Filter by specific status to efficiently manage transfers:</p>
    * <ul>
    * <li><code>?status=processing</code> - Monitor active transfers.</li>
@@ -72,7 +73,7 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?accountId=&lt;ID&gt;</code> - All transfers where the account is either source or target (OR semantics).</li>
    * <li><code>?sourceAccountId=&lt;ID&gt;</code> - Only transfers where the account is the source (outbound).</li>
    * <li><code>?targetAccountId=&lt;ID&gt;</code> - Only transfers where the account is the target (inbound).
-   * Providing <code>accountId</code> together with <code>sourceAccountId</code> or <code>targetAccountId</code> is a validation error and returns HTTP 400.</li>
+   * Providing <code>accountId</code> together with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code> is a validation error and returns HTTP 400.</li>
    * </ul>
    * <p><strong>Date Range Filtering</strong>: Filter by creation or last-updated time for reconciliation:</p>
    * <ul>
@@ -91,6 +92,13 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?targetAddress=0x...</code> - Transfers to a specific on-chain destination address.</li>
    * <li><code>?targetEmail=user@example.com</code> - Transfers to a specific email recipient.</li>
    * <li><code>?transferId=transfer_...</code> - Look up a single transfer by ID; bypasses pagination.</li>
+   * </ul>
+   * <p><strong>Filter Combinations</strong>: The following combinations are validation errors and return HTTP 400:</p>
+   * <ul>
+   * <li><code>accountId</code> with any of <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</li>
+   * <li><code>sourceAccountId</code> with <code>sourceAddress</code>.</li>
+   * <li>More than one of <code>targetAccountId</code>, <code>targetAddress</code>, and <code>targetEmail</code>.</li>
+   * <li><code>transferId</code> with any other filter. Pagination parameters are permitted.</li>
    * </ul>
    */
   public CompletableFuture<CdpClientHttpResponse<ListTransfersResponse>> listTransfers() {
@@ -99,6 +107,7 @@ public class AsyncWithRawResponseTransfersClient {
 
   /**
    * List transfers for your organization. Use this to view and monitor your transfer activity.
+   * <p><strong>Sorting</strong>: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.</p>
    * <p><strong>Status Filtering</strong>: Filter by specific status to efficiently manage transfers:</p>
    * <ul>
    * <li><code>?status=processing</code> - Monitor active transfers.</li>
@@ -111,7 +120,7 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?accountId=&lt;ID&gt;</code> - All transfers where the account is either source or target (OR semantics).</li>
    * <li><code>?sourceAccountId=&lt;ID&gt;</code> - Only transfers where the account is the source (outbound).</li>
    * <li><code>?targetAccountId=&lt;ID&gt;</code> - Only transfers where the account is the target (inbound).
-   * Providing <code>accountId</code> together with <code>sourceAccountId</code> or <code>targetAccountId</code> is a validation error and returns HTTP 400.</li>
+   * Providing <code>accountId</code> together with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code> is a validation error and returns HTTP 400.</li>
    * </ul>
    * <p><strong>Date Range Filtering</strong>: Filter by creation or last-updated time for reconciliation:</p>
    * <ul>
@@ -130,6 +139,13 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?targetAddress=0x...</code> - Transfers to a specific on-chain destination address.</li>
    * <li><code>?targetEmail=user@example.com</code> - Transfers to a specific email recipient.</li>
    * <li><code>?transferId=transfer_...</code> - Look up a single transfer by ID; bypasses pagination.</li>
+   * </ul>
+   * <p><strong>Filter Combinations</strong>: The following combinations are validation errors and return HTTP 400:</p>
+   * <ul>
+   * <li><code>accountId</code> with any of <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</li>
+   * <li><code>sourceAccountId</code> with <code>sourceAddress</code>.</li>
+   * <li>More than one of <code>targetAccountId</code>, <code>targetAddress</code>, and <code>targetEmail</code>.</li>
+   * <li><code>transferId</code> with any other filter. Pagination parameters are permitted.</li>
    * </ul>
    */
   public CompletableFuture<CdpClientHttpResponse<ListTransfersResponse>> listTransfers(
@@ -139,6 +155,7 @@ public class AsyncWithRawResponseTransfersClient {
 
   /**
    * List transfers for your organization. Use this to view and monitor your transfer activity.
+   * <p><strong>Sorting</strong>: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.</p>
    * <p><strong>Status Filtering</strong>: Filter by specific status to efficiently manage transfers:</p>
    * <ul>
    * <li><code>?status=processing</code> - Monitor active transfers.</li>
@@ -151,7 +168,7 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?accountId=&lt;ID&gt;</code> - All transfers where the account is either source or target (OR semantics).</li>
    * <li><code>?sourceAccountId=&lt;ID&gt;</code> - Only transfers where the account is the source (outbound).</li>
    * <li><code>?targetAccountId=&lt;ID&gt;</code> - Only transfers where the account is the target (inbound).
-   * Providing <code>accountId</code> together with <code>sourceAccountId</code> or <code>targetAccountId</code> is a validation error and returns HTTP 400.</li>
+   * Providing <code>accountId</code> together with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code> is a validation error and returns HTTP 400.</li>
    * </ul>
    * <p><strong>Date Range Filtering</strong>: Filter by creation or last-updated time for reconciliation:</p>
    * <ul>
@@ -170,6 +187,13 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?targetAddress=0x...</code> - Transfers to a specific on-chain destination address.</li>
    * <li><code>?targetEmail=user@example.com</code> - Transfers to a specific email recipient.</li>
    * <li><code>?transferId=transfer_...</code> - Look up a single transfer by ID; bypasses pagination.</li>
+   * </ul>
+   * <p><strong>Filter Combinations</strong>: The following combinations are validation errors and return HTTP 400:</p>
+   * <ul>
+   * <li><code>accountId</code> with any of <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</li>
+   * <li><code>sourceAccountId</code> with <code>sourceAddress</code>.</li>
+   * <li>More than one of <code>targetAccountId</code>, <code>targetAddress</code>, and <code>targetEmail</code>.</li>
+   * <li><code>transferId</code> with any other filter. Pagination parameters are permitted.</li>
    * </ul>
    */
   public CompletableFuture<CdpClientHttpResponse<ListTransfersResponse>> listTransfers(
@@ -179,6 +203,7 @@ public class AsyncWithRawResponseTransfersClient {
 
   /**
    * List transfers for your organization. Use this to view and monitor your transfer activity.
+   * <p><strong>Sorting</strong>: Results are sorted by creation time in descending order (newest first). Transfers with the same creation time are returned in a consistent order across pages.</p>
    * <p><strong>Status Filtering</strong>: Filter by specific status to efficiently manage transfers:</p>
    * <ul>
    * <li><code>?status=processing</code> - Monitor active transfers.</li>
@@ -191,7 +216,7 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?accountId=&lt;ID&gt;</code> - All transfers where the account is either source or target (OR semantics).</li>
    * <li><code>?sourceAccountId=&lt;ID&gt;</code> - Only transfers where the account is the source (outbound).</li>
    * <li><code>?targetAccountId=&lt;ID&gt;</code> - Only transfers where the account is the target (inbound).
-   * Providing <code>accountId</code> together with <code>sourceAccountId</code> or <code>targetAccountId</code> is a validation error and returns HTTP 400.</li>
+   * Providing <code>accountId</code> together with <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code> is a validation error and returns HTTP 400.</li>
    * </ul>
    * <p><strong>Date Range Filtering</strong>: Filter by creation or last-updated time for reconciliation:</p>
    * <ul>
@@ -210,6 +235,13 @@ public class AsyncWithRawResponseTransfersClient {
    * <li><code>?targetAddress=0x...</code> - Transfers to a specific on-chain destination address.</li>
    * <li><code>?targetEmail=user@example.com</code> - Transfers to a specific email recipient.</li>
    * <li><code>?transferId=transfer_...</code> - Look up a single transfer by ID; bypasses pagination.</li>
+   * </ul>
+   * <p><strong>Filter Combinations</strong>: The following combinations are validation errors and return HTTP 400:</p>
+   * <ul>
+   * <li><code>accountId</code> with any of <code>sourceAccountId</code>, <code>targetAccountId</code>, <code>sourceAddress</code>, <code>targetAddress</code>, or <code>targetEmail</code>.</li>
+   * <li><code>sourceAccountId</code> with <code>sourceAddress</code>.</li>
+   * <li>More than one of <code>targetAccountId</code>, <code>targetAddress</code>, and <code>targetEmail</code>.</li>
+   * <li><code>transferId</code> with any other filter. Pagination parameters are permitted.</li>
    * </ul>
    */
   public CompletableFuture<CdpClientHttpResponse<ListTransfersResponse>> listTransfers(
@@ -466,8 +498,10 @@ public class AsyncWithRawResponseTransfersClient {
                   return;
                 }
                 try {
-                  if (response.code() == 404) {
-                    future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                  switch (response.code()) {
+                    case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                    return;
+                    case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                     return;
                   }
                 }

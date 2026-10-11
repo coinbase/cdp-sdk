@@ -37,8 +37,11 @@ class ErrorType(str, Enum):
     FAUCET_LIMIT_EXCEEDED = 'faucet_limit_exceeded'
     FORBIDDEN = 'forbidden'
     IDEMPOTENCY_ERROR = 'idempotency_error'
+    INCOMPATIBLE_EVENT_TYPES = 'incompatible_event_types'
     INTERNAL_SERVER_ERROR = 'internal_server_error'
     INVALID_REQUEST = 'invalid_request'
+    INVALID_WEBHOOK_HEADERS = 'invalid_webhook_headers'
+    INVALID_WEBHOOK_URL = 'invalid_webhook_url'
     INVALID_SQL_QUERY = 'invalid_sql_query'
     INVALID_SIGNATURE = 'invalid_signature'
     MALFORMED_TRANSACTION = 'malformed_transaction'
@@ -50,6 +53,7 @@ class ErrorType(str, Enum):
     RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded'
     REQUEST_CANCELED = 'request_canceled'
     SERVICE_UNAVAILABLE = 'service_unavailable'
+    SUBSCRIPTION_LIMIT_EXCEEDED = 'subscription_limit_exceeded'
     TIMED_OUT = 'timed_out'
     UNAUTHORIZED = 'unauthorized'
     UNSUPPORTED_TOS_LANGUAGE = 'unsupported_tos_language'
@@ -121,6 +125,12 @@ class ErrorType(str, Enum):
     DAILY_AMOUNT_LIMIT_EXCEEDED = 'daily_amount_limit_exceeded'
     STALE_ATTESTATION = 'stale_attestation'
     MODERATION_REJECTED = 'moderation_rejected'
+    MANDATE_ACTION_PENDING = 'mandate_action_pending'
+    MANDATE_POLICY_VIOLATION = 'mandate_policy_violation'
+    MANDATE_EXPIRED = 'mandate_expired'
+    MANDATE_CANCELED = 'mandate_canceled'
+    MANDATE_REVOKED = 'mandate_revoked'
+    MANDATE_INVALID_STATUS = 'mandate_invalid_status'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-10-06
+
+### 🚀 Features
+
+- (**sdk**) Regenerate clients for customer-owned accounts ([#92](https://github.com/coinbase/cdp-sdk/pull/92))
+- (**CDPSDK-4054**) Regenerate clients for POST revoke delegation endpoints ([#89](https://github.com/coinbase/cdp-sdk/pull/89))
+
+### 🐛 Bug Fixes
+
+- (**rust**) Use released progenitor 0.12.5 ([#63](https://github.com/coinbase/cdp-sdk/pull/63))
+
+### ⚙️ Miscellaneous Tasks
+
+- Fix rust build for latest openapi spec ([#727](https://github.com/coinbase/cdp-sdk/pull/727))
+- (**openapi**) Sync latest CDP API spec ([#57](https://github.com/coinbase/cdp-sdk/pull/57))
+
 ## [0.7.0] - 2026-05-28
 
 ### 🚀 Features

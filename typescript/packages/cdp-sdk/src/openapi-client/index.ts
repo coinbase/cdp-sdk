@@ -66,3 +66,4 @@ export * from "./generated/end-user-account-management/end-user-account-manageme
 export * from "./generated/payment-sessions/payment-sessions.js";
 export * from "./generated/customers/customers.js";
 export * from "./generated/disbursements/disbursements.js";
+export * from "./generated/mandates/mandates.js";

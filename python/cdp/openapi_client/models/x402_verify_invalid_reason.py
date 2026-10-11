@@ -221,6 +221,7 @@ class X402VerifyInvalidReason(str, Enum):
     REQUEST_BLOCKED_BY_LOCATION = 'request_blocked_by_location'
     SELF_SEND_NOT_ALLOWED = 'self_send_not_allowed'
     INVALID_BAZAAR_EXTENSION = 'invalid_bazaar_extension'
+    NODE_FAILURE = 'node_failure'
     UNKNOWN_ERROR = 'unknown_error'
 
     @classmethod

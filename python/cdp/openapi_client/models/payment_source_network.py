@@ -38,6 +38,8 @@ class PaymentSourceNetwork(str, Enum):
     OPTIMISM_MINUS_SEPOLIA = 'optimism-sepolia'
     POLYGON = 'polygon'
     POLYGON_MINUS_AMOY = 'polygon-amoy'
+    SOLANA = 'solana'
+    SOLANA_MINUS_DEVNET = 'solana-devnet'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

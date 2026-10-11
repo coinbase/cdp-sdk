@@ -130,12 +130,15 @@ export class AccountsClient {
      *
      * - **Entity-owned**: when `owner` is omitted, the account is owned by the
      *   Entity making the request. Returns an account with `owner: entity_<uuid>`.
+     *   Omit `compliance`; it has no effect for Entity-owned accounts.
      *
      * - **Customer-owned**: pass a Customer ID as `owner`
      *   (e.g. `customer_af2937b0-9846-4fe7-bfe9-ccc22d935114`). The Customer
      *   must have the `custodyCrypto`, `custodyFiat`, and `custodyStablecoin`
      *   capabilities enabled, otherwise the request is rejected with
-     *   `customer_not_authorized` (HTTP 403).
+     *   `customer_not_authorized` (HTTP 403). `compliance.requesterIpAddress`
+     *   is required; use the IP address of the end-customer who initiated the
+     *   request (not the partner server's IP).
      *
      * @param {CoinbaseApi.CreateAccountRequest} request
      * @param {AccountsClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -158,7 +161,10 @@ export class AccountsClient {
      * await client.accounts.createAccount({
      *     idempotencyKey: "8e03978e-40d5-43e8-bc93-6894a57f9324",
      *     owner: "customer_af2937b0-9846-4fe7-bfe9-ccc22d935114",
-     *     name: "ABC XYZ Customer Account"
+     *     name: "ABC XYZ Customer Account",
+     *     compliance: {
+     *         requesterIpAddress: "203.0.113.42"
+     *     }
      * })
      * ```
      */
