@@ -56,13 +56,14 @@ class OnrampTransactionCreatedEvent(BaseModel):
     failure_reason: Optional[StrictStr] = Field(default=None, description="The reason for failure (if applicable).", alias="failureReason")
     end_partner_name: Optional[StrictStr] = Field(default=None, description="The name of the developer app.", alias="endPartnerName")
     error_code: Optional[StrictStr] = Field(default=None, description="Error code for the transaction failure (if applicable).", alias="errorCode")
+    partner_id: Optional[StrictStr] = Field(default=None, description="The Onramp-issued identifier of the end partner this order was scoped to via the X-Onramp-Partner-Id header. Only present for orders created by an aggregator on behalf of a registered end partner.", alias="partnerId")
     order_id: StrictStr = Field(description="Unique order identifier.", alias="orderId")
     payment_currency: Optional[StrictStr] = Field(default=None, description="The fiat currency used for payment.", alias="paymentCurrency")
     fees: Optional[List[OrderFee]] = Field(default=None, description="Breakdown of fees for the order.")
     destination_address: Optional[StrictStr] = Field(default=None, description="The destination wallet address.", alias="destinationAddress")
     destination_network: Optional[StrictStr] = Field(default=None, description="The blockchain network for delivery.", alias="destinationNetwork")
     updated_at: Optional[datetime] = Field(default=None, description="When the order was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "purchaseCurrency", "purchaseNetwork", "purchaseAmount", "paymentTotal", "paymentTotalUsd", "paymentSubtotal", "coinbaseFee", "networkFee", "exchangeRate", "txHash", "createdAt", "completedAt", "country", "userId", "paymentMethod", "walletAddress", "type", "userType", "partnerUserRef", "contractAddress", "failureReason", "endPartnerName", "errorCode", "orderId", "paymentCurrency", "fees", "destinationAddress", "destinationNetwork", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "purchaseCurrency", "purchaseNetwork", "purchaseAmount", "paymentTotal", "paymentTotalUsd", "paymentSubtotal", "coinbaseFee", "networkFee", "exchangeRate", "txHash", "createdAt", "completedAt", "country", "userId", "paymentMethod", "walletAddress", "type", "userType", "partnerUserRef", "contractAddress", "failureReason", "endPartnerName", "errorCode", "partnerId", "orderId", "paymentCurrency", "fees", "destinationAddress", "destinationNetwork", "updatedAt"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -204,6 +205,7 @@ class OnrampTransactionCreatedEvent(BaseModel):
             "failureReason": obj.get("failureReason"),
             "endPartnerName": obj.get("endPartnerName"),
             "errorCode": obj.get("errorCode"),
+            "partnerId": obj.get("partnerId"),
             "orderId": obj.get("orderId"),
             "paymentCurrency": obj.get("paymentCurrency"),
             "fees": [OrderFee.from_dict(_item) for _item in obj["fees"]] if obj.get("fees") is not None else None,

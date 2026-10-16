@@ -222,6 +222,7 @@ const (
 	ErrorTypeDocumentVerificationFailed              ErrorType = "document_verification_failed"
 	ErrorTypeEndpointUnavailable                     ErrorType = "endpoint_unavailable"
 	ErrorTypeEntityNotConfiguredForPaymentAcceptance ErrorType = "entity_not_configured_for_payment_acceptance"
+	ErrorTypeEntityNotConfiguredForTopUp             ErrorType = "entity_not_configured_for_top_up"
 	ErrorTypeFaucetLimitExceeded                     ErrorType = "faucet_limit_exceeded"
 	ErrorTypeForbidden                               ErrorType = "forbidden"
 	ErrorTypeGuestPermissionDenied                   ErrorType = "guest_permission_denied"
@@ -349,8 +350,11 @@ const (
 	AcceptancePaymentSessionVoidFailed             EventType = "acceptance.payment_session.void_failed"
 	AcceptancePaymentSessionVoidPending            EventType = "acceptance.payment_session.void_pending"
 	AcceptancePaymentSessionVoidSucceeded          EventType = "acceptance.payment_session.void_succeeded"
+	AcceptanceTopUpLinkCreated                     EventType = "acceptance.top_up_link.created"
+	AcceptanceTopUpLinkFundsAdded                  EventType = "acceptance.top_up_link.funds_added"
 	CustomersCapabilityChanged                     EventType = "customers.capability.changed"
 	CustomersCustomerDeleted                       EventType = "customers.customer.deleted"
+	CustomersRequirementChanged                    EventType = "customers.requirement.changed"
 	HealthMaintenanceCanceled                      EventType = "health.maintenance.canceled"
 	HealthMaintenanceCompleted                     EventType = "health.maintenance.completed"
 	HealthMaintenanceScheduled                     EventType = "health.maintenance.scheduled"
@@ -681,9 +685,12 @@ const (
 
 // Defines values for ListEvmTokenBalancesNetwork.
 const (
+	ListEvmTokenBalancesNetworkArbitrum    ListEvmTokenBalancesNetwork = "arbitrum"
 	ListEvmTokenBalancesNetworkBase        ListEvmTokenBalancesNetwork = "base"
 	ListEvmTokenBalancesNetworkBaseSepolia ListEvmTokenBalancesNetwork = "base-sepolia"
 	ListEvmTokenBalancesNetworkEthereum    ListEvmTokenBalancesNetwork = "ethereum"
+	ListEvmTokenBalancesNetworkOptimism    ListEvmTokenBalancesNetwork = "optimism"
+	ListEvmTokenBalancesNetworkPolygon     ListEvmTokenBalancesNetwork = "polygon"
 )
 
 // Defines values for ListSolanaTokenBalancesNetwork.
@@ -937,6 +944,14 @@ const (
 	PolicyScopeProject PolicyScope = "project"
 )
 
+// Defines values for PolicySimulationResultReason.
+const (
+	NoRuleForOperation PolicySimulationResultReason = "no_rule_for_operation"
+	NoRuleMatched      PolicySimulationResultReason = "no_rule_matched"
+	RuleAccepted       PolicySimulationResultReason = "rule_accepted"
+	RuleRejected       PolicySimulationResultReason = "rule_rejected"
+)
+
 // Defines values for PrepareUserOperationRuleAction.
 const (
 	PrepareUserOperationRuleActionAccept PrepareUserOperationRuleAction = "accept"
@@ -985,6 +1000,21 @@ const (
 	SendEndUserEvmAsset SendEndUserEvmAssetRuleOperation = "sendEndUserEvmAsset"
 )
 
+// Defines values for SendEndUserEvmAssetSimulationInputNetwork.
+const (
+	SendEndUserEvmAssetSimulationInputNetworkArbitrum        SendEndUserEvmAssetSimulationInputNetwork = "arbitrum"
+	SendEndUserEvmAssetSimulationInputNetworkArbitrumSepolia SendEndUserEvmAssetSimulationInputNetwork = "arbitrum-sepolia"
+	SendEndUserEvmAssetSimulationInputNetworkAvalanche       SendEndUserEvmAssetSimulationInputNetwork = "avalanche"
+	SendEndUserEvmAssetSimulationInputNetworkBase            SendEndUserEvmAssetSimulationInputNetwork = "base"
+	SendEndUserEvmAssetSimulationInputNetworkBaseSepolia     SendEndUserEvmAssetSimulationInputNetwork = "base-sepolia"
+	SendEndUserEvmAssetSimulationInputNetworkEthereum        SendEndUserEvmAssetSimulationInputNetwork = "ethereum"
+	SendEndUserEvmAssetSimulationInputNetworkEthereumSepolia SendEndUserEvmAssetSimulationInputNetwork = "ethereum-sepolia"
+	SendEndUserEvmAssetSimulationInputNetworkOptimism        SendEndUserEvmAssetSimulationInputNetwork = "optimism"
+	SendEndUserEvmAssetSimulationInputNetworkPolygon         SendEndUserEvmAssetSimulationInputNetwork = "polygon"
+	SendEndUserEvmAssetSimulationInputNetworkWorld           SendEndUserEvmAssetSimulationInputNetwork = "world"
+	SendEndUserEvmAssetSimulationInputNetworkWorldSepolia    SendEndUserEvmAssetSimulationInputNetwork = "world-sepolia"
+)
+
 // Defines values for SendEndUserEvmTransactionRuleAction.
 const (
 	SendEndUserEvmTransactionRuleActionAccept SendEndUserEvmTransactionRuleAction = "accept"
@@ -994,6 +1024,21 @@ const (
 // Defines values for SendEndUserEvmTransactionRuleOperation.
 const (
 	SendEndUserEvmTransaction SendEndUserEvmTransactionRuleOperation = "sendEndUserEvmTransaction"
+)
+
+// Defines values for SendEndUserEvmTransactionSimulationInputNetwork.
+const (
+	SendEndUserEvmTransactionSimulationInputNetworkArbitrum        SendEndUserEvmTransactionSimulationInputNetwork = "arbitrum"
+	SendEndUserEvmTransactionSimulationInputNetworkArbitrumSepolia SendEndUserEvmTransactionSimulationInputNetwork = "arbitrum-sepolia"
+	SendEndUserEvmTransactionSimulationInputNetworkAvalanche       SendEndUserEvmTransactionSimulationInputNetwork = "avalanche"
+	SendEndUserEvmTransactionSimulationInputNetworkBase            SendEndUserEvmTransactionSimulationInputNetwork = "base"
+	SendEndUserEvmTransactionSimulationInputNetworkBaseSepolia     SendEndUserEvmTransactionSimulationInputNetwork = "base-sepolia"
+	SendEndUserEvmTransactionSimulationInputNetworkEthereum        SendEndUserEvmTransactionSimulationInputNetwork = "ethereum"
+	SendEndUserEvmTransactionSimulationInputNetworkEthereumSepolia SendEndUserEvmTransactionSimulationInputNetwork = "ethereum-sepolia"
+	SendEndUserEvmTransactionSimulationInputNetworkOptimism        SendEndUserEvmTransactionSimulationInputNetwork = "optimism"
+	SendEndUserEvmTransactionSimulationInputNetworkPolygon         SendEndUserEvmTransactionSimulationInputNetwork = "polygon"
+	SendEndUserEvmTransactionSimulationInputNetworkWorld           SendEndUserEvmTransactionSimulationInputNetwork = "world"
+	SendEndUserEvmTransactionSimulationInputNetworkWorldSepolia    SendEndUserEvmTransactionSimulationInputNetwork = "world-sepolia"
 )
 
 // Defines values for SendEndUserOperationRuleAction.
@@ -1018,6 +1063,12 @@ const (
 	SendEndUserSolAsset SendEndUserSolAssetRuleOperation = "sendEndUserSolAsset"
 )
 
+// Defines values for SendEndUserSolAssetSimulationInputNetwork.
+const (
+	SendEndUserSolAssetSimulationInputNetworkSolana       SendEndUserSolAssetSimulationInputNetwork = "solana"
+	SendEndUserSolAssetSimulationInputNetworkSolanaDevnet SendEndUserSolAssetSimulationInputNetwork = "solana-devnet"
+)
+
 // Defines values for SendEndUserSolTransactionRuleAction.
 const (
 	SendEndUserSolTransactionRuleActionAccept SendEndUserSolTransactionRuleAction = "accept"
@@ -1027,6 +1078,12 @@ const (
 // Defines values for SendEndUserSolTransactionRuleOperation.
 const (
 	SendEndUserSolTransaction SendEndUserSolTransactionRuleOperation = "sendEndUserSolTransaction"
+)
+
+// Defines values for SendEndUserSolTransactionSimulationInputNetwork.
+const (
+	SendEndUserSolTransactionSimulationInputNetworkSolana       SendEndUserSolTransactionSimulationInputNetwork = "solana"
+	SendEndUserSolTransactionSimulationInputNetworkSolanaDevnet SendEndUserSolTransactionSimulationInputNetwork = "solana-devnet"
 )
 
 // Defines values for SendEvmTransactionRuleAction.
@@ -1040,6 +1097,21 @@ const (
 	SendEvmTransaction SendEvmTransactionRuleOperation = "sendEvmTransaction"
 )
 
+// Defines values for SendEvmTransactionSimulationInputNetwork.
+const (
+	SendEvmTransactionSimulationInputNetworkArbitrum        SendEvmTransactionSimulationInputNetwork = "arbitrum"
+	SendEvmTransactionSimulationInputNetworkArbitrumSepolia SendEvmTransactionSimulationInputNetwork = "arbitrum-sepolia"
+	SendEvmTransactionSimulationInputNetworkAvalanche       SendEvmTransactionSimulationInputNetwork = "avalanche"
+	SendEvmTransactionSimulationInputNetworkBase            SendEvmTransactionSimulationInputNetwork = "base"
+	SendEvmTransactionSimulationInputNetworkBaseSepolia     SendEvmTransactionSimulationInputNetwork = "base-sepolia"
+	SendEvmTransactionSimulationInputNetworkEthereum        SendEvmTransactionSimulationInputNetwork = "ethereum"
+	SendEvmTransactionSimulationInputNetworkEthereumSepolia SendEvmTransactionSimulationInputNetwork = "ethereum-sepolia"
+	SendEvmTransactionSimulationInputNetworkOptimism        SendEvmTransactionSimulationInputNetwork = "optimism"
+	SendEvmTransactionSimulationInputNetworkPolygon         SendEvmTransactionSimulationInputNetwork = "polygon"
+	SendEvmTransactionSimulationInputNetworkWorld           SendEvmTransactionSimulationInputNetwork = "world"
+	SendEvmTransactionSimulationInputNetworkWorldSepolia    SendEvmTransactionSimulationInputNetwork = "world-sepolia"
+)
+
 // Defines values for SendSolTransactionRuleAction.
 const (
 	SendSolTransactionRuleActionAccept SendSolTransactionRuleAction = "accept"
@@ -1049,6 +1121,12 @@ const (
 // Defines values for SendSolTransactionRuleOperation.
 const (
 	SendSolTransaction SendSolTransactionRuleOperation = "sendSolTransaction"
+)
+
+// Defines values for SendSolTransactionSimulationInputNetwork.
+const (
+	SendSolTransactionSimulationInputNetworkSolana       SendSolTransactionSimulationInputNetwork = "solana"
+	SendSolTransactionSimulationInputNetworkSolanaDevnet SendSolTransactionSimulationInputNetwork = "solana-devnet"
 )
 
 // Defines values for SendUserOperationRuleAction.
@@ -1133,6 +1211,12 @@ const (
 	SignEndUserSolTransaction SignEndUserSolTransactionRuleOperation = "signEndUserSolTransaction"
 )
 
+// Defines values for SignEndUserSolTransactionSimulationInputNetwork.
+const (
+	SignEndUserSolTransactionSimulationInputNetworkSolana       SignEndUserSolTransactionSimulationInputNetwork = "solana"
+	SignEndUserSolTransactionSimulationInputNetworkSolanaDevnet SignEndUserSolTransactionSimulationInputNetwork = "solana-devnet"
+)
+
 // Defines values for SignEvmHashRuleAction.
 const (
 	SignEvmHashRuleActionAccept SignEvmHashRuleAction = "accept"
@@ -1213,6 +1297,12 @@ const (
 // Defines values for SignSolTransactionRuleOperation.
 const (
 	SignSolTransaction SignSolTransactionRuleOperation = "signSolTransaction"
+)
+
+// Defines values for SignSolTransactionSimulationInputNetwork.
+const (
+	SignSolTransactionSimulationInputNetworkSolana       SignSolTransactionSimulationInputNetwork = "solana"
+	SignSolTransactionSimulationInputNetworkSolanaDevnet SignSolTransactionSimulationInputNetwork = "solana-devnet"
 )
 
 // Defines values for SiweAuthenticationType.
@@ -1349,6 +1439,11 @@ const (
 	TaxFormUsW9 TaxForm = "us_w9"
 )
 
+// Defines values for TopUpLinkAsset.
+const (
+	TopUpLinkAssetUsdc TopUpLinkAsset = "usdc"
+)
+
 // Defines values for TransferFeeType.
 const (
 	BankFee       TransferFeeType = "bank"
@@ -1408,6 +1503,7 @@ const (
 // Defines values for X402V2Network.
 const (
 	X402V2NetworkEip155137                              X402V2Network = "eip155:137"
+	X402V2NetworkEip155143                              X402V2Network = "eip155:143"
 	X402V2NetworkEip15542161                            X402V2Network = "eip155:42161"
 	X402V2NetworkEip155480                              X402V2Network = "eip155:480"
 	X402V2NetworkEip1554801                             X402V2Network = "eip155:4801"
@@ -1695,6 +1791,7 @@ const (
 	X402SupportedPaymentKindNetworkBase                                   X402SupportedPaymentKindNetwork = "base"
 	X402SupportedPaymentKindNetworkBaseSepolia                            X402SupportedPaymentKindNetwork = "base-sepolia"
 	X402SupportedPaymentKindNetworkEip155137                              X402SupportedPaymentKindNetwork = "eip155:137"
+	X402SupportedPaymentKindNetworkEip155143                              X402SupportedPaymentKindNetwork = "eip155:143"
 	X402SupportedPaymentKindNetworkEip15542161                            X402SupportedPaymentKindNetwork = "eip155:42161"
 	X402SupportedPaymentKindNetworkEip155480                              X402SupportedPaymentKindNetwork = "eip155:480"
 	X402SupportedPaymentKindNetworkEip1554801                             X402SupportedPaymentKindNetwork = "eip155:4801"
@@ -2092,9 +2189,9 @@ const (
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
 const (
-	RequestSolanaFaucetJSONBodyTokenCbtusd RequestSolanaFaucetJSONBodyToken = "cbtusd"
-	RequestSolanaFaucetJSONBodyTokenSol    RequestSolanaFaucetJSONBodyToken = "sol"
-	RequestSolanaFaucetJSONBodyTokenUsdc   RequestSolanaFaucetJSONBodyToken = "usdc"
+	Cbtusd RequestSolanaFaucetJSONBodyToken = "cbtusd"
+	Sol    RequestSolanaFaucetJSONBodyToken = "sol"
+	Usdc   RequestSolanaFaucetJSONBodyToken = "usdc"
 )
 
 // Abi Contract ABI Specification following Solidity's external JSON interface format.
@@ -3088,10 +3185,16 @@ type CreateDisbursementRequest struct {
 	// Compliance Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements.
 	Compliance *DisbursementCompliance `json:"compliance,omitempty"`
 
-	// CustomerDisplay Optional customer-facing display data for this disbursement, shown to the payer. If `referenceCode` is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type.
-	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+	// CustomerDisplay Display information shown to the recipient for this disbursement. If `referenceCode` is omitted, one is generated.
+	CustomerDisplay *struct {
+		// MerchantName The merchant name to display to the recipient. When provided, this overrides the default merchant name configured for your entity. If omitted or empty, the default name is used. Useful when a merchant operates multiple storefronts or brands under a single entity.
+		MerchantName *string `json:"merchantName,omitempty"`
 
-	// ExternalReferenceId A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+		// ReferenceCode A short customer-facing reference code for this payment operation.
+		ReferenceCode *CustomerReferenceCode `json:"referenceCode,omitempty"`
+	} `json:"customerDisplay,omitempty"`
+
+	// ExternalReferenceId An identifier from your system for tracking this disbursement. Not shown to the recipient. Must not contain personally identifiable information (PII) or payment credentials.
 	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -3132,6 +3235,39 @@ type CreateEndUserEvmSwapRuleAction string
 
 // CreateEndUserEvmSwapRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type CreateEndUserEvmSwapRuleOperation string
+
+// CreateEndUserEvmSwapSimulationInput defines model for CreateEndUserEvmSwapSimulationInput.
+type CreateEndUserEvmSwapSimulationInput struct {
+	// FromAmount The amount of `fromToken` to sell, in atomic units. For example, `100000000000000000` when selling WETH equates to 0.1 WETH.
+	FromAmount string `json:"fromAmount"`
+
+	// FromToken The 0x-prefixed contract address of the token to sell.
+	FromToken string `json:"fromToken"`
+
+	// Network The network on which to perform the swap.
+	Network EvmSwapsNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the useCdpPaymaster option.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// SlippageBps Maximum slippage in basis points (100 = 1%). Sets the minimum output floor baked into the transaction calldata. If the onchain price moves beyond this tolerance, the transaction reverts. Default is 100 (1%).
+	SlippageBps *int `json:"slippageBps,omitempty"`
+
+	// Taker The end user's EVM address (EOA or smart account) that will send fromToken. Must belong to this end user.
+	Taker string `json:"taker"`
+
+	// ToToken The 0x-prefixed contract address of the token to buy.
+	ToToken string `json:"toToken"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation.
+	UseCdpPaymaster *bool `json:"useCdpPaymaster,omitempty"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
 
 // CreateFiatDepositDestinationRequest defines model for CreateFiatDepositDestinationRequest.
 type CreateFiatDepositDestinationRequest struct {
@@ -3346,6 +3482,24 @@ type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
 }
 
+// CreateTopUpLinkRequest A request to create a Top-Up Link. The entity is inferred from the API key. `topUpAmount` and `asset` are required; `orderTotalAmount`, `redirectUrl`, and `customerDisplay` are optional. Unrecognized top-level fields are allowed and ignored.
+type CreateTopUpLinkRequest struct {
+	// Asset The asset credited by the Top-Up Link. Currently, only `usdc` is supported.
+	Asset TopUpLinkAsset `json:"asset"`
+
+	// CustomerDisplay Display details supplied for the hosted Top-Up page. Only the merchant name is supported. Unrecognized fields are allowed and ignored.
+	CustomerDisplay *TopUpCustomerDisplayInput `json:"customerDisplay,omitempty"`
+
+	// OrderTotalAmount The total balance, denominated in `asset`, that the merchant expects the payer to need to complete the order. When supplied, the hosted Top-Up page shows the order total and the payer's current available balance, and computes the remaining shortfall from those values. This live shortfall is presentation context: it is separate from `topUpAmount` and does not replace, change, or limit that fixed suggestion.
+	OrderTotalAmount *TopUpLinkAmount `json:"orderTotalAmount,omitempty"`
+
+	// RedirectUrl Optional absolute HTTPS URL to which the payer is redirected after the top-up completes. The URL's origin must exactly match one of the entity's configured allowed origins: the HTTPS scheme, hostname (case-insensitive), and effective port (with the default HTTPS port normalized to `443`) are compared, while the path, query, and fragment are ignored. Wildcard or suffix/subdomain matching is not supported. Existing query parameters and the fragment are preserved. The URL must not contain a percent-decoded query key exactly equal to `toppedUpAmount`; every occurrence is rejected, including duplicates, while other casing is allowed. This value can contain sensitive merchant parameters; treat it as secret and do not log it.
+	RedirectUrl *HttpsUrl `json:"redirectUrl,omitempty"`
+
+	// TopUpAmount The merchant-provided initial suggested net amount to add, denominated in `asset`. The suggestion remains fixed on the created link and is not recomputed from `orderTotalAmount` or the payer's current available balance. The payer can adjust the amount they add in the hosted flow. Fiat fees are outside this value. Positive and nonzero, with at most two fractional digits.
+	TopUpAmount TopUpLinkAmount `json:"topUpAmount"`
+}
+
 // CreateTransferSource The source of the transfer.
 type CreateTransferSource struct {
 	union json.RawMessage
@@ -3454,7 +3608,7 @@ type CustomerDisplay struct {
 // CustomerId The ID of the Customer, which is a UUID prefixed by `customer_`.
 type CustomerId = string
 
-// CustomerReferenceCode A short customer-facing reference for an operation, visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+// CustomerReferenceCode A short customer-facing reference for an operation. It must not contain personally identifiable information (PII) or payment credentials.
 type CustomerReferenceCode = string
 
 // CustomerType The type of the customer. Required on create; accepted but ignored on update.
@@ -3711,9 +3865,7 @@ type DeveloperJWTAuthentication struct {
 // DeveloperJWTAuthenticationType The type of authentication information.
 type DeveloperJWTAuthenticationType string
 
-// Disbursement A Disbursement represents a merchant-initiated payment of funds from a CDP account they own to a Coinbase account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.
-//
-// Disbursements are asynchronous: the resource is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+// Disbursement A payment from a CDP account you own to a Coinbase user account or an onchain address, independent of a payment session.
 type Disbursement struct {
 	// Amount A decimal representation of the disbursed amount, denominated in `asset`.
 	Amount string `json:"amount"`
@@ -3724,8 +3876,14 @@ type Disbursement struct {
 	// CreatedAt The UTC ISO 8601 timestamp at which the disbursement was created.
 	CreatedAt time.Time `json:"createdAt"`
 
-	// CustomerDisplay Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to.
-	CustomerDisplay *OperationCustomerDisplay `json:"customerDisplay,omitempty"`
+	// CustomerDisplay Display information shown to the recipient for this disbursement. If `referenceCode` was omitted when creating the disbursement, a generated code is returned.
+	CustomerDisplay *struct {
+		// MerchantName The merchant name displayed to the recipient. Reflects the supplied `merchantName` or the default merchant name configured for your entity.
+		MerchantName *string `json:"merchantName,omitempty"`
+
+		// ReferenceCode A short customer-facing reference code for this payment operation.
+		ReferenceCode *CustomerReferenceCode `json:"referenceCode,omitempty"`
+	} `json:"customerDisplay,omitempty"`
 
 	// DisbursementId The unique identifier of the disbursement.
 	DisbursementId DisbursementId `json:"disbursementId"`
@@ -3733,7 +3891,7 @@ type Disbursement struct {
 	// Error Error details, present only when the disbursement failed.
 	Error *PaymentError `json:"error,omitempty"`
 
-	// ExternalReferenceId A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.
+	// ExternalReferenceId An identifier from your system for tracking this disbursement. Not shown to the recipient. Must not contain personally identifiable information (PII) or payment credentials.
 	ExternalReferenceId *string `json:"externalReferenceId,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -3758,7 +3916,7 @@ type Disbursement struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// DisbursementCoinbaseTarget A Coinbase-user target for the disbursement.
+// DisbursementCoinbaseTarget A Coinbase user account that receives the disbursement.
 type DisbursementCoinbaseTarget struct {
 	// CoinbaseUserId The unique identifier of the recipient within Coinbase.
 	CoinbaseUserId string `json:"coinbaseUserId"`
@@ -3778,17 +3936,17 @@ type DisbursementCompliance struct {
 // DisbursementId The ID of the disbursement, a UUID prefixed by `disbursement_`.
 type DisbursementId = string
 
-// DisbursementSource The source from which the disbursement is funded. Currently restricted to a CDP account owned by the merchant. Modeled as a `oneOf` so additional source types (e.g. a merchant-controlled onchain wallet) can be added without a breaking change.
+// DisbursementSource The CDP account used to fund the disbursement. The account must be owned by your entity.
 type DisbursementSource struct {
 	union json.RawMessage
 }
 
-// DisbursementTarget The target of the disbursement. Can be either a Coinbase user account or an onchain blockchain address.
+// DisbursementTarget The recipient of the disbursement: a Coinbase user account or an onchain address.
 type DisbursementTarget struct {
 	union json.RawMessage
 }
 
-// DisbursementWalletTarget An onchain address target for the disbursement.
+// DisbursementWalletTarget An onchain address that receives the disbursement.
 type DisbursementWalletTarget struct {
 	// Address The onchain crypto address of the recipient.
 	Address BlockchainAddress `json:"address"`
@@ -4055,6 +4213,39 @@ type EthValueCriterionOperator string
 // EthValueCriterionType The type of criterion to use. This should be `ethValue`.
 type EthValueCriterionType string
 
+// EthValueObservation The transaction `value` an `ethValue` criterion compared.
+type EthValueObservation struct {
+	// EthValue The transaction `value`, in wei. `0` when the transaction transfers no ETH.
+	EthValue string `json:"ethValue"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
+// EvaluatedPolicy A policy consulted during evaluation, at the version evaluated.
+type EvaluatedPolicy struct {
+	// Id The ID of the policy.
+	Id string `json:"id"`
+
+	// Scope The scope of the policy.
+	Scope PolicyScope `json:"scope"`
+
+	// UpdatedAt The version of the policy evaluated. Rule and criterion indices refer to this version.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// EvaluatedUnit The unit this result describes. Present only when the operation was evaluated as more than one unit: one unit per call for user operations, and one unit per signing account for Solana transactions. Each unit is evaluated against the policies separately, and `matchedRule`, `unmatchedRules`, `evaluatedPolicies`, and every observed value describe this unit only. When `action` is `reject`, this is the first unit that was rejected. When `action` is `accept`, every unit was accepted and this is the last one.
+type EvaluatedUnit struct {
+	// Address The Solana signing account of the unit. Omitted for user operations.
+	Address *string `json:"address,omitempty"`
+
+	// Count The number of units the operation was split into.
+	Count int `json:"count"`
+
+	// Index Zero-based index of the unit. For user operations, this is the index into the operation's `calls`.
+	Index int `json:"index"`
+}
+
 // EventType A webhook event type identifier following dot-separated format:
 // `<domain>.<entity>.<verb>` (e.g., "onchain.activity.detected").
 type EventType string
@@ -4096,6 +4287,15 @@ type EvmAddressCriterionOperator string
 
 // EvmAddressCriterionType The type of criterion to use. This should be `evmAddress`.
 type EvmAddressCriterionType string
+
+// EvmAddressObservation The transaction `to` address an `evmAddress` criterion compared. For a token transfer, this is the token contract, not the token recipient; use an `evmData` criterion to constrain the recipient.
+type EvmAddressObservation struct {
+	// Address The transaction `to` address. Omitted for a contract-creation transaction, which has none.
+	Address *string `json:"address,omitempty"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // EvmCall defines model for EvmCall.
 type EvmCall struct {
@@ -4145,6 +4345,21 @@ type EvmDataCriterion_Abi struct {
 
 // EvmDataCriterionType The type of criterion to use. This should be `evmData`.
 type EvmDataCriterionType string
+
+// EvmDataObservation The call an `evmData` criterion decoded from the transaction `data` with the criterion's `abi`. Parameters are checked against the first of the criterion's `conditions` whose `function` equals `function`.
+type EvmDataObservation struct {
+	// Arguments The decoded arguments of `function`, in ABI order. Empty when `function` is omitted. Only the first 32 arguments are returned.
+	Arguments []ObservedArgument `json:"arguments"`
+
+	// Function The name of the ABI function with this selector. Omitted when no function in the `abi` has it.
+	Function *string `json:"function,omitempty"`
+
+	// Selector The 4-byte function selector. Omitted when `data` is shorter than 4 bytes.
+	Selector *string `json:"selector,omitempty"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // EvmDataParameterCondition defines model for EvmDataParameterCondition.
 type EvmDataParameterCondition struct {
@@ -4214,6 +4429,21 @@ type EvmMessageCriterion struct {
 // EvmMessageCriterionType The type of criterion to use. This should be `evmMessage`.
 type EvmMessageCriterionType string
 
+// EvmMessageObservation The message an `evmMessage` criterion matched its `match` expression against.
+type EvmMessageObservation struct {
+	// Encoding How `message` represents the matched bytes: `utf8` for the text itself, or `hex` for a 0x-prefixed hex string when the bytes are not valid UTF-8.
+	Encoding ObservedMessageEncoding `json:"encoding"`
+
+	// Message The message exactly as matched, including line breaks. When `encoding` is `hex`, the message bytes are not valid UTF-8 and are shown as a 0x-prefixed hex string instead.
+	Message ObservedMessageText `json:"message"`
+
+	// Truncated Whether `message` was cut to its first 2048 characters. The expression was matched against the whole message.
+	Truncated bool `json:"truncated"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // EvmNetworkCriterion A schema for specifying a criterion for the intended `network` of an EVM transaction.
 type EvmNetworkCriterion struct {
 	// Networks A list of EVM network identifiers that the transaction's intended `network` should be compared to.
@@ -4234,6 +4464,18 @@ type EvmNetworkCriterionOperator string
 
 // EvmNetworkCriterionType The type of criterion to use. This should be `evmNetwork`.
 type EvmNetworkCriterionType string
+
+// EvmNetworkObservation The network an `evmNetwork` criterion compared.
+type EvmNetworkObservation struct {
+	// ChainId The chain ID from the transaction. Omitted when the network came from the request's `network`.
+	ChainId *int `json:"chainId,omitempty"`
+
+	// Network The network the operation targets, from the request's `network` or derived from the transaction's chain ID. Omitted when the chain ID is not a supported network.
+	Network *string `json:"network,omitempty"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // EvmSmartAccount defines model for EvmSmartAccount.
 type EvmSmartAccount struct {
@@ -4275,6 +4517,27 @@ type EvmTypedAddressCondition struct {
 
 // EvmTypedAddressConditionOperator The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
 type EvmTypedAddressConditionOperator string
+
+// EvmTypedDataFieldObservation The typed data fields an `evmTypedDataField` criterion compared. The message's types must match the criterion's `types` before any condition is checked.
+type EvmTypedDataFieldObservation struct {
+	// Fields The fields that decided the criterion. When the criterion is unmet, this is the field of the first failing condition only. When it is met, this is the field of every condition, in `conditions` order.
+	Fields []ObservedTypedDataField `json:"fields"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+
+	// TypesMatched Whether the message's types matched the criterion's `types`. When `false`, no condition was checked and `fields` is empty.
+	TypesMatched bool `json:"typesMatched"`
+}
+
+// EvmTypedDataVerifyingContractObservation The domain `verifyingContract` an `evmTypedDataVerifyingContract` criterion compared.
+type EvmTypedDataVerifyingContractObservation struct {
+	// Address The domain's `verifyingContract`. Omitted when the domain has none.
+	Address *string `json:"address,omitempty"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // EvmTypedNumericalCondition A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
 type EvmTypedNumericalCondition struct {
@@ -4577,7 +4840,8 @@ type IndividualInput struct {
 		// PostCode Postal or ZIP code.
 		PostCode *string `json:"postCode,omitempty"`
 
-		// State State, province, or region.
+		// State Two-letter US state or territory code (`CA`, `DC`, `PR`),
+		// without a country prefix.
 		State *string `json:"state,omitempty"`
 	} `json:"address,omitempty"`
 
@@ -4923,6 +5187,21 @@ type MandateSourceWallet struct {
 // **Usable when** `approvedAt` is set, `canceledAt` is null, `revokedAt` is null, and `expiresAt` is null or in the future. Usability is derived from these timestamps, not from `status`: a failed revocation, for example, leaves `status` at `revocation_failed` but the mandate stays usable because the allowance was never removed. Authorization checks the durable conditions in order, and the first match wins: an in-flight approval or revocation returns `409` (`mandate_action_pending`); `revokedAt` set returns `422` (`mandate_revoked`); `canceledAt` set returns `422` (`mandate_canceled`); a past `expiresAt` returns `400` (`mandate_expired`); any other status returns `422` (`mandate_invalid_status`). Approve a mandate and get wallet approval options use that same order for the in-flight, revoked, canceled, and expired checks. Any other status except `created` or `approval_failed` returns `422` (`mandate_invalid_status`). Those rejections do not change the timestamps. Debit limits are enforced at authorization time.
 type MandateStatus string
 
+// MatchedPolicyRule The rule whose action decided the evaluation.
+type MatchedPolicyRule struct {
+	// Observations The value each criterion was compared against, index-aligned with `rule.criteria`: `observations[i]` belongs to `rule.criteria[i]` and has the same `type`. Either every criterion has an entry or the field is omitted. Empty when the rule has no criteria.
+	Observations *[]PolicyCriterionObservation `json:"observations,omitempty"`
+
+	// Policy A policy consulted during evaluation, at the version evaluated.
+	Policy EvaluatedPolicy `json:"policy"`
+
+	// Rule The full rule as defined at the evaluated policy version (`policy.updatedAt`).
+	Rule Rule `json:"rule"`
+
+	// RuleIndex Zero-based index into the policy's `rules`.
+	RuleIndex int `json:"ruleIndex"`
+}
+
 // Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
 type Metadata map[string]string
 
@@ -4943,6 +5222,15 @@ type MintAddressCriterionOperator string
 
 // MintAddressCriterionType The type of criterion to use. This should be `mintAddress`.
 type MintAddressCriterionType string
+
+// MintAddressObservation The token mints of the SPL token transfers a `mintAddress` criterion compared.
+type MintAddressObservation struct {
+	// Addresses The mint of each SPL token transfer, in instruction order. Empty when the transaction has none.
+	Addresses []string `json:"addresses"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // MorphoBlueMarketParams Morpho Blue's immutable onchain market parameters that uniquely define a borrow product.
 type MorphoBlueMarketParams struct {
@@ -5023,6 +5311,18 @@ type NetUSDChangeCriterionOperator string
 // NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
 type NetUSDChangeCriterionType string
 
+// NetUSDChangeObservation The simulated net USD change a `netUSDChange` criterion compared.
+type NetUSDChangeObservation struct {
+	// ChangeCents The net USD change, in cents, of the transaction's asset transfers and exposure, as simulated at evaluation time. Present exactly when `skipped` is `false`.
+	ChangeCents *int `json:"changeCents,omitempty"`
+
+	// Skipped Whether simulation was skipped because the operation targets a testnet. A skipped criterion is treated as met, as in the real operation, and `changeCents` is omitted.
+	Skipped bool `json:"skipped"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // Network The blockchain network for the payment. Supported networks depend on the account type.
 type Network string
 
@@ -5046,6 +5346,54 @@ type OAuth2Authentication struct {
 
 // OAuth2ProviderType The type of OAuth2 provider.
 type OAuth2ProviderType string
+
+// ObservedArgument A decoded function or instruction argument.
+type ObservedArgument struct {
+	// Name The argument name from the ABI or IDL. Empty when the ABI leaves it unnamed.
+	Name string `json:"name"`
+
+	// Truncated Whether `value` was cut to its first 256 characters.
+	Truncated bool `json:"truncated"`
+
+	// Type The argument type from the ABI or IDL.
+	Type string `json:"type"`
+
+	// Value The decoded value as text: integers in decimal base units, EVM addresses 0x-prefixed, Solana public keys in base58, bytes 0x-prefixed hex, booleans `true` or `false`, strings as-is, and arrays, tuples, and structs as compact JSON.
+	Value string `json:"value"`
+}
+
+// ObservedInstruction A Solana instruction as decoded by a `solData` criterion.
+type ObservedInstruction struct {
+	// Arguments The decoded arguments, in IDL order. Empty when `instruction` is omitted. Only the first 32 arguments are returned.
+	Arguments []ObservedArgument `json:"arguments"`
+
+	// Index Zero-based index of the instruction in the transaction.
+	Index int `json:"index"`
+
+	// Instruction The instruction name from the IDL. Omitted when no IDL in the criterion decodes the instruction.
+	Instruction *string `json:"instruction,omitempty"`
+
+	// ProgramId The program the instruction invokes.
+	ProgramId string `json:"programId"`
+}
+
+// ObservedMessageEncoding How `message` represents the matched bytes: `utf8` for the text itself, or `hex` for a 0x-prefixed hex string when the bytes are not valid UTF-8.
+type ObservedMessageEncoding = string
+
+// ObservedMessageText The message exactly as matched, including line breaks. When `encoding` is `hex`, the message bytes are not valid UTF-8 and are shown as a 0x-prefixed hex string instead.
+type ObservedMessageText = string
+
+// ObservedTypedDataField The value an `evmTypedDataField` condition read from the typed data message.
+type ObservedTypedDataField struct {
+	// ConditionIndex Zero-based index into the criterion's `conditions`.
+	ConditionIndex int `json:"conditionIndex"`
+
+	// Truncated Whether `value` was cut to its first 256 characters.
+	Truncated bool `json:"truncated"`
+
+	// Value The value at the condition's `path`, as text in the same format as `ObservedArgument.value`. Omitted when the message has no value at that path.
+	Value *string `json:"value,omitempty"`
+}
 
 // OnchainAddress The target of the payment is an onchain address.
 type OnchainAddress struct {
@@ -5307,6 +5655,9 @@ type OnrampOrder struct {
 	// OrderId The ID of the onramp order.
 	OrderId string `json:"orderId"`
 
+	// PartnerId The Onramp-issued identifier of the end partner this order was scoped to via the X-Onramp-Partner-Id header. Only present for orders created by an aggregator on behalf of a registered end partner.
+	PartnerId *string `json:"partnerId,omitempty"`
+
 	// PartnerUserRef The partner user reference ID.
 	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
 
@@ -5505,9 +5856,9 @@ type OnrampVerificationInitiation struct {
 	VerificationId OnrampVerificationId `json:"verificationId"`
 }
 
-// OperationCustomerDisplay Customer-facing display data for a payment operation, shown to the payer.
+// OperationCustomerDisplay Customer-facing display information for a payment operation.
 type OperationCustomerDisplay struct {
-	// ReferenceCode A short reference code for this payment operation, visible to the payer.
+	// ReferenceCode A short customer-facing reference code for this payment operation.
 	ReferenceCode *CustomerReferenceCode `json:"referenceCode,omitempty"`
 }
 
@@ -5836,8 +6187,49 @@ type Policy struct {
 // PolicyScope The scope of the policy. Only one project-level policy can exist at any time.
 type PolicyScope string
 
+// PolicyCriterion The unmet criterion, exactly as defined in the rule, discriminated by `type`.
+type PolicyCriterion struct {
+	union json.RawMessage
+}
+
+// PolicyCriterionObservation The value taken from the operation that a criterion was compared against, discriminated by the criterion's `type`. Amounts use the criterion's units: integer strings of base units (wei, lamports, or token atomic units) and USD in integer cents, so a unit mistake in a rule shows as a difference in magnitude. A field is omitted when the operation has no such value; each field says when that happens.
+// Values come only from the request, the prepared user operation it names, transaction simulation, and the rate-limit counters the criterion reads. These are never returned: signatures, raw transaction bytes, calldata or instruction data beyond the decoded selector, instruction and arguments, the operations or accounts that make up a rate-limit total, and simulation results other than the net USD change. A string longer than its `maxLength` is cut to its first `maxLength` characters and marked `truncated: true`.
+type PolicyCriterionObservation struct {
+	union json.RawMessage
+}
+
 // PolicyRules A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.
 type PolicyRules = []Rule
+
+// PolicySimulationResult The action the real operation would take and why. `matchedRule` is present exactly when `reason` is `rule_accepted` or `rule_rejected`.
+type PolicySimulationResult struct {
+	// Action Whether the real operation would be accepted or rejected.
+	Action string `json:"action"`
+
+	// EvaluatedPolicies Policies iterated, in order: the project policy, then the account policy. Evaluation stops at the policy containing `matchedRule`. End-user operations consult only the project policy.
+	EvaluatedPolicies []EvaluatedPolicy `json:"evaluatedPolicies"`
+
+	// EvaluatedUnit The unit this result describes. Present only when the operation was evaluated as more than one unit: one unit per call for user operations, and one unit per signing account for Solana transactions. Each unit is evaluated against the policies separately, and `matchedRule`, `unmatchedRules`, `evaluatedPolicies`, and every observed value describe this unit only. When `action` is `reject`, this is the first unit that was rejected. When `action` is `accept`, every unit was accepted and this is the last one.
+	EvaluatedUnit *EvaluatedUnit `json:"evaluatedUnit,omitempty"`
+
+	// MatchedRule The rule whose action decided the evaluation.
+	MatchedRule *MatchedPolicyRule `json:"matchedRule,omitempty"`
+
+	// Reason Why the operation got its `action`. Each value implies exactly one `action`.
+	// Within a policy, a matching `reject` rule overrides any matching `accept` rule, regardless of rule order.
+	// With `accept`: `rule_accepted` means `matchedRule` matched all of its criteria, its action is `accept`, and no `reject` rule in the same policy matched. `no_rule_for_operation` means no rule targeted the operation, so it was accepted by default.
+	// With `reject`: `rule_rejected` means `matchedRule` matched all of its criteria and its action is `reject`, so the rejection is caused by the entire rule. `no_rule_matched` means at least one rule targeted the operation but none matched, so it was rejected by default; `unmatchedRules` shows the criterion that disqualified each one.
+	Reason PolicySimulationResultReason `json:"reason"`
+
+	// UnmatchedRules Rules targeting the operation that were evaluated and did not match. Within a policy, `reject` rules are evaluated before `accept` rules, and evaluation stops at `matchedRule`. Rules that were not evaluated are omitted. When there is no `matchedRule`, every rule that targeted the operation appears here. Among matching rules with the same action, the first in policy order is `matchedRule`.
+	UnmatchedRules []UnmatchedPolicyRule `json:"unmatchedRules"`
+}
+
+// PolicySimulationResultReason Why the operation got its `action`. Each value implies exactly one `action`.
+// Within a policy, a matching `reject` rule overrides any matching `accept` rule, regardless of rule order.
+// With `accept`: `rule_accepted` means `matchedRule` matched all of its criteria, its action is `accept`, and no `reject` rule in the same policy matched. `no_rule_for_operation` means no rule targeted the operation, so it was accepted by default.
+// With `reject`: `rule_rejected` means `matchedRule` matched all of its criteria and its action is `reject`, so the rejection is caused by the entire rule. `no_rule_matched` means at least one rule targeted the operation but none matched, so it was rejected by default; `unmatchedRules` shows the criterion that disqualified each one.
+type PolicySimulationResultReason string
 
 // PositiveDecimal A positive decimal string without scientific notation or whitespace.
 type PositiveDecimal = string
@@ -5868,6 +6260,30 @@ type PrepareUserOperationRuleAction string
 // PrepareUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type PrepareUserOperationRuleOperation string
 
+// PrepareUserOperationSimulationInput defines model for PrepareUserOperationSimulationInput.
+type PrepareUserOperationSimulationInput struct {
+	// Address The Smart Account address.
+	Address string `json:"address"`
+
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// DataSuffix The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+	DataSuffix *string `json:"dataSuffix,omitempty"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+}
+
 // ProgramIdCriterion The criterion for the program IDs of a Solana transaction's instructions.
 type ProgramIdCriterion struct {
 	// Operator The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
@@ -5886,8 +6302,61 @@ type ProgramIdCriterionOperator string
 // ProgramIdCriterionType The type of criterion to use. This should be `programId`.
 type ProgramIdCriterionType string
 
+// ProgramIdObservation The instruction program IDs a `programId` criterion compared.
+type ProgramIdObservation struct {
+	// ProgramIds The program ID of each instruction, in instruction order.
+	ProgramIds []string `json:"programIds"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // ProjectId The ID of the Project, a UUID v4.
 type ProjectId = openapi_types.UUID
+
+// RateLimitCountUsage Operation counts for a `maxCount` criterion. The criterion is met when `windowCount + pendingCount + 1 <= maxCount` and unmet when the sum exceeds `maxCount`, where `1` is this operation.
+type RateLimitCountUsage struct {
+	// PendingCount Operations added by earlier units of this simulation request. They are not persisted. Always `0` when `evaluatedUnit` is absent.
+	PendingCount int `json:"pendingCount"`
+
+	// Type The usage type.
+	Type string `json:"type"`
+
+	// WindowCount Operations counted in the current `window`.
+	WindowCount int `json:"windowCount"`
+}
+
+// RateLimitUsage The usage totals the criterion compared, discriminated by `type`: `count` when the criterion sets `maxCount`, `value` when it sets `maxValueCents`.
+type RateLimitUsage struct {
+	union json.RawMessage
+}
+
+// RateLimitValueUsage USD totals, in cents, for a `maxValueCents` criterion. The criterion is met when `windowCents + pendingCents + operationCents <= maxValueCents` and unmet when the sum exceeds `maxValueCents`.
+type RateLimitValueUsage struct {
+	// OperationCents The absolute USD value, in cents, of this operation.
+	OperationCents int `json:"operationCents"`
+
+	// PendingCents USD value, in cents, added by earlier units of this simulation request. It is not persisted. Always `0` when `evaluatedUnit` is absent.
+	PendingCents int `json:"pendingCents"`
+
+	// Type The usage type.
+	Type string `json:"type"`
+
+	// WindowCents USD value, in cents, counted in the current `window`.
+	WindowCents int `json:"windowCents"`
+}
+
+// RateLimitingObservation The rate-limit usage a `rateLimiting` criterion compared, read without being consumed. The criterion is met when the projected usage stays within the limit and unmet when it exceeds the limit. Totals can change before a real call.
+type RateLimitingObservation struct {
+	// Scope Whose operations the counter totals. `project` counts operations of every account in the project, not only the account in the request. `end_user` counts operations of the end user in the request.
+	Scope string `json:"scope"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+
+	// Usage The usage totals the criterion compared, discriminated by `type`: `count` when the criterion sets `maxCount`, `value` when it sets `maxValueCents`.
+	Usage RateLimitUsage `json:"usage"`
+}
 
 // Refund A return of previously captured funds to the payer. Multiple partial refunds are allowed up to the total captured amount.
 type Refund struct {
@@ -6138,6 +6607,42 @@ type SendEndUserEvmAssetRuleAction string
 // SendEndUserEvmAssetRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEndUserEvmAssetRuleOperation string
 
+// SendEndUserEvmAssetSimulationInput defines model for SendEndUserEvmAssetSimulationInput.
+type SendEndUserEvmAssetSimulationInput struct {
+	// Address The EVM account address to send USDC from.
+	Address BlockchainAddress `json:"address"`
+
+	// Amount The amount of USDC to send as a decimal string (e.g. "1.5" or "25.50").
+	Amount string `json:"amount"`
+
+	// Asset The asset to send.
+	Asset Asset `json:"asset"`
+
+	// Network The EVM network to send USDC on.
+	Network SendEndUserEvmAssetSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Optional custom Paymaster URL for gas sponsorship on Smart Accounts. Cannot be used with useCdpPaymaster.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// To The 0x-prefixed address of the recipient.
+	To BlockchainAddress `json:"to"`
+
+	// UseCdpPaymaster Whether to use CDP Paymaster for gas sponsorship on Smart Accounts. Ignored for EOAs; cannot be used with paymasterUrl.
+	UseCdpPaymaster *bool `json:"useCdpPaymaster,omitempty"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
+// SendEndUserEvmAssetSimulationInputNetwork The EVM network to send USDC on.
+type SendEndUserEvmAssetSimulationInputNetwork string
+
 // SendEndUserEvmTransactionCriteria A schema for specifying criteria for the sendEndUserEvmTransaction operation.
 type SendEndUserEvmTransactionCriteria = []SendEndUserEvmTransactionCriteria_Item
 
@@ -6163,6 +6668,27 @@ type SendEndUserEvmTransactionRuleAction string
 
 // SendEndUserEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEndUserEvmTransactionRuleOperation string
+
+// SendEndUserEvmTransactionSimulationInput defines model for SendEndUserEvmTransactionSimulationInput.
+type SendEndUserEvmTransactionSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Network The network to send the transaction to.
+	Network SendEndUserEvmTransactionSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The RLP-encoded transaction to evaluate, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
+// SendEndUserEvmTransactionSimulationInputNetwork The network to send the transaction to.
+type SendEndUserEvmTransactionSimulationInputNetwork string
 
 // SendEndUserOperationCriteria A schema for specifying criteria for the sendEndUserOperation operation.
 type SendEndUserOperationCriteria = []SendEndUserOperationCriteria_Item
@@ -6190,6 +6716,36 @@ type SendEndUserOperationRuleAction string
 // SendEndUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEndUserOperationRuleOperation string
 
+// SendEndUserOperationSimulationInput defines model for SendEndUserOperationSimulationInput.
+type SendEndUserOperationSimulationInput struct {
+	// Address The Smart Account address.
+	Address string `json:"address"`
+
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// DataSuffix The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+	DataSuffix *string `json:"dataSuffix,omitempty"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation. If using the CDP Paymaster, use the useCdpPaymaster option.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+
+	// UseCdpPaymaster Whether to use the CDP Paymaster for the user operation.
+	UseCdpPaymaster bool `json:"useCdpPaymaster"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
 // SendEndUserSolAssetCriteria A schema for specifying criteria for the sendEndUserSolAsset operation.
 type SendEndUserSolAssetCriteria = []SendEndUserSolAssetCriteria_Item
 
@@ -6215,6 +6771,39 @@ type SendEndUserSolAssetRuleAction string
 
 // SendEndUserSolAssetRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEndUserSolAssetRuleOperation string
+
+// SendEndUserSolAssetSimulationInput defines model for SendEndUserSolAssetSimulationInput.
+type SendEndUserSolAssetSimulationInput struct {
+	// Address The Solana account address to send USDC from.
+	Address BlockchainAddress `json:"address"`
+
+	// Amount The amount of USDC to send as a decimal string (e.g. "1.5" or "25.50").
+	Amount string `json:"amount"`
+
+	// Asset The asset to send.
+	Asset Asset `json:"asset"`
+
+	// CreateRecipientAta Whether to automatically create an Associated Token Account (ATA) for the recipient if it doesn't exist. When true, the sender pays the rent-exempt minimum to create the recipient's USDC ATA. When false, the transaction will fail if the recipient doesn't have a USDC ATA.
+	CreateRecipientAta *bool `json:"createRecipientAta,omitempty"`
+
+	// Network The Solana network to send USDC on.
+	Network SendEndUserSolAssetSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// To The base58 encoded address of the recipient.
+	To BlockchainAddress `json:"to"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
+// SendEndUserSolAssetSimulationInputNetwork The Solana network to send USDC on.
+type SendEndUserSolAssetSimulationInputNetwork string
 
 // SendEndUserSolTransactionCriteria A schema for specifying criteria for the sendEndUserSolTransaction operation.
 type SendEndUserSolTransactionCriteria = []SendEndUserSolTransactionCriteria_Item
@@ -6242,6 +6831,30 @@ type SendEndUserSolTransactionRuleAction string
 // SendEndUserSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEndUserSolTransactionRuleOperation string
 
+// SendEndUserSolTransactionSimulationInput defines model for SendEndUserSolTransactionSimulationInput.
+type SendEndUserSolTransactionSimulationInput struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Network The Solana network to send the transaction to.
+	Network SendEndUserSolTransactionSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The base64 encoded transaction to evaluate. This transaction can contain multiple instructions for native Solana batching.
+	Transaction string `json:"transaction"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the end user. When false, the end user is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
+// SendEndUserSolTransactionSimulationInputNetwork The Solana network to send the transaction to.
+type SendEndUserSolTransactionSimulationInputNetwork string
+
 // SendEvmTransactionCriteria A schema for specifying criteria for the SignEvmTransaction operation.
 type SendEvmTransactionCriteria = []SendEvmTransactionCriteria_Item
 
@@ -6267,6 +6880,24 @@ type SendEvmTransactionRuleAction string
 
 // SendEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEvmTransactionRuleOperation string
+
+// SendEvmTransactionSimulationInput defines model for SendEvmTransactionSimulationInput.
+type SendEvmTransactionSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account.
+	Address string `json:"address"`
+
+	// Network The network to send the transaction to.
+	Network SendEvmTransactionSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The RLP-encoded transaction to evaluate, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+}
+
+// SendEvmTransactionSimulationInputNetwork The network to send the transaction to.
+type SendEvmTransactionSimulationInputNetwork string
 
 // SendSolTransactionCriteria A schema for specifying criteria for the SendSolTransaction operation.
 type SendSolTransactionCriteria = []SendSolTransactionCriteria_Item
@@ -6294,6 +6925,24 @@ type SendSolTransactionRuleAction string
 // SendSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendSolTransactionRuleOperation string
 
+// SendSolTransactionSimulationInput defines model for SendSolTransactionSimulationInput.
+type SendSolTransactionSimulationInput struct {
+	// Network The Solana network to send the transaction to.
+	Network SendSolTransactionSimulationInputNetwork `json:"network"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The base64 encoded transaction to evaluate. This transaction can contain multiple instructions for native Solana batching.
+	Transaction string `json:"transaction"`
+
+	// UseCdpSponsor Whether transaction fees should be sponsored by CDP. When true, CDP sponsors the transaction fees on behalf of the server wallet. When false, the server wallet is responsible for paying the transaction fees.
+	UseCdpSponsor *bool `json:"useCdpSponsor,omitempty"`
+}
+
+// SendSolTransactionSimulationInputNetwork The Solana network to send the transaction to.
+type SendSolTransactionSimulationInputNetwork string
+
 // SendUserOperationCriteria A schema for specifying criteria for the SendUserOperation operation.
 type SendUserOperationCriteria = []SendUserOperationCriteria_Item
 
@@ -6319,6 +6968,18 @@ type SendUserOperationRuleAction string
 
 // SendUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendUserOperationRuleOperation string
+
+// SendUserOperationSimulationInput defines model for SendUserOperationSimulationInput.
+type SendUserOperationSimulationInput struct {
+	// Address The Smart Account address.
+	Address string `json:"address"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// UserOpHash The hash of the prepared user operation.
+	UserOpHash string `json:"userOpHash"`
+}
 
 // SepaDetails Details specific to SEPA (Single Euro Payments Area) payment methods.
 type SepaDetails struct {
@@ -6374,6 +7035,21 @@ type SignEndUserEvmHashRuleAction string
 // SignEndUserEvmHashRuleOperation The operation to which the rule applies.
 type SignEndUserEvmHashRuleOperation string
 
+// SignEndUserEvmHashSimulationInput defines model for SignEndUserEvmHashSimulationInput.
+type SignEndUserEvmHashSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Hash The arbitrary 32 byte hash to evaluate.
+	Hash string `json:"hash"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
 // SignEndUserEvmMessageCriteria A schema for specifying criteria for the signEndUserEvmMessage operation.
 type SignEndUserEvmMessageCriteria = []SignEndUserEvmMessageCriteria_Item
 
@@ -6399,6 +7075,21 @@ type SignEndUserEvmMessageRuleAction string
 
 // SignEndUserEvmMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEndUserEvmMessageRuleOperation string
+
+// SignEndUserEvmMessageSimulationInput defines model for SignEndUserEvmMessageSimulationInput.
+type SignEndUserEvmMessageSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Message The message to evaluate.
+	Message string `json:"message"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
 
 // SignEndUserEvmTransactionCriteria A schema for specifying criteria for the signEndUserEvmTransaction operation.
 type SignEndUserEvmTransactionCriteria = []SignEndUserEvmTransactionCriteria_Item
@@ -6426,6 +7117,21 @@ type SignEndUserEvmTransactionRuleAction string
 // SignEndUserEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEndUserEvmTransactionRuleOperation string
 
+// SignEndUserEvmTransactionSimulationInput defines model for SignEndUserEvmTransactionSimulationInput.
+type SignEndUserEvmTransactionSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The RLP-encoded transaction to evaluate, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
 // SignEndUserEvmTypedDataCriteria A schema for specifying criteria for the signEndUserEvmTypedData operation.
 type SignEndUserEvmTypedDataCriteria = []SignEndUserEvmTypedDataCriteria_Item
 
@@ -6451,6 +7157,21 @@ type SignEndUserEvmTypedDataRuleAction string
 
 // SignEndUserEvmTypedDataRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEndUserEvmTypedDataRuleOperation string
+
+// SignEndUserEvmTypedDataSimulationInput defines model for SignEndUserEvmTypedDataSimulationInput.
+type SignEndUserEvmTypedDataSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account belonging to the end user.
+	Address string `json:"address"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// TypedData The message to sign using EIP-712.
+	TypedData EIP712Message `json:"typedData"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
 
 // SignEndUserSolMessageCriteria A schema for specifying criteria for the signEndUserSolMessage operation.
 type SignEndUserSolMessageCriteria = []SignEndUserSolMessageCriteria_Item
@@ -6478,6 +7199,21 @@ type SignEndUserSolMessageRuleAction string
 // SignEndUserSolMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEndUserSolMessageRuleOperation string
 
+// SignEndUserSolMessageSimulationInput defines model for SignEndUserSolMessageSimulationInput.
+type SignEndUserSolMessageSimulationInput struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Message The base64 encoded arbitrary message to evaluate.
+	Message string `json:"message"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
 // SignEndUserSolTransactionCriteria A schema for specifying criteria for the signEndUserSolTransaction operation.
 type SignEndUserSolTransactionCriteria = []SignEndUserSolTransactionCriteria_Item
 
@@ -6504,6 +7240,27 @@ type SignEndUserSolTransactionRuleAction string
 // SignEndUserSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEndUserSolTransactionRuleOperation string
 
+// SignEndUserSolTransactionSimulationInput defines model for SignEndUserSolTransactionSimulationInput.
+type SignEndUserSolTransactionSimulationInput struct {
+	// Address The base58 encoded address of the Solana account belonging to the end user.
+	Address string `json:"address"`
+
+	// Network The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+	Network *SignEndUserSolTransactionSimulationInputNetwork `json:"network,omitempty"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The base64 encoded transaction to evaluate.
+	Transaction string `json:"transaction"`
+
+	// UserId The ID of the end user.
+	UserId string `json:"userId"`
+}
+
+// SignEndUserSolTransactionSimulationInputNetwork The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+type SignEndUserSolTransactionSimulationInputNetwork string
+
 // SignEvmHashRule defines model for SignEvmHashRule.
 type SignEvmHashRule struct {
 	// Action Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
@@ -6518,6 +7275,18 @@ type SignEvmHashRuleAction string
 
 // SignEvmHashRuleOperation The operation to which the rule applies.
 type SignEvmHashRuleOperation string
+
+// SignEvmHashSimulationInput defines model for SignEvmHashSimulationInput.
+type SignEvmHashSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account.
+	Address string `json:"address"`
+
+	// Hash The arbitrary 32 byte hash to evaluate.
+	Hash string `json:"hash"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+}
 
 // SignEvmMessageCriteria A schema for specifying the rejection criteria for the SignEvmMessage operation.
 type SignEvmMessageCriteria = []SignEvmMessageCriteria_Item
@@ -6545,6 +7314,18 @@ type SignEvmMessageRuleAction string
 // SignEvmMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEvmMessageRuleOperation string
 
+// SignEvmMessageSimulationInput defines model for SignEvmMessageSimulationInput.
+type SignEvmMessageSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account.
+	Address string `json:"address"`
+
+	// Message The message to evaluate.
+	Message string `json:"message"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+}
+
 // SignEvmTransactionCriteria A schema for specifying criteria for the SignEvmTransaction operation.
 type SignEvmTransactionCriteria = []SignEvmTransactionCriteria_Item
 
@@ -6570,6 +7351,18 @@ type SignEvmTransactionRuleAction string
 
 // SignEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEvmTransactionRuleOperation string
+
+// SignEvmTransactionSimulationInput defines model for SignEvmTransactionSimulationInput.
+type SignEvmTransactionSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account.
+	Address string `json:"address"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The RLP-encoded transaction to evaluate, as a 0x-prefixed hex string.
+	Transaction string `json:"transaction"`
+}
 
 // SignEvmTypedDataCriteria A schema for specifying criteria for the SignEvmTypedData operation.
 type SignEvmTypedDataCriteria = []SignEvmTypedDataCriteria_Item
@@ -6629,6 +7422,28 @@ type SignEvmTypedDataRuleAction string
 // SignEvmTypedDataRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignEvmTypedDataRuleOperation string
 
+// SignEvmTypedDataSimulationInput defines model for SignEvmTypedDataSimulationInput.
+type SignEvmTypedDataSimulationInput struct {
+	// Address The 0x-prefixed address of the EVM account.
+	Address string `json:"address"`
+
+	// Domain The domain of the EIP-712 typed data.
+	Domain EIP712Domain `json:"domain"`
+
+	// Message The message to evaluate. The structure of this message must match the `primaryType` struct in the `types` object.
+	Message map[string]interface{} `json:"message"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// PrimaryType The primary type of the message. This is the name of the struct in the `types` object that is the root of the message.
+	PrimaryType string `json:"primaryType"`
+
+	// Types A mapping of struct names to an array of type objects (name + type).
+	// Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+	Types EIP712Types `json:"types"`
+}
+
 // SignEvmTypedDataVerifyingContractCriterion A schema for specifying criterion for a domain's verifying contract.
 type SignEvmTypedDataVerifyingContractCriterion struct {
 	// Addresses A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.
@@ -6673,6 +7488,21 @@ type SignSolMessageRuleAction string
 // SignSolMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignSolMessageRuleOperation string
 
+// SignSolMessageSimulationInput defines model for SignSolMessageSimulationInput.
+type SignSolMessageSimulationInput struct {
+	// Address The base58 encoded address of the Solana account.
+	Address string `json:"address"`
+
+	// Encoding The encoding of the message. Use `utf8` to evaluate the literal UTF-8 bytes of the message, or `base64` to decode an RFC 4648 standard Base64 string before evaluating. Base64 input must use the standard `+` and `/` alphabet with `=` padding where required. If omitted, the message is interpreted as UTF-8.
+	Encoding *string `json:"encoding,omitempty"`
+
+	// Message The arbitrary message to evaluate.
+	Message string `json:"message"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+}
+
 // SignSolTransactionCriteria A schema for specifying criteria for the SignSolTransaction operation.
 type SignSolTransactionCriteria = []SignSolTransactionCriteria_Item
 
@@ -6698,6 +7528,29 @@ type SignSolTransactionRuleAction string
 
 // SignSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignSolTransactionRuleOperation string
+
+// SignSolTransactionSimulationInput defines model for SignSolTransactionSimulationInput.
+type SignSolTransactionSimulationInput struct {
+	// Address The base58 encoded address of the Solana account.
+	Address string `json:"address"`
+
+	// Network The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+	Network *SignSolTransactionSimulationInputNetwork `json:"network,omitempty"`
+
+	// Operation Rule operation to simulate.
+	Operation string `json:"operation"`
+
+	// Transaction The base64 encoded transaction to evaluate.
+	Transaction string `json:"transaction"`
+}
+
+// SignSolTransactionSimulationInputNetwork The Solana network the transaction targets. Required when using versioned transactions that reference address lookup tables, since resolving those tables requires querying a specific network. Optional otherwise.
+type SignSolTransactionSimulationInputNetwork string
+
+// SimulatePoliciesRequest Inputs for one operation, without signing credentials. `operation` is the policy rule operation name (for example `signSolTransaction`), not the HTTP operation ID (`signSolanaTransaction`).
+type SimulatePoliciesRequest struct {
+	union json.RawMessage
+}
 
 // SiweAuthentication Information about an end user who authenticates using Sign In With Ethereum (EIP-4361).
 type SiweAuthentication struct {
@@ -6741,6 +7594,15 @@ type SolAddressCriterionOperator string
 // SolAddressCriterionType The type of criterion to use. This should be `solAddress`.
 type SolAddressCriterionType string
 
+// SolAddressObservation The native SOL transfer recipients a `solAddress` criterion compared.
+type SolAddressObservation struct {
+	// Addresses The recipient of each System Program transfer, in instruction order. Empty when the transaction has none.
+	Addresses []string `json:"addresses"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // SolDataCondition A single condition to apply against a specific instruction type and its parameters.
 type SolDataCondition struct {
 	// Instruction The instruction name.
@@ -6774,6 +7636,18 @@ type SolDataCriterion_Idls_Item struct {
 
 // SolDataCriterionType The type of criterion to use. This should be `solData`.
 type SolDataCriterionType string
+
+// SolDataObservation The instructions a `solData` criterion decoded with the criterion's `idls`. The criterion is met when every instruction matches at least one of its `conditions`.
+type SolDataObservation struct {
+	// Instructions The instructions that decided the criterion. When the criterion is unmet, this is the first instruction that matched no condition, only. When it is met, this is every instruction, in transaction order.
+	Instructions []ObservedInstruction `json:"instructions"`
+
+	// Truncated Whether `instructions` was cut to its first 64 entries.
+	Truncated bool `json:"truncated"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // SolDataParameterCondition A single parameter condition to apply against a specific instruction's parameters.
 type SolDataParameterCondition struct {
@@ -6817,6 +7691,21 @@ type SolMessageCriterion struct {
 // SolMessageCriterionType The type of criterion to use. This should be `solMessage`.
 type SolMessageCriterionType string
 
+// SolMessageObservation The message a `solMessage` criterion matched its `match` expression against, after decoding the request's base64 `message` when its `encoding` is `base64`.
+type SolMessageObservation struct {
+	// Encoding How `message` represents the matched bytes: `utf8` for the text itself, or `hex` for a 0x-prefixed hex string when the bytes are not valid UTF-8.
+	Encoding ObservedMessageEncoding `json:"encoding"`
+
+	// Message The message exactly as matched, including line breaks. When `encoding` is `hex`, the message bytes are not valid UTF-8 and are shown as a 0x-prefixed hex string instead.
+	Message ObservedMessageText `json:"message"`
+
+	// Truncated Whether `message` was cut to its first 2048 characters. The expression was matched against the whole message.
+	Truncated bool `json:"truncated"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // SolNetworkCriterion The criterion for the Solana network of a transaction.
 type SolNetworkCriterion struct {
 	// Networks The Solana networks that the transaction's intended network should be compared to.
@@ -6838,6 +7727,15 @@ type SolNetworkCriterionOperator string
 // SolNetworkCriterionType The type of criterion to use. This should be `solNetwork`.
 type SolNetworkCriterionType string
 
+// SolNetworkObservation The network a `solNetwork` criterion compared.
+type SolNetworkObservation struct {
+	// Network The request's `network`. Omitted when the request has none, which no `networks` value matches.
+	Network *string `json:"network,omitempty"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // SolValueCriterion The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
 type SolValueCriterion struct {
 	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
@@ -6855,6 +7753,15 @@ type SolValueCriterionOperator string
 
 // SolValueCriterionType The type of criterion to use. This should be `solValue`.
 type SolValueCriterionType string
+
+// SolValueObservation The native SOL transfer amounts a `solValue` criterion compared.
+type SolValueObservation struct {
+	// SolValues The amount of each System Program transfer, in lamports, in instruction order. Empty when the transaction has none.
+	SolValues []string `json:"solValues"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // SolanaAccount defines model for SolanaAccount.
 type SolanaAccount struct {
@@ -7022,6 +7929,15 @@ type SplAddressCriterionOperator string
 // SplAddressCriterionType The type of criterion to use. This should be `splAddress`.
 type SplAddressCriterionType string
 
+// SplAddressObservation The SPL token transfer recipients an `splAddress` criterion compared. For a raw transaction these are the recipients' token accounts (usually associated token accounts), not their wallet addresses. For `sendEndUserSolAsset` they are wallet addresses.
+type SplAddressObservation struct {
+	// Addresses The recipient of each SPL token transfer, in instruction order. Empty when the transaction has none.
+	Addresses []string `json:"addresses"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
+
 // SplValueCriterion The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
 type SplValueCriterion struct {
 	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
@@ -7039,6 +7955,15 @@ type SplValueCriterionOperator string
 
 // SplValueCriterionType The type of criterion to use. This should be `splValue`.
 type SplValueCriterionType string
+
+// SplValueObservation The SPL token transfer amounts an `splValue` criterion compared.
+type SplValueObservation struct {
+	// SplValues The amount of each `TransferChecked` instruction, in the token's atomic units (not scaled by decimals), in instruction order. Empty when the transaction has none.
+	SplValues []string `json:"splValues"`
+
+	// Type The criterion type.
+	Type string `json:"type"`
+}
 
 // SubmitOnrampVerificationRequest Request body for submitting an OTP code to complete an onramp verification.
 type SubmitOnrampVerificationRequest struct {
@@ -7238,6 +8163,57 @@ type TokenFee struct {
 	// Token The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
 	Token string `json:"token"`
 }
+
+// TopUpCustomerDisplay Display details resolved at creation and stored on the immutable Top-Up Link. These details are returned in the create response and creation webhook.
+type TopUpCustomerDisplay struct {
+	// MerchantName The stored merchant name displayed on the hosted Top-Up page. This is the supplied name with surrounding whitespace removed, or the entity's profile name when no nonempty override was supplied. The stored name does not change when the entity's profile changes. The supplied-name length limit does not constrain the profile-name fallback.
+	MerchantName string `json:"merchantName"`
+}
+
+// TopUpCustomerDisplayInput Display details supplied for the hosted Top-Up page. Only the merchant name is supported. Unrecognized fields are allowed and ignored.
+type TopUpCustomerDisplayInput struct {
+	// MerchantName The merchant name to display on the hosted Top-Up page. The limit counts Unicode code points in the supplied value, including surrounding whitespace. Surrounding whitespace is removed before storage. When omitted or empty after trimming, the entity's profile name is used.
+	MerchantName *string `json:"merchantName,omitempty"`
+}
+
+// TopUpLink A shareable link that lets a payer add funds to their balance through a hosted Top-Up flow. The resource is immutable once created. The link expires 24 hours after creation and funds a single purchase: once a purchase succeeds, the link is spent and cannot be used again. A purchase that fails does not consume the link, so the payer can retry until it expires. A link is not bound to a specific payer. `orderTotalAmount` and `redirectUrl` are omitted from the response when they were not supplied at creation; they are never returned as null. `customerDisplay` contains the resolved merchant name stored at creation, including the entity's profile name when no nonempty override was supplied. The response and creation webhook always include `customerDisplay` and its `merchantName`.
+type TopUpLink struct {
+	// Asset The asset credited by the Top-Up Link. Currently, only `usdc` is supported.
+	Asset TopUpLinkAsset `json:"asset"`
+
+	// CreatedAt The UTC ISO 8601 timestamp at which the Top-Up Link was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// CustomerDisplay Display details resolved at creation and stored on the immutable Top-Up Link. These details are returned in the create response and creation webhook.
+	CustomerDisplay TopUpCustomerDisplay `json:"customerDisplay"`
+
+	// ExpiresAt The UTC ISO 8601 timestamp after which the link can no longer be used, 24 hours after creation. A link that has already funded a purchase is spent before this time.
+	ExpiresAt time.Time `json:"expiresAt"`
+
+	// OrderTotalAmount The total balance, denominated in `asset`, that the merchant expects the payer to need to complete the order, as supplied at creation. When present, the hosted Top-Up page shows the order total and the payer's current available balance, and computes the remaining shortfall from those values. This live shortfall is separate from `topUpAmount` and does not replace or change that fixed suggestion. It does not limit the amount the payer can add. Omitted when not supplied at creation.
+	OrderTotalAmount *TopUpLinkAmount `json:"orderTotalAmount,omitempty"`
+
+	// RedirectUrl The absolute HTTPS URL to which the payer is redirected after the top-up completes, as supplied at creation. Omitted when not supplied at creation. This value can contain sensitive merchant parameters; treat it as secret and do not log it.
+	RedirectUrl *HttpsUrl `json:"redirectUrl,omitempty"`
+
+	// TopUpAmount The merchant-provided initial suggested net amount to add for the link's single purchase, denominated in `asset`. The suggestion remains fixed on the link and is not recomputed from `orderTotalAmount` or the payer's current available balance. The payer can adjust the amount they add in the hosted flow. Fiat fees are outside this value.
+	TopUpAmount TopUpLinkAmount `json:"topUpAmount"`
+
+	// TopUpLinkId The ID of the Top-Up Link, a UUID prefixed by `topUpLink_`.
+	TopUpLinkId TopUpLinkId `json:"topUpLinkId"`
+
+	// TopUpUrl The hosted Top-Up page URL. Share this URL only with the intended payer. The URL identifies the Top-Up Link but does not authorize a purchase; the payer must authenticate and approve the purchase.
+	TopUpUrl HttpsUrl `json:"topUpUrl"`
+}
+
+// TopUpLinkAmount defines model for TopUpLinkAmount.
+type TopUpLinkAmount = string
+
+// TopUpLinkAsset defines model for TopUpLinkAsset.
+type TopUpLinkAsset string
+
+// TopUpLinkId The ID of the Top-Up Link, a UUID prefixed by `topUpLink_`.
+type TopUpLinkId = string
 
 // TosAcceptance A single Terms of Service acceptance recorded for a Customer. Submit
 // one entry per required document listed in
@@ -7594,6 +8570,25 @@ type TravelRuleParty struct {
 
 // TravelRuleStatus The status of a travel rule submission.
 type TravelRuleStatus string
+
+// UnmatchedPolicyRule A rule that targeted the operation but did not match. Criteria are evaluated in order and evaluation stops at the first unmet one, so later criteria were not evaluated. `observed` is present when the service captured the value `criterion` was compared against.
+type UnmatchedPolicyRule struct {
+	// Criterion The unmet criterion, exactly as defined in the rule, discriminated by `type`.
+	Criterion PolicyCriterion `json:"criterion"`
+
+	// CriterionIndex Zero-based index into the rule's `criteria` of the first unmet criterion.
+	CriterionIndex int `json:"criterionIndex"`
+
+	// Observed The value taken from the operation that a criterion was compared against, discriminated by the criterion's `type`. Amounts use the criterion's units: integer strings of base units (wei, lamports, or token atomic units) and USD in integer cents, so a unit mistake in a rule shows as a difference in magnitude. A field is omitted when the operation has no such value; each field says when that happens.
+	// Values come only from the request, the prepared user operation it names, transaction simulation, and the rate-limit counters the criterion reads. These are never returned: signatures, raw transaction bytes, calldata or instruction data beyond the decoded selector, instruction and arguments, the operations or accounts that make up a rate-limit total, and simulation results other than the net USD change. A string longer than its `maxLength` is cut to its first `maxLength` characters and marked `truncated: true`.
+	Observed *PolicyCriterionObservation `json:"observed,omitempty"`
+
+	// Policy A policy consulted during evaluation, at the version evaluated.
+	Policy EvaluatedPolicy `json:"policy"`
+
+	// RuleIndex Zero-based index into the policy's `rules`.
+	RuleIndex int `json:"ruleIndex"`
+}
 
 // UpdateCustomerRequest Fields accepted on customer create and update requests. Shared by
 // `CreateCustomerRequest` and `UpdateCustomerRequest`; excludes the
@@ -8062,7 +9057,7 @@ type WebhookTarget struct {
 // X402V1Network The x402 v1 network identifier. x402 v1 uses human-readable network names. Supported networks: Base mainnet and testnet, Solana mainnet and devnet.
 type X402V1Network string
 
-// X402V2Network The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), and Solana.
+// X402V2Network The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), Monad (EVM), and Solana.
 type X402V2Network string
 
 // X402Version The version of the x402 protocol.
@@ -11219,6 +12214,14 @@ type ListSolanaTokenBalancesParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// CreateTopUpLinkParams defines parameters for CreateTopUpLink.
+type CreateTopUpLinkParams struct {
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // ListTransfersParams defines parameters for ListTransfers.
 type ListTransfersParams struct {
 	// Status Filter transfers by status. Useful for building dashboards, monitoring active transfers, or finding transfers needing action.
@@ -11614,6 +12617,9 @@ type CreatePolicyJSONRequestBody CreatePolicyJSONBody
 // UpdatePolicyJSONRequestBody defines body for UpdatePolicy for application/json ContentType.
 type UpdatePolicyJSONRequestBody UpdatePolicyJSONBody
 
+// SimulatePoliciesJSONRequestBody defines body for SimulatePolicies for application/json ContentType.
+type SimulatePoliciesJSONRequestBody = SimulatePoliciesRequest
+
 // CreateSolanaAccountJSONRequestBody defines body for CreateSolanaAccount for application/json ContentType.
 type CreateSolanaAccountJSONRequestBody CreateSolanaAccountJSONBody
 
@@ -11640,6 +12646,9 @@ type SignSolanaTransactionJSONRequestBody SignSolanaTransactionJSONBody
 
 // RequestSolanaFaucetJSONRequestBody defines body for RequestSolanaFaucet for application/json ContentType.
 type RequestSolanaFaucetJSONRequestBody RequestSolanaFaucetJSONBody
+
+// CreateTopUpLinkJSONRequestBody defines body for CreateTopUpLink for application/json ContentType.
+type CreateTopUpLinkJSONRequestBody = CreateTopUpLinkRequest
 
 // CreateTransferJSONRequestBody defines body for CreateTransfer for application/json ContentType.
 type CreateTransferJSONRequestBody = TransferRequest
@@ -13327,6 +14336,1114 @@ func (t *PaymentSessionTarget) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsEthValueCriterion returns the union data inside the PolicyCriterion as a EthValueCriterion
+func (t PolicyCriterion) AsEthValueCriterion() (EthValueCriterion, error) {
+	var body EthValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueCriterion overwrites any union data inside the PolicyCriterion as the provided EthValueCriterion
+func (t *PolicyCriterion) FromEthValueCriterion(v EthValueCriterion) error {
+	v.Type = "ethValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueCriterion performs a merge with any union data inside the PolicyCriterion, using the provided EthValueCriterion
+func (t *PolicyCriterion) MergeEthValueCriterion(v EthValueCriterion) error {
+	v.Type = "ethValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressCriterion returns the union data inside the PolicyCriterion as a EvmAddressCriterion
+func (t PolicyCriterion) AsEvmAddressCriterion() (EvmAddressCriterion, error) {
+	var body EvmAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressCriterion overwrites any union data inside the PolicyCriterion as the provided EvmAddressCriterion
+func (t *PolicyCriterion) FromEvmAddressCriterion(v EvmAddressCriterion) error {
+	v.Type = "evmAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressCriterion performs a merge with any union data inside the PolicyCriterion, using the provided EvmAddressCriterion
+func (t *PolicyCriterion) MergeEvmAddressCriterion(v EvmAddressCriterion) error {
+	v.Type = "evmAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmNetworkCriterion returns the union data inside the PolicyCriterion as a EvmNetworkCriterion
+func (t PolicyCriterion) AsEvmNetworkCriterion() (EvmNetworkCriterion, error) {
+	var body EvmNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmNetworkCriterion overwrites any union data inside the PolicyCriterion as the provided EvmNetworkCriterion
+func (t *PolicyCriterion) FromEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	v.Type = "evmNetwork"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmNetworkCriterion performs a merge with any union data inside the PolicyCriterion, using the provided EvmNetworkCriterion
+func (t *PolicyCriterion) MergeEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	v.Type = "evmNetwork"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataCriterion returns the union data inside the PolicyCriterion as a EvmDataCriterion
+func (t PolicyCriterion) AsEvmDataCriterion() (EvmDataCriterion, error) {
+	var body EvmDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataCriterion overwrites any union data inside the PolicyCriterion as the provided EvmDataCriterion
+func (t *PolicyCriterion) FromEvmDataCriterion(v EvmDataCriterion) error {
+	v.Type = "evmData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataCriterion performs a merge with any union data inside the PolicyCriterion, using the provided EvmDataCriterion
+func (t *PolicyCriterion) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	v.Type = "evmData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmMessageCriterion returns the union data inside the PolicyCriterion as a EvmMessageCriterion
+func (t PolicyCriterion) AsEvmMessageCriterion() (EvmMessageCriterion, error) {
+	var body EvmMessageCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmMessageCriterion overwrites any union data inside the PolicyCriterion as the provided EvmMessageCriterion
+func (t *PolicyCriterion) FromEvmMessageCriterion(v EvmMessageCriterion) error {
+	v.Type = "evmMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmMessageCriterion performs a merge with any union data inside the PolicyCriterion, using the provided EvmMessageCriterion
+func (t *PolicyCriterion) MergeEvmMessageCriterion(v EvmMessageCriterion) error {
+	v.Type = "evmMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmTypedDataFieldCriterion returns the union data inside the PolicyCriterion as a SignEvmTypedDataFieldCriterion
+func (t PolicyCriterion) AsSignEvmTypedDataFieldCriterion() (SignEvmTypedDataFieldCriterion, error) {
+	var body SignEvmTypedDataFieldCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTypedDataFieldCriterion overwrites any union data inside the PolicyCriterion as the provided SignEvmTypedDataFieldCriterion
+func (t *PolicyCriterion) FromSignEvmTypedDataFieldCriterion(v SignEvmTypedDataFieldCriterion) error {
+	v.Type = "evmTypedDataField"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTypedDataFieldCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SignEvmTypedDataFieldCriterion
+func (t *PolicyCriterion) MergeSignEvmTypedDataFieldCriterion(v SignEvmTypedDataFieldCriterion) error {
+	v.Type = "evmTypedDataField"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmTypedDataVerifyingContractCriterion returns the union data inside the PolicyCriterion as a SignEvmTypedDataVerifyingContractCriterion
+func (t PolicyCriterion) AsSignEvmTypedDataVerifyingContractCriterion() (SignEvmTypedDataVerifyingContractCriterion, error) {
+	var body SignEvmTypedDataVerifyingContractCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTypedDataVerifyingContractCriterion overwrites any union data inside the PolicyCriterion as the provided SignEvmTypedDataVerifyingContractCriterion
+func (t *PolicyCriterion) FromSignEvmTypedDataVerifyingContractCriterion(v SignEvmTypedDataVerifyingContractCriterion) error {
+	v.Type = "evmTypedDataVerifyingContract"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTypedDataVerifyingContractCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SignEvmTypedDataVerifyingContractCriterion
+func (t *PolicyCriterion) MergeSignEvmTypedDataVerifyingContractCriterion(v SignEvmTypedDataVerifyingContractCriterion) error {
+	v.Type = "evmTypedDataVerifyingContract"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeCriterion returns the union data inside the PolicyCriterion as a NetUSDChangeCriterion
+func (t PolicyCriterion) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the PolicyCriterion as the provided NetUSDChangeCriterion
+func (t *PolicyCriterion) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	v.Type = "netUSDChange"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the PolicyCriterion, using the provided NetUSDChangeCriterion
+func (t *PolicyCriterion) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	v.Type = "netUSDChange"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolAddressCriterion returns the union data inside the PolicyCriterion as a SolAddressCriterion
+func (t PolicyCriterion) AsSolAddressCriterion() (SolAddressCriterion, error) {
+	var body SolAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressCriterion overwrites any union data inside the PolicyCriterion as the provided SolAddressCriterion
+func (t *PolicyCriterion) FromSolAddressCriterion(v SolAddressCriterion) error {
+	v.Type = "solAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SolAddressCriterion
+func (t *PolicyCriterion) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	v.Type = "solAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the PolicyCriterion as a SolValueCriterion
+func (t PolicyCriterion) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the PolicyCriterion as the provided SolValueCriterion
+func (t *PolicyCriterion) FromSolValueCriterion(v SolValueCriterion) error {
+	v.Type = "solValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SolValueCriterion
+func (t *PolicyCriterion) MergeSolValueCriterion(v SolValueCriterion) error {
+	v.Type = "solValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the PolicyCriterion as a SplAddressCriterion
+func (t PolicyCriterion) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the PolicyCriterion as the provided SplAddressCriterion
+func (t *PolicyCriterion) FromSplAddressCriterion(v SplAddressCriterion) error {
+	v.Type = "splAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SplAddressCriterion
+func (t *PolicyCriterion) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	v.Type = "splAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the PolicyCriterion as a SplValueCriterion
+func (t PolicyCriterion) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the PolicyCriterion as the provided SplValueCriterion
+func (t *PolicyCriterion) FromSplValueCriterion(v SplValueCriterion) error {
+	v.Type = "splValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SplValueCriterion
+func (t *PolicyCriterion) MergeSplValueCriterion(v SplValueCriterion) error {
+	v.Type = "splValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the PolicyCriterion as a MintAddressCriterion
+func (t PolicyCriterion) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the PolicyCriterion as the provided MintAddressCriterion
+func (t *PolicyCriterion) FromMintAddressCriterion(v MintAddressCriterion) error {
+	v.Type = "mintAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the PolicyCriterion, using the provided MintAddressCriterion
+func (t *PolicyCriterion) MergeMintAddressCriterion(v MintAddressCriterion) error {
+	v.Type = "mintAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolDataCriterion returns the union data inside the PolicyCriterion as a SolDataCriterion
+func (t PolicyCriterion) AsSolDataCriterion() (SolDataCriterion, error) {
+	var body SolDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataCriterion overwrites any union data inside the PolicyCriterion as the provided SolDataCriterion
+func (t *PolicyCriterion) FromSolDataCriterion(v SolDataCriterion) error {
+	v.Type = "solData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SolDataCriterion
+func (t *PolicyCriterion) MergeSolDataCriterion(v SolDataCriterion) error {
+	v.Type = "solData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolMessageCriterion returns the union data inside the PolicyCriterion as a SolMessageCriterion
+func (t PolicyCriterion) AsSolMessageCriterion() (SolMessageCriterion, error) {
+	var body SolMessageCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolMessageCriterion overwrites any union data inside the PolicyCriterion as the provided SolMessageCriterion
+func (t *PolicyCriterion) FromSolMessageCriterion(v SolMessageCriterion) error {
+	v.Type = "solMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolMessageCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SolMessageCriterion
+func (t *PolicyCriterion) MergeSolMessageCriterion(v SolMessageCriterion) error {
+	v.Type = "solMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdCriterion returns the union data inside the PolicyCriterion as a ProgramIdCriterion
+func (t PolicyCriterion) AsProgramIdCriterion() (ProgramIdCriterion, error) {
+	var body ProgramIdCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdCriterion overwrites any union data inside the PolicyCriterion as the provided ProgramIdCriterion
+func (t *PolicyCriterion) FromProgramIdCriterion(v ProgramIdCriterion) error {
+	v.Type = "programId"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdCriterion performs a merge with any union data inside the PolicyCriterion, using the provided ProgramIdCriterion
+func (t *PolicyCriterion) MergeProgramIdCriterion(v ProgramIdCriterion) error {
+	v.Type = "programId"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolNetworkCriterion returns the union data inside the PolicyCriterion as a SolNetworkCriterion
+func (t PolicyCriterion) AsSolNetworkCriterion() (SolNetworkCriterion, error) {
+	var body SolNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolNetworkCriterion overwrites any union data inside the PolicyCriterion as the provided SolNetworkCriterion
+func (t *PolicyCriterion) FromSolNetworkCriterion(v SolNetworkCriterion) error {
+	v.Type = "solNetwork"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolNetworkCriterion performs a merge with any union data inside the PolicyCriterion, using the provided SolNetworkCriterion
+func (t *PolicyCriterion) MergeSolNetworkCriterion(v SolNetworkCriterion) error {
+	v.Type = "solNetwork"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PolicyCriterion) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t PolicyCriterion) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "ethValue":
+		return t.AsEthValueCriterion()
+	case "evmAddress":
+		return t.AsEvmAddressCriterion()
+	case "evmData":
+		return t.AsEvmDataCriterion()
+	case "evmMessage":
+		return t.AsEvmMessageCriterion()
+	case "evmNetwork":
+		return t.AsEvmNetworkCriterion()
+	case "evmTypedDataField":
+		return t.AsSignEvmTypedDataFieldCriterion()
+	case "evmTypedDataVerifyingContract":
+		return t.AsSignEvmTypedDataVerifyingContractCriterion()
+	case "mintAddress":
+		return t.AsMintAddressCriterion()
+	case "netUSDChange":
+		return t.AsNetUSDChangeCriterion()
+	case "programId":
+		return t.AsProgramIdCriterion()
+	case "solAddress":
+		return t.AsSolAddressCriterion()
+	case "solData":
+		return t.AsSolDataCriterion()
+	case "solMessage":
+		return t.AsSolMessageCriterion()
+	case "solNetwork":
+		return t.AsSolNetworkCriterion()
+	case "solValue":
+		return t.AsSolValueCriterion()
+	case "splAddress":
+		return t.AsSplAddressCriterion()
+	case "splValue":
+		return t.AsSplValueCriterion()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t PolicyCriterion) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PolicyCriterion) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEthValueObservation returns the union data inside the PolicyCriterionObservation as a EthValueObservation
+func (t PolicyCriterionObservation) AsEthValueObservation() (EthValueObservation, error) {
+	var body EthValueObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueObservation overwrites any union data inside the PolicyCriterionObservation as the provided EthValueObservation
+func (t *PolicyCriterionObservation) FromEthValueObservation(v EthValueObservation) error {
+	v.Type = "ethValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EthValueObservation
+func (t *PolicyCriterionObservation) MergeEthValueObservation(v EthValueObservation) error {
+	v.Type = "ethValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressObservation returns the union data inside the PolicyCriterionObservation as a EvmAddressObservation
+func (t PolicyCriterionObservation) AsEvmAddressObservation() (EvmAddressObservation, error) {
+	var body EvmAddressObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmAddressObservation
+func (t *PolicyCriterionObservation) FromEvmAddressObservation(v EvmAddressObservation) error {
+	v.Type = "evmAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmAddressObservation
+func (t *PolicyCriterionObservation) MergeEvmAddressObservation(v EvmAddressObservation) error {
+	v.Type = "evmAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmNetworkObservation returns the union data inside the PolicyCriterionObservation as a EvmNetworkObservation
+func (t PolicyCriterionObservation) AsEvmNetworkObservation() (EvmNetworkObservation, error) {
+	var body EvmNetworkObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmNetworkObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmNetworkObservation
+func (t *PolicyCriterionObservation) FromEvmNetworkObservation(v EvmNetworkObservation) error {
+	v.Type = "evmNetwork"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmNetworkObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmNetworkObservation
+func (t *PolicyCriterionObservation) MergeEvmNetworkObservation(v EvmNetworkObservation) error {
+	v.Type = "evmNetwork"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataObservation returns the union data inside the PolicyCriterionObservation as a EvmDataObservation
+func (t PolicyCriterionObservation) AsEvmDataObservation() (EvmDataObservation, error) {
+	var body EvmDataObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmDataObservation
+func (t *PolicyCriterionObservation) FromEvmDataObservation(v EvmDataObservation) error {
+	v.Type = "evmData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmDataObservation
+func (t *PolicyCriterionObservation) MergeEvmDataObservation(v EvmDataObservation) error {
+	v.Type = "evmData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmMessageObservation returns the union data inside the PolicyCriterionObservation as a EvmMessageObservation
+func (t PolicyCriterionObservation) AsEvmMessageObservation() (EvmMessageObservation, error) {
+	var body EvmMessageObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmMessageObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmMessageObservation
+func (t *PolicyCriterionObservation) FromEvmMessageObservation(v EvmMessageObservation) error {
+	v.Type = "evmMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmMessageObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmMessageObservation
+func (t *PolicyCriterionObservation) MergeEvmMessageObservation(v EvmMessageObservation) error {
+	v.Type = "evmMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmTypedDataFieldObservation returns the union data inside the PolicyCriterionObservation as a EvmTypedDataFieldObservation
+func (t PolicyCriterionObservation) AsEvmTypedDataFieldObservation() (EvmTypedDataFieldObservation, error) {
+	var body EvmTypedDataFieldObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmTypedDataFieldObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmTypedDataFieldObservation
+func (t *PolicyCriterionObservation) FromEvmTypedDataFieldObservation(v EvmTypedDataFieldObservation) error {
+	v.Type = "evmTypedDataField"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmTypedDataFieldObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmTypedDataFieldObservation
+func (t *PolicyCriterionObservation) MergeEvmTypedDataFieldObservation(v EvmTypedDataFieldObservation) error {
+	v.Type = "evmTypedDataField"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmTypedDataVerifyingContractObservation returns the union data inside the PolicyCriterionObservation as a EvmTypedDataVerifyingContractObservation
+func (t PolicyCriterionObservation) AsEvmTypedDataVerifyingContractObservation() (EvmTypedDataVerifyingContractObservation, error) {
+	var body EvmTypedDataVerifyingContractObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmTypedDataVerifyingContractObservation overwrites any union data inside the PolicyCriterionObservation as the provided EvmTypedDataVerifyingContractObservation
+func (t *PolicyCriterionObservation) FromEvmTypedDataVerifyingContractObservation(v EvmTypedDataVerifyingContractObservation) error {
+	v.Type = "evmTypedDataVerifyingContract"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmTypedDataVerifyingContractObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided EvmTypedDataVerifyingContractObservation
+func (t *PolicyCriterionObservation) MergeEvmTypedDataVerifyingContractObservation(v EvmTypedDataVerifyingContractObservation) error {
+	v.Type = "evmTypedDataVerifyingContract"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeObservation returns the union data inside the PolicyCriterionObservation as a NetUSDChangeObservation
+func (t PolicyCriterionObservation) AsNetUSDChangeObservation() (NetUSDChangeObservation, error) {
+	var body NetUSDChangeObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeObservation overwrites any union data inside the PolicyCriterionObservation as the provided NetUSDChangeObservation
+func (t *PolicyCriterionObservation) FromNetUSDChangeObservation(v NetUSDChangeObservation) error {
+	v.Type = "netUSDChange"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided NetUSDChangeObservation
+func (t *PolicyCriterionObservation) MergeNetUSDChangeObservation(v NetUSDChangeObservation) error {
+	v.Type = "netUSDChange"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolAddressObservation returns the union data inside the PolicyCriterionObservation as a SolAddressObservation
+func (t PolicyCriterionObservation) AsSolAddressObservation() (SolAddressObservation, error) {
+	var body SolAddressObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressObservation overwrites any union data inside the PolicyCriterionObservation as the provided SolAddressObservation
+func (t *PolicyCriterionObservation) FromSolAddressObservation(v SolAddressObservation) error {
+	v.Type = "solAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SolAddressObservation
+func (t *PolicyCriterionObservation) MergeSolAddressObservation(v SolAddressObservation) error {
+	v.Type = "solAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueObservation returns the union data inside the PolicyCriterionObservation as a SolValueObservation
+func (t PolicyCriterionObservation) AsSolValueObservation() (SolValueObservation, error) {
+	var body SolValueObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueObservation overwrites any union data inside the PolicyCriterionObservation as the provided SolValueObservation
+func (t *PolicyCriterionObservation) FromSolValueObservation(v SolValueObservation) error {
+	v.Type = "solValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SolValueObservation
+func (t *PolicyCriterionObservation) MergeSolValueObservation(v SolValueObservation) error {
+	v.Type = "solValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressObservation returns the union data inside the PolicyCriterionObservation as a SplAddressObservation
+func (t PolicyCriterionObservation) AsSplAddressObservation() (SplAddressObservation, error) {
+	var body SplAddressObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressObservation overwrites any union data inside the PolicyCriterionObservation as the provided SplAddressObservation
+func (t *PolicyCriterionObservation) FromSplAddressObservation(v SplAddressObservation) error {
+	v.Type = "splAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SplAddressObservation
+func (t *PolicyCriterionObservation) MergeSplAddressObservation(v SplAddressObservation) error {
+	v.Type = "splAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueObservation returns the union data inside the PolicyCriterionObservation as a SplValueObservation
+func (t PolicyCriterionObservation) AsSplValueObservation() (SplValueObservation, error) {
+	var body SplValueObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueObservation overwrites any union data inside the PolicyCriterionObservation as the provided SplValueObservation
+func (t *PolicyCriterionObservation) FromSplValueObservation(v SplValueObservation) error {
+	v.Type = "splValue"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SplValueObservation
+func (t *PolicyCriterionObservation) MergeSplValueObservation(v SplValueObservation) error {
+	v.Type = "splValue"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressObservation returns the union data inside the PolicyCriterionObservation as a MintAddressObservation
+func (t PolicyCriterionObservation) AsMintAddressObservation() (MintAddressObservation, error) {
+	var body MintAddressObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressObservation overwrites any union data inside the PolicyCriterionObservation as the provided MintAddressObservation
+func (t *PolicyCriterionObservation) FromMintAddressObservation(v MintAddressObservation) error {
+	v.Type = "mintAddress"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided MintAddressObservation
+func (t *PolicyCriterionObservation) MergeMintAddressObservation(v MintAddressObservation) error {
+	v.Type = "mintAddress"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolDataObservation returns the union data inside the PolicyCriterionObservation as a SolDataObservation
+func (t PolicyCriterionObservation) AsSolDataObservation() (SolDataObservation, error) {
+	var body SolDataObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataObservation overwrites any union data inside the PolicyCriterionObservation as the provided SolDataObservation
+func (t *PolicyCriterionObservation) FromSolDataObservation(v SolDataObservation) error {
+	v.Type = "solData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SolDataObservation
+func (t *PolicyCriterionObservation) MergeSolDataObservation(v SolDataObservation) error {
+	v.Type = "solData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolMessageObservation returns the union data inside the PolicyCriterionObservation as a SolMessageObservation
+func (t PolicyCriterionObservation) AsSolMessageObservation() (SolMessageObservation, error) {
+	var body SolMessageObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolMessageObservation overwrites any union data inside the PolicyCriterionObservation as the provided SolMessageObservation
+func (t *PolicyCriterionObservation) FromSolMessageObservation(v SolMessageObservation) error {
+	v.Type = "solMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolMessageObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SolMessageObservation
+func (t *PolicyCriterionObservation) MergeSolMessageObservation(v SolMessageObservation) error {
+	v.Type = "solMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdObservation returns the union data inside the PolicyCriterionObservation as a ProgramIdObservation
+func (t PolicyCriterionObservation) AsProgramIdObservation() (ProgramIdObservation, error) {
+	var body ProgramIdObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdObservation overwrites any union data inside the PolicyCriterionObservation as the provided ProgramIdObservation
+func (t *PolicyCriterionObservation) FromProgramIdObservation(v ProgramIdObservation) error {
+	v.Type = "programId"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided ProgramIdObservation
+func (t *PolicyCriterionObservation) MergeProgramIdObservation(v ProgramIdObservation) error {
+	v.Type = "programId"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolNetworkObservation returns the union data inside the PolicyCriterionObservation as a SolNetworkObservation
+func (t PolicyCriterionObservation) AsSolNetworkObservation() (SolNetworkObservation, error) {
+	var body SolNetworkObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolNetworkObservation overwrites any union data inside the PolicyCriterionObservation as the provided SolNetworkObservation
+func (t *PolicyCriterionObservation) FromSolNetworkObservation(v SolNetworkObservation) error {
+	v.Type = "solNetwork"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolNetworkObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided SolNetworkObservation
+func (t *PolicyCriterionObservation) MergeSolNetworkObservation(v SolNetworkObservation) error {
+	v.Type = "solNetwork"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRateLimitingObservation returns the union data inside the PolicyCriterionObservation as a RateLimitingObservation
+func (t PolicyCriterionObservation) AsRateLimitingObservation() (RateLimitingObservation, error) {
+	var body RateLimitingObservation
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRateLimitingObservation overwrites any union data inside the PolicyCriterionObservation as the provided RateLimitingObservation
+func (t *PolicyCriterionObservation) FromRateLimitingObservation(v RateLimitingObservation) error {
+	v.Type = "rateLimiting"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRateLimitingObservation performs a merge with any union data inside the PolicyCriterionObservation, using the provided RateLimitingObservation
+func (t *PolicyCriterionObservation) MergeRateLimitingObservation(v RateLimitingObservation) error {
+	v.Type = "rateLimiting"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PolicyCriterionObservation) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t PolicyCriterionObservation) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "ethValue":
+		return t.AsEthValueObservation()
+	case "evmAddress":
+		return t.AsEvmAddressObservation()
+	case "evmData":
+		return t.AsEvmDataObservation()
+	case "evmMessage":
+		return t.AsEvmMessageObservation()
+	case "evmNetwork":
+		return t.AsEvmNetworkObservation()
+	case "evmTypedDataField":
+		return t.AsEvmTypedDataFieldObservation()
+	case "evmTypedDataVerifyingContract":
+		return t.AsEvmTypedDataVerifyingContractObservation()
+	case "mintAddress":
+		return t.AsMintAddressObservation()
+	case "netUSDChange":
+		return t.AsNetUSDChangeObservation()
+	case "programId":
+		return t.AsProgramIdObservation()
+	case "rateLimiting":
+		return t.AsRateLimitingObservation()
+	case "solAddress":
+		return t.AsSolAddressObservation()
+	case "solData":
+		return t.AsSolDataObservation()
+	case "solMessage":
+		return t.AsSolMessageObservation()
+	case "solNetwork":
+		return t.AsSolNetworkObservation()
+	case "solValue":
+		return t.AsSolValueObservation()
+	case "splAddress":
+		return t.AsSplAddressObservation()
+	case "splValue":
+		return t.AsSplValueObservation()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t PolicyCriterionObservation) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PolicyCriterionObservation) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsEthValueCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EthValueCriterion
 func (t PrepareUserOperationCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
 	var body EthValueCriterion
@@ -13463,6 +15580,95 @@ func (t PrepareUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *PrepareUserOperationCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsRateLimitCountUsage returns the union data inside the RateLimitUsage as a RateLimitCountUsage
+func (t RateLimitUsage) AsRateLimitCountUsage() (RateLimitCountUsage, error) {
+	var body RateLimitCountUsage
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRateLimitCountUsage overwrites any union data inside the RateLimitUsage as the provided RateLimitCountUsage
+func (t *RateLimitUsage) FromRateLimitCountUsage(v RateLimitCountUsage) error {
+	v.Type = "count"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRateLimitCountUsage performs a merge with any union data inside the RateLimitUsage, using the provided RateLimitCountUsage
+func (t *RateLimitUsage) MergeRateLimitCountUsage(v RateLimitCountUsage) error {
+	v.Type = "count"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsRateLimitValueUsage returns the union data inside the RateLimitUsage as a RateLimitValueUsage
+func (t RateLimitUsage) AsRateLimitValueUsage() (RateLimitValueUsage, error) {
+	var body RateLimitValueUsage
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromRateLimitValueUsage overwrites any union data inside the RateLimitUsage as the provided RateLimitValueUsage
+func (t *RateLimitUsage) FromRateLimitValueUsage(v RateLimitValueUsage) error {
+	v.Type = "value"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeRateLimitValueUsage performs a merge with any union data inside the RateLimitUsage, using the provided RateLimitValueUsage
+func (t *RateLimitUsage) MergeRateLimitValueUsage(v RateLimitValueUsage) error {
+	v.Type = "value"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t RateLimitUsage) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"type"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t RateLimitUsage) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "count":
+		return t.AsRateLimitCountUsage()
+	case "value":
+		return t.AsRateLimitValueUsage()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t RateLimitUsage) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *RateLimitUsage) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -16426,6 +18632,695 @@ func (t *SignSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsSignEvmTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEvmTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSignEvmTransactionSimulationInput() (SignEvmTransactionSimulationInput, error) {
+	var body SignEvmTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEvmTransactionSimulationInput(v SignEvmTransactionSimulationInput) error {
+	v.Operation = "signEvmTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEvmTransactionSimulationInput(v SignEvmTransactionSimulationInput) error {
+	v.Operation = "signEvmTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEvmTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEvmTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSendEvmTransactionSimulationInput() (SendEvmTransactionSimulationInput, error) {
+	var body SendEvmTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEvmTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEvmTransactionSimulationInput(v SendEvmTransactionSimulationInput) error {
+	v.Operation = "sendEvmTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEvmTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEvmTransactionSimulationInput(v SendEvmTransactionSimulationInput) error {
+	v.Operation = "sendEvmTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmHashSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEvmHashSimulationInput
+func (t SimulatePoliciesRequest) AsSignEvmHashSimulationInput() (SignEvmHashSimulationInput, error) {
+	var body SignEvmHashSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmHashSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEvmHashSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEvmHashSimulationInput(v SignEvmHashSimulationInput) error {
+	v.Operation = "signEvmHash"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmHashSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEvmHashSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEvmHashSimulationInput(v SignEvmHashSimulationInput) error {
+	v.Operation = "signEvmHash"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmMessageSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEvmMessageSimulationInput
+func (t SimulatePoliciesRequest) AsSignEvmMessageSimulationInput() (SignEvmMessageSimulationInput, error) {
+	var body SignEvmMessageSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmMessageSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEvmMessageSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEvmMessageSimulationInput(v SignEvmMessageSimulationInput) error {
+	v.Operation = "signEvmMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmMessageSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEvmMessageSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEvmMessageSimulationInput(v SignEvmMessageSimulationInput) error {
+	v.Operation = "signEvmMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEvmTypedDataSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEvmTypedDataSimulationInput
+func (t SimulatePoliciesRequest) AsSignEvmTypedDataSimulationInput() (SignEvmTypedDataSimulationInput, error) {
+	var body SignEvmTypedDataSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEvmTypedDataSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEvmTypedDataSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEvmTypedDataSimulationInput(v SignEvmTypedDataSimulationInput) error {
+	v.Operation = "signEvmTypedData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEvmTypedDataSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEvmTypedDataSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEvmTypedDataSimulationInput(v SignEvmTypedDataSimulationInput) error {
+	v.Operation = "signEvmTypedData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsPrepareUserOperationSimulationInput returns the union data inside the SimulatePoliciesRequest as a PrepareUserOperationSimulationInput
+func (t SimulatePoliciesRequest) AsPrepareUserOperationSimulationInput() (PrepareUserOperationSimulationInput, error) {
+	var body PrepareUserOperationSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPrepareUserOperationSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided PrepareUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) FromPrepareUserOperationSimulationInput(v PrepareUserOperationSimulationInput) error {
+	v.Operation = "prepareUserOperation"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePrepareUserOperationSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided PrepareUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) MergePrepareUserOperationSimulationInput(v PrepareUserOperationSimulationInput) error {
+	v.Operation = "prepareUserOperation"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendUserOperationSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendUserOperationSimulationInput
+func (t SimulatePoliciesRequest) AsSendUserOperationSimulationInput() (SendUserOperationSimulationInput, error) {
+	var body SendUserOperationSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendUserOperationSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) FromSendUserOperationSimulationInput(v SendUserOperationSimulationInput) error {
+	v.Operation = "sendUserOperation"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendUserOperationSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendUserOperationSimulationInput(v SendUserOperationSimulationInput) error {
+	v.Operation = "sendUserOperation"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignSolTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignSolTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSignSolTransactionSimulationInput() (SignSolTransactionSimulationInput, error) {
+	var body SignSolTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignSolTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSignSolTransactionSimulationInput(v SignSolTransactionSimulationInput) error {
+	v.Operation = "signSolTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignSolTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignSolTransactionSimulationInput(v SignSolTransactionSimulationInput) error {
+	v.Operation = "signSolTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendSolTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendSolTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSendSolTransactionSimulationInput() (SendSolTransactionSimulationInput, error) {
+	var body SendSolTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendSolTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSendSolTransactionSimulationInput(v SendSolTransactionSimulationInput) error {
+	v.Operation = "sendSolTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendSolTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendSolTransactionSimulationInput(v SendSolTransactionSimulationInput) error {
+	v.Operation = "sendSolTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignSolMessageSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignSolMessageSimulationInput
+func (t SimulatePoliciesRequest) AsSignSolMessageSimulationInput() (SignSolMessageSimulationInput, error) {
+	var body SignSolMessageSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignSolMessageSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignSolMessageSimulationInput
+func (t *SimulatePoliciesRequest) FromSignSolMessageSimulationInput(v SignSolMessageSimulationInput) error {
+	v.Operation = "signSolMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignSolMessageSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignSolMessageSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignSolMessageSimulationInput(v SignSolMessageSimulationInput) error {
+	v.Operation = "signSolMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmHashSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserEvmHashSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserEvmHashSimulationInput() (SignEndUserEvmHashSimulationInput, error) {
+	var body SignEndUserEvmHashSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmHashSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserEvmHashSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserEvmHashSimulationInput(v SignEndUserEvmHashSimulationInput) error {
+	v.Operation = "signEndUserEvmHash"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmHashSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserEvmHashSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserEvmHashSimulationInput(v SignEndUserEvmHashSimulationInput) error {
+	v.Operation = "signEndUserEvmHash"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserEvmTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserEvmTransactionSimulationInput() (SignEndUserEvmTransactionSimulationInput, error) {
+	var body SignEndUserEvmTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserEvmTransactionSimulationInput(v SignEndUserEvmTransactionSimulationInput) error {
+	v.Operation = "signEndUserEvmTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserEvmTransactionSimulationInput(v SignEndUserEvmTransactionSimulationInput) error {
+	v.Operation = "signEndUserEvmTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserEvmTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEndUserEvmTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSendEndUserEvmTransactionSimulationInput() (SendEndUserEvmTransactionSimulationInput, error) {
+	var body SendEndUserEvmTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserEvmTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEndUserEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEndUserEvmTransactionSimulationInput(v SendEndUserEvmTransactionSimulationInput) error {
+	v.Operation = "sendEndUserEvmTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserEvmTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEndUserEvmTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEndUserEvmTransactionSimulationInput(v SendEndUserEvmTransactionSimulationInput) error {
+	v.Operation = "sendEndUserEvmTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmMessageSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserEvmMessageSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserEvmMessageSimulationInput() (SignEndUserEvmMessageSimulationInput, error) {
+	var body SignEndUserEvmMessageSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmMessageSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserEvmMessageSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserEvmMessageSimulationInput(v SignEndUserEvmMessageSimulationInput) error {
+	v.Operation = "signEndUserEvmMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmMessageSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserEvmMessageSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserEvmMessageSimulationInput(v SignEndUserEvmMessageSimulationInput) error {
+	v.Operation = "signEndUserEvmMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserEvmTypedDataSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserEvmTypedDataSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserEvmTypedDataSimulationInput() (SignEndUserEvmTypedDataSimulationInput, error) {
+	var body SignEndUserEvmTypedDataSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserEvmTypedDataSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserEvmTypedDataSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserEvmTypedDataSimulationInput(v SignEndUserEvmTypedDataSimulationInput) error {
+	v.Operation = "signEndUserEvmTypedData"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserEvmTypedDataSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserEvmTypedDataSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserEvmTypedDataSimulationInput(v SignEndUserEvmTypedDataSimulationInput) error {
+	v.Operation = "signEndUserEvmTypedData"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserOperationSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEndUserOperationSimulationInput
+func (t SimulatePoliciesRequest) AsSendEndUserOperationSimulationInput() (SendEndUserOperationSimulationInput, error) {
+	var body SendEndUserOperationSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserOperationSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEndUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEndUserOperationSimulationInput(v SendEndUserOperationSimulationInput) error {
+	v.Operation = "sendEndUserOperation"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserOperationSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEndUserOperationSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEndUserOperationSimulationInput(v SendEndUserOperationSimulationInput) error {
+	v.Operation = "sendEndUserOperation"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserSolTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserSolTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserSolTransactionSimulationInput() (SignEndUserSolTransactionSimulationInput, error) {
+	var body SignEndUserSolTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserSolTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserSolTransactionSimulationInput(v SignEndUserSolTransactionSimulationInput) error {
+	v.Operation = "signEndUserSolTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserSolTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserSolTransactionSimulationInput(v SignEndUserSolTransactionSimulationInput) error {
+	v.Operation = "signEndUserSolTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserSolTransactionSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEndUserSolTransactionSimulationInput
+func (t SimulatePoliciesRequest) AsSendEndUserSolTransactionSimulationInput() (SendEndUserSolTransactionSimulationInput, error) {
+	var body SendEndUserSolTransactionSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserSolTransactionSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEndUserSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEndUserSolTransactionSimulationInput(v SendEndUserSolTransactionSimulationInput) error {
+	v.Operation = "sendEndUserSolTransaction"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserSolTransactionSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEndUserSolTransactionSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEndUserSolTransactionSimulationInput(v SendEndUserSolTransactionSimulationInput) error {
+	v.Operation = "sendEndUserSolTransaction"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSignEndUserSolMessageSimulationInput returns the union data inside the SimulatePoliciesRequest as a SignEndUserSolMessageSimulationInput
+func (t SimulatePoliciesRequest) AsSignEndUserSolMessageSimulationInput() (SignEndUserSolMessageSimulationInput, error) {
+	var body SignEndUserSolMessageSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignEndUserSolMessageSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SignEndUserSolMessageSimulationInput
+func (t *SimulatePoliciesRequest) FromSignEndUserSolMessageSimulationInput(v SignEndUserSolMessageSimulationInput) error {
+	v.Operation = "signEndUserSolMessage"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignEndUserSolMessageSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SignEndUserSolMessageSimulationInput
+func (t *SimulatePoliciesRequest) MergeSignEndUserSolMessageSimulationInput(v SignEndUserSolMessageSimulationInput) error {
+	v.Operation = "signEndUserSolMessage"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserEvmAssetSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEndUserEvmAssetSimulationInput
+func (t SimulatePoliciesRequest) AsSendEndUserEvmAssetSimulationInput() (SendEndUserEvmAssetSimulationInput, error) {
+	var body SendEndUserEvmAssetSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserEvmAssetSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEndUserEvmAssetSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEndUserEvmAssetSimulationInput(v SendEndUserEvmAssetSimulationInput) error {
+	v.Operation = "sendEndUserEvmAsset"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserEvmAssetSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEndUserEvmAssetSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEndUserEvmAssetSimulationInput(v SendEndUserEvmAssetSimulationInput) error {
+	v.Operation = "sendEndUserEvmAsset"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendEndUserSolAssetSimulationInput returns the union data inside the SimulatePoliciesRequest as a SendEndUserSolAssetSimulationInput
+func (t SimulatePoliciesRequest) AsSendEndUserSolAssetSimulationInput() (SendEndUserSolAssetSimulationInput, error) {
+	var body SendEndUserSolAssetSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendEndUserSolAssetSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided SendEndUserSolAssetSimulationInput
+func (t *SimulatePoliciesRequest) FromSendEndUserSolAssetSimulationInput(v SendEndUserSolAssetSimulationInput) error {
+	v.Operation = "sendEndUserSolAsset"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendEndUserSolAssetSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided SendEndUserSolAssetSimulationInput
+func (t *SimulatePoliciesRequest) MergeSendEndUserSolAssetSimulationInput(v SendEndUserSolAssetSimulationInput) error {
+	v.Operation = "sendEndUserSolAsset"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsCreateEndUserEvmSwapSimulationInput returns the union data inside the SimulatePoliciesRequest as a CreateEndUserEvmSwapSimulationInput
+func (t SimulatePoliciesRequest) AsCreateEndUserEvmSwapSimulationInput() (CreateEndUserEvmSwapSimulationInput, error) {
+	var body CreateEndUserEvmSwapSimulationInput
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromCreateEndUserEvmSwapSimulationInput overwrites any union data inside the SimulatePoliciesRequest as the provided CreateEndUserEvmSwapSimulationInput
+func (t *SimulatePoliciesRequest) FromCreateEndUserEvmSwapSimulationInput(v CreateEndUserEvmSwapSimulationInput) error {
+	v.Operation = "createEndUserEvmSwap"
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeCreateEndUserEvmSwapSimulationInput performs a merge with any union data inside the SimulatePoliciesRequest, using the provided CreateEndUserEvmSwapSimulationInput
+func (t *SimulatePoliciesRequest) MergeCreateEndUserEvmSwapSimulationInput(v CreateEndUserEvmSwapSimulationInput) error {
+	v.Operation = "createEndUserEvmSwap"
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SimulatePoliciesRequest) Discriminator() (string, error) {
+	var discriminator struct {
+		Discriminator string `json:"operation"`
+	}
+	err := json.Unmarshal(t.union, &discriminator)
+	return discriminator.Discriminator, err
+}
+
+func (t SimulatePoliciesRequest) ValueByDiscriminator() (interface{}, error) {
+	discriminator, err := t.Discriminator()
+	if err != nil {
+		return nil, err
+	}
+	switch discriminator {
+	case "createEndUserEvmSwap":
+		return t.AsCreateEndUserEvmSwapSimulationInput()
+	case "prepareUserOperation":
+		return t.AsPrepareUserOperationSimulationInput()
+	case "sendEndUserEvmAsset":
+		return t.AsSendEndUserEvmAssetSimulationInput()
+	case "sendEndUserEvmTransaction":
+		return t.AsSendEndUserEvmTransactionSimulationInput()
+	case "sendEndUserOperation":
+		return t.AsSendEndUserOperationSimulationInput()
+	case "sendEndUserSolAsset":
+		return t.AsSendEndUserSolAssetSimulationInput()
+	case "sendEndUserSolTransaction":
+		return t.AsSendEndUserSolTransactionSimulationInput()
+	case "sendEvmTransaction":
+		return t.AsSendEvmTransactionSimulationInput()
+	case "sendSolTransaction":
+		return t.AsSendSolTransactionSimulationInput()
+	case "sendUserOperation":
+		return t.AsSendUserOperationSimulationInput()
+	case "signEndUserEvmHash":
+		return t.AsSignEndUserEvmHashSimulationInput()
+	case "signEndUserEvmMessage":
+		return t.AsSignEndUserEvmMessageSimulationInput()
+	case "signEndUserEvmTransaction":
+		return t.AsSignEndUserEvmTransactionSimulationInput()
+	case "signEndUserEvmTypedData":
+		return t.AsSignEndUserEvmTypedDataSimulationInput()
+	case "signEndUserSolMessage":
+		return t.AsSignEndUserSolMessageSimulationInput()
+	case "signEndUserSolTransaction":
+		return t.AsSignEndUserSolTransactionSimulationInput()
+	case "signEvmHash":
+		return t.AsSignEvmHashSimulationInput()
+	case "signEvmMessage":
+		return t.AsSignEvmMessageSimulationInput()
+	case "signEvmTransaction":
+		return t.AsSignEvmTransactionSimulationInput()
+	case "signEvmTypedData":
+		return t.AsSignEvmTypedDataSimulationInput()
+	case "signSolMessage":
+		return t.AsSignSolMessageSimulationInput()
+	case "signSolTransaction":
+		return t.AsSignSolTransactionSimulationInput()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
+}
+
+func (t SimulatePoliciesRequest) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SimulatePoliciesRequest) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsSolDataParameterCondition returns the union data inside the SolDataCondition_Params_Item as a SolDataParameterCondition
 func (t SolDataCondition_Params_Item) AsSolDataParameterCondition() (SolDataParameterCondition, error) {
 	var body SolDataParameterCondition
@@ -17727,9 +20622,6 @@ type ClientInterface interface {
 	// GetBalanceByAsset request
 	GetBalanceByAsset(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// ListCoinbaseAccountBalances request
-	ListCoinbaseAccountBalances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// ListCustomers request
 	ListCustomers(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -18281,6 +21173,11 @@ type ClientInterface interface {
 
 	UpdatePolicy(ctx context.Context, policyId string, params *UpdatePolicyParams, body UpdatePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SimulatePoliciesWithBody request with any body
+	SimulatePoliciesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SimulatePolicies(ctx context.Context, body SimulatePoliciesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListSolanaAccounts request
 	ListSolanaAccounts(ctx context.Context, params *ListSolanaAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -18337,6 +21234,11 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTopUpLinkWithBody request with any body
+	CreateTopUpLinkWithBody(ctx context.Context, params *CreateTopUpLinkParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateTopUpLink(ctx context.Context, params *CreateTopUpLinkParams, body CreateTopUpLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListTransfers request
 	ListTransfers(ctx context.Context, params *ListTransfersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -18458,18 +21360,6 @@ func (c *CDPClient) ListBalances(ctx context.Context, accountId AccountId, param
 
 func (c *CDPClient) GetBalanceByAsset(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetBalanceByAssetRequest(c.Server, accountId, asset)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) ListCoinbaseAccountBalances(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListCoinbaseAccountBalancesRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -20976,6 +23866,30 @@ func (c *CDPClient) UpdatePolicy(ctx context.Context, policyId string, params *U
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) SimulatePoliciesWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSimulatePoliciesRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SimulatePolicies(ctx context.Context, body SimulatePoliciesJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSimulatePoliciesRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) ListSolanaAccounts(ctx context.Context, params *ListSolanaAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSolanaAccountsRequest(c.Server, params)
 	if err != nil {
@@ -21230,6 +24144,30 @@ func (c *CDPClient) RequestSolanaFaucet(ctx context.Context, body RequestSolanaF
 
 func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSolanaTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateTopUpLinkWithBody(ctx context.Context, params *CreateTopUpLinkParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTopUpLinkRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateTopUpLink(ctx context.Context, params *CreateTopUpLinkParams, body CreateTopUpLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTopUpLinkRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -21774,33 +24712,6 @@ func NewGetBalanceByAssetRequest(server string, accountId AccountId, asset Asset
 	}
 
 	operationPath := fmt.Sprintf("/v2/accounts/%s/balances/%s", pathParam0, pathParam1)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewListCoinbaseAccountBalancesRequest generates requests for ListCoinbaseAccountBalances
-func NewListCoinbaseAccountBalancesRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/coinbase-accounts/balances")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -30972,6 +33883,46 @@ func NewUpdatePolicyRequestWithBody(server string, policyId string, params *Upda
 	return req, nil
 }
 
+// NewSimulatePoliciesRequest calls the generic SimulatePolicies builder with application/json body
+func NewSimulatePoliciesRequest(server string, body SimulatePoliciesJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSimulatePoliciesRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSimulatePoliciesRequestWithBody generates requests for SimulatePolicies with any type of body
+func NewSimulatePoliciesRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/policy-engine/simulate")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListSolanaAccountsRequest generates requests for ListSolanaAccounts
 func NewListSolanaAccountsRequest(server string, params *ListSolanaAccountsParams) (*http.Request, error) {
 	var err error
@@ -31771,6 +34722,61 @@ func NewListSolanaTokenBalancesRequest(server string, network ListSolanaTokenBal
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTopUpLinkRequest calls the generic CreateTopUpLink builder with application/json body
+func NewCreateTopUpLinkRequest(server string, params *CreateTopUpLinkParams, body CreateTopUpLinkJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTopUpLinkRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateTopUpLinkRequestWithBody generates requests for CreateTopUpLink with any type of body
+func NewCreateTopUpLinkRequestWithBody(server string, params *CreateTopUpLinkParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/top-up-links")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
 	}
 
 	return req, nil
@@ -32956,9 +35962,6 @@ type ClientWithResponsesInterface interface {
 	// GetBalanceByAssetWithResponse request
 	GetBalanceByAssetWithResponse(ctx context.Context, accountId AccountId, asset Asset, reqEditors ...RequestEditorFn) (*GetBalanceByAssetResponse, error)
 
-	// ListCoinbaseAccountBalancesWithResponse request
-	ListCoinbaseAccountBalancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCoinbaseAccountBalancesResponse, error)
-
 	// ListCustomersWithResponse request
 	ListCustomersWithResponse(ctx context.Context, params *ListCustomersParams, reqEditors ...RequestEditorFn) (*ListCustomersResponse, error)
 
@@ -33510,6 +36513,11 @@ type ClientWithResponsesInterface interface {
 
 	UpdatePolicyWithResponse(ctx context.Context, policyId string, params *UpdatePolicyParams, body UpdatePolicyJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdatePolicyResponse, error)
 
+	// SimulatePoliciesWithBodyWithResponse request with any body
+	SimulatePoliciesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SimulatePoliciesResponse, error)
+
+	SimulatePoliciesWithResponse(ctx context.Context, body SimulatePoliciesJSONRequestBody, reqEditors ...RequestEditorFn) (*SimulatePoliciesResponse, error)
+
 	// ListSolanaAccountsWithResponse request
 	ListSolanaAccountsWithResponse(ctx context.Context, params *ListSolanaAccountsParams, reqEditors ...RequestEditorFn) (*ListSolanaAccountsResponse, error)
 
@@ -33566,6 +36574,11 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+
+	// CreateTopUpLinkWithBodyWithResponse request with any body
+	CreateTopUpLinkWithBodyWithResponse(ctx context.Context, params *CreateTopUpLinkParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTopUpLinkResponse, error)
+
+	CreateTopUpLinkWithResponse(ctx context.Context, params *CreateTopUpLinkParams, body CreateTopUpLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTopUpLinkResponse, error)
 
 	// ListTransfersWithResponse request
 	ListTransfersWithResponse(ctx context.Context, params *ListTransfersParams, reqEditors ...RequestEditorFn) (*ListTransfersResponse, error)
@@ -33759,33 +36772,6 @@ func (r GetBalanceByAssetResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetBalanceByAssetResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ListCoinbaseAccountBalancesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Balances
-	JSON401      *UnauthorizedError
-	JSON403      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r ListCoinbaseAccountBalancesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListCoinbaseAccountBalancesResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -37796,6 +40782,36 @@ func (r UpdatePolicyResponse) StatusCode() int {
 	return 0
 }
 
+type SimulatePoliciesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PolicySimulationResult
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON422      *Error
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SimulatePoliciesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SimulatePoliciesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListSolanaAccountsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -38197,6 +41213,36 @@ func (r ListSolanaTokenBalancesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListSolanaTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateTopUpLinkResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *TopUpLink
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON403      *Error
+	JSON409      *AlreadyExistsError
+	JSON422      *IdempotencyError
+	JSON429      *RateLimitExceeded
+	JSON500      *InternalServerError
+	JSON503      *EndpointUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTopUpLinkResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTopUpLinkResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -38646,15 +41692,6 @@ func (c *ClientWithResponses) GetBalanceByAssetWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseGetBalanceByAssetResponse(rsp)
-}
-
-// ListCoinbaseAccountBalancesWithResponse request returning *ListCoinbaseAccountBalancesResponse
-func (c *ClientWithResponses) ListCoinbaseAccountBalancesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListCoinbaseAccountBalancesResponse, error) {
-	rsp, err := c.ListCoinbaseAccountBalances(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListCoinbaseAccountBalancesResponse(rsp)
 }
 
 // ListCustomersWithResponse request returning *ListCustomersResponse
@@ -40456,6 +43493,23 @@ func (c *ClientWithResponses) UpdatePolicyWithResponse(ctx context.Context, poli
 	return ParseUpdatePolicyResponse(rsp)
 }
 
+// SimulatePoliciesWithBodyWithResponse request with arbitrary body returning *SimulatePoliciesResponse
+func (c *ClientWithResponses) SimulatePoliciesWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SimulatePoliciesResponse, error) {
+	rsp, err := c.SimulatePoliciesWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSimulatePoliciesResponse(rsp)
+}
+
+func (c *ClientWithResponses) SimulatePoliciesWithResponse(ctx context.Context, body SimulatePoliciesJSONRequestBody, reqEditors ...RequestEditorFn) (*SimulatePoliciesResponse, error) {
+	rsp, err := c.SimulatePolicies(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSimulatePoliciesResponse(rsp)
+}
+
 // ListSolanaAccountsWithResponse request returning *ListSolanaAccountsResponse
 func (c *ClientWithResponses) ListSolanaAccountsWithResponse(ctx context.Context, params *ListSolanaAccountsParams, reqEditors ...RequestEditorFn) (*ListSolanaAccountsResponse, error) {
 	rsp, err := c.ListSolanaAccounts(ctx, params, reqEditors...)
@@ -40643,6 +43697,23 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
+}
+
+// CreateTopUpLinkWithBodyWithResponse request with arbitrary body returning *CreateTopUpLinkResponse
+func (c *ClientWithResponses) CreateTopUpLinkWithBodyWithResponse(ctx context.Context, params *CreateTopUpLinkParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTopUpLinkResponse, error) {
+	rsp, err := c.CreateTopUpLinkWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTopUpLinkResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateTopUpLinkWithResponse(ctx context.Context, params *CreateTopUpLinkParams, body CreateTopUpLinkJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTopUpLinkResponse, error) {
+	rsp, err := c.CreateTopUpLink(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTopUpLinkResponse(rsp)
 }
 
 // ListTransfersWithResponse request returning *ListTransfersResponse
@@ -41086,67 +44157,6 @@ func ParseGetBalanceByAssetResponse(rsp *http.Response) (*GetBalanceByAssetRespo
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
 		var dest EndpointUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListCoinbaseAccountBalancesResponse parses an HTTP response from a ListCoinbaseAccountBalancesWithResponse call
-func ParseListCoinbaseAccountBalancesResponse(rsp *http.Response) (*ListCoinbaseAccountBalancesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListCoinbaseAccountBalancesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Balances
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest UnauthorizedError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -50483,6 +53493,88 @@ func ParseUpdatePolicyResponse(rsp *http.Response) (*UpdatePolicyResponse, error
 	return response, nil
 }
 
+// ParseSimulatePoliciesResponse parses an HTTP response from a SimulatePoliciesWithResponse call
+func ParseSimulatePoliciesResponse(rsp *http.Response) (*SimulatePoliciesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SimulatePoliciesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PolicySimulationResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListSolanaAccountsResponse parses an HTTP response from a ListSolanaAccountsWithResponse call
 func ParseListSolanaAccountsResponse(rsp *http.Response) (*ListSolanaAccountsResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -51478,6 +54570,88 @@ func ParseListSolanaTokenBalancesResponse(rsp *http.Response) (*ListSolanaTokenB
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
 		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTopUpLinkResponse parses an HTTP response from a CreateTopUpLinkWithResponse call
+func ParseCreateTopUpLinkResponse(rsp *http.Response) (*CreateTopUpLinkResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTopUpLinkResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest TopUpLink
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest EndpointUnavailableError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

@@ -4,6 +4,7 @@
 
 ### Features
 
+- Regenerate OpenAPI clients from `c3/cdp-api@3312048b`: add `simulatePolicies` (`POST /v2/policy-engine/simulate`) and `createTopUpLink`, add top-up-link and customer-requirement webhook schemas, update disbursement `customerDisplay`, and remove `listCoinbaseAccountBalances`.
 - Revoke delegation now calls `POST .../delegation/revoke` and `POST .../address/{address}/delegation/revoke`. The old `DELETE` endpoints remain as `revokeDelegationForEndUserDeprecated` and `revokeDelegationForEndUserAccountDeprecated` until 2026-10-22. The generated request body type for all four operations is now `RevokeDelegationRequest`. Also adds the Mandates API (`createMandate`, `getMandate`, `listMandates`, `cancelMandate`, `approveWalletMandate`, `revokeWalletMandate`, `authorizeMandatePaymentSession`, and related approval and revocation reads) from the cdp-api master spec.
 - Add support for SendEndUserEvmAsset, SendEndUserSolAsset, and CreateEndUserEvmSwap policy rules and criteria
 - Regenerate OpenAPI client with latest spec updates

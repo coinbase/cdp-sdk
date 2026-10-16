@@ -61,7 +61,8 @@ class TestOnrampTransactionPayload(unittest.TestCase):
                 contract_address = '',
                 failure_reason = 'FAILURE_REASON_UNSPECIFIED',
                 end_partner_name = '',
-                error_code = 'ERROR_CODE_UNSPECIFIED'
+                error_code = 'ERROR_CODE_UNSPECIFIED',
+                partner_id = '1f1c19e8-d0e9-6443-b706-92a4d033d043'
             )
         else:
             return OnrampTransactionPayload(

@@ -8,7 +8,6 @@
 import type {
   Authorization,
   AuthorizationId,
-  Balances,
   CancelPaymentSessionRequest,
   Capture,
   CaptureId,
@@ -44,21 +43,6 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-/**
- * Returns the balances held in the Coinbase account.
-
-The `available` amount is the immediately spendable balance. The `total` amount also includes funds currently on hold. Both amounts are returned as decimal strings with 2 decimal places (e.g. `"50.00"`).
-
-**Authentication:** Requires a Coinbase OAuth Bearer token with the `coinbase:stablecoins:balance-read` scope.
-
-**Returned assets:** Currently always returns a single USDC entry. If the payer holds no USDC, the entry is still returned with an `available` and `total` of `"0"` so callers do not need to special-case a missing asset. Additional assets may be returned in the future without a contract change.
- * @summary List Coinbase account balances
- */
-export const listCoinbaseAccountBalances = (
-  options?: SecondParameter<typeof cdpApiClient<Balances>>,
-) => {
-  return cdpApiClient<Balances>({ url: `/v2/coinbase-accounts/balances`, method: "GET" }, options);
-};
 /**
  * Creates a payment session that defines what is being paid — amount, asset, and target. Optionally configure execution behavior, expiry deadlines, redirect URLs, and metadata.
 
@@ -432,9 +416,6 @@ export const getPaymentSessionRefund = (
     options,
   );
 };
-export type ListCoinbaseAccountBalancesResult = NonNullable<
-  Awaited<ReturnType<typeof listCoinbaseAccountBalances>>
->;
 export type CreatePaymentSessionResult = NonNullable<
   Awaited<ReturnType<typeof createPaymentSession>>
 >;

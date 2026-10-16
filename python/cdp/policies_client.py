@@ -1,6 +1,10 @@
+from pydantic import BaseModel
+
 from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
+from cdp.openapi_client.models.policy_simulation_result import PolicySimulationResult
+from cdp.openapi_client.models.simulate_policies_request import SimulatePoliciesRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.response_transformer import map_openapi_rules_to_response_format
@@ -155,6 +159,31 @@ class PoliciesClient:
             )
         except Exception as error:
             track_error(error, "get_policy_by_id")
+            raise
+
+    async def simulate(
+        self, request: SimulatePoliciesRequest | BaseModel
+    ) -> PolicySimulationResult:
+        """Evaluate policies without signing or submitting the operation.
+
+        Args:
+            request (SimulatePoliciesRequest | BaseModel): A simulation request or one of
+                its generated concrete SimulationInput models.
+
+        Returns:
+            PolicySimulationResult: The policy decision, including normal reject results.
+
+        """
+        track_action(action="simulate_policies")
+
+        try:
+            if not isinstance(request, SimulatePoliciesRequest):
+                request = SimulatePoliciesRequest(actual_instance=request)
+            return await self.api_clients.policies.simulate_policies(
+                simulate_policies_request=request,
+            )
+        except Exception as error:
+            track_error(error, "simulate_policies")
             raise
 
     async def list_policies(

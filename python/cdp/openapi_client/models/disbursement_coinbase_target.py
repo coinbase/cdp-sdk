@@ -25,7 +25,7 @@ from typing_extensions import Self
 
 class DisbursementCoinbaseTarget(BaseModel):
     """
-    A Coinbase-user target for the disbursement.
+    A Coinbase user account that receives the disbursement.
     """ # noqa: E501
     coinbase_user_id: StrictStr = Field(description="The unique identifier of the recipient within Coinbase.", alias="coinbaseUserId")
     __properties: ClassVar[List[str]] = ["coinbaseUserId"]

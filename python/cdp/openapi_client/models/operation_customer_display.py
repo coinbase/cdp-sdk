@@ -26,9 +26,9 @@ from typing_extensions import Self
 
 class OperationCustomerDisplay(BaseModel):
     """
-    Customer-facing display data for a payment operation, shown to the payer.
+    Customer-facing display information for a payment operation.
     """ # noqa: E501
-    reference_code: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, description="A short reference code for this payment operation, visible to the payer.", alias="referenceCode")
+    reference_code: Optional[Annotated[str, Field(strict=True, max_length=128)]] = Field(default=None, description="A short customer-facing reference code for this payment operation.", alias="referenceCode")
     __properties: ClassVar[List[str]] = ["referenceCode"]
 
     model_config = ConfigDict(

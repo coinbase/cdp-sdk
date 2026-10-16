@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,10 +31,20 @@ class IndividualInputAddress(BaseModel):
     line1: Optional[StrictStr] = Field(default=None, description="Primary street address.")
     line2: Optional[StrictStr] = Field(default=None, description="Secondary address information.")
     city: Optional[StrictStr] = Field(default=None, description="City or locality.")
-    state: Optional[StrictStr] = Field(default=None, description="State, province, or region.")
+    state: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="Two-letter US state or territory code (`CA`, `DC`, `PR`), without a country prefix. ")
     post_code: Optional[StrictStr] = Field(default=None, description="Postal or ZIP code.", alias="postCode")
     country_code: Optional[StrictStr] = Field(default=None, description="ISO 3166-1 alpha-2 country code. Only US addresses are currently supported. ", alias="countryCode")
     __properties: ClassVar[List[str]] = ["line1", "line2", "city", "state", "postCode", "countryCode"]
+
+    @field_validator('state')
+    def state_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[A-Z]{2}$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Z]{2}$/")
+        return value
 
     @field_validator('country_code')
     def country_code_validate_enum(cls, value):

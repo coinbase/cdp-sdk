@@ -67,3 +67,4 @@ export * from "./generated/payment-sessions/payment-sessions.js";
 export * from "./generated/customers/customers.js";
 export * from "./generated/disbursements/disbursements.js";
 export * from "./generated/mandates/mandates.js";
+export * from "./generated/top-up-links/top-up-links.js";

@@ -21,6 +21,7 @@ from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.sqlapi_api import SQLAPIApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
+from cdp.openapi_client.api.top_up_links_api import TopUpLinksApi
 from cdp.openapi_client.api.transfers_api import TransfersApi
 from cdp.openapi_client.api.webhooks_api import WebhooksApi
 from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi

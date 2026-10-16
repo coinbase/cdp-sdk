@@ -38,13 +38,13 @@ class TestListDisbursements200Response(unittest.TestCase):
             return ListDisbursements200Response(
                 next_page_token = 'eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==',
                 disbursements = [
-                    {disbursementId=disbursement_82c879c1-84e1-44ed-a8c2-1ac239cf09ad, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usdc}, target={coinbaseUserId=coinbase_user_abc123}, amount=25.00, asset=usdc, status=pending, reason=Goodwill disbursement for delayed shipment., externalReferenceId=disbursement-2026-04-1234, metadata={customer_id=cust_12345, order_id=order_67890}, createdAt=2026-04-17T17:00:00.000Z, updatedAt=2026-04-17T17:00:00.000Z}
+                    {disbursementId=disbursement_82c879c1-84e1-44ed-a8c2-1ac239cf09ad, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usdc}, target={coinbaseUserId=coinbase_user_abc123}, amount=25.00, asset=usdc, status=pending, reason=Goodwill disbursement for delayed shipment., externalReferenceId=disbursement-2026-04-1234, customerDisplay={merchantName=Acme Store, referenceCode=REF-ABC123}, metadata={customer_id=cust_12345, order_id=order_67890}, createdAt=2026-04-17T17:00:00.000Z, updatedAt=2026-04-17T17:00:00.000Z}
                     ]
             )
         else:
             return ListDisbursements200Response(
                 disbursements = [
-                    {disbursementId=disbursement_82c879c1-84e1-44ed-a8c2-1ac239cf09ad, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usdc}, target={coinbaseUserId=coinbase_user_abc123}, amount=25.00, asset=usdc, status=pending, reason=Goodwill disbursement for delayed shipment., externalReferenceId=disbursement-2026-04-1234, metadata={customer_id=cust_12345, order_id=order_67890}, createdAt=2026-04-17T17:00:00.000Z, updatedAt=2026-04-17T17:00:00.000Z}
+                    {disbursementId=disbursement_82c879c1-84e1-44ed-a8c2-1ac239cf09ad, source={accountId=account_af2937b0-9846-4fe7-bfe9-ccc22d935114, asset=usdc}, target={coinbaseUserId=coinbase_user_abc123}, amount=25.00, asset=usdc, status=pending, reason=Goodwill disbursement for delayed shipment., externalReferenceId=disbursement-2026-04-1234, customerDisplay={merchantName=Acme Store, referenceCode=REF-ABC123}, metadata={customer_id=cust_12345, order_id=order_67890}, createdAt=2026-04-17T17:00:00.000Z, updatedAt=2026-04-17T17:00:00.000Z}
                     ],
         )
         """

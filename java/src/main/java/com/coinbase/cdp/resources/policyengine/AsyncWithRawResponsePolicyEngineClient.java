@@ -19,6 +19,8 @@ import com.coinbase.cdp.errors.ConflictError;
 import com.coinbase.cdp.errors.InternalServerError;
 import com.coinbase.cdp.errors.NotFoundError;
 import com.coinbase.cdp.errors.ServiceUnavailableError;
+import com.coinbase.cdp.errors.TooManyRequestsError;
+import com.coinbase.cdp.errors.UnauthorizedError;
 import com.coinbase.cdp.errors.UnprocessableEntityError;
 import com.coinbase.cdp.resources.policyengine.requests.CreatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.DeletePolicyRequest;
@@ -28,6 +30,8 @@ import com.coinbase.cdp.resources.policyengine.requests.UpdatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.types.ListPoliciesResponse;
 import com.coinbase.cdp.types.Error;
 import com.coinbase.cdp.types.Policy;
+import com.coinbase.cdp.types.PolicySimulationResult;
+import com.coinbase.cdp.types.SimulatePoliciesRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.lang.Exception;
@@ -250,65 +254,71 @@ public class AsyncWithRawResponsePolicyEngineClient {
       }
 
       /**
-       * Get a policy by its ID.
+       * Simulates policy evaluation for one operation against the project's current policies and returns the <code>action</code> the real operation would take, the rule that decided it, and the first unmet criterion of every rule that did not match.  Nothing is signed, broadcast, or persisted, and gas and nonce are not populated: the transaction is evaluated as submitted.
+       * Each unmet criterion (<code>observed</code>) and each matched-rule criterion (<code>observations</code>) can include the value observed in the request, with messages and decoded arguments returned up to their documented size limits.
+       * Rate-limiting criteria are read but not consumed. <code>netUSDChange</code> criteria run transaction simulation, and pass successfully on testnets, as in the real operation. The result is a snapshot: policies, rate-limit counters, or chain state may change before a real call.
+       * A policy rejection returns <code>200</code> with <code>action: reject</code>; this endpoint never returns <code>policy_violation</code>. A criterion that cannot be evaluated for this  input returns <code>422</code>.
        */
-      public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId) {
-        return getPolicyById(policyId,GetPolicyByIdRequest.builder().build());
+      public CompletableFuture<CdpClientHttpResponse<PolicySimulationResult>> simulatePolicies(
+          SimulatePoliciesRequest request) {
+        return simulatePolicies(request,null);
       }
 
       /**
-       * Get a policy by its ID.
+       * Simulates policy evaluation for one operation against the project's current policies and returns the <code>action</code> the real operation would take, the rule that decided it, and the first unmet criterion of every rule that did not match.  Nothing is signed, broadcast, or persisted, and gas and nonce are not populated: the transaction is evaluated as submitted.
+       * Each unmet criterion (<code>observed</code>) and each matched-rule criterion (<code>observations</code>) can include the value observed in the request, with messages and decoded arguments returned up to their documented size limits.
+       * Rate-limiting criteria are read but not consumed. <code>netUSDChange</code> criteria run transaction simulation, and pass successfully on testnets, as in the real operation. The result is a snapshot: policies, rate-limit counters, or chain state may change before a real call.
+       * A policy rejection returns <code>200</code> with <code>action: reject</code>; this endpoint never returns <code>policy_violation</code>. A criterion that cannot be evaluated for this  input returns <code>422</code>.
        */
-      public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
-          RequestOptions requestOptions) {
-        return getPolicyById(policyId,GetPolicyByIdRequest.builder().build(),requestOptions);
-      }
-
-      /**
-       * Get a policy by its ID.
-       */
-      public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
-          GetPolicyByIdRequest request) {
-        return getPolicyById(policyId,request,null);
-      }
-
-      /**
-       * Get a policy by its ID.
-       */
-      public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
-          GetPolicyByIdRequest request, RequestOptions requestOptions) {
+      public CompletableFuture<CdpClientHttpResponse<PolicySimulationResult>> simulatePolicies(
+          SimulatePoliciesRequest request, RequestOptions requestOptions) {
         HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
-          .addPathSegments("v2/policy-engine/policies")
-          .addPathSegment(policyId);if (requestOptions != null) {
+          .addPathSegments("v2/policy-engine/simulate");if (requestOptions != null) {
             requestOptions.getQueryParameters().forEach((_key, _value) -> {
               httpUrl.addQueryParameter(_key, _value);
             } );
           }
-          Request.Builder _requestBuilder = new Request.Builder()
+          RequestBody body;
+          try {
+            body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+          }
+          catch(JsonProcessingException e) {
+            throw new CdpClientException("Failed to serialize request", e);
+          }
+          Request okhttpRequest = new Request.Builder()
             .url(httpUrl.build())
-            .method("GET", null)
+            .method("POST", body)
             .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
             .headers(Headers.of(clientOptions.headers(requestOptions)))
-            .addHeader("Accept", "application/json");
-          Request okhttpRequest = _requestBuilder.build();
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Accept", "application/json")
+            .build();
           OkHttpClient client = clientOptions.httpClient();
           if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
             client = clientOptions.httpClientWithTimeout(requestOptions);
           }
-          CompletableFuture<CdpClientHttpResponse<Policy>> future = new CompletableFuture<>();
+          CompletableFuture<CdpClientHttpResponse<PolicySimulationResult>> future = new CompletableFuture<>();
           client.newCall(okhttpRequest).enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
               try (ResponseBody responseBody = response.body()) {
                 String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                 if (response.isSuccessful()) {
-                  future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Policy.class), response));
+                  future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, PolicySimulationResult.class), response));
                   return;
                 }
                 try {
                   switch (response.code()) {
+                    case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                    return;
+                    case 401:future.completeExceptionally(new UnauthorizedError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                    return;
                     case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                    return;
+                    case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                    return;
+                    case 429:future.completeExceptionally(new TooManyRequestsError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                     return;
                     case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                     return;
@@ -342,18 +352,33 @@ public class AsyncWithRawResponsePolicyEngineClient {
         }
 
         /**
-         * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
+         * Get a policy by its ID.
          */
-        public CompletableFuture<CdpClientHttpResponse<Policy>> updatePolicy(String policyId,
-            UpdatePolicyRequest request) {
-          return updatePolicy(policyId,request,null);
+        public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId) {
+          return getPolicyById(policyId,GetPolicyByIdRequest.builder().build());
         }
 
         /**
-         * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
+         * Get a policy by its ID.
          */
-        public CompletableFuture<CdpClientHttpResponse<Policy>> updatePolicy(String policyId,
-            UpdatePolicyRequest request, RequestOptions requestOptions) {
+        public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
+            RequestOptions requestOptions) {
+          return getPolicyById(policyId,GetPolicyByIdRequest.builder().build(),requestOptions);
+        }
+
+        /**
+         * Get a policy by its ID.
+         */
+        public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
+            GetPolicyByIdRequest request) {
+          return getPolicyById(policyId,request,null);
+        }
+
+        /**
+         * Get a policy by its ID.
+         */
+        public CompletableFuture<CdpClientHttpResponse<Policy>> getPolicyById(String policyId,
+            GetPolicyByIdRequest request, RequestOptions requestOptions) {
           HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
             .addPathSegments("v2/policy-engine/policies")
@@ -362,23 +387,12 @@ public class AsyncWithRawResponsePolicyEngineClient {
                 httpUrl.addQueryParameter(_key, _value);
               } );
             }
-            RequestBody body;
-            try {
-              body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
-            }
-            catch(Exception e) {
-              throw new RuntimeException(e);
-            }
             Request.Builder _requestBuilder = new Request.Builder()
               .url(httpUrl.build())
-              .method("PUT", body)
+              .method("GET", null)
               .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
               .headers(Headers.of(clientOptions.headers(requestOptions)))
-              .addHeader("Content-Type", "application/json")
               .addHeader("Accept", "application/json");
-            if (request.getIdempotencyKey().isPresent()) {
-              _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
-            }
             Request okhttpRequest = _requestBuilder.build();
             OkHttpClient client = clientOptions.httpClient();
             if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
@@ -396,13 +410,7 @@ public class AsyncWithRawResponsePolicyEngineClient {
                   }
                   try {
                     switch (response.code()) {
-                      case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                      return;
                       case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                      return;
-                      case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
-                      return;
-                      case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                       return;
                       case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
                       return;
@@ -436,33 +444,18 @@ public class AsyncWithRawResponsePolicyEngineClient {
           }
 
           /**
-           * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+           * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
            */
-          public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId) {
-            return deletePolicy(policyId,DeletePolicyRequest.builder().build());
+          public CompletableFuture<CdpClientHttpResponse<Policy>> updatePolicy(String policyId,
+              UpdatePolicyRequest request) {
+            return updatePolicy(policyId,request,null);
           }
 
           /**
-           * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+           * Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
            */
-          public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
-              RequestOptions requestOptions) {
-            return deletePolicy(policyId,DeletePolicyRequest.builder().build(),requestOptions);
-          }
-
-          /**
-           * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
-           */
-          public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
-              DeletePolicyRequest request) {
-            return deletePolicy(policyId,request,null);
-          }
-
-          /**
-           * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
-           */
-          public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
-              DeletePolicyRequest request, RequestOptions requestOptions) {
+          public CompletableFuture<CdpClientHttpResponse<Policy>> updatePolicy(String policyId,
+              UpdatePolicyRequest request, RequestOptions requestOptions) {
             HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
 
               .addPathSegments("v2/policy-engine/policies")
@@ -471,11 +464,19 @@ public class AsyncWithRawResponsePolicyEngineClient {
                   httpUrl.addQueryParameter(_key, _value);
                 } );
               }
+              RequestBody body;
+              try {
+                body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+              }
+              catch(Exception e) {
+                throw new RuntimeException(e);
+              }
               Request.Builder _requestBuilder = new Request.Builder()
                 .url(httpUrl.build())
-                .method("DELETE", null)
+                .method("PUT", body)
                 .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
                 .headers(Headers.of(clientOptions.headers(requestOptions)))
+                .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json");
               if (request.getIdempotencyKey().isPresent()) {
                 _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
@@ -485,16 +486,16 @@ public class AsyncWithRawResponsePolicyEngineClient {
               if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
                 client = clientOptions.httpClientWithTimeout(requestOptions);
               }
-              CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
+              CompletableFuture<CdpClientHttpResponse<Policy>> future = new CompletableFuture<>();
               client.newCall(okhttpRequest).enqueue(new Callback() {
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                   try (ResponseBody responseBody = response.body()) {
+                    String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                     if (response.isSuccessful()) {
-                      future.complete(new CdpClientHttpResponse<>(null, response));
+                      future.complete(new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Policy.class), response));
                       return;
                     }
-                    String responseBodyString = responseBody != null ? responseBody.string() : "{}";
                     try {
                       switch (response.code()) {
                         case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
@@ -535,4 +536,105 @@ public class AsyncWithRawResponsePolicyEngineClient {
               });
               return future;
             }
-          }
+
+            /**
+             * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+             */
+            public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId) {
+              return deletePolicy(policyId,DeletePolicyRequest.builder().build());
+            }
+
+            /**
+             * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+             */
+            public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
+                RequestOptions requestOptions) {
+              return deletePolicy(policyId,DeletePolicyRequest.builder().build(),requestOptions);
+            }
+
+            /**
+             * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+             */
+            public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
+                DeletePolicyRequest request) {
+              return deletePolicy(policyId,request,null);
+            }
+
+            /**
+             * Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+             */
+            public CompletableFuture<CdpClientHttpResponse<Void>> deletePolicy(String policyId,
+                DeletePolicyRequest request, RequestOptions requestOptions) {
+              HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
+
+                .addPathSegments("v2/policy-engine/policies")
+                .addPathSegment(policyId);if (requestOptions != null) {
+                  requestOptions.getQueryParameters().forEach((_key, _value) -> {
+                    httpUrl.addQueryParameter(_key, _value);
+                  } );
+                }
+                Request.Builder _requestBuilder = new Request.Builder()
+                  .url(httpUrl.build())
+                  .method("DELETE", null)
+                  .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                  .headers(Headers.of(clientOptions.headers(requestOptions)))
+                  .addHeader("Accept", "application/json");
+                if (request.getIdempotencyKey().isPresent()) {
+                  _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                }
+                Request okhttpRequest = _requestBuilder.build();
+                OkHttpClient client = clientOptions.httpClient();
+                if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
+                  client = clientOptions.httpClientWithTimeout(requestOptions);
+                }
+                CompletableFuture<CdpClientHttpResponse<Void>> future = new CompletableFuture<>();
+                client.newCall(okhttpRequest).enqueue(new Callback() {
+                  @Override
+                  public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    try (ResponseBody responseBody = response.body()) {
+                      if (response.isSuccessful()) {
+                        future.complete(new CdpClientHttpResponse<>(null, response));
+                        return;
+                      }
+                      String responseBodyString = responseBody != null ? responseBody.string() : "{}";
+                      try {
+                        switch (response.code()) {
+                          case 400:future.completeExceptionally(new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 404:future.completeExceptionally(new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 409:future.completeExceptionally(new ConflictError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 422:future.completeExceptionally(new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 500:future.completeExceptionally(new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 502:future.completeExceptionally(new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                          case 503:future.completeExceptionally(new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response));
+                          return;
+                        }
+                      }
+                      catch (JsonProcessingException ignored) {
+                        // unable to map error response, throwing generic error
+                      }
+                      Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
+                      future.completeExceptionally(new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response));
+                      return;
+                    }
+                    catch (JsonProcessingException e) {
+                      future.completeExceptionally(new CdpClientException("Failed to decode HTTP response", e));
+                    }
+                    catch (IOException e) {
+                      future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                    }
+                  }
+
+                  @Override
+                  public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    future.completeExceptionally(new CdpClientException("Network error executing HTTP request", e));
+                  }
+                });
+                return future;
+              }
+            }

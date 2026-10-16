@@ -52,7 +52,8 @@ class TestOnrampOrderPayload(unittest.TestCase):
                 tx_hash = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
                 created_at = '2025-09-10T10:30:00Z',
                 updated_at = '2025-09-10T10:35:00Z',
-                partner_user_ref = 'example_user_ref'
+                partner_user_ref = 'example_user_ref',
+                partner_id = '1f1c19e8-d0e9-6443-b706-92a4d033d043'
             )
         else:
             return OnrampOrderPayload(

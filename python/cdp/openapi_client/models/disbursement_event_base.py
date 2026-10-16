@@ -27,10 +27,10 @@ from typing_extensions import Self
 
 class DisbursementEventBase(BaseModel):
     """
-    Common fields included in every DisbursementEvent payload.
+    Fields shared by disbursement webhook events.
     """ # noqa: E501
-    event_id: StrictStr = Field(description="Unique identifier for this webhook event. Use this for idempotency.", alias="eventId")
-    timestamp: datetime = Field(description="When this event occurred (ISO 8601 format).")
+    event_id: StrictStr = Field(description="The unique identifier for this webhook event. Use it to deduplicate deliveries.", alias="eventId")
+    timestamp: datetime = Field(description="The UTC ISO 8601 timestamp when the event occurred.")
     data: Disbursement
     __properties: ClassVar[List[str]] = ["eventId", "timestamp", "data"]
 

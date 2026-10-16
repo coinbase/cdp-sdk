@@ -138,6 +138,8 @@ def test_get_auth_headers_still_sends_bearer_token_for_public_operation_with_cre
         ("POST", "/v2/end-users/user123/evm", True),
         ("POST", "/v2/end-users/user123/evm-smart-account", True),
         ("POST", "/v2/end-users/user123/solana", True),
+        ("POST", "/platform/v2/policy-engine/simulate", False),
+        ("POST", "/v2/policy-engine/simulate", False),
     ],
 )
 def test_requires_wallet_auth(request_method, request_path, expected):

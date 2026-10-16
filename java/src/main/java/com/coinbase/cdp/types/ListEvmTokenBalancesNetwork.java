@@ -16,6 +16,12 @@ public final class ListEvmTokenBalancesNetwork {
 
   public static final ListEvmTokenBalancesNetwork ETHEREUM = new ListEvmTokenBalancesNetwork(Value.ETHEREUM, "ethereum");
 
+  public static final ListEvmTokenBalancesNetwork ARBITRUM = new ListEvmTokenBalancesNetwork(Value.ARBITRUM, "arbitrum");
+
+  public static final ListEvmTokenBalancesNetwork POLYGON = new ListEvmTokenBalancesNetwork(Value.POLYGON, "polygon");
+
+  public static final ListEvmTokenBalancesNetwork OPTIMISM = new ListEvmTokenBalancesNetwork(Value.OPTIMISM, "optimism");
+
   private final Value value;
 
   private final String string;
@@ -54,6 +60,12 @@ public final class ListEvmTokenBalancesNetwork {
         return visitor.visitBase();
       case ETHEREUM:
         return visitor.visitEthereum();
+      case ARBITRUM:
+        return visitor.visitArbitrum();
+      case POLYGON:
+        return visitor.visitPolygon();
+      case OPTIMISM:
+        return visitor.visitOptimism();
       case UNKNOWN:
       default:
         return visitor.visitUnknown(string);
@@ -71,6 +83,12 @@ public final class ListEvmTokenBalancesNetwork {
         return BASE;
       case "ethereum":
         return ETHEREUM;
+      case "arbitrum":
+        return ARBITRUM;
+      case "polygon":
+        return POLYGON;
+      case "optimism":
+        return OPTIMISM;
       default:
         return new ListEvmTokenBalancesNetwork(Value.UNKNOWN, value);
     }
@@ -83,6 +101,12 @@ public final class ListEvmTokenBalancesNetwork {
 
     ETHEREUM,
 
+    ARBITRUM,
+
+    POLYGON,
+
+    OPTIMISM,
+
     UNKNOWN
   }
 
@@ -92,6 +116,12 @@ public final class ListEvmTokenBalancesNetwork {
     T visitBaseSepolia();
 
     T visitEthereum();
+
+    T visitArbitrum();
+
+    T visitPolygon();
+
+    T visitOptimism();
 
     T visitUnknown(String unknownType);
   }

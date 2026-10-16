@@ -10,11 +10,13 @@ import {
   GetPolicyByIdOptions,
   DeletePolicyOptions,
   UpdatePolicyOptions,
+  SimulatePoliciesOptions,
 } from "./policies.types.js";
 import { Analytics } from "../../analytics.js";
 import {
   CdpOpenApiClient,
   CreatePolicyBody,
+  PolicySimulationResult,
   UpdatePolicyBody,
 } from "../../openapi-client/index.js";
 import { Policy, CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/types.js";
@@ -232,6 +234,47 @@ export class PoliciesClient implements PoliciesClientInterface {
       return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
     } catch (error) {
       Analytics.trackError(error, "getPolicyById");
+      throw error;
+    }
+  }
+
+  /**
+   * Simulates policies for an operation without signing or submitting it.
+   * A rejected operation is returned as a result, not thrown as an error.
+   *
+   * @param {SimulatePoliciesOptions} options - The operation and its inputs to evaluate
+   * @returns {Promise<PolicySimulationResult>} The policy action and evaluation details
+   *
+   * @example **Simulate signing an EVM transaction**
+   *          ```ts
+   *          const result = await cdp.policies.simulate({
+   *            operation: "signEvmTransaction",
+   *            address: account.address,
+   *            transaction: serializedTransaction,
+   *          });
+   *          ```
+   *
+   * @example **Inspect the evaluation**
+   *          ```ts
+   *          console.log(result.action, result.reason);
+   *          console.log(result.matchedRule);
+   *          for (const rule of result.unmatchedRules) {
+   *            console.log(rule.criterion, rule.observed);
+   *          }
+   *          ```
+   */
+  async simulate(options: SimulatePoliciesOptions): Promise<PolicySimulationResult> {
+    Analytics.trackAction({
+      action: "simulate_policies",
+      properties: {
+        operation: options.operation,
+      },
+    });
+
+    try {
+      return await CdpOpenApiClient.simulatePolicies(options);
+    } catch (error) {
+      Analytics.trackError(error, "simulate");
       throw error;
     }
   }

@@ -51,7 +51,8 @@ class TestOnrampOrder(unittest.TestCase):
                 tx_hash = '0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb',
                 created_at = '2025-04-24T00:00:00Z',
                 updated_at = '2025-04-24T00:00:00Z',
-                partner_user_ref = 'user123'
+                partner_user_ref = 'user123',
+                partner_id = '1f1c19e8-d0e9-6443-b706-92a4d033d043'
             )
         else:
             return OnrampOrder(

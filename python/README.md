@@ -1297,6 +1297,60 @@ policy = await cdp.policies.update_policy(
 policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
 ```
 
+### Simulate a Policy
+
+`simulate` evaluates the project and account policies for one operation without signing it, and reports the action plus the rules that matched or failed to match.
+
+```python
+from eth_account.typed_transactions import DynamicFeeTransaction
+
+from cdp.openapi_client.models.sign_evm_transaction_simulation_input import (
+    SignEvmTransactionSimulationInput,
+)
+from cdp.utils import serialize_unsigned_transaction
+
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="account",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[EthValueCriterion(ethValue="1000000000000000000", operator="<=")],
+            )
+        ],
+    )
+)
+account = await cdp.evm.create_account(account_policy=policy.id)
+
+result = await cdp.policies.simulate(
+    SignEvmTransactionSimulationInput(
+        operation="signEvmTransaction",
+        address=account.address,
+        transaction=serialize_unsigned_transaction(
+            DynamicFeeTransaction.from_dict(
+                {
+                    "type": 2,
+                    "chainId": 84532,
+                    "nonce": 0,
+                    "to": "0x000000000000000000000000000000000000dEaD",
+                    "value": 2000000000000000000,
+                    "gas": 21000,
+                    "maxFeePerGas": 1000000000,
+                    "maxPriorityFeePerGas": 1000000,
+                    "data": "0x",
+                }
+            )
+        ),
+    )
+)
+
+print(result.action)  # "reject"
+print(result.reason)  # "no_rule_matched"
+print(result.unmatched_rules)  # the ethValue criterion and the observed value
+```
+
+A rejection comes back as a normal result with `action == "reject"`. Only request failures raise.
+
 #### Supported Policy Rules
 
 We currently support the following policy rules:

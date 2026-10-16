@@ -47,7 +47,8 @@ class OnrampOrder(BaseModel):
     created_at: StrictStr = Field(description="The date and time the order was created.", alias="createdAt")
     updated_at: StrictStr = Field(description="The date and time the order was last updated.", alias="updatedAt")
     partner_user_ref: Optional[StrictStr] = Field(default=None, description="The partner user reference ID.", alias="partnerUserRef")
-    __properties: ClassVar[List[str]] = ["orderId", "paymentTotal", "paymentSubtotal", "paymentCurrency", "paymentMethod", "purchaseAmount", "purchaseCurrency", "fees", "exchangeRate", "destinationAddress", "destinationNetwork", "status", "txHash", "createdAt", "updatedAt", "partnerUserRef"]
+    partner_id: Optional[StrictStr] = Field(default=None, description="The Onramp-issued identifier of the end partner this order was scoped to via the X-Onramp-Partner-Id header. Only present for orders created by an aggregator on behalf of a registered end partner.", alias="partnerId")
+    __properties: ClassVar[List[str]] = ["orderId", "paymentTotal", "paymentSubtotal", "paymentCurrency", "paymentMethod", "purchaseAmount", "purchaseCurrency", "fees", "exchangeRate", "destinationAddress", "destinationNetwork", "status", "txHash", "createdAt", "updatedAt", "partnerUserRef", "partnerId"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -122,7 +123,8 @@ class OnrampOrder(BaseModel):
             "txHash": obj.get("txHash"),
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt"),
-            "partnerUserRef": obj.get("partnerUserRef")
+            "partnerUserRef": obj.get("partnerUserRef"),
+            "partnerId": obj.get("partnerId")
         })
         return _obj
 

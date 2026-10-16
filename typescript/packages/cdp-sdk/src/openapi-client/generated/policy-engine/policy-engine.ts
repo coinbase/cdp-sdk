@@ -10,6 +10,8 @@ import type {
   ListPolicies200,
   ListPoliciesParams,
   Policy,
+  PolicySimulationResult,
+  SimulatePoliciesRequest,
   UpdatePolicyBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -45,6 +47,27 @@ export const createPolicy = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createPolicyBody,
+    },
+    options,
+  );
+};
+/**
+ * Simulates policy evaluation for one operation against the project's current policies and returns the `action` the real operation would take, the rule that decided it, and the first unmet criterion of every rule that did not match.  Nothing is signed, broadcast, or persisted, and gas and nonce are not populated: the transaction is evaluated as submitted.
+Each unmet criterion (`observed`) and each matched-rule criterion (`observations`) can include the value observed in the request, with messages and decoded arguments returned up to their documented size limits.
+Rate-limiting criteria are read but not consumed. `netUSDChange` criteria run transaction simulation, and pass successfully on testnets, as in the real operation. The result is a snapshot: policies, rate-limit counters, or chain state may change before a real call.
+A policy rejection returns `200` with `action: reject`; this endpoint never returns `policy_violation`. A criterion that cannot be evaluated for this  input returns `422`.
+ * @summary Simulate policies
+ */
+export const simulatePolicies = (
+  simulatePoliciesRequest: SimulatePoliciesRequest,
+  options?: SecondParameter<typeof cdpApiClient<PolicySimulationResult>>,
+) => {
+  return cdpApiClient<PolicySimulationResult>(
+    {
+      url: `/v2/policy-engine/simulate`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: simulatePoliciesRequest,
     },
     options,
   );
@@ -96,6 +119,7 @@ export const updatePolicy = (
 };
 export type ListPoliciesResult = NonNullable<Awaited<ReturnType<typeof listPolicies>>>;
 export type CreatePolicyResult = NonNullable<Awaited<ReturnType<typeof createPolicy>>>;
+export type SimulatePoliciesResult = NonNullable<Awaited<ReturnType<typeof simulatePolicies>>>;
 export type GetPolicyByIdResult = NonNullable<Awaited<ReturnType<typeof getPolicyById>>>;
 export type DeletePolicyResult = NonNullable<Awaited<ReturnType<typeof deletePolicy>>>;
 export type UpdatePolicyResult = NonNullable<Awaited<ReturnType<typeof updatePolicy>>>;

@@ -21,10 +21,10 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.create_disbursement_request_customer_display import CreateDisbursementRequestCustomerDisplay
 from cdp.openapi_client.models.disbursement_compliance import DisbursementCompliance
 from cdp.openapi_client.models.disbursement_source import DisbursementSource
 from cdp.openapi_client.models.disbursement_target import DisbursementTarget
-from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -37,8 +37,8 @@ class CreateDisbursementRequest(BaseModel):
     amount: StrictStr = Field(description="A decimal representation of the amount to disburse, denominated in `asset`.")
     asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The symbol of the asset for the disbursement amount.")
     reason: Optional[StrictStr] = Field(default=None, description="Human-readable reason for the disbursement.")
-    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.", alias="externalReferenceId")
-    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Optional customer-facing display data for this disbursement, shown to the payer. If `referenceCode` is omitted, one is auto-generated — disbursements have no payment session to fall back to, unlike every other action type.", alias="customerDisplay")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An identifier from your system for tracking this disbursement. Not shown to the recipient. Must not contain personally identifiable information (PII) or payment credentials.", alias="externalReferenceId")
+    customer_display: Optional[CreateDisbursementRequestCustomerDisplay] = Field(default=None, alias="customerDisplay")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     compliance: Optional[DisbursementCompliance] = Field(default=None, description="Compliance context for this disbursement. Carries recipient information required by some entity configurations to meet regulatory requirements.")
     __properties: ClassVar[List[str]] = ["source", "target", "amount", "asset", "reason", "externalReferenceId", "customerDisplay", "metadata", "compliance"]
@@ -112,7 +112,7 @@ class CreateDisbursementRequest(BaseModel):
             "asset": obj.get("asset"),
             "reason": obj.get("reason"),
             "externalReferenceId": obj.get("externalReferenceId"),
-            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
+            "customerDisplay": CreateDisbursementRequestCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "metadata": obj.get("metadata"),
             "compliance": DisbursementCompliance.from_dict(obj["compliance"]) if obj.get("compliance") is not None else None
         })

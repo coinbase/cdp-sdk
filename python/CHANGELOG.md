@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.50.0] - 2026-10-16
+
+### Features
+
+- Added `cdp.policies.simulate` to evaluate policies against an operation without signing or submitting it. Returns a `PolicySimulationResult` with the `accept` or `reject` action, matched rule, and unmatched rules. ([#policies-simulate](https://github.com/coinbase/cdp-sdk/pull/policies-simulate))
+- Regenerate OpenAPI clients from `c3/cdp-api@3312048b`: add `simulatePolicies` (`POST /v2/policy-engine/simulate`) and `createTopUpLink`, add top-up-link and customer-requirement webhook schemas, update disbursement `customerDisplay`, and remove `listCoinbaseAccountBalances`. ([#cdp-api-3312048b](https://github.com/coinbase/cdp-sdk/pull/cdp-api-3312048b))
+
+
 ## [1.49.0] - 2026-10-06
 
 ### Features
