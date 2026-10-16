@@ -1,0 +1,19 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {}
+}"ghcr.io/postfinance/devcontainer-features/dotnet:1": {}
+"ghcr.io/postfinance/devcontainer-features/dotnet:1": {}
+"ghcr.io/nordcominc/devcontainer-features/android-sdk:2": {}
+"ghcr.io/esimkowitz/devcontainer-features/claude-code-persistence:1": {}
+"ghcr.io/daniellindemann/dev-container-features/dotnet-usersecrets-persistence:0": {}
+"ghcr.io/wcgomes/devcontainer-features/agency-agents:0": {}
+"ghcr.io/wxw-matt/devcontainer-features/script_runner:0": {}
+"ghcr.io/ait-assistive-autonomous-systems/devcontainer_features/add-groups:0": {}
+"ghcr.io/daniellindemann/dev-container-features/dotnet-usersecrets-persistence:0": {}
+"ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {}
+"ghcr.io/bullmastiffo/devcontainers-features/azurelinux-docker-outside-of-docker:1": {}
+"ghcr.io/devcontainers-extra/features/cloudflared-fips:1": {}
+"ghcr.io/postfinance/devcontainer-features/browsers:1": {}
+"ghcr.io/dlouwers/devcontainer-features/bob:1": {}
+"ghcr.io/dnegstad/devcontainer-dev-certs/devcontainer-dev-certs:1": {}
+"ghcr.io/customink/codespaces-features/docker-in-docker-amzn:1": {}
