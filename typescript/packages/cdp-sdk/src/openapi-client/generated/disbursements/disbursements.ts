@@ -18,9 +18,7 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Creates a merchant-initiated payment of funds from a CDP account owned by the merchant to a Coinbase user account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.
-
-This is an asynchronous operation. The disbursement is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+ * Creates a disbursement from a CDP account you own to a Coinbase user account or an onchain address. Returns the disbursement with `pending` status while processing continues asynchronously.
  * @summary Create a disbursement
  */
 export const createDisbursement = (
@@ -38,7 +36,7 @@ export const createDisbursement = (
   );
 };
 /**
- * Returns a paginated list of disbursements created by the merchant. Each disbursement includes its source, target, status, amount, and timestamps. Only disbursements accessible by the current API key are returned.
+ * Returns a paginated list of disbursements accessible to your API key. Filter by `status`, `sourceAccountId`, or `externalReferenceId`.
  * @summary List disbursements
  */
 export const listDisbursements = (
@@ -51,7 +49,7 @@ export const listDisbursements = (
   );
 };
 /**
- * Retrieves a single disbursement by its ID, including source, target, status, amount, associated onchain transactions, error details (if failed), and timestamps. Only returns the disbursement if the API key has permission to access it.
+ * Returns the disbursement identified by `disbursementId`. Your API key must have permission to access the disbursement.
  * @summary Get a disbursement
  */
 export const getDisbursement = (

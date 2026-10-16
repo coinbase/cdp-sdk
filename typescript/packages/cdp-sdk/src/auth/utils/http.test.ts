@@ -145,6 +145,18 @@ describe("http utils", () => {
     expect(headers["X-Wallet-Auth"]).toBeUndefined();
   });
 
+  it("should not require wallet auth or a secret for policy simulation", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath: "/v2/policy-engine/simulate",
+    });
+
+    expect(headers["Authorization"]).toBeDefined();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
+    expect(generateWalletJwt).not.toHaveBeenCalled();
+  });
+
   it("should not require wallet auth for GET requests", async () => {
     const headers = await getAuthHeaders({
       ...defaultOptions,

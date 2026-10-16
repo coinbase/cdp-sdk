@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class DisbursementWalletTarget(BaseModel):
     """
-    An onchain address target for the disbursement.
+    An onchain address that receives the disbursement.
     """ # noqa: E501
     address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The onchain crypto address of the recipient.")
     network: Network = Field(description="The blockchain network on which the target receives funds.")

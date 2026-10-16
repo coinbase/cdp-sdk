@@ -22,10 +22,10 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.disbursement_customer_display import DisbursementCustomerDisplay
 from cdp.openapi_client.models.disbursement_source import DisbursementSource
 from cdp.openapi_client.models.disbursement_target import DisbursementTarget
 from cdp.openapi_client.models.onchain_transaction import OnchainTransaction
-from cdp.openapi_client.models.operation_customer_display import OperationCustomerDisplay
 from cdp.openapi_client.models.payment_action_status import PaymentActionStatus
 from cdp.openapi_client.models.payment_error import PaymentError
 from typing import Optional, Set
@@ -33,7 +33,7 @@ from typing_extensions import Self
 
 class Disbursement(BaseModel):
     """
-    A Disbursement represents a merchant-initiated payment of funds from a CDP account they own to a Coinbase account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.  Disbursements are asynchronous: the resource is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+    A payment from a CDP account you own to a Coinbase user account or an onchain address, independent of a payment session.
     """ # noqa: E501
     disbursement_id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier of the disbursement.", alias="disbursementId")
     source: DisbursementSource = Field(description="The source from which the disbursement is funded.")
@@ -42,8 +42,8 @@ class Disbursement(BaseModel):
     asset: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The symbol of the asset for the disbursement amount.")
     status: PaymentActionStatus = Field(description="The current status of the disbursement.")
     reason: Optional[StrictStr] = Field(default=None, description="Human-readable reason for the disbursement.")
-    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="A merchant-provided internal identifier for this disbursement, from the merchant's own system—not visible to the payer. It must not contain personally identifiable information (PII) or payment credentials.", alias="externalReferenceId")
-    customer_display: Optional[OperationCustomerDisplay] = Field(default=None, description="Customer-facing display data for this disbursement, shown to the payer. Always present: if the create request omits `referenceCode`, one is auto-generated, since disbursements have no payment session to fall back to.", alias="customerDisplay")
+    external_reference_id: Optional[Annotated[str, Field(strict=True, max_length=256)]] = Field(default=None, description="An identifier from your system for tracking this disbursement. Not shown to the recipient. Must not contain personally identifiable information (PII) or payment credentials.", alias="externalReferenceId")
+    customer_display: Optional[DisbursementCustomerDisplay] = Field(default=None, alias="customerDisplay")
     metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 10 key/value pairs may be provided. Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     error: Optional[PaymentError] = Field(default=None, description="Error details, present only when the disbursement failed.")
     onchain_transactions: Optional[List[OnchainTransaction]] = Field(default=None, description="The onchain transactions associated with this disbursement.", alias="onchainTransactions")
@@ -136,7 +136,7 @@ class Disbursement(BaseModel):
             "status": obj.get("status"),
             "reason": obj.get("reason"),
             "externalReferenceId": obj.get("externalReferenceId"),
-            "customerDisplay": OperationCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
+            "customerDisplay": DisbursementCustomerDisplay.from_dict(obj["customerDisplay"]) if obj.get("customerDisplay") is not None else None,
             "metadata": obj.get("metadata"),
             "error": PaymentError.from_dict(obj["error"]) if obj.get("error") is not None else None,
             "onchainTransactions": [OnchainTransaction.from_dict(_item) for _item in obj["onchainTransactions"]] if obj.get("onchainTransactions") is not None else None,

@@ -12,6 +12,8 @@ import java.lang.String;
 public final class X402V2Network {
   public static final X402V2Network EIP1558453 = new X402V2Network(Value.EIP1558453, "eip155:8453");
 
+  public static final X402V2Network EIP155143 = new X402V2Network(Value.EIP155143, "eip155:143");
+
   public static final X402V2Network EIP155480 = new X402V2Network(Value.EIP155480, "eip155:480");
 
   public static final X402V2Network SOLANA_ET_WTRAB_ZA_YQ6I_MFE_Y_KOU_RU166VU2XQA1 = new X402V2Network(Value.SOLANA_ET_WTRAB_ZA_YQ6I_MFE_Y_KOU_RU166VU2XQA1, "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1");
@@ -60,6 +62,8 @@ public final class X402V2Network {
     switch (value) {
       case EIP1558453:
         return visitor.visitEip1558453();
+      case EIP155143:
+        return visitor.visitEip155143();
       case EIP155480:
         return visitor.visitEip155480();
       case SOLANA_ET_WTRAB_ZA_YQ6I_MFE_Y_KOU_RU166VU2XQA1:
@@ -87,6 +91,8 @@ public final class X402V2Network {
     switch (value) {
       case "eip155:8453":
         return EIP1558453;
+      case "eip155:143":
+        return EIP155143;
       case "eip155:480":
         return EIP155480;
       case "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1":
@@ -115,6 +121,8 @@ public final class X402V2Network {
 
     EIP15542161,
 
+    EIP155143,
+
     EIP155480,
 
     EIP1554801,
@@ -134,6 +142,8 @@ public final class X402V2Network {
     T visitEip155137();
 
     T visitEip15542161();
+
+    T visitEip155143();
 
     T visitEip155480();
 

@@ -8,6 +8,8 @@ export type {
   WaitForEvmEip7702DelegationOperationStatusOptions,
 } from "./client/evm/evm.types.js";
 export type { Policy } from "./policies/types.js";
+export type { SimulatePoliciesOptions } from "./client/policies/policies.types.js";
+export type { SimulatePoliciesRequest, PolicySimulationResult } from "./openapi-client/index.js";
 export {
   CreatePolicyBodySchema,
   UpdatePolicyBodySchema,

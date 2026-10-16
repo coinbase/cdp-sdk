@@ -1,13 +1,20 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.cdp_api_client import CdpApiClient
+from cdp.openapi_client.exceptions import ApiException
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.idl import Idl
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
+from cdp.openapi_client.models.policy_simulation_result import PolicySimulationResult
+from cdp.openapi_client.models.sign_evm_transaction_simulation_input import (
+    SignEvmTransactionSimulationInput,
+)
+from cdp.openapi_client.models.simulate_policies_request import SimulatePoliciesRequest
+from cdp.openapi_client.models.unmatched_policy_rule import UnmatchedPolicyRule
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.types import (
@@ -462,6 +469,96 @@ async def test_get_policy_by_id(openapi_policy_model_factory, policy_model_facto
     assert result.rules == policy_model.rules
     assert result.created_at == policy_model.created_at
     assert result.updated_at == policy_model.updated_at
+
+
+@pytest.fixture
+def simulation_input():
+    """Return a concrete transaction simulation input."""
+    return SignEvmTransactionSimulationInput(
+        operation="signEvmTransaction",
+        address="0x1234567890123456789012345678901234567890",
+        transaction="0x02c0",
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("wrapped", [False, True])
+@pytest.mark.parametrize(
+    "action,reason", [("accept", "no_rule_for_operation"), ("reject", "no_rule_matched")]
+)
+async def test_simulate(simulation_input, wrapped, action, reason):
+    """Return policy decisions unchanged and normalize simulation inputs."""
+    unmatched_rule = UnmatchedPolicyRule.from_dict(
+        {
+            "policy": {
+                "id": "12345678-1234-1234-1234-123456789012",
+                "scope": "account",
+                "updatedAt": "2026-01-01T00:00:00Z",
+            },
+            "ruleIndex": 0,
+            "criterionIndex": 0,
+            "criterion": {"type": "ethValue", "ethValue": "100", "operator": "<="},
+            "observed": {"type": "ethValue", "ethValue": "101"},
+        }
+    )
+    expected = PolicySimulationResult(
+        action=action,
+        reason=reason,
+        unmatched_rules=[unmatched_rule] if action == "reject" else [],
+        evaluated_policies=[unmatched_rule.policy],
+    )
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.simulate_policies = AsyncMock(return_value=expected)
+    client = PoliciesClient(api_clients=mock_api_clients)
+    request = (
+        SimulatePoliciesRequest(actual_instance=simulation_input) if wrapped else simulation_input
+    )
+
+    with patch("cdp.policies_client.track_action") as track_action:
+        result = await client.simulate(request)
+
+    track_action.assert_called_once_with(action="simulate_policies")
+    assert result is expected
+    mock_policies_api.simulate_policies.assert_awaited_once_with(
+        simulate_policies_request=SimulatePoliciesRequest(actual_instance=simulation_input)
+    )
+    forwarded = mock_policies_api.simulate_policies.call_args.kwargs["simulate_policies_request"]
+    assert isinstance(forwarded, SimulatePoliciesRequest)
+    assert forwarded.actual_instance is simulation_input
+    if wrapped:
+        assert forwarded is request
+
+
+@pytest.mark.asyncio
+async def test_simulate_api_exception(simulation_input):
+    """Track and propagate API exceptions."""
+    error = ApiException(status=400, reason="Bad Request")
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.simulate_policies = AsyncMock(side_effect=error)
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    with (
+        patch("cdp.policies_client.track_error") as track_error,
+        pytest.raises(ApiException) as raised,
+    ):
+        await client.simulate(simulation_input)
+
+    assert raised.value is error
+    track_error.assert_called_once_with(error, "simulate_policies")
+
+
+def test_simulate_request_round_trip(simulation_input):
+    """Round-trip the operation discriminator through generated serialization."""
+    payload = simulation_input.to_dict()
+
+    request = SimulatePoliciesRequest.from_dict(payload)
+
+    assert isinstance(request.actual_instance, SignEvmTransactionSimulationInput)
+    assert request.to_dict() == payload
 
 
 @pytest.mark.asyncio

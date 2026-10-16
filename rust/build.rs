@@ -107,6 +107,41 @@ fn simplify_single_ref_allof(value: &mut serde_json::Value) {
     }
 }
 
+// Collapse `allOf: [{$ref}, {scalar constraints}]` into the $ref; typify-impl 0.4.3 panics merging
+// a ref with an inline schema that narrows it (e.g. `TopUpLinkAmount`, `TopUpLinkAsset`).
+fn collapse_ref_with_scalar_allof(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(map) => {
+            let ref_value = map.get("allOf").and_then(|v| v.as_array()).and_then(|arr| {
+                let refs: Vec<_> = arr.iter().filter_map(|s| s.get("$ref")).collect();
+                let scalar_only = arr.iter().all(|s| {
+                    s.get("$ref").is_some()
+                        || (s.get("properties").is_none()
+                            && s.get("allOf").is_none()
+                            && s.get("oneOf").is_none()
+                            && s.get("anyOf").is_none())
+                });
+                (arr.len() > 1 && refs.len() == 1 && scalar_only).then(|| refs[0].clone())
+            });
+
+            if let Some(ref_val) = ref_value {
+                map.remove("allOf");
+                map.insert("$ref".to_string(), ref_val);
+            }
+
+            for (_, v) in map.iter_mut() {
+                collapse_ref_with_scalar_allof(v);
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for item in arr.iter_mut() {
+                collapse_ref_with_scalar_allof(item);
+            }
+        }
+        _ => {}
+    }
+}
+
 // Remove `not` subschemas, which typify-impl 0.4.3 does not support and panics on
 // (e.g. `not: { anyOf: [...] }`.
 fn remove_not_schemas(value: &mut serde_json::Value) {
@@ -145,6 +180,7 @@ fn main() {
 
     // Simplify allOf patterns that typify can't handle
     simplify_single_ref_allof(&mut json);
+    collapse_ref_with_scalar_allof(&mut json);
 
     // Remove `not` schemas that typify can't handle
     remove_not_schemas(&mut json);

@@ -21,7 +21,7 @@ from typing_extensions import Self
 
 class X402V2Network(str, Enum):
     """
-    The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), and Solana.
+    The x402 v2 network identifier in CAIP-2 format. x402 v2 identifies networks by their CAIP-2 chain ID (e.g. `eip155:<chainId>` for EVM networks, `solana:<genesisHash>` for Solana). Supported networks: Base, Polygon, Arbitrum One, World Chain (EVM), Monad (EVM), and Solana.
     """
 
     """
@@ -31,6 +31,7 @@ class X402V2Network(str, Enum):
     EIP155_COLON_84532 = 'eip155:84532'
     EIP155_COLON_137 = 'eip155:137'
     EIP155_COLON_42161 = 'eip155:42161'
+    EIP155_COLON_143 = 'eip155:143'
     EIP155_COLON_480 = 'eip155:480'
     EIP155_COLON_4801 = 'eip155:4801'
     SOLANA_COLON_5EYKT4_US_FV8_P8_NJD_TREP_Y1VZQ_KQ_Z_KVDP = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'

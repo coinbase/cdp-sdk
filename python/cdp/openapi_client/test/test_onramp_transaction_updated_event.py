@@ -62,6 +62,7 @@ class TestOnrampTransactionUpdatedEvent(unittest.TestCase):
                 failure_reason = 'FAILURE_REASON_UNSPECIFIED',
                 end_partner_name = '',
                 error_code = 'ERROR_CODE_UNSPECIFIED',
+                partner_id = '1f1c19e8-d0e9-6443-b706-92a4d033d043',
                 order_id = '123e4567-e89b-12d3-a456-426614174000',
                 payment_currency = 'USD',
                 fees = [{feeType=FEE_TYPE_NETWORK, feeAmount=0.5, feeCurrency=USD}, {feeType=FEE_TYPE_EXCHANGE, feeAmount=0.25, feeCurrency=USD}],

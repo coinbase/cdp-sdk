@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 import { ZodError } from "zod";
 
-import { Abi, CdpOpenApiClient, Policy } from "../../openapi-client/index.js";
+import {
+  Abi,
+  CdpOpenApiClient,
+  Policy,
+  PolicySimulationResult,
+} from "../../openapi-client/index.js";
 
 import { PoliciesClient } from "./policies.js";
+import { SimulatePoliciesOptions } from "./policies.types.js";
+import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import kitchenSinkAbi from "../../../fixtures/kitchenSinkAbi.js";
 
@@ -15,6 +22,7 @@ vi.mock("../../openapi-client/index.js", () => {
       getPolicyById: vi.fn(),
       deletePolicy: vi.fn(),
       updatePolicy: vi.fn(),
+      simulatePolicies: vi.fn(),
     },
   };
 });
@@ -1317,6 +1325,80 @@ describe("PoliciesClient", () => {
         "Policy not found",
       );
       expect(getPolicyByIdMock).toHaveBeenCalledWith("non-existent");
+    });
+  });
+
+  describe("simulate", () => {
+    const options: SimulatePoliciesOptions = {
+      operation: "signEvmTransaction",
+      address: "0x000000000000000000000000000000000000dEaD",
+      transaction: "0x02c783014a34808080",
+    };
+    const acceptedResult: PolicySimulationResult = {
+      action: "accept",
+      reason: "rule_accepted",
+      matchedRule: {
+        policy: mockPolicy,
+        ruleIndex: 0,
+        rule: {
+          action: "accept",
+          operation: "signEvmTransaction",
+          criteria: [{ type: "ethValue", ethValue: "1000000000000000000", operator: "<=" }],
+        },
+        observations: [{ type: "ethValue", ethValue: "1000000000000000" }],
+      },
+      unmatchedRules: [],
+      evaluatedPolicies: [mockPolicy],
+    };
+
+    it("should return an accept result as-is", async () => {
+      vi.mocked(CdpOpenApiClient.simulatePolicies).mockResolvedValue(acceptedResult);
+
+      expect(await client.simulate(options)).toBe(acceptedResult);
+    });
+
+    it("should return a reject result with unmatched rules without throwing", async () => {
+      const rejectedResult: PolicySimulationResult = {
+        action: "reject",
+        reason: "no_rule_matched",
+        unmatchedRules: [
+          {
+            policy: mockPolicy,
+            ruleIndex: 0,
+            criterionIndex: 0,
+            criterion: { type: "ethValue", ethValue: "1000000000000000000", operator: "<=" },
+            observed: { type: "ethValue", ethValue: "2000000000000000000" },
+          },
+        ],
+        evaluatedPolicies: [mockPolicy],
+      };
+      vi.mocked(CdpOpenApiClient.simulatePolicies).mockResolvedValue(rejectedResult);
+
+      await expect(client.simulate(options)).resolves.toBe(rejectedResult);
+    });
+
+    it("should pass the request body through verbatim", async () => {
+      const simulatePoliciesMock = vi.mocked(CdpOpenApiClient.simulatePolicies);
+      simulatePoliciesMock.mockResolvedValue(acceptedResult);
+
+      await client.simulate(options);
+
+      expect(simulatePoliciesMock).toHaveBeenCalledTimes(1);
+      expect(simulatePoliciesMock).toHaveBeenCalledWith(options);
+      expect(simulatePoliciesMock.mock.calls[0][0]).toBe(options);
+    });
+
+    it("should track and propagate an API error", async () => {
+      const error = new APIError(404, "not_found", "Account not found");
+      vi.mocked(CdpOpenApiClient.simulatePolicies).mockRejectedValue(error);
+      const trackError = vi.spyOn(Analytics, "trackError").mockImplementation(() => {});
+
+      try {
+        await expect(client.simulate(options)).rejects.toBe(error);
+        expect(trackError).toHaveBeenCalledWith(error, "simulate");
+      } finally {
+        trackError.mockRestore();
+      }
     });
   });
 

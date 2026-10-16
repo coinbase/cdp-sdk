@@ -118,13 +118,6 @@ class TestPaymentSessionsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
-    async def test_list_coinbase_account_balances(self) -> None:
-        """Test case for list_coinbase_account_balances
-
-        List Coinbase account balances
-        """
-        pass
-
     async def test_list_payment_session_authorizations(self) -> None:
         """Test case for list_payment_session_authorizations
 

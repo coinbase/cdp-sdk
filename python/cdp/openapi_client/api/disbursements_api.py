@@ -63,7 +63,7 @@ class DisbursementsApi:
     ) -> Disbursement:
         """Create a disbursement
 
-        Creates a merchant-initiated payment of funds from a CDP account owned by the merchant to a Coinbase user account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.  This is an asynchronous operation. The disbursement is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+        Creates a disbursement from a CDP account you own to a Coinbase user account or an onchain address. Returns the disbursement with `pending` status while processing continues asynchronously.
 
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -139,7 +139,7 @@ class DisbursementsApi:
     ) -> ApiResponse[Disbursement]:
         """Create a disbursement
 
-        Creates a merchant-initiated payment of funds from a CDP account owned by the merchant to a Coinbase user account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.  This is an asynchronous operation. The disbursement is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+        Creates a disbursement from a CDP account you own to a Coinbase user account or an onchain address. Returns the disbursement with `pending` status while processing continues asynchronously.
 
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -215,7 +215,7 @@ class DisbursementsApi:
     ) -> RESTResponseType:
         """Create a disbursement
 
-        Creates a merchant-initiated payment of funds from a CDP account owned by the merchant to a Coinbase user account or onchain address. Used for standalone refunds, goodwill disbursements, rebates, and other merchant-driven payouts that are not tied to a specific payment session.  This is an asynchronous operation. The disbursement is returned in `pending` status and transitions to `succeeded` (with associated `onchainTransactions`) or `failed` (with `error`).
+        Creates a disbursement from a CDP account you own to a Coinbase user account or an onchain address. Returns the disbursement with `pending` status while processing continues asynchronously.
 
         :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -366,7 +366,7 @@ class DisbursementsApi:
     ) -> Disbursement:
         """Get a disbursement
 
-        Retrieves a single disbursement by its ID, including source, target, status, amount, associated onchain transactions, error details (if failed), and timestamps. Only returns the disbursement if the API key has permission to access it.
+        Returns the disbursement identified by `disbursementId`. Your API key must have permission to access the disbursement.
 
         :param disbursement_id: The unique identifier of the disbursement. (required)
         :type disbursement_id: str
@@ -437,7 +437,7 @@ class DisbursementsApi:
     ) -> ApiResponse[Disbursement]:
         """Get a disbursement
 
-        Retrieves a single disbursement by its ID, including source, target, status, amount, associated onchain transactions, error details (if failed), and timestamps. Only returns the disbursement if the API key has permission to access it.
+        Returns the disbursement identified by `disbursementId`. Your API key must have permission to access the disbursement.
 
         :param disbursement_id: The unique identifier of the disbursement. (required)
         :type disbursement_id: str
@@ -508,7 +508,7 @@ class DisbursementsApi:
     ) -> RESTResponseType:
         """Get a disbursement
 
-        Retrieves a single disbursement by its ID, including source, target, status, amount, associated onchain transactions, error details (if failed), and timestamps. Only returns the disbursement if the API key has permission to access it.
+        Returns the disbursement identified by `disbursementId`. Your API key must have permission to access the disbursement.
 
         :param disbursement_id: The unique identifier of the disbursement. (required)
         :type disbursement_id: str
@@ -643,7 +643,7 @@ class DisbursementsApi:
     ) -> ListDisbursements200Response:
         """List disbursements
 
-        Returns a paginated list of disbursements created by the merchant. Each disbursement includes its source, target, status, amount, and timestamps. Only disbursements accessible by the current API key are returned.
+        Returns a paginated list of disbursements accessible to your API key. Filter by `status`, `sourceAccountId`, or `externalReferenceId`.
 
         :param page_size: The number of resources to return per page.
         :type page_size: int
@@ -730,7 +730,7 @@ class DisbursementsApi:
     ) -> ApiResponse[ListDisbursements200Response]:
         """List disbursements
 
-        Returns a paginated list of disbursements created by the merchant. Each disbursement includes its source, target, status, amount, and timestamps. Only disbursements accessible by the current API key are returned.
+        Returns a paginated list of disbursements accessible to your API key. Filter by `status`, `sourceAccountId`, or `externalReferenceId`.
 
         :param page_size: The number of resources to return per page.
         :type page_size: int
@@ -817,7 +817,7 @@ class DisbursementsApi:
     ) -> RESTResponseType:
         """List disbursements
 
-        Returns a paginated list of disbursements created by the merchant. Each disbursement includes its source, target, status, amount, and timestamps. Only disbursements accessible by the current API key are returned.
+        Returns a paginated list of disbursements accessible to your API key. Filter by `status`, `sourceAccountId`, or `externalReferenceId`.
 
         :param page_size: The number of resources to return per page.
         :type page_size: int

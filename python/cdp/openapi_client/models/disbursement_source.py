@@ -27,7 +27,7 @@ DISBURSEMENTSOURCE_ONE_OF_SCHEMAS = ["TransfersAccount"]
 
 class DisbursementSource(BaseModel):
     """
-    The source from which the disbursement is funded. Currently restricted to a CDP account owned by the merchant. Modeled as a `oneOf` so additional source types (e.g. a merchant-controlled onchain wallet) can be added without a breaking change.
+    The CDP account used to fund the disbursement. The account must be owned by your entity.
     """
     # data type: TransfersAccount
     oneof_schema_1_validator: Optional[TransfersAccount] = None

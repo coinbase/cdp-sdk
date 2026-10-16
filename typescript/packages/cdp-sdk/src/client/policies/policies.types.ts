@@ -2,7 +2,11 @@
  * @module Types
  */
 
-import { OpenApiPoliciesMethods } from "../../openapi-client/index.js";
+import {
+  OpenApiPoliciesMethods,
+  PolicySimulationResult,
+  SimulatePoliciesRequest,
+} from "../../openapi-client/index.js";
 import { CreatePolicyBody, Policy, PolicyScope, UpdatePolicyBody } from "../../policies/types.js";
 
 /**
@@ -15,13 +19,18 @@ export type PoliciesClientInterface = Omit<
   | "getPolicyById" // mapped to getPolicyById
   | "deletePolicy" // mapped to deletePolicy
   | "updatePolicy" // mapped to updatePolicy
+  | "simulatePolicies" // mapped to simulate
 > & {
   listPolicies: (options: ListPoliciesOptions) => Promise<ListPoliciesResult>;
   createPolicy: (options: CreatePolicyOptions) => Promise<Policy>;
   getPolicyById: (options: GetPolicyByIdOptions) => Promise<Policy>;
   deletePolicy: (options: DeletePolicyOptions) => Promise<void>;
   updatePolicy: (options: UpdatePolicyOptions) => Promise<Policy>;
+  simulate: (options: SimulatePoliciesOptions) => Promise<PolicySimulationResult>;
 };
+
+/** Options for simulating policies against an operation. */
+export type SimulatePoliciesOptions = SimulatePoliciesRequest;
 
 export interface ListPoliciesOptions {
   /** The page size to paginate through the accounts. */

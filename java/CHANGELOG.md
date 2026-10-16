@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-16
+
+### 🚀 Features
+
+- Regenerate OpenAPI clients from `c3/cdp-api@3312048b`: add `simulatePolicies` (`POST /v2/policy-engine/simulate`) and `createTopUpLink`, add top-up-link and customer-requirement webhook schemas, update disbursement `customerDisplay`, and remove `listCoinbaseAccountBalances` ([#111](https://github.com/coinbase/cdp-sdk/pull/111))
+
 ## [1.1.0] - 2026-10-06
 
 ### 🚀 Features

@@ -1165,6 +1165,46 @@ try {
 }
 ```
 
+### Simulate a Policy
+
+`simulate` evaluates the project and account policies for one operation without signing it, and reports the action plus the rules that matched or failed to match.
+
+```ts
+import { parseEther, serializeTransaction } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "account",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEvmTransaction",
+        criteria: [{ type: "ethValue", ethValue: parseEther("1").toString(), operator: "<=" }],
+      },
+    ],
+  },
+});
+const account = await cdp.evm.createAccount({ accountPolicy: policy.id });
+
+const result = await cdp.policies.simulate({
+  operation: "signEvmTransaction",
+  address: account.address,
+  transaction: serializeTransaction({
+    chainId: baseSepolia.id,
+    type: "eip1559",
+    to: "0x000000000000000000000000000000000000dEaD",
+    value: parseEther("2"),
+  }),
+});
+
+console.log(result.action); // "reject"
+console.log(result.reason); // "no_rule_matched"
+console.log(result.unmatchedRules); // the ethValue criterion and the observed value
+```
+
+A rejection comes back as a normal result with `action: "reject"`. Only request failures throw.
+
 #### Supported Policy Rules
 
 We currently support the following policy rules:

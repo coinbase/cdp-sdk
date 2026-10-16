@@ -4123,6 +4123,65 @@ describe("CDP Client E2E Tests", () => {
         });
       });
     });
+
+    describe("simulate", () => {
+      const simulateTransaction = (value: bigint) =>
+        cdp.policies.simulate({
+          operation: "signEvmTransaction",
+          address: policyTestAccount.address,
+          transaction: serializeTransaction({
+            chainId: baseSepolia.id,
+            to: "0x0000000000000000000000000000000000000000",
+            value,
+            type: "eip1559",
+            maxFeePerGas: BigInt(20000000000),
+            maxPriorityFeePerGas: BigInt(1000000000),
+            gas: BigInt(21000),
+            nonce: 0,
+          }),
+        });
+
+      beforeAll(async () => {
+        await cdp.policies.updatePolicy({
+          id: policy.id,
+          policy: {
+            rules: [
+              {
+                operation: "signEvmTransaction",
+                action: "accept",
+                criteria: [
+                  { type: "ethValue", operator: "<=", ethValue: parseEther("1").toString() },
+                ],
+              },
+            ],
+          },
+        });
+        await cdp.evm.updateAccount({
+          address: policyTestAccount.address,
+          update: { accountPolicy: policy.id },
+        });
+      });
+
+      it("should simulate a rejected signEvmTransaction over the ethValue limit", async () => {
+        const result = await simulateTransaction(parseEther("2"));
+        expect(result.action).toBe("reject");
+        expect(result.reason).toBe("no_rule_matched");
+        expect(result.matchedRule).toBeUndefined();
+        expect(result.unmatchedRules).toContainEqual(
+          expect.objectContaining({
+            policy: expect.objectContaining({ id: policy.id }),
+            criterion: expect.objectContaining({ type: "ethValue" }),
+          }),
+        );
+      });
+
+      it("should simulate an accepted signEvmTransaction within the ethValue limit", async () => {
+        const result = await simulateTransaction(parseEther("0.5"));
+        expect(result.action).toBe("accept");
+        expect(result.reason).toBe("rule_accepted");
+        expect(result.matchedRule?.policy.id).toBe(policy.id);
+      });
+    });
   });
 
   describe("network-scoped evm server accounts", () => {

@@ -55,7 +55,8 @@ class OnrampTransactionPayload(BaseModel):
     failure_reason: Optional[StrictStr] = Field(default=None, description="The reason for failure (if applicable).", alias="failureReason")
     end_partner_name: Optional[StrictStr] = Field(default=None, description="The name of the developer app.", alias="endPartnerName")
     error_code: Optional[StrictStr] = Field(default=None, description="Error code for the transaction failure (if applicable).", alias="errorCode")
-    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "purchaseCurrency", "purchaseNetwork", "purchaseAmount", "paymentTotal", "paymentTotalUsd", "paymentSubtotal", "coinbaseFee", "networkFee", "exchangeRate", "txHash", "createdAt", "completedAt", "country", "userId", "paymentMethod", "walletAddress", "type", "userType", "partnerUserRef", "contractAddress", "failureReason", "endPartnerName", "errorCode"]
+    partner_id: Optional[StrictStr] = Field(default=None, description="The Onramp-issued identifier of the end partner this transaction was scoped to via the X-Onramp-Partner-Id header on the session that initiated it. Only present for transactions created by an aggregator on behalf of a registered end partner.", alias="partnerId")
+    __properties: ClassVar[List[str]] = ["eventType", "transactionId", "status", "purchaseCurrency", "purchaseNetwork", "purchaseAmount", "paymentTotal", "paymentTotalUsd", "paymentSubtotal", "coinbaseFee", "networkFee", "exchangeRate", "txHash", "createdAt", "completedAt", "country", "userId", "paymentMethod", "walletAddress", "type", "userType", "partnerUserRef", "contractAddress", "failureReason", "endPartnerName", "errorCode", "partnerId"]
 
     @field_validator('status')
     def status_validate_enum(cls, value):
@@ -201,7 +202,8 @@ class OnrampTransactionPayload(BaseModel):
             "contractAddress": obj.get("contractAddress"),
             "failureReason": obj.get("failureReason"),
             "endPartnerName": obj.get("endPartnerName"),
-            "errorCode": obj.get("errorCode")
+            "errorCode": obj.get("errorCode"),
+            "partnerId": obj.get("partnerId")
         })
         return _obj
 

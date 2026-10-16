@@ -13,6 +13,7 @@ import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
 from eth_account.messages import encode_defunct
+from eth_account.typed_transactions import DynamicFeeTransaction
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from solders.signature import Signature
@@ -37,6 +38,9 @@ from cdp.openapi_client.models.create_swap_quote_response import CreateSwapQuote
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+from cdp.openapi_client.models.sign_evm_transaction_simulation_input import (
+    SignEvmTransactionSimulationInput,
+)
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -63,6 +67,7 @@ from cdp.policies.types import (
 )
 from cdp.spend_permissions.types import SpendPermission
 from cdp.update_account_types import UpdateAccountOptions
+from cdp.utils import serialize_unsigned_transaction
 
 load_dotenv()
 
@@ -1881,6 +1886,79 @@ async def test_get_policy_by_id(cdp_client):
     with pytest.raises(ApiError) as e:
         await cdp_client.policies.get_policy_by_id(id=policy.id)
     assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_simulate_policies_sign_evm_transaction(cdp_client):
+    """Test simulating signEvmTransaction against an account policy ethValue limit."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy Simulation",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    account = await cdp_client.evm.get_or_create_account(name="EVME2EPolicySimulation")
+    await cdp_client.evm.update_account(
+        address=account.address,
+        update=UpdateAccountOptions(account_policy=policy.id),
+    )
+
+    async def simulate(value: int):
+        return await cdp_client.policies.simulate(
+            SignEvmTransactionSimulationInput(
+                operation="signEvmTransaction",
+                address=account.address,
+                transaction=serialize_unsigned_transaction(
+                    DynamicFeeTransaction.from_dict(
+                        {
+                            "type": 2,
+                            "chainId": 84532,
+                            "nonce": 0,
+                            "to": "0x0000000000000000000000000000000000000000",
+                            "value": value,
+                            "gas": 21000,
+                            "maxFeePerGas": 20000000000,
+                            "maxPriorityFeePerGas": 1000000000,
+                            "data": "0x",
+                        }
+                    )
+                ),
+            )
+        )
+
+    try:
+        rejected = await simulate(Web3.to_wei(2, "ether"))
+        assert rejected.action == "reject"
+        assert rejected.reason == "no_rule_matched"
+        assert rejected.matched_rule is None
+        assert any(
+            rule.policy.id == policy.id and rule.criterion.to_dict()["type"] == "ethValue"
+            for rule in rejected.unmatched_rules
+        )
+
+        accepted = await simulate(Web3.to_wei(0.5, "ether"))
+        assert accepted.action == "accept"
+        assert accepted.reason == "rule_accepted"
+        assert accepted.matched_rule is not None
+        assert accepted.matched_rule.policy.id == policy.id
+    finally:
+        await cdp_client.evm.update_account(
+            address=account.address,
+            update=UpdateAccountOptions(account_policy=""),
+        )
+        await cdp_client.policies.delete_policy(id=policy.id)
 
 
 @pytest.mark.e2e

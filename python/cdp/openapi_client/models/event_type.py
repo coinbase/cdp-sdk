@@ -82,6 +82,8 @@ class EventType(str, Enum):
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_PENDING = 'acceptance.disbursement.pending'
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_SUCCEEDED = 'acceptance.disbursement.succeeded'
     ACCEPTANCE_DOT_DISBURSEMENT_DOT_FAILED = 'acceptance.disbursement.failed'
+    ACCEPTANCE_DOT_TOP_UP_LINK_DOT_CREATED = 'acceptance.top_up_link.created'
+    ACCEPTANCE_DOT_TOP_UP_LINK_DOT_FUNDS_ADDED = 'acceptance.top_up_link.funds_added'
     HEALTH_DOT_STATUS_DOT_UPDATED = 'health.status.updated'
     HEALTH_DOT_MAINTENANCE_DOT_SCHEDULED = 'health.maintenance.scheduled'
     HEALTH_DOT_MAINTENANCE_DOT_STARTED = 'health.maintenance.started'
@@ -89,6 +91,7 @@ class EventType(str, Enum):
     HEALTH_DOT_MAINTENANCE_DOT_CANCELED = 'health.maintenance.canceled'
     CUSTOMERS_DOT_CAPABILITY_DOT_CHANGED = 'customers.capability.changed'
     CUSTOMERS_DOT_CUSTOMER_DOT_DELETED = 'customers.customer.deleted'
+    CUSTOMERS_DOT_REQUIREMENT_DOT_CHANGED = 'customers.requirement.changed'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

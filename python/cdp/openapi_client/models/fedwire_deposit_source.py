@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -30,17 +30,10 @@ class FedwireDepositSource(BaseModel):
     """ # noqa: E501
     currency: Annotated[str, Field(min_length=1, strict=True, max_length=42)] = Field(description="The fiat currency of the Fedwire deposit (e.g., `usd`).")
     omad: Annotated[str, Field(strict=True, max_length=22)] = Field(description="The Output Message Accountability Data (OMAD), a unique identifier assigned by the Fedwire network to the wire transfer message.")
-    account_number: Annotated[str, Field(strict=True)] = Field(description="The originator's bank account number. Masked on webhook payloads.", alias="accountNumber")
+    account_number: Annotated[str, Field(min_length=4, strict=True, max_length=17)] = Field(description="The originator's bank account number. Masked on webhook payloads.", alias="accountNumber")
     originator_name: Annotated[str, Field(strict=True, max_length=35)] = Field(description="The name of the originator. Masked on webhook payloads.", alias="originatorName")
     originator_to_beneficiary: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=35)]], Field(max_length=4)]] = Field(default=None, description="The Originator to Beneficiary Information (OBI) lines from the Fedwire message. Up to 4 lines, each up to 35 characters. Free-form and may contain identifying information about the originator. Masked on webhook payloads.", alias="originatorToBeneficiary")
     __properties: ClassVar[List[str]] = ["currency", "omad", "accountNumber", "originatorName", "originatorToBeneficiary"]
-
-    @field_validator('account_number')
-    def account_number_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[0-9]{4,17}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9]{4,17}$/")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

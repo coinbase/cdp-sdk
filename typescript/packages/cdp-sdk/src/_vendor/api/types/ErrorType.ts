@@ -96,6 +96,7 @@ export const ErrorType = {
     NoVoidableBalance: "no_voidable_balance",
     NoRefundableBalance: "no_refundable_balance",
     EntityNotConfiguredForPaymentAcceptance: "entity_not_configured_for_payment_acceptance",
+    EntityNotConfiguredForTopUp: "entity_not_configured_for_top_up",
     DailyTransactionLimitExceeded: "daily_transaction_limit_exceeded",
     DailyAmountLimitExceeded: "daily_amount_limit_exceeded",
     StaleAttestation: "stale_attestation",

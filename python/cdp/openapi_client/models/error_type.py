@@ -121,6 +121,7 @@ class ErrorType(str, Enum):
     NO_VOIDABLE_BALANCE = 'no_voidable_balance'
     NO_REFUNDABLE_BALANCE = 'no_refundable_balance'
     ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE = 'entity_not_configured_for_payment_acceptance'
+    ENTITY_NOT_CONFIGURED_FOR_TOP_UP = 'entity_not_configured_for_top_up'
     DAILY_TRANSACTION_LIMIT_EXCEEDED = 'daily_transaction_limit_exceeded'
     DAILY_AMOUNT_LIMIT_EXCEEDED = 'daily_amount_limit_exceeded'
     STALE_ATTESTATION = 'stale_attestation'

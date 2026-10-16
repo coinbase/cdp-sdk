@@ -28,7 +28,7 @@ DISBURSEMENTTARGET_ONE_OF_SCHEMAS = ["DisbursementCoinbaseTarget", "Disbursement
 
 class DisbursementTarget(BaseModel):
     """
-    The target of the disbursement. Can be either a Coinbase user account or an onchain blockchain address.
+    The recipient of the disbursement: a Coinbase user account or an onchain address.
     """
     # data type: DisbursementCoinbaseTarget
     oneof_schema_1_validator: Optional[DisbursementCoinbaseTarget] = None

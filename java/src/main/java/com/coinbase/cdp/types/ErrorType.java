@@ -102,6 +102,8 @@ public final class ErrorType {
 
   public static final ErrorType POLICY_VIOLATION = new ErrorType(Value.POLICY_VIOLATION, "policy_violation");
 
+  public static final ErrorType ENTITY_NOT_CONFIGURED_FOR_TOP_UP = new ErrorType(Value.ENTITY_NOT_CONFIGURED_FOR_TOP_UP, "entity_not_configured_for_top_up");
+
   public static final ErrorType REQUEST_CANCELED = new ErrorType(Value.REQUEST_CANCELED, "request_canceled");
 
   public static final ErrorType MODERATION_REJECTED = new ErrorType(Value.MODERATION_REJECTED, "moderation_rejected");
@@ -342,6 +344,8 @@ public final class ErrorType {
         return visitor.visitRecipientAllowlistPending();
       case POLICY_VIOLATION:
         return visitor.visitPolicyViolation();
+      case ENTITY_NOT_CONFIGURED_FOR_TOP_UP:
+        return visitor.visitEntityNotConfiguredForTopUp();
       case REQUEST_CANCELED:
         return visitor.visitRequestCanceled();
       case MODERATION_REJECTED:
@@ -561,6 +565,8 @@ public final class ErrorType {
         return RECIPIENT_ALLOWLIST_PENDING;
       case "policy_violation":
         return POLICY_VIOLATION;
+      case "entity_not_configured_for_top_up":
+        return ENTITY_NOT_CONFIGURED_FOR_TOP_UP;
       case "request_canceled":
         return REQUEST_CANCELED;
       case "moderation_rejected":
@@ -871,6 +877,8 @@ public final class ErrorType {
 
     ENTITY_NOT_CONFIGURED_FOR_PAYMENT_ACCEPTANCE,
 
+    ENTITY_NOT_CONFIGURED_FOR_TOP_UP,
+
     DAILY_TRANSACTION_LIMIT_EXCEEDED,
 
     DAILY_AMOUNT_LIMIT_EXCEEDED,
@@ -1082,6 +1090,8 @@ public final class ErrorType {
     T visitNoRefundableBalance();
 
     T visitEntityNotConfiguredForPaymentAcceptance();
+
+    T visitEntityNotConfiguredForTopUp();
 
     T visitDailyTransactionLimitExceeded();
 

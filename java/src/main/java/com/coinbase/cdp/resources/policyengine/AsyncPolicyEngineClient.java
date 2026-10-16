@@ -13,6 +13,8 @@ import com.coinbase.cdp.resources.policyengine.requests.ListPoliciesRequest;
 import com.coinbase.cdp.resources.policyengine.requests.UpdatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.types.ListPoliciesResponse;
 import com.coinbase.cdp.types.Policy;
+import com.coinbase.cdp.types.PolicySimulationResult;
+import com.coinbase.cdp.types.SimulatePoliciesRequest;
 import java.lang.String;
 import java.lang.Void;
 import java.util.concurrent.CompletableFuture;
@@ -80,6 +82,28 @@ public class AsyncPolicyEngineClient {
   public CompletableFuture<Policy> createPolicy(CreatePolicyRequest request,
       RequestOptions requestOptions) {
     return this.rawClient.createPolicy(request, requestOptions).thenApply(response -> response.body());
+  }
+
+  /**
+   * Simulates policy evaluation for one operation against the project's current policies and returns the <code>action</code> the real operation would take, the rule that decided it, and the first unmet criterion of every rule that did not match.  Nothing is signed, broadcast, or persisted, and gas and nonce are not populated: the transaction is evaluated as submitted.
+   * Each unmet criterion (<code>observed</code>) and each matched-rule criterion (<code>observations</code>) can include the value observed in the request, with messages and decoded arguments returned up to their documented size limits.
+   * Rate-limiting criteria are read but not consumed. <code>netUSDChange</code> criteria run transaction simulation, and pass successfully on testnets, as in the real operation. The result is a snapshot: policies, rate-limit counters, or chain state may change before a real call.
+   * A policy rejection returns <code>200</code> with <code>action: reject</code>; this endpoint never returns <code>policy_violation</code>. A criterion that cannot be evaluated for this  input returns <code>422</code>.
+   */
+  public CompletableFuture<PolicySimulationResult> simulatePolicies(
+      SimulatePoliciesRequest request) {
+    return this.rawClient.simulatePolicies(request).thenApply(response -> response.body());
+  }
+
+  /**
+   * Simulates policy evaluation for one operation against the project's current policies and returns the <code>action</code> the real operation would take, the rule that decided it, and the first unmet criterion of every rule that did not match.  Nothing is signed, broadcast, or persisted, and gas and nonce are not populated: the transaction is evaluated as submitted.
+   * Each unmet criterion (<code>observed</code>) and each matched-rule criterion (<code>observations</code>) can include the value observed in the request, with messages and decoded arguments returned up to their documented size limits.
+   * Rate-limiting criteria are read but not consumed. <code>netUSDChange</code> criteria run transaction simulation, and pass successfully on testnets, as in the real operation. The result is a snapshot: policies, rate-limit counters, or chain state may change before a real call.
+   * A policy rejection returns <code>200</code> with <code>action: reject</code>; this endpoint never returns <code>policy_violation</code>. A criterion that cannot be evaluated for this  input returns <code>422</code>.
+   */
+  public CompletableFuture<PolicySimulationResult> simulatePolicies(SimulatePoliciesRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.simulatePolicies(request, requestOptions).thenApply(response -> response.body());
   }
 
   /**
