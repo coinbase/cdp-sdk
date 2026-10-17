@@ -31,6 +31,33 @@ def test_parse_units_rounding():
     assert parse_units("1.44", 1) == 14
 
 
+def test_parse_units_rounds_ties_up():
+    """Test that a fraction exactly halfway between two units rounds up."""
+    assert parse_units("0.5", 0) == 1
+    assert parse_units("1.5", 0) == 2
+    assert parse_units("2.5", 0) == 3
+    assert parse_units("1.25", 1) == 13
+    assert parse_units("0.125", 2) == 13
+    assert parse_units("0.0000005", 6) == 1
+    assert parse_units("-1.25", 1) == -13
+
+
+def test_parse_units_rounding_carries_into_integer():
+    """Test rounding that carries past the first fraction digit into the integer part."""
+    assert parse_units("0.99", 1) == 10
+    assert parse_units("0.95", 1) == 10
+    assert parse_units("9.99", 1) == 100
+    assert parse_units("0.999", 2) == 100
+    assert parse_units("-0.99", 1) == -10
+
+
+def test_parse_units_without_integer_part():
+    """Test values written without a leading zero."""
+    assert parse_units(".5", 1) == 5
+    assert parse_units(".5", 0) == 1
+    assert parse_units(".99", 1) == 10
+
+
 def test_parse_units_trailing_zeros():
     """Test handling of trailing zeros."""
     assert parse_units("1.000", 2) == 100
