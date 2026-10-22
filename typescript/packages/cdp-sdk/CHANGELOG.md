@@ -1,5 +1,12 @@
 # CDP SDK Changelog
 
+## 1.60.0
+
+### Minor Changes
+
+- 3b22f26: Added `pausePolicy` and `resumePolicy` to `cdp.policies` to temporarily skip a policy during evaluation and re-enable it, and added `status`, `pausedAt`, and `resumeAt` to `Policy`.
+- 61cb927: Added `redeemVaultFees` to EVM server accounts and EVM smart accounts to redeem the vault fee shares held by a Lend vault's fee recipient account for the vault's underlying asset. Also added the generated `redeemVaultFeesWithEvmAccount` and `redeemVaultFeesWithEvmSmartAccount` client methods.
+
 ## 1.59.0
 
 ### Minor Changes

@@ -1,1 +1,0 @@
-Added `redeem_vault_fees` to `EvmServerAccount` and `EvmSmartAccount` to redeem the vault fee shares held by a Lend vault's fee recipient account for the vault's underlying asset. Also added the generated `LendApi` client (`redeem_vault_fees_with_evm_account`, `redeem_vault_fees_with_evm_smart_account`).
