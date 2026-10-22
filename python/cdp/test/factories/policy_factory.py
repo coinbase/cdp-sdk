@@ -25,7 +25,11 @@ def openapi_policy_model_factory():
         created_at="2025-01-01T00:00:00Z",
         updated_at="2025-01-01T00:00:00Z",
         rules=None,  # python does not like mutable default arguments
+        status="active",
+        paused_at=None,
+        resume_at=None,
     ):
+        """Build an OpenAPI policy with optional pause metadata."""
         if rules is None:
             rules = [
                 Rule(
@@ -51,6 +55,9 @@ def openapi_policy_model_factory():
             rules=rules,
             created_at=created_at,
             updated_at=updated_at,
+            status=status,
+            paused_at=paused_at,
+            resume_at=resume_at,
         )
 
     return _create_openapi_policy_model
@@ -67,7 +74,11 @@ def policy_model_factory():
         created_at="2025-01-01T00:00:00Z",
         updated_at="2025-01-01T00:00:00Z",
         rules=None,  # python does not like mutable default arguments
+        status="active",
+        paused_at=None,
+        resume_at=None,
     ):
+        """Build an SDK policy with optional pause metadata."""
         if rules is None:
             rules = [
                 SignEvmTransactionRuleModel(
@@ -87,6 +98,9 @@ def policy_model_factory():
             rules=rules,
             created_at=created_at,
             updated_at=updated_at,
+            status=status,
+            paused_at=paused_at,
+            resume_at=resume_at,
         )
 
     return _create_policy_model

@@ -1115,6 +1115,21 @@ const policy = await cdp.policies.updatePolicy({
 });
 ```
 
+### Pause and Resume a Policy
+
+A paused policy is skipped during evaluation and keeps its ID, scope, and rules.
+
+```typescript
+const pausedPolicy = await cdp.policies.pausePolicy({
+  id: "__POLICY_ID__",
+  resumeAt: new Date(Date.now() + 60 * 60 * 1000),
+});
+
+const resumedPolicy = await cdp.policies.resumePolicy({
+  id: "__POLICY_ID__",
+});
+```
+
 ### Delete a Policy
 
 > [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.

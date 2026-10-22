@@ -13,6 +13,10 @@ import {
 import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
+import type {
+  RedeemVaultFeesOptions,
+  SmartAccountRedeemVaultFeesOptions,
+} from "./redeemVaultFees.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type {
@@ -321,6 +325,31 @@ export type AccountActions = Actions & {
    * ```
    */
   useSpendPermission: (options: UseSpendPermissionOptions) => Promise<TransactionResult>;
+
+  /**
+   * Redeems every vault share held by this account for the vault's underlying asset (e.g. USDC).
+   * The account must be the vault's fee recipient.
+   *
+   * CDP periodically distributes each vault's accrued fees to its fee recipient as vault shares.
+   * This redeems the account's full share balance, including any shares from the account's own
+   * deposits into the vault, so use a dedicated fee recipient account.
+   *
+   * @param options - The options for the redemption.
+   * @param options.vaultId - The ID of the vault to redeem fees from.
+   * @param options.maxSlippageBps - The maximum share-price slippage in basis points. Defaults to 100.
+   * @param options.idempotencyKey - An optional idempotency key.
+   *
+   * @returns A promise that resolves to an object containing the broadcast redemption
+   * transaction hash.
+   *
+   * @example
+   * ```typescript
+   * const { transactionHash } = await account.redeemVaultFees({
+   *   vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f",
+   * });
+   * ```
+   */
+  redeemVaultFees: (options: RedeemVaultFeesOptions) => Promise<TransactionResult>;
 };
 
 export type SmartAccountActions = Actions & {
@@ -644,4 +673,38 @@ export type SmartAccountActions = Actions & {
    * ```
    */
   useSpendPermission: (options: UseSpendPermissionOptions) => Promise<SendUserOperationReturnType>;
+
+  /**
+   * Redeems every vault share held by this smart account for the vault's underlying asset
+   * (e.g. USDC). The smart account must be the vault's fee recipient, and its owner must be a
+   * CDP EVM account.
+   *
+   * CDP periodically distributes each vault's accrued fees to its fee recipient as vault shares.
+   * This redeems the smart account's full share balance, including any shares from its own
+   * deposits into the vault, so use a dedicated fee recipient smart account. The share approval
+   * and redemption are batched into a single user operation.
+   *
+   * @param options - The options for the redemption.
+   * @param options.vaultId - The ID of the vault to redeem fees from.
+   * @param options.maxSlippageBps - The maximum share-price slippage in basis points. Defaults to 100.
+   * @param options.useCdpPaymaster - Whether to sponsor gas with the CDP Paymaster (Base and Base Sepolia only).
+   * @param options.paymasterUrl - A custom Paymaster URL. Cannot be combined with `useCdpPaymaster`.
+   * @param options.paymasterContext - The ERC-7677 paymaster context. Requires a paymaster.
+   * @param options.idempotencyKey - An optional idempotency key.
+   *
+   * @returns A promise that resolves to the broadcast user operation.
+   *
+   * @example
+   * ```typescript
+   * const { userOpHash } = await smartAccount.redeemVaultFees({
+   *   vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f",
+   *   useCdpPaymaster: true,
+   * });
+   *
+   * await smartAccount.waitForUserOperation({ userOpHash });
+   * ```
+   */
+  redeemVaultFees: (
+    options: Omit<SmartAccountRedeemVaultFeesOptions, "address">,
+  ) => Promise<SendUserOperationReturnType>;
 };

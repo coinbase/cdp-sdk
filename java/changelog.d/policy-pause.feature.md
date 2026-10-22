@@ -1,0 +1,1 @@
+Regenerate OpenAPI clients from `c3/cdp-api@68ac40d4`: add `pausePolicy` (`POST /v2/policy-engine/policies/{policyId}/pause`) and `resumePolicy` (`POST /v2/policy-engine/policies/{policyId}/resume`), and add `status`, `pausedAt`, and `resumeAt` to `Policy`.

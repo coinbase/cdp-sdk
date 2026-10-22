@@ -55,6 +55,20 @@ class TestPolicyEngineApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_pause_policy(self) -> None:
+        """Test case for pause_policy
+
+        Pause policy
+        """
+        pass
+
+    async def test_resume_policy(self) -> None:
+        """Test case for resume_policy
+
+        Resume policy
+        """
+        pass
+
     async def test_simulate_policies(self) -> None:
         """Test case for simulate_policies
 

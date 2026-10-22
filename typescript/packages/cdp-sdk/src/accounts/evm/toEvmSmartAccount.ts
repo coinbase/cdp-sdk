@@ -10,6 +10,10 @@ import {
   type ListTokenBalancesResult,
 } from "../../actions/evm/listTokenBalances.js";
 import {
+  redeemVaultFeesWithSmartAccount,
+  type SmartAccountRedeemVaultFeesOptions,
+} from "../../actions/evm/redeemVaultFees.js";
+import {
   RequestFaucetResult,
   RequestFaucetOptions,
   requestFaucet,
@@ -293,6 +297,23 @@ export function toEvmSmartAccount(
         return useSpendPermission(apiClient, account, options);
       } catch (error) {
         Analytics.trackError(error, "useSpendPermission");
+        throw error;
+      }
+    },
+    async redeemVaultFees(
+      options: Omit<SmartAccountRedeemVaultFeesOptions, "address">,
+    ): Promise<SendUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "redeem_vault_fees",
+        accountType: "evm_smart",
+      });
+      try {
+        return await redeemVaultFeesWithSmartAccount(apiClient, {
+          ...options,
+          address: account.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "redeemVaultFees");
         throw error;
       }
     },

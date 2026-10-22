@@ -1,13 +1,17 @@
+import re
+from datetime import datetime, timezone
+
 from pydantic import BaseModel
 
 from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
+from cdp.openapi_client.models.pause_policy_request import PausePolicyRequest
 from cdp.openapi_client.models.policy_simulation_result import PolicySimulationResult
 from cdp.openapi_client.models.simulate_policies_request import SimulatePoliciesRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
-from cdp.policies.response_transformer import map_openapi_rules_to_response_format
+from cdp.policies.response_transformer import map_openapi_policy
 from cdp.policies.types import (
     CreatePolicyOptions,
     ListPoliciesResult,
@@ -15,6 +19,29 @@ from cdp.policies.types import (
     PolicyScope,
     UpdatePolicyOptions,
 )
+
+
+def _parse_resume_at(resume_at: datetime | str) -> datetime:
+    """Parse a future, timezone-aware automatic resume timestamp."""
+    if isinstance(resume_at, str):
+        try:
+            resume_at = datetime.fromisoformat(re.sub(r"[zZ]$", "+00:00", resume_at))
+        except ValueError as error:
+            raise ValueError(
+                f"resume_at {resume_at!r} is not a valid ISO 8601 timestamp. "
+                "Pass a value such as 2026-01-01T00:00:00Z or a timezone-aware datetime."
+            ) from error
+    if resume_at.tzinfo is None:
+        raise ValueError(
+            "resume_at must include a timezone. Pass a timezone-aware datetime such as "
+            "datetime.now(timezone.utc) + timedelta(days=1), or an ISO 8601 string with an offset."
+        )
+    if resume_at <= datetime.now(timezone.utc):
+        raise ValueError(
+            "resume_at must be in the future. Pass a time within the next 30 days, "
+            "or omit it to pause until resumed."
+        )
+    return resume_at
 
 
 class PoliciesClient:
@@ -54,14 +81,7 @@ class PoliciesClient:
                 ),
                 x_idempotency_key=idempotency_key,
             )
-            return Policy(
-                id=openapi_policy.id,
-                description=openapi_policy.description,
-                scope=openapi_policy.scope,
-                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-                created_at=openapi_policy.created_at,
-                updated_at=openapi_policy.updated_at,
-            )
+            return map_openapi_policy(openapi_policy)
         except Exception as error:
             track_error(error, "create_policy")
             raise
@@ -96,16 +116,79 @@ class PoliciesClient:
                 ),
                 x_idempotency_key=idempotency_key,
             )
-            return Policy(
-                id=openapi_policy.id,
-                description=openapi_policy.description,
-                scope=openapi_policy.scope,
-                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-                created_at=openapi_policy.created_at,
-                updated_at=openapi_policy.updated_at,
-            )
+            return map_openapi_policy(openapi_policy)
         except Exception as error:
             track_error(error, "update_policy")
+            raise
+
+    async def pause_policy(
+        self,
+        id: str,
+        resume_at: datetime | str | None = None,
+        idempotency_key: str | None = None,
+    ) -> Policy:
+        """Pause a policy indefinitely or until a future time within the next 30 days.
+
+        Re-pausing keeps the original paused_at and replaces or clears resume_at.
+
+        Args:
+            id (str): The unique identifier of the policy to pause.
+            resume_at (datetime | str | None, optional): A timezone-aware datetime or ISO 8601
+                string with an offset for automatic resumption. Omit to pause indefinitely.
+            idempotency_key (str | None, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            Policy: The paused policy.
+
+        Raises:
+            ValueError: If resume_at is invalid, lacks a timezone, or is not in the future.
+
+        """
+        track_action(action="pause_policy")
+
+        try:
+            pause_policy_request = (
+                PausePolicyRequest(resume_at=_parse_resume_at(resume_at))
+                if resume_at is not None
+                else None
+            )
+            openapi_policy = await self.api_clients.policies.pause_policy(
+                policy_id=id,
+                pause_policy_request=pause_policy_request,
+                x_idempotency_key=idempotency_key,
+            )
+            return map_openapi_policy(openapi_policy)
+        except Exception as error:
+            track_error(error, "pause_policy")
+            raise
+
+    async def resume_policy(
+        self,
+        id: str,
+        idempotency_key: str | None = None,
+    ) -> Policy:
+        """Resume evaluation of a paused policy.
+
+        Resuming an active policy returns it unchanged.
+
+        Args:
+            id (str): The unique identifier of the policy to resume.
+            idempotency_key (str | None, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            Policy: The active policy.
+
+        """
+        track_action(action="resume_policy")
+
+        try:
+            openapi_policy = await self.api_clients.policies.resume_policy(
+                policy_id=id,
+                x_idempotency_key=idempotency_key,
+            )
+            return map_openapi_policy(openapi_policy)
+        except Exception as error:
+            track_error(error, "resume_policy")
             raise
 
     async def delete_policy(
@@ -149,14 +232,7 @@ class PoliciesClient:
             openapi_policy = await self.api_clients.policies.get_policy_by_id(
                 policy_id=id,
             )
-            return Policy(
-                id=openapi_policy.id,
-                description=openapi_policy.description,
-                scope=openapi_policy.scope,
-                rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-                created_at=openapi_policy.created_at,
-                updated_at=openapi_policy.updated_at,
-            )
+            return map_openapi_policy(openapi_policy)
         except Exception as error:
             track_error(error, "get_policy_by_id")
             raise
@@ -220,14 +296,7 @@ class PoliciesClient:
             )
             return ListPoliciesResult(
                 policies=[
-                    Policy(
-                        id=openapi_policy.id,
-                        description=openapi_policy.description,
-                        scope=openapi_policy.scope,
-                        rules=map_openapi_rules_to_response_format(openapi_policy.rules),
-                        created_at=openapi_policy.created_at,
-                        updated_at=openapi_policy.updated_at,
-                    )
+                    map_openapi_policy(openapi_policy)
                     for openapi_policy in openapi_policies.policies
                 ],
                 next_page_token=openapi_policies.next_page_token,

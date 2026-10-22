@@ -1,0 +1,1 @@
+Regenerate the OpenAPI client to add the EOA and smart account vault redeem-fees operations (`redeemVaultFeesWithEvmAccount`, `redeemVaultFeesWithEvmSmartAccount`), and send `X-Wallet-Auth` for smart account lend requests.

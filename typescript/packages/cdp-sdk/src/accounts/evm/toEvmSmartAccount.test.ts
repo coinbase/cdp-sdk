@@ -70,6 +70,9 @@ describe("toEvmSmartAccount", () => {
     mockApiClient = {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       getUserOperation: vi.fn().mockResolvedValue(mockUserOp),
+      redeemVaultFeesWithEvmSmartAccount: vi
+        .fn()
+        .mockResolvedValue({ userOpHash: "0xmockuserophash" }),
     } as unknown as CdpOpenApiClientType;
 
     mockAddress = "0x123456789abcdef" as Address;
@@ -119,6 +122,7 @@ describe("toEvmSmartAccount", () => {
       waitForUserOperation: expect.any(Function),
       getUserOperation: expect.any(Function),
       requestFaucet: expect.any(Function),
+      redeemVaultFees: expect.any(Function),
       quoteSwap: expect.any(Function),
       swap: expect.any(Function),
       signTypedData: expect.any(Function),
@@ -126,6 +130,46 @@ describe("toEvmSmartAccount", () => {
       useNetwork: expect.any(Function),
       useSpendPermission: expect.any(Function),
     });
+  });
+
+  it("should redeem vault fees with the smart account address", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+    const vaultId = "vault_019f5f10-096a-7a23-86df-f479650d813f";
+
+    const result = await smartAccount.redeemVaultFees({ vaultId, useCdpPaymaster: true });
+
+    expect(mockApiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith(
+      mockAddress,
+      {
+        vaultId,
+        maxSlippageBps: undefined,
+        useCdpPaymaster: true,
+        paymasterUrl: undefined,
+        paymasterContext: undefined,
+      },
+      undefined,
+    );
+    expect(result).toEqual({
+      smartAccountAddress: mockAddress,
+      status: "broadcast",
+      userOpHash: "0xmockuserophash",
+    });
+  });
+
+  it("redeemVaultFees should rethrow the original API error", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+    const error = new Error("No fee shares to redeem.");
+    vi.mocked(mockApiClient.redeemVaultFeesWithEvmSmartAccount).mockRejectedValueOnce(error);
+
+    await expect(
+      smartAccount.redeemVaultFees({ vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f" }),
+    ).rejects.toBe(error);
   });
 
   it("should use the address from the provided smartAccount", () => {

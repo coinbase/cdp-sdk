@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
 from cdp.actions.evm.list_token_balances import list_token_balances
+from cdp.actions.evm.redeem_vault_fees import redeem_vault_fees
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
@@ -718,6 +719,48 @@ class EvmServerAccount(BaseModel):
             )
         except Exception as error:
             track_error(error, "use_spend_permission")
+            raise
+
+    async def redeem_vault_fees(
+        self,
+        vault_id: str,
+        max_slippage_bps: int | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Redeem every vault share held by this account for the vault's underlying asset.
+
+        The account must be the vault's fee recipient. CDP periodically distributes each vault's
+        accrued fees to its fee recipient as vault shares. This redeems the account's full share
+        balance, including any shares from the account's own deposits into the vault, so use a
+        dedicated fee recipient account.
+
+        Args:
+            vault_id (str): The ID of the vault to redeem fees from.
+            max_slippage_bps (int, optional): The maximum share-price slippage in basis points.
+                Defaults to 100 bps (1%) when omitted.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The hash of the broadcast redemption transaction.
+
+        Examples:
+            >>> tx_hash = await account.redeem_vault_fees(
+            ...     vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+            ... )
+
+        """
+        track_action(action="redeem_vault_fees", account_type="evm_server")
+
+        try:
+            return await redeem_vault_fees(
+                lend=self.__api_clients.lend,
+                address=self.address,
+                vault_id=vault_id,
+                max_slippage_bps=max_slippage_bps,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "redeem_vault_fees")
             raise
 
     def __str__(self) -> str:

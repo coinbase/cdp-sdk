@@ -480,3 +480,50 @@ async def test_use_network(server_account_model_factory):
     assert network_account.address == address
     assert network_account.network == network
     assert network_account.rpc_url is None
+
+
+@pytest.mark.asyncio
+async def test_redeem_vault_fees(server_account_model_factory):
+    """Test redeem_vault_fees method."""
+    address = "0x1234567890123456789012345678901234567890"
+    server_account_model = server_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.redeem_vault_fees_with_evm_account = AsyncMock(
+        return_value=AsyncMock(transaction_hash="0x123")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    result = await server_account.redeem_vault_fees(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        max_slippage_bps=50,
+        idempotency_key="idem-key",
+    )
+
+    call = mock_api_instance.lend.redeem_vault_fees_with_evm_account.call_args.kwargs
+    assert call["address"] == address
+    assert call["eoa_vault_redeem_fees_request"].vault_id == (
+        "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    )
+    assert call["eoa_vault_redeem_fees_request"].max_slippage_bps == 50
+    assert call["x_idempotency_key"] == "idem-key"
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
+async def test_redeem_vault_fees_reraises_original_error(server_account_model_factory):
+    """Test redeem_vault_fees re-raises the original API error."""
+    server_account_model = server_account_model_factory(
+        "0x1234567890123456789012345678901234567890", "test-account"
+    )
+    error = ValueError("no fee shares")
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.redeem_vault_fees_with_evm_account = AsyncMock(side_effect=error)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    with pytest.raises(ValueError) as exc_info:
+        await server_account.redeem_vault_fees(
+            vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f"
+        )
+
+    assert exc_info.value is error

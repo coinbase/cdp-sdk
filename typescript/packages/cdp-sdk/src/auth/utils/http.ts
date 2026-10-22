@@ -162,6 +162,8 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
      */
     (/\/(evm|solana)\/accounts/.test(requestPath ?? "") ||
       requestPath?.includes("/spend-permissions") ||
+      // Lend operations on smart accounts are signed by CDP with the owner's server wallet key.
+      /\/evm\/smart-accounts\/[^/]+\/lend\//.test(requestPath ?? "") ||
       requestPath?.includes("/user-operations/prepare-and-send") ||
       requestPath?.includes("/embedded-wallet-api/") ||
       requestPath?.endsWith("/end-users") ||

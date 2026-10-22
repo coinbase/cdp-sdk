@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -9,6 +10,7 @@ from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.idl import Idl
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
+from cdp.openapi_client.models.pause_policy_request import PausePolicyRequest
 from cdp.openapi_client.models.policy_simulation_result import PolicySimulationResult
 from cdp.openapi_client.models.sign_evm_transaction_simulation_input import (
     SignEvmTransactionSimulationInput,
@@ -426,6 +428,167 @@ async def test_update_policy(openapi_policy_model_factory, policy_model_factory)
     assert result.rules == policy_model.rules
     assert result.created_at == policy_model.created_at
     assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("resume_at_format", [None, "datetime", "iso_z", "iso_lower_z"])
+async def test_pause_policy(openapi_policy_model_factory, resume_at_format):
+    """Forward optional resume times and idempotency keys and return pause metadata."""
+    future_resume_at = datetime.now(timezone.utc) + timedelta(days=1)
+    expected_resume_at = future_resume_at if resume_at_format is not None else None
+    resume_at = expected_resume_at
+    if resume_at_format == "iso_z":
+        resume_at = future_resume_at.isoformat().replace("+00:00", "Z")
+    if resume_at_format == "iso_lower_z":
+        resume_at = future_resume_at.isoformat().replace("+00:00", "z")
+    paused_at = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    openapi_policy_model = openapi_policy_model_factory(
+        status="paused", paused_at=paused_at, resume_at=expected_resume_at
+    )
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies.pause_policy.return_value = openapi_policy_model
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    with patch("cdp.policies_client.track_action") as track_action:
+        result = await client.pause_policy(
+            openapi_policy_model.id, resume_at=resume_at, idempotency_key="pause-key"
+        )
+
+    track_action.assert_called_once_with(action="pause_policy")
+    mock_api_clients.policies.pause_policy.assert_awaited_once_with(
+        policy_id=openapi_policy_model.id,
+        pause_policy_request=(
+            PausePolicyRequest(resume_at=expected_resume_at)
+            if expected_resume_at is not None
+            else None
+        ),
+        x_idempotency_key="pause-key",
+    )
+    assert result.status == "paused"
+    assert result.paused_at == paused_at.isoformat()
+    assert result.resume_at == (
+        expected_resume_at.isoformat() if expected_resume_at is not None else None
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "resume_at,message",
+    [
+        (datetime.now(timezone.utc) - timedelta(days=1), "must be in the future"),
+        ((datetime.now(timezone.utc) - timedelta(days=1)).isoformat(), "must be in the future"),
+        (datetime.now() + timedelta(days=1), "timezone"),
+        ((datetime.now() + timedelta(days=1)).isoformat(), "timezone"),
+        ("invalid", "not a valid ISO 8601 timestamp"),
+    ],
+)
+async def test_pause_policy_rejects_invalid_resume_at(resume_at, message):
+    """Reject and track invalid resume times before awaiting the API."""
+    mock_api_clients = AsyncMock()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    with (
+        patch("cdp.policies_client.track_error") as track_error,
+        pytest.raises(ValueError, match=message) as raised,
+    ):
+        await client.pause_policy("123", resume_at=resume_at)
+
+    mock_api_clients.policies.pause_policy.assert_not_awaited()
+    track_error.assert_called_once_with(raised.value, "pause_policy")
+
+
+@pytest.mark.asyncio
+async def test_resume_policy(openapi_policy_model_factory):
+    """Forward the idempotency key and return an active policy without pause metadata."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies.resume_policy.return_value = openapi_policy_model
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    with patch("cdp.policies_client.track_action") as track_action:
+        result = await client.resume_policy(openapi_policy_model.id, idempotency_key="resume-key")
+
+    track_action.assert_called_once_with(action="resume_policy")
+    mock_api_clients.policies.resume_policy.assert_awaited_once_with(
+        policy_id=openapi_policy_model.id, x_idempotency_key="resume-key"
+    )
+    assert result.status == "active"
+    assert result.paused_at is None
+    assert result.resume_at is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method", ["create_policy", "update_policy", "get_policy_by_id", "list_policies"]
+)
+async def test_return_paused_policy(openapi_policy_model_factory, policy_model_factory, method):
+    """Preserve pause metadata on every policy response path."""
+    paused_at = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    resume_at = datetime.now(timezone.utc) + timedelta(days=1)
+    openapi_policy_model = openapi_policy_model_factory(
+        status="paused", paused_at=paused_at, resume_at=resume_at
+    )
+    expected = policy_model_factory(
+        status="paused", paused_at=paused_at.isoformat(), resume_at=resume_at.isoformat()
+    )
+    mock_api_clients = AsyncMock()
+    api_method = getattr(mock_api_clients.policies, method)
+    api_method.return_value = (
+        ListPolicies200Response(policies=[openapi_policy_model], next_page_token="next")
+        if method == "list_policies"
+        else openapi_policy_model
+    )
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    if method == "create_policy":
+        result = await client.create_policy(
+            CreatePolicyOptions(scope=expected.scope, rules=expected.rules)
+        )
+    elif method == "update_policy":
+        result = await client.update_policy(expected.id, UpdatePolicyOptions(rules=expected.rules))
+    elif method == "get_policy_by_id":
+        result = await client.get_policy_by_id(expected.id)
+    else:
+        listed = await client.list_policies()
+        assert listed.next_page_token == "next"
+        result = listed.policies[0]
+
+    api_method.assert_awaited_once()
+    assert result == expected
+
+
+@pytest.mark.asyncio
+async def test_get_policy_defaults_to_active(openapi_policy_model_factory):
+    """Default missing API status to active for older policy responses."""
+    openapi_policy_model = openapi_policy_model_factory(status=None)
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies.get_policy_by_id.return_value = openapi_policy_model
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    result = await client.get_policy_by_id(openapi_policy_model.id)
+
+    assert result.status == "active"
+    assert result.paused_at is None
+    assert result.resume_at is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("method", ["pause_policy", "resume_policy"])
+async def test_pause_resume_policy_api_exception(method):
+    """Track and propagate pause and resume API exceptions."""
+    error = ApiException(status=400, reason="Bad Request")
+    mock_api_clients = AsyncMock()
+    getattr(mock_api_clients.policies, method).side_effect = error
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    with (
+        patch("cdp.policies_client.track_error") as track_error,
+        pytest.raises(ApiException) as raised,
+    ):
+        await getattr(client, method)("123")
+
+    assert raised.value is error
+    track_error.assert_called_once_with(error, method)
 
 
 @pytest.mark.asyncio

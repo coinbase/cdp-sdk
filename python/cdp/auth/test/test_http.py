@@ -123,6 +123,21 @@ def test_get_auth_headers_still_sends_bearer_token_for_public_operation_with_cre
         ("POST", "/any/123", False),
         ("PUT", "/accounts/123", True),
         ("PUT", "/spend-permissions", True),
+        (
+            "POST",
+            "/v2/evm/accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
+            True,
+        ),
+        (
+            "POST",
+            "/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
+            True,
+        ),
+        (
+            "POST",
+            "/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/user-operations",
+            False,
+        ),
         ("PUT", "/any/123", False),
         ("DELETE", "/accounts/123", True),
         ("DELETE", "/any/123", False),

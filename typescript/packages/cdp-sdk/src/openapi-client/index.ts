@@ -20,6 +20,7 @@ import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-acco
 import * as evmSwaps from "./generated/evm-swaps/evm-swaps.js";
 import * as evmTokenBalances from "./generated/evm-token-balances/evm-token-balances.js";
 import * as faucets from "./generated/faucets/faucets.js";
+import * as lend from "./generated/lend/lend.js";
 import * as onchainData from "./generated/onchain-data/onchain-data.js";
 import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
@@ -39,6 +40,7 @@ export const CdpOpenApiClient = {
   ...policies,
   ...endUserAccounts,
   ...endUserAccountManagement,
+  ...lend,
   configure,
   getAxiosInstance,
 };
@@ -68,3 +70,5 @@ export * from "./generated/customers/customers.js";
 export * from "./generated/disbursements/disbursements.js";
 export * from "./generated/mandates/mandates.js";
 export * from "./generated/top-up-links/top-up-links.js";
+export * from "./generated/lend/lend.js";
+export * from "./generated/onramp-app2app/onramp-app2app.js";

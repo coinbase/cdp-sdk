@@ -37,6 +37,12 @@ export type Policy = {
   description?: string;
   /** The scope of the policy. Only one project-level policy can exist at any time. */
   scope: PolicyScope;
+  /** The current status of the policy. */
+  status: "active" | "paused";
+  /** The ISO 8601 timestamp when the policy was paused, present only when paused. */
+  pausedAt?: string;
+  /** The ISO 8601 timestamp when a paused policy resumes automatically, absent for an indefinite pause. */
+  resumeAt?: string;
   /** A list of rules that comprise the policy. */
   rules: Rule[];
   /** The ISO 8601 timestamp at which the Policy was created. */
@@ -148,3 +154,19 @@ export const UpdatePolicyBodySchema = z.object({
  * Note that the scope cannot be changed once a policy is created.
  */
 export type UpdatePolicyBody = z.infer<typeof UpdatePolicyBodySchema>;
+
+/** Schema for pausing a policy. */
+export const PausePolicyBodySchema = z.object({
+  /** The ISO 8601 timestamp when the policy resumes automatically, absent for an indefinite pause. */
+  resumeAt: z
+    .string()
+    .datetime({ offset: true })
+    .refine(value => new Date(value).getTime() > Date.now(), {
+      message:
+        "resumeAt must be in the future. Please choose a time after now and at most 30 days ahead.",
+    })
+    .optional(),
+});
+
+/** Type representing the request body for pausing a policy. */
+export type PausePolicyBody = z.infer<typeof PausePolicyBodySchema>;

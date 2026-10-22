@@ -26,6 +26,8 @@ import com.coinbase.cdp.resources.policyengine.requests.CreatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.DeletePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.GetPolicyByIdRequest;
 import com.coinbase.cdp.resources.policyengine.requests.ListPoliciesRequest;
+import com.coinbase.cdp.resources.policyengine.requests.PausePolicyRequest;
+import com.coinbase.cdp.resources.policyengine.requests.ResumePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.UpdatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.types.ListPoliciesResponse;
 import com.coinbase.cdp.types.Error;
@@ -516,4 +518,174 @@ public class WithRawResponsePolicyEngineClient {
                   throw new CdpClientException("Network error executing HTTP request", e);
                 }
               }
-            }
+
+              /**
+               * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+               */
+              public CdpClientHttpResponse<Policy> pausePolicy(String policyId) {
+                return pausePolicy(policyId,PausePolicyRequest.builder().build());
+              }
+
+              /**
+               * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+               */
+              public CdpClientHttpResponse<Policy> pausePolicy(String policyId,
+                  RequestOptions requestOptions) {
+                return pausePolicy(policyId,PausePolicyRequest.builder().build(),requestOptions);
+              }
+
+              /**
+               * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+               */
+              public CdpClientHttpResponse<Policy> pausePolicy(String policyId,
+                  PausePolicyRequest request) {
+                return pausePolicy(policyId,request,null);
+              }
+
+              /**
+               * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+               */
+              public CdpClientHttpResponse<Policy> pausePolicy(String policyId,
+                  PausePolicyRequest request, RequestOptions requestOptions) {
+                HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
+
+                  .addPathSegments("v2/policy-engine/policies")
+                  .addPathSegment(policyId)
+                  .addPathSegments("pause");if (requestOptions != null) {
+                    requestOptions.getQueryParameters().forEach((_key, _value) -> {
+                      httpUrl.addQueryParameter(_key, _value);
+                    } );
+                  }
+                  RequestBody body;
+                  try {
+                    body = RequestBody.create(ObjectMappers.JSON_MAPPER.writeValueAsBytes(request), MediaTypes.APPLICATION_JSON);
+                  }
+                  catch(Exception e) {
+                    throw new RuntimeException(e);
+                  }
+                  Request.Builder _requestBuilder = new Request.Builder()
+                    .url(httpUrl.build())
+                    .method("POST", body)
+                    .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                    .headers(Headers.of(clientOptions.headers(requestOptions)))
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Accept", "application/json");
+                  if (request.getIdempotencyKey().isPresent()) {
+                    _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                  }
+                  Request okhttpRequest = _requestBuilder.build();
+                  OkHttpClient client = clientOptions.httpClient();
+                  if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
+                    client = clientOptions.httpClientWithTimeout(requestOptions);
+                  }
+                  try (Response response = client.newCall(okhttpRequest).execute()) {
+                    ResponseBody responseBody = response.body();
+                    String responseBodyString = responseBody != null ? responseBody.string() : "{}";
+                    if (response.isSuccessful()) {
+                      return new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Policy.class), response);
+                    }
+                    try {
+                      switch (response.code()) {
+                        case 400:throw new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        case 404:throw new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        case 422:throw new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        case 500:throw new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        case 502:throw new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        case 503:throw new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                      }
+                    }
+                    catch (JsonProcessingException ignored) {
+                      // unable to map error response, throwing generic error
+                    }
+                    Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
+                    throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+                  }
+                  catch (JsonProcessingException e) {
+                    throw new CdpClientException("Failed to decode HTTP response", e);
+                  }
+                  catch (IOException e) {
+                    throw new CdpClientException("Network error executing HTTP request", e);
+                  }
+                }
+
+                /**
+                 * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+                 */
+                public CdpClientHttpResponse<Policy> resumePolicy(String policyId) {
+                  return resumePolicy(policyId,ResumePolicyRequest.builder().build());
+                }
+
+                /**
+                 * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+                 */
+                public CdpClientHttpResponse<Policy> resumePolicy(String policyId,
+                    RequestOptions requestOptions) {
+                  return resumePolicy(policyId,ResumePolicyRequest.builder().build(),requestOptions);
+                }
+
+                /**
+                 * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+                 */
+                public CdpClientHttpResponse<Policy> resumePolicy(String policyId,
+                    ResumePolicyRequest request) {
+                  return resumePolicy(policyId,request,null);
+                }
+
+                /**
+                 * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+                 */
+                public CdpClientHttpResponse<Policy> resumePolicy(String policyId,
+                    ResumePolicyRequest request, RequestOptions requestOptions) {
+                  HttpUrl.Builder httpUrl = HttpUrl.parse(this.clientOptions.environment().getUrl()).newBuilder()
+
+                    .addPathSegments("v2/policy-engine/policies")
+                    .addPathSegment(policyId)
+                    .addPathSegments("resume");if (requestOptions != null) {
+                      requestOptions.getQueryParameters().forEach((_key, _value) -> {
+                        httpUrl.addQueryParameter(_key, _value);
+                      } );
+                    }
+                    Request.Builder _requestBuilder = new Request.Builder()
+                      .url(httpUrl.build())
+                      .method("POST", RequestBody.create("", null))
+                      .tag(EndpointMetadata.class, new EndpointMetadata(Collections.emptyList(), Collections.emptyList()))
+                      .headers(Headers.of(clientOptions.headers(requestOptions)))
+                      .addHeader("Accept", "application/json");
+                    if (request.getIdempotencyKey().isPresent()) {
+                      _requestBuilder.addHeader("X-Idempotency-Key", request.getIdempotencyKey().get());
+                    }
+                    Request okhttpRequest = _requestBuilder.build();
+                    OkHttpClient client = clientOptions.httpClient();
+                    if (requestOptions != null && requestOptions.getTimeout().isPresent()) {
+                      client = clientOptions.httpClientWithTimeout(requestOptions);
+                    }
+                    try (Response response = client.newCall(okhttpRequest).execute()) {
+                      ResponseBody responseBody = response.body();
+                      String responseBodyString = responseBody != null ? responseBody.string() : "{}";
+                      if (response.isSuccessful()) {
+                        return new CdpClientHttpResponse<>(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Policy.class), response);
+                      }
+                      try {
+                        switch (response.code()) {
+                          case 400:throw new BadRequestError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                          case 404:throw new NotFoundError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                          case 422:throw new UnprocessableEntityError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                          case 500:throw new InternalServerError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                          case 502:throw new BadGatewayError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                          case 503:throw new ServiceUnavailableError(ObjectMappers.JSON_MAPPER.readValue(responseBodyString, Error.class), response);
+                        }
+                      }
+                      catch (JsonProcessingException ignored) {
+                        // unable to map error response, throwing generic error
+                      }
+                      Object errorBody = ObjectMappers.parseErrorBody(responseBodyString);
+                      throw new CdpClientApiException("Error with status code " + response.code(), response.code(), errorBody, response);
+                    }
+                    catch (JsonProcessingException e) {
+                      throw new CdpClientException("Failed to decode HTTP response", e);
+                    }
+                    catch (IOException e) {
+                      throw new CdpClientException("Network error executing HTTP request", e);
+                    }
+                  }
+                }

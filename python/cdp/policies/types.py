@@ -1089,6 +1089,17 @@ class Policy(BaseModel):
         ...,
         description="The scope of the policy. Only one project-level policy can exist at any time.",
     )
+    status: Literal["active", "paused"] = Field(
+        "active", description="The current evaluation status of the policy."
+    )
+    paused_at: str | None = Field(
+        None,
+        description="The ISO 8601 timestamp at which the Policy was paused. Present only when status is paused.",
+    )
+    resume_at: str | None = Field(
+        None,
+        description="The ISO 8601 timestamp at which a paused Policy resumes automatically. Absent for an indefinite pause.",
+    )
     rules: list[Rule] = Field(..., description="A list of rules that comprise the policy.")
     created_at: str = Field(
         ..., description="The ISO 8601 timestamp at which the Policy was created."
