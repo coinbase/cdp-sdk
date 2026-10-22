@@ -5,6 +5,7 @@ from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.lend_api import LendApi
 from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
@@ -27,6 +28,7 @@ class ApiClients:
         _evm_swaps (Optional[EVMSwapsApi]): The EVMSwapsApi client instance.
         _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
+        _lend (Optional[LendApi]): The LendApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
         _solana_token_balances (Optional[SolanaTokenBalancesApi]): The SolanaTokenBalancesApi client instance.
 
@@ -46,6 +48,7 @@ class ApiClients:
         self._evm_swaps: EVMSwapsApi | None = None
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
+        self._lend: LendApi | None = None
         self._onchain_data: OnchainDataApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
@@ -251,6 +254,22 @@ class ApiClients:
         if self._webhooks is None:
             self._webhooks = WebhooksApi(api_client=self._cdp_client)
         return self._webhooks
+
+    @property
+    def lend(self) -> LendApi:
+        """Get the LendApi client instance.
+
+        Returns:
+            LendApi: The LendApi client instance.
+
+        Note:
+            This property lazily initializes the LendApi client on first access.
+
+        """
+        self._check_closed()
+        if self._lend is None:
+            self._lend = LendApi(api_client=self._cdp_client)
+        return self._lend
 
     async def close(self):
         """Close the CDP client asynchronously."""

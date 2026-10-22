@@ -20,6 +20,8 @@ var PublicOperations = []PublicOperation{
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/approvals/wallet/options$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/revocations/wallet$`)},
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/mandates/[^/]+/revocations/wallet/options$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/onramp/mobile/attestation/registrations$`)},
+	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/onramp/mobile/sessions$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/coinbase$`)},
 	{Method: "POST", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet$`)},
 	{Method: "GET", PathPattern: regexp.MustCompile(`/v2/payment\-sessions/[^/]+/authorizations/wallet/options$`)},

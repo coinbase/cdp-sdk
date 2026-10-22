@@ -14,6 +14,7 @@ import {
   type ListTokenBalancesResult,
   type ListTokenBalancesOptions,
 } from "../../actions/evm/listTokenBalances.js";
+import { redeemVaultFees } from "../../actions/evm/redeemVaultFees.js";
 import {
   requestFaucet,
   type RequestFaucetOptions,
@@ -30,6 +31,7 @@ import { signEvmX402Payment } from "../../actions/x402/signX402Payment.js";
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
+import type { RedeemVaultFeesOptions } from "../../actions/evm/redeemVaultFees.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
@@ -287,6 +289,21 @@ export function toEvmServerAccount(
         return useSpendPermission(apiClient, this.address, options);
       } catch (error) {
         Analytics.trackError(error, "useSpendPermission");
+        throw error;
+      }
+    },
+    async redeemVaultFees(options: RedeemVaultFeesOptions): Promise<TransactionResult> {
+      Analytics.trackAction({
+        action: "redeem_vault_fees",
+        accountType: "evm_server",
+      });
+      try {
+        return await redeemVaultFees(apiClient, {
+          ...options,
+          address: this.address,
+        });
+      } catch (error) {
+        Analytics.trackError(error, "redeemVaultFees");
         throw error;
       }
     },

@@ -13,8 +13,10 @@ export type { SimulatePoliciesRequest, PolicySimulationResult } from "./openapi-
 export {
   CreatePolicyBodySchema,
   UpdatePolicyBodySchema,
+  PausePolicyBodySchema,
   type CreatePolicyBody,
   type UpdatePolicyBody,
+  type PausePolicyBody,
 } from "./policies/types.js";
 export { NetworkError } from "./openapi-client/errors.js";
 export type { SpendPermission, SpendPermissionInput } from "./spend-permissions/types.js";

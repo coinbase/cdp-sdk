@@ -10,6 +10,8 @@ import com.coinbase.cdp.resources.policyengine.requests.CreatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.DeletePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.GetPolicyByIdRequest;
 import com.coinbase.cdp.resources.policyengine.requests.ListPoliciesRequest;
+import com.coinbase.cdp.resources.policyengine.requests.PausePolicyRequest;
+import com.coinbase.cdp.resources.policyengine.requests.ResumePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.requests.UpdatePolicyRequest;
 import com.coinbase.cdp.resources.policyengine.types.ListPoliciesResponse;
 import com.coinbase.cdp.types.Policy;
@@ -173,5 +175,63 @@ public class PolicyEngineClient {
   public void deletePolicy(String policyId, DeletePolicyRequest request,
       RequestOptions requestOptions) {
     this.rawClient.deletePolicy(policyId, request, requestOptions).body();
+  }
+
+  /**
+   * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+   */
+  public Policy pausePolicy(String policyId) {
+    return this.rawClient.pausePolicy(policyId).body();
+  }
+
+  /**
+   * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+   */
+  public Policy pausePolicy(String policyId, RequestOptions requestOptions) {
+    return this.rawClient.pausePolicy(policyId, requestOptions).body();
+  }
+
+  /**
+   * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+   */
+  public Policy pausePolicy(String policyId, PausePolicyRequest request) {
+    return this.rawClient.pausePolicy(policyId, request).body();
+  }
+
+  /**
+   * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+   */
+  public Policy pausePolicy(String policyId, PausePolicyRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.pausePolicy(policyId, request, requestOptions).body();
+  }
+
+  /**
+   * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+   */
+  public Policy resumePolicy(String policyId) {
+    return this.rawClient.resumePolicy(policyId).body();
+  }
+
+  /**
+   * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+   */
+  public Policy resumePolicy(String policyId, RequestOptions requestOptions) {
+    return this.rawClient.resumePolicy(policyId, requestOptions).body();
+  }
+
+  /**
+   * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+   */
+  public Policy resumePolicy(String policyId, ResumePolicyRequest request) {
+    return this.rawClient.resumePolicy(policyId, request).body();
+  }
+
+  /**
+   * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+   */
+  public Policy resumePolicy(String policyId, ResumePolicyRequest request,
+      RequestOptions requestOptions) {
+    return this.rawClient.resumePolicy(policyId, request, requestOptions).body();
   }
 }

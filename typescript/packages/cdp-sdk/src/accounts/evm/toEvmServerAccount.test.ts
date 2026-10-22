@@ -114,6 +114,9 @@ describe("toEvmServerAccount", () => {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       signEvmTypedData: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
     } as unknown as CdpOpenApiClientType;
+    mockApiClient.redeemVaultFeesWithEvmAccount = vi
+      .fn()
+      .mockResolvedValue({ transactionHash: "0xmocktransactionhash" });
 
     mockAccount = {
       address: mockAddress,
@@ -139,6 +142,7 @@ describe("toEvmServerAccount", () => {
       name: undefined,
       policies: undefined,
       requestFaucet: expect.any(Function),
+      redeemVaultFees: expect.any(Function),
       sendTransaction: expect.any(Function),
       sign: expect.any(Function),
       signMessage: expect.any(Function),
@@ -156,6 +160,34 @@ describe("toEvmServerAccount", () => {
 
   it("should use the address from the provided account", () => {
     expect(serverAccount.address).toBe(mockAddress);
+  });
+
+  describe("redeemVaultFees", () => {
+    it("should call apiClient.redeemVaultFeesWithEvmAccount with the account address", async () => {
+      const vaultId = "vault_019f5f10-096a-7a23-86df-f479650d813f";
+
+      const result = await serverAccount.redeemVaultFees({
+        vaultId,
+        maxSlippageBps: 50,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(mockApiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith(
+        mockAddress,
+        { vaultId, maxSlippageBps: 50 },
+        "idem-key",
+      );
+      expect(result).toEqual({ transactionHash: "0xmocktransactionhash" });
+    });
+  });
+
+  it("redeemVaultFees should rethrow the original API error", async () => {
+    const error = new Error("No fee shares to redeem.");
+    vi.mocked(mockApiClient.redeemVaultFeesWithEvmAccount).mockRejectedValueOnce(error);
+
+    await expect(
+      serverAccount.redeemVaultFees({ vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f" }),
+    ).rejects.toBe(error);
   });
 
   it("should have the correct type property", () => {

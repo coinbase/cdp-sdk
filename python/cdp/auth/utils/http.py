@@ -130,6 +130,8 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
     return (
         "/accounts" in path
         or "/spend-permissions" in path
+        # Lend operations on smart accounts are signed by CDP with the owner's server wallet key.
+        or bool(re.search(r"/evm/smart-accounts/[^/]+/lend/", path))
         or "/user-operations/prepare-and-send" in path
         or "/embedded-wallet-api/" in path
         or path.endswith("/end-users")

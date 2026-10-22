@@ -14,6 +14,8 @@ export const PUBLIC_OPERATIONS: PublicOperation[] = [
   { method: "GET", pathPattern: new RegExp("/v2/mandates/[^/]+/approvals/wallet/options$") },
   { method: "POST", pathPattern: new RegExp("/v2/mandates/[^/]+/revocations/wallet$") },
   { method: "GET", pathPattern: new RegExp("/v2/mandates/[^/]+/revocations/wallet/options$") },
+  { method: "POST", pathPattern: new RegExp("/v2/onramp/mobile/attestation/registrations$") },
+  { method: "POST", pathPattern: new RegExp("/v2/onramp/mobile/sessions$") },
   {
     method: "POST",
     pathPattern: new RegExp("/v2/payment\\-sessions/[^/]+/authorizations/coinbase$"),

@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
 from cdp.actions.evm.list_token_balances import list_token_balances
+from cdp.actions.evm.redeem_vault_fees import redeem_vault_fees_with_smart_account
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
@@ -718,6 +719,64 @@ class EvmSmartAccount(BaseModel):
         from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 
         return NetworkScopedEvmSmartAccount(self, network, rpc_url=rpc_url)
+
+    async def redeem_vault_fees(
+        self,
+        vault_id: str,
+        max_slippage_bps: int | None = None,
+        use_cdp_paymaster: bool | None = None,
+        paymaster_url: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Redeem every vault share held by this smart account for the vault's underlying asset.
+
+        The smart account must be the vault's fee recipient, and its owner must be a CDP EVM
+        account. CDP periodically distributes each vault's accrued fees to its fee recipient as
+        vault shares. This redeems the smart account's full share balance, including any shares
+        from its own deposits into the vault, so use a dedicated fee recipient smart account. The
+        share approval and redemption are batched into a single user operation.
+
+        Args:
+            vault_id (str): The ID of the vault to redeem fees from.
+            max_slippage_bps (int, optional): The maximum share-price slippage in basis points.
+                Defaults to 100 bps (1%) when omitted.
+            use_cdp_paymaster (bool, optional): Whether to sponsor gas with the CDP Paymaster.
+                Only supported on Base and Base Sepolia. Cannot be combined with `paymaster_url`.
+            paymaster_url (str, optional): A custom Paymaster URL. Cannot be combined with
+                `use_cdp_paymaster`.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context.
+                Requires a paymaster.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The hash of the broadcast user operation. Pass it to
+            `wait_for_user_operation` to wait for the redemption to complete.
+
+        Examples:
+            >>> user_op_hash = await smart_account.redeem_vault_fees(
+            ...     vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+            ...     use_cdp_paymaster=True,
+            ... )
+            >>> await smart_account.wait_for_user_operation(user_op_hash=user_op_hash)
+
+        """
+        track_action(action="redeem_vault_fees", account_type="evm_smart")
+
+        try:
+            return await redeem_vault_fees_with_smart_account(
+                lend=self.__api_clients.lend,
+                address=self.address,
+                vault_id=vault_id,
+                max_slippage_bps=max_slippage_bps,
+                use_cdp_paymaster=use_cdp_paymaster,
+                paymaster_url=paymaster_url,
+                paymaster_context=paymaster_context,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "redeem_vault_fees")
+            raise
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

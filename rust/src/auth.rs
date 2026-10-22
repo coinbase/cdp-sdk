@@ -467,6 +467,22 @@ impl WalletAuth {
             || Self::matches_end_user_pattern(path, "/evm")
             || Self::matches_end_user_pattern(path, "/evm-smart-account")
             || Self::matches_end_user_pattern(path, "/solana")
+            || Self::matches_smart_account_lend_pattern(path)
+    }
+
+    /// Checks if path matches `/evm/smart-accounts/{address}/lend/` pattern.
+    /// Equivalent to regex `/evm/smart-accounts/[^/]+/lend/`.
+    fn matches_smart_account_lend_pattern(path: &str) -> bool {
+        if let Some(pos) = path.find("/evm/smart-accounts/") {
+            let after = &path[pos + "/evm/smart-accounts/".len()..];
+            if let Some(slash_pos) = after.find('/') {
+                slash_pos > 0 && after[slash_pos..].starts_with("/lend/")
+            } else {
+                false
+            }
+        } else {
+            false
+        }
     }
 
     /// Checks if path matches `/end-users/{id}/{suffix}` pattern.
@@ -759,6 +775,20 @@ mod tests {
         assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/evm"));
         assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/evm-smart-account"));
         assert!(auth.requires_wallet_auth("POST", "/v2/end-users/user123/solana"));
+
+        // Should require wallet auth for EOA and smart account lend endpoints
+        assert!(auth.requires_wallet_auth(
+            "POST",
+            "/platform/v2/evm/accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees"
+        ));
+        assert!(auth.requires_wallet_auth(
+            "POST",
+            "/platform/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees"
+        ));
+        assert!(!auth.requires_wallet_auth(
+            "POST",
+            "/platform/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/user-operations"
+        ));
 
         // Should NOT require wallet auth for GET requests
         assert!(!auth.requires_wallet_auth("GET", "/v2/evm/accounts"));

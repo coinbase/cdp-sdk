@@ -1,3 +1,4 @@
+from cdp.openapi_client.models.policy import Policy as OpenApiPolicy
 from cdp.openapi_client.models.rule import Rule
 from cdp.policies.types import (
     CreateEndUserEvmSwapRule as CreateEndUserEvmSwapRuleModel,
@@ -14,6 +15,7 @@ from cdp.policies.types import (
     EvmTypedStringCondition as EvmTypedStringConditionModel,
     MintAddressCriterion as MintAddressCriterionModel,
     NetUSDChangeCriterion as NetUSDChangeCriterionModel,
+    Policy,
     PrepareUserOperationRule as PrepareUserOperationRuleModel,
     ProgramIdCriterion as ProgramIdCriterionModel,
     Rule as RuleType,
@@ -440,3 +442,30 @@ def map_openapi_rules_to_response_format(openapi_rules: list[Rule]) -> list[Rule
         response_rules.append(rule_class(action=instance.action, criteria=criteria))
 
     return response_rules
+
+
+def map_openapi_policy(openapi_policy: OpenApiPolicy) -> Policy:
+    """Build an SDK policy from an OpenAPI policy.
+
+    Args:
+        openapi_policy (OpenApiPolicy): The OpenAPI policy to build from.
+
+    Returns:
+        Policy: The policy formatted for the response.
+
+    """
+    return Policy(
+        id=openapi_policy.id,
+        description=openapi_policy.description,
+        scope=openapi_policy.scope,
+        status=openapi_policy.status or "active",
+        paused_at=openapi_policy.paused_at.isoformat()
+        if openapi_policy.paused_at is not None
+        else None,
+        resume_at=openapi_policy.resume_at.isoformat()
+        if openapi_policy.resume_at is not None
+        else None,
+        rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+        created_at=openapi_policy.created_at,
+        updated_at=openapi_policy.updated_at,
+    )

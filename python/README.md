@@ -1289,6 +1289,23 @@ policy = await cdp.policies.update_policy(
 )
 ```
 
+### Pause and Resume a Policy
+
+Pause a policy indefinitely or until a time within the next 30 days, then resume it when needed.
+
+```python
+from datetime import datetime, timedelta, timezone
+
+policy = await cdp.policies.pause_policy(
+    id="__POLICY_ID__",
+    resume_at=datetime.now(timezone.utc) + timedelta(hours=1),
+)
+print(policy.status, policy.paused_at, policy.resume_at)
+
+policy = await cdp.policies.pause_policy(id="__POLICY_ID__")
+policy = await cdp.policies.resume_policy(id="__POLICY_ID__")
+```
+
 ### Delete a Policy
 
 > [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.

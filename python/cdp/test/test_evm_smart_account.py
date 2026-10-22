@@ -736,3 +736,59 @@ async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(smar
             )
 
             assert result == mock_user_op
+
+
+@pytest.mark.asyncio
+async def test_redeem_vault_fees(smart_account_model_factory):
+    """Test redeem_vault_fees method."""
+    address = "0x1234567890123456789012345678901234567890"
+    smart_account_model = smart_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.redeem_vault_fees_with_evm_smart_account = AsyncMock(
+        return_value=AsyncMock(user_op_hash="0xabc")
+    )
+    smart_account = EvmSmartAccount(
+        smart_account_model.address,
+        smart_account_model.owners[0],
+        smart_account_model.name,
+        None,
+        mock_api_instance,
+    )
+
+    result = await smart_account.redeem_vault_fees(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        use_cdp_paymaster=True,
+    )
+
+    call = mock_api_instance.lend.redeem_vault_fees_with_evm_smart_account.call_args.kwargs
+    assert call["address"] == address
+    request = call["smart_account_vault_redeem_fees_request"]
+    assert request.vault_id == "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    assert request.use_cdp_paymaster is True
+    assert request.paymaster_url is None
+    assert call["x_idempotency_key"] is None
+    assert result == "0xabc"
+
+
+@pytest.mark.asyncio
+async def test_redeem_vault_fees_reraises_original_error(smart_account_model_factory):
+    """Test redeem_vault_fees re-raises the original API error."""
+    smart_account_model = smart_account_model_factory(
+        "0x1234567890123456789012345678901234567890", "test-account"
+    )
+    error = ValueError("no fee shares")
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.redeem_vault_fees_with_evm_smart_account = AsyncMock(side_effect=error)
+    smart_account = EvmSmartAccount(
+        smart_account_model.address,
+        smart_account_model.owners[0],
+        smart_account_model.name,
+        None,
+        mock_api_instance,
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        await smart_account.redeem_vault_fees(vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f")
+
+    assert exc_info.value is error

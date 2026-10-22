@@ -69,6 +69,23 @@ func TestRequiresWalletAuth(t *testing.T) {
 			want:   true,
 		},
 
+		// /evm/smart-accounts/{address}/lend/ (regex)
+		"POST /evm/accounts/{address}/lend/redeem-fees": {
+			method: "POST",
+			path:   "/platform/v2/evm/accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
+			want:   true,
+		},
+		"POST /evm/smart-accounts/{address}/lend/redeem-fees": {
+			method: "POST",
+			path:   "/platform/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
+			want:   true,
+		},
+		"POST /evm/smart-accounts/{address}/user-operations does not match": {
+			method: "POST",
+			path:   "/platform/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/user-operations",
+			want:   false,
+		},
+
 		// /spend-permissions
 		"POST /spend-permissions": {
 			method: "POST",

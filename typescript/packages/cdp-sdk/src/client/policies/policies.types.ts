@@ -20,12 +20,16 @@ export type PoliciesClientInterface = Omit<
   | "deletePolicy" // mapped to deletePolicy
   | "updatePolicy" // mapped to updatePolicy
   | "simulatePolicies" // mapped to simulate
+  | "pausePolicy" // mapped to pausePolicy
+  | "resumePolicy" // mapped to resumePolicy
 > & {
   listPolicies: (options: ListPoliciesOptions) => Promise<ListPoliciesResult>;
   createPolicy: (options: CreatePolicyOptions) => Promise<Policy>;
   getPolicyById: (options: GetPolicyByIdOptions) => Promise<Policy>;
   deletePolicy: (options: DeletePolicyOptions) => Promise<void>;
   updatePolicy: (options: UpdatePolicyOptions) => Promise<Policy>;
+  pausePolicy: (options: PausePolicyOptions) => Promise<Policy>;
+  resumePolicy: (options: ResumePolicyOptions) => Promise<Policy>;
   simulate: (options: SimulatePoliciesOptions) => Promise<PolicySimulationResult>;
 };
 
@@ -116,6 +120,38 @@ export interface UpdatePolicyOptions {
   /**
    * The idempotency key to ensure the request is processed exactly once.
    * Used to safely retry requests without accidentally performing the same operation twice.
+   */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for pausing a Policy.
+ */
+export interface PausePolicyOptions {
+  /**
+   * The unique identifier of the policy to pause, a UUID generated when the policy is created.
+   */
+  id: string;
+  /**
+   * The automatic resume time as an ISO 8601 timestamp or Date, in the future and at most 30 days ahead; omit to pause indefinitely.
+   */
+  resumeAt?: string | Date;
+  /**
+   * The idempotency key to ensure the request is processed exactly once when safely retrying requests.
+   */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for resuming a Policy.
+ */
+export interface ResumePolicyOptions {
+  /**
+   * The unique identifier of the policy to resume, a UUID generated when the policy is created.
+   */
+  id: string;
+  /**
+   * The idempotency key to ensure the request is processed exactly once when safely retrying requests.
    */
   idempotencyKey?: string;
 }

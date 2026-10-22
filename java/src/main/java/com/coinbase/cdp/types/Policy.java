@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.lang.Object;
 import java.lang.String;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +33,12 @@ public final class Policy {
 
   private final PolicyScope scope;
 
+  private final Optional<PolicyStatus> status;
+
+  private final Optional<OffsetDateTime> pausedAt;
+
+  private final Optional<OffsetDateTime> resumeAt;
+
   private final PolicyRules rules;
 
   private final String createdAt;
@@ -40,11 +47,16 @@ public final class Policy {
 
   private final Map<String, Object> additionalProperties;
 
-  private Policy(String id, Optional<String> description, PolicyScope scope, PolicyRules rules,
-      String createdAt, String updatedAt, Map<String, Object> additionalProperties) {
+  private Policy(String id, Optional<String> description, PolicyScope scope,
+      Optional<PolicyStatus> status, Optional<OffsetDateTime> pausedAt,
+      Optional<OffsetDateTime> resumeAt, PolicyRules rules, String createdAt, String updatedAt,
+      Map<String, Object> additionalProperties) {
     this.id = id;
     this.description = description;
     this.scope = scope;
+    this.status = status;
+    this.pausedAt = pausedAt;
+    this.resumeAt = resumeAt;
     this.rules = rules;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -74,6 +86,30 @@ public final class Policy {
   @JsonProperty("scope")
   public PolicyScope getScope() {
     return scope;
+  }
+
+  /**
+   * @return The current evaluation status of the policy.
+   */
+  @JsonProperty("status")
+  public Optional<PolicyStatus> getStatus() {
+    return status;
+  }
+
+  /**
+   * @return When the policy was paused. Present only when status is paused.
+   */
+  @JsonProperty("pausedAt")
+  public Optional<OffsetDateTime> getPausedAt() {
+    return pausedAt;
+  }
+
+  /**
+   * @return When a paused policy resumes automatically. Absent for an indefinite pause.
+   */
+  @JsonProperty("resumeAt")
+  public Optional<OffsetDateTime> getResumeAt() {
+    return resumeAt;
   }
 
   @JsonProperty("rules")
@@ -109,12 +145,12 @@ public final class Policy {
   }
 
   private boolean equalTo(Policy other) {
-    return id.equals(other.id) && description.equals(other.description) && scope.equals(other.scope) && rules.equals(other.rules) && createdAt.equals(other.createdAt) && updatedAt.equals(other.updatedAt);
+    return id.equals(other.id) && description.equals(other.description) && scope.equals(other.scope) && status.equals(other.status) && pausedAt.equals(other.pausedAt) && resumeAt.equals(other.resumeAt) && rules.equals(other.rules) && createdAt.equals(other.createdAt) && updatedAt.equals(other.updatedAt);
   }
 
   @java.lang.Override
   public int hashCode() {
-    return Objects.hash(this.id, this.description, this.scope, this.rules, this.createdAt, this.updatedAt);
+    return Objects.hash(this.id, this.description, this.scope, this.status, this.pausedAt, this.resumeAt, this.rules, this.createdAt, this.updatedAt);
   }
 
   @java.lang.Override
@@ -174,6 +210,27 @@ public final class Policy {
     _FinalStage description(Optional<String> description);
 
     _FinalStage description(String description);
+
+    /**
+     * <p>The current evaluation status of the policy.</p>
+     */
+    _FinalStage status(Optional<PolicyStatus> status);
+
+    _FinalStage status(PolicyStatus status);
+
+    /**
+     * <p>When the policy was paused. Present only when status is paused.</p>
+     */
+    _FinalStage pausedAt(Optional<OffsetDateTime> pausedAt);
+
+    _FinalStage pausedAt(OffsetDateTime pausedAt);
+
+    /**
+     * <p>When a paused policy resumes automatically. Absent for an indefinite pause.</p>
+     */
+    _FinalStage resumeAt(Optional<OffsetDateTime> resumeAt);
+
+    _FinalStage resumeAt(OffsetDateTime resumeAt);
   }
 
   @JsonIgnoreProperties(
@@ -190,6 +247,12 @@ public final class Policy {
 
     private String updatedAt;
 
+    private Optional<OffsetDateTime> resumeAt = Optional.empty();
+
+    private Optional<OffsetDateTime> pausedAt = Optional.empty();
+
+    private Optional<PolicyStatus> status = Optional.empty();
+
     private Optional<String> description = Optional.empty();
 
     @JsonAnySetter
@@ -203,6 +266,9 @@ public final class Policy {
       id(other.getId());
       description(other.getDescription());
       scope(other.getScope());
+      status(other.getStatus());
+      pausedAt(other.getPausedAt());
+      resumeAt(other.getResumeAt());
       rules(other.getRules());
       createdAt(other.getCreatedAt());
       updatedAt(other.getUpdatedAt());
@@ -265,6 +331,75 @@ public final class Policy {
     }
 
     /**
+     * <p>When a paused policy resumes automatically. Absent for an indefinite pause.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage resumeAt(OffsetDateTime resumeAt) {
+      this.resumeAt = Optional.ofNullable(resumeAt);
+      return this;
+    }
+
+    /**
+     * <p>When a paused policy resumes automatically. Absent for an indefinite pause.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "resumeAt",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage resumeAt(Optional<OffsetDateTime> resumeAt) {
+      this.resumeAt = resumeAt;
+      return this;
+    }
+
+    /**
+     * <p>When the policy was paused. Present only when status is paused.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage pausedAt(OffsetDateTime pausedAt) {
+      this.pausedAt = Optional.ofNullable(pausedAt);
+      return this;
+    }
+
+    /**
+     * <p>When the policy was paused. Present only when status is paused.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "pausedAt",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage pausedAt(Optional<OffsetDateTime> pausedAt) {
+      this.pausedAt = pausedAt;
+      return this;
+    }
+
+    /**
+     * <p>The current evaluation status of the policy.</p>
+     * @return Reference to {@code this} so that method calls can be chained together.
+     */
+    @java.lang.Override
+    public _FinalStage status(PolicyStatus status) {
+      this.status = Optional.ofNullable(status);
+      return this;
+    }
+
+    /**
+     * <p>The current evaluation status of the policy.</p>
+     */
+    @java.lang.Override
+    @JsonSetter(
+        value = "status",
+        nulls = Nulls.SKIP
+    )
+    public _FinalStage status(Optional<PolicyStatus> status) {
+      this.status = status;
+      return this;
+    }
+
+    /**
      * <p>An optional human-readable description of the policy.
      * Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.</p>
      * @return Reference to {@code this} so that method calls can be chained together.
@@ -291,7 +426,7 @@ public final class Policy {
 
     @java.lang.Override
     public Policy build() {
-      return new Policy(id, description, scope, rules, createdAt, updatedAt, additionalProperties);
+      return new Policy(id, description, scope, status, pausedAt, resumeAt, rules, createdAt, updatedAt, additionalProperties);
     }
 
     @java.lang.Override

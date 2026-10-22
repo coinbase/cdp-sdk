@@ -18,6 +18,7 @@ var (
 	endUserEvmRe             = regexp.MustCompile(`/end-users/[^/]+/evm$`)
 	endUserEvmSmartAccountRe = regexp.MustCompile(`/end-users/[^/]+/evm-smart-account$`)
 	endUserSolanaRe          = regexp.MustCompile(`/end-users/[^/]+/solana$`)
+	smartAccountLendRe       = regexp.MustCompile(`/evm/smart-accounts/[^/]+/lend/`)
 )
 
 // ClientOptions contains configuration options for the CDP client.
@@ -104,7 +105,8 @@ func requiresWalletAuth(method, path string) bool {
 		strings.HasSuffix(path, "/end-users/import") ||
 		endUserEvmRe.MatchString(path) ||
 		endUserEvmSmartAccountRe.MatchString(path) ||
-		endUserSolanaRe.MatchString(path)
+		endUserSolanaRe.MatchString(path) ||
+		smartAccountLendRe.MatchString(path)
 }
 
 // apiKeyHeaderFn generates a JWT for the API key and adds it to the request headers.

@@ -18,6 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
@@ -32,10 +33,13 @@ class Policy(BaseModel):
     id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier for the policy.")
     description: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional human-readable description of the policy. Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.")
     scope: StrictStr = Field(description="The scope of the policy. Only one project-level policy can exist at any time.")
+    status: Optional[StrictStr] = Field(default=None, description="The current evaluation status of the policy.")
+    paused_at: Optional[datetime] = Field(default=None, description="When the policy was paused. Present only when status is paused.", alias="pausedAt")
+    resume_at: Optional[datetime] = Field(default=None, description="When a paused policy resumes automatically. Absent for an indefinite pause.", alias="resumeAt")
     rules: List[Rule] = Field(description="A list of rules that comprise the policy. Each policy is limited to 100 rules and a total serialized size of 8 MiB.")
     created_at: StrictStr = Field(description="The ISO 8601 timestamp at which the Policy was created.", alias="createdAt")
     updated_at: StrictStr = Field(description="The ISO 8601 timestamp at which the Policy was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["id", "description", "scope", "rules", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["id", "description", "scope", "status", "pausedAt", "resumeAt", "rules", "createdAt", "updatedAt"]
 
     @field_validator('id')
     def id_validate_regular_expression(cls, value):
@@ -59,6 +63,16 @@ class Policy(BaseModel):
         """Validates the enum"""
         if value not in set(['project', 'account']):
             raise ValueError("must be one of enum values ('project', 'account')")
+        return value
+
+    @field_validator('status')
+    def status_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['active', 'paused']):
+            raise ValueError("must be one of enum values ('active', 'paused')")
         return value
 
     model_config = ConfigDict(
@@ -122,6 +136,9 @@ class Policy(BaseModel):
             "id": obj.get("id"),
             "description": obj.get("description"),
             "scope": obj.get("scope"),
+            "status": obj.get("status"),
+            "pausedAt": obj.get("pausedAt"),
+            "resumeAt": obj.get("resumeAt"),
             "rules": [Rule.from_dict(_item) for _item in obj["rules"]] if obj.get("rules") is not None else None,
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")

@@ -117,6 +117,32 @@ describe("http utils", () => {
     expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
   });
 
+  it("should require wallet auth for smart account lend operations", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath:
+        "/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
+      walletSecret: "test-wallet-secret",
+    });
+
+    expect(generateWalletJwt).toHaveBeenCalled();
+    expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
+  });
+
+  it("should not require wallet auth for other smart account writes", async () => {
+    const headers = await getAuthHeaders({
+      ...defaultOptions,
+      requestMethod: "POST",
+      requestPath:
+        "/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/user-operations",
+      walletSecret: "test-wallet-secret",
+    });
+
+    expect(generateWalletJwt).not.toHaveBeenCalled();
+    expect(headers["X-Wallet-Auth"]).toBeUndefined();
+  });
+
   it("should not require wallet auth for custodial /v2/accounts writes", async () => {
     // The custodial account endpoint (POST /v2/accounts) authenticates with the
     // API key alone — the spec declares apiKeyAuth and no X-Wallet-Auth param.

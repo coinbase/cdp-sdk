@@ -10,6 +10,8 @@ import {
   GetPolicyByIdOptions,
   DeletePolicyOptions,
   UpdatePolicyOptions,
+  PausePolicyOptions,
+  ResumePolicyOptions,
   SimulatePoliciesOptions,
 } from "./policies.types.js";
 import { Analytics } from "../../analytics.js";
@@ -19,7 +21,12 @@ import {
   PolicySimulationResult,
   UpdatePolicyBody,
 } from "../../openapi-client/index.js";
-import { Policy, CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/types.js";
+import {
+  Policy,
+  CreatePolicyBodySchema,
+  UpdatePolicyBodySchema,
+  PausePolicyBodySchema,
+} from "../../policies/types.js";
 
 /**
  * The namespace containing all Policy methods.
@@ -415,6 +422,87 @@ export class PoliciesClient implements PoliciesClientInterface {
       ) as Promise<Policy>;
     } catch (error) {
       Analytics.trackError(error, "updatePolicy");
+      throw error;
+    }
+  }
+
+  /**
+   * Pauses a policy so it is skipped during evaluation while keeping its ID, scope, and rules.
+   *
+   * @param {PausePolicyOptions} options - Options for pausing the policy
+   * @param {string} options.id - The unique identifier of the policy to pause
+   * @param {string | Date} [options.resumeAt] - Automatic resume time, in the future and at most 30 days ahead
+   * @param {string} [options.idempotencyKey] - Idempotency key for safely retrying the request
+   *
+   * @returns {Promise<Policy>} The paused policy
+   * @throws {ZodError<typeof PausePolicyBodySchema>} When the resume time is invalid
+   *
+   * @example **Pause indefinitely**
+   *          ```ts
+   *          const policy = await cdp.policies.pausePolicy({ id: "__ID__" });
+   *          ```
+   *
+   * @example **Pause for one hour**
+   *          ```ts
+   *          const policy = await cdp.policies.pausePolicy({
+   *            id: "__ID__",
+   *            resumeAt: new Date(Date.now() + 60 * 60 * 1000),
+   *          });
+   *          ```
+   *
+   * @example **With idempotency key**
+   *          ```ts
+   *          const policy = await cdp.policies.pausePolicy({
+   *            id: "__ID__",
+   *            idempotencyKey: uuidv4(),
+   *          });
+   *          ```
+   */
+  async pausePolicy(options: PausePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({ action: "pause_policy" });
+    try {
+      const resumeAt =
+        options.resumeAt instanceof Date ? options.resumeAt.toISOString() : options.resumeAt;
+      const body = PausePolicyBodySchema.parse(resumeAt === undefined ? {} : { resumeAt });
+      return (await CdpOpenApiClient.pausePolicy(
+        options.id,
+        body,
+        options.idempotencyKey,
+      )) as Policy;
+    } catch (error) {
+      Analytics.trackError(error, "pausePolicy");
+      throw error;
+    }
+  }
+
+  /**
+   * Resumes a paused policy or returns an already active policy unchanged.
+   *
+   * @param {ResumePolicyOptions} options - Options for resuming the policy
+   * @param {string} options.id - The unique identifier of the policy to resume
+   * @param {string} [options.idempotencyKey] - Idempotency key for safely retrying the request
+   *
+   * @returns {Promise<Policy>} The active policy
+   *
+   * @example **Resume a policy**
+   *          ```ts
+   *          const policy = await cdp.policies.resumePolicy({ id: "__ID__" });
+   *          ```
+   *
+   * @example **With idempotency key**
+   *          ```ts
+   *          const policy = await cdp.policies.resumePolicy({
+   *            id: "__ID__",
+   *            idempotencyKey: uuidv4(),
+   *          });
+   *          ```
+   */
+  async resumePolicy(options: ResumePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({ action: "resume_policy" });
+    try {
+      return (await CdpOpenApiClient.resumePolicy(options.id, options.idempotencyKey)) as Policy;
+    } catch (error) {
+      Analytics.trackError(error, "resumePolicy");
       throw error;
     }
   }

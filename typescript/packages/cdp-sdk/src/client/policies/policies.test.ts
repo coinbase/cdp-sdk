@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, MockedFunction } from "vitest";
 import { ZodError } from "zod";
 
 import {
@@ -9,7 +9,11 @@ import {
 } from "../../openapi-client/index.js";
 
 import { PoliciesClient } from "./policies.js";
-import { SimulatePoliciesOptions } from "./policies.types.js";
+import {
+  PausePolicyOptions,
+  ResumePolicyOptions,
+  SimulatePoliciesOptions,
+} from "./policies.types.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import kitchenSinkAbi from "../../../fixtures/kitchenSinkAbi.js";
@@ -22,6 +26,8 @@ vi.mock("../../openapi-client/index.js", () => {
       getPolicyById: vi.fn(),
       deletePolicy: vi.fn(),
       updatePolicy: vi.fn(),
+      pausePolicy: vi.fn(),
+      resumePolicy: vi.fn(),
       simulatePolicies: vi.fn(),
     },
   };
@@ -32,6 +38,7 @@ describe("PoliciesClient", () => {
   const mockPolicy: Policy = {
     id: "policy-123",
     scope: "account",
+    status: "active",
     description: "Test policy",
     rules: [
       {
@@ -2290,6 +2297,109 @@ describe("PoliciesClient", () => {
 
       expect(result).toEqual(mockPolicy);
       expect(createPolicyMock).toHaveBeenCalledWith(policyWithEvmNetwork, "idem-key");
+    });
+  });
+
+  describe("pausePolicy", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2030-01-01T00:00:00Z"));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const scenarios: Record<string, { options: PausePolicyOptions; body: { resumeAt?: string } }> =
+      {
+        "pauses indefinitely without resumeAt": {
+          options: { id: "policy-123" },
+          body: {},
+        },
+        "forwards a Date as an ISO timestamp": {
+          options: { id: "policy-123", resumeAt: new Date("2030-01-01T01:00:00Z") },
+          body: { resumeAt: "2030-01-01T01:00:00.000Z" },
+        },
+        "forwards an ISO timestamp": {
+          options: { id: "policy-123", resumeAt: "2030-01-01T01:00:00Z" },
+          body: { resumeAt: "2030-01-01T01:00:00Z" },
+        },
+        "forwards an idempotency key": {
+          options: { id: "policy-123", idempotencyKey: "idem-key" },
+          body: {},
+        },
+      };
+
+    it.each(Object.entries(scenarios))("%s", async (_name, { options, body }) => {
+      const pausedPolicy: Policy = {
+        ...mockPolicy,
+        status: "paused",
+        pausedAt: "2030-01-01T00:00:00Z",
+        ...body,
+      };
+      const pausePolicyMock = vi.mocked(CdpOpenApiClient.pausePolicy);
+      pausePolicyMock.mockResolvedValue(pausedPolicy);
+
+      await expect(client.pausePolicy(options)).resolves.toBe(pausedPolicy);
+
+      expect(pausePolicyMock).toHaveBeenCalledTimes(1);
+      expect(pausePolicyMock).toHaveBeenCalledWith("policy-123", body, options.idempotencyKey);
+      expect(pausePolicyMock.mock.calls[0][1]).toStrictEqual(body);
+    });
+
+    const invalidScenarios: Record<string, string> = {
+      "rejects a past resumeAt": "2029-12-31T23:59:59Z",
+      "rejects resumeAt equal to now": "2030-01-01T00:00:00Z",
+    };
+
+    it.each(Object.entries(invalidScenarios))("%s", async (_name, resumeAt) => {
+      await expect(client.pausePolicy({ id: "policy-123", resumeAt })).rejects.toBeInstanceOf(
+        ZodError,
+      );
+      expect(CdpOpenApiClient.pausePolicy).not.toHaveBeenCalled();
+    });
+
+    it("tracks and propagates an API error", async () => {
+      const error = new APIError(404, "not_found", "Policy not found");
+      vi.mocked(CdpOpenApiClient.pausePolicy).mockRejectedValue(error);
+      const trackError = vi.spyOn(Analytics, "trackError").mockImplementation(() => {});
+
+      try {
+        await expect(client.pausePolicy({ id: "policy-123" })).rejects.toBe(error);
+        expect(trackError).toHaveBeenCalledWith(error, "pausePolicy");
+      } finally {
+        trackError.mockRestore();
+      }
+    });
+  });
+
+  describe("resumePolicy", () => {
+    const scenarios: Record<string, ResumePolicyOptions> = {
+      "resumes a paused policy without an idempotency key": { id: "policy-123" },
+      "forwards an idempotency key": { id: "policy-123", idempotencyKey: "idem-key" },
+    };
+
+    it.each(Object.entries(scenarios))("%s", async (_name, options) => {
+      const resumePolicyMock = vi.mocked(CdpOpenApiClient.resumePolicy);
+      resumePolicyMock.mockResolvedValue(mockPolicy);
+
+      await expect(client.resumePolicy(options)).resolves.toBe(mockPolicy);
+
+      expect(resumePolicyMock).toHaveBeenCalledTimes(1);
+      expect(resumePolicyMock).toHaveBeenCalledWith("policy-123", options.idempotencyKey);
+    });
+
+    it("tracks and propagates an API error", async () => {
+      const error = new APIError(404, "not_found", "Policy not found");
+      vi.mocked(CdpOpenApiClient.resumePolicy).mockRejectedValue(error);
+      const trackError = vi.spyOn(Analytics, "trackError").mockImplementation(() => {});
+
+      try {
+        await expect(client.resumePolicy({ id: "policy-123" })).rejects.toBe(error);
+        expect(trackError).toHaveBeenCalledWith(error, "resumePolicy");
+      } finally {
+        trackError.mockRestore();
+      }
     });
   });
 });

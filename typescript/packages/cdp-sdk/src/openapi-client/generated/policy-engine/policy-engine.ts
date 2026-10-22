@@ -9,6 +9,7 @@ import type {
   CreatePolicyBody,
   ListPolicies200,
   ListPoliciesParams,
+  PausePolicyRequest,
   Policy,
   PolicySimulationResult,
   SimulatePoliciesRequest,
@@ -117,9 +118,43 @@ export const updatePolicy = (
     options,
   );
 };
+/**
+ * Pause a policy so it is skipped during evaluation as if it were not attached. The policy keeps its ID, scope, and rules. If already paused, this returns the policy with the original pausedAt and replaces resumeAt with the requested time, or clears resumeAt if no time is supplied.
+ * @summary Pause policy
+ */
+export const pausePolicy = (
+  policyId: string,
+  pausePolicyRequest?: PausePolicyRequest,
+  options?: SecondParameter<typeof cdpApiClient<Policy>>,
+) => {
+  return cdpApiClient<Policy>(
+    {
+      url: `/v2/policy-engine/policies/${policyId}/pause`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: pausePolicyRequest,
+    },
+    options,
+  );
+};
+/**
+ * Resume a paused policy so its existing ID, scope, and rules are immediately enforced again. Resuming an active policy returns it unchanged.
+ * @summary Resume policy
+ */
+export const resumePolicy = (
+  policyId: string,
+  options?: SecondParameter<typeof cdpApiClient<Policy>>,
+) => {
+  return cdpApiClient<Policy>(
+    { url: `/v2/policy-engine/policies/${policyId}/resume`, method: "POST" },
+    options,
+  );
+};
 export type ListPoliciesResult = NonNullable<Awaited<ReturnType<typeof listPolicies>>>;
 export type CreatePolicyResult = NonNullable<Awaited<ReturnType<typeof createPolicy>>>;
 export type SimulatePoliciesResult = NonNullable<Awaited<ReturnType<typeof simulatePolicies>>>;
 export type GetPolicyByIdResult = NonNullable<Awaited<ReturnType<typeof getPolicyById>>>;
 export type DeletePolicyResult = NonNullable<Awaited<ReturnType<typeof deletePolicy>>>;
 export type UpdatePolicyResult = NonNullable<Awaited<ReturnType<typeof updatePolicy>>>;
+export type PausePolicyResult = NonNullable<Awaited<ReturnType<typeof pausePolicy>>>;
+export type ResumePolicyResult = NonNullable<Awaited<ReturnType<typeof resumePolicy>>>;
