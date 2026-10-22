@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-22
+
+### 🚀 Features
+
+- Regenerate OpenAPI clients from `c3/cdp-api@68ac40d4`: add `pausePolicy` (`POST /v2/policy-engine/policies/{policyId}/pause`) and `resumePolicy` (`POST /v2/policy-engine/policies/{policyId}/resume`), and add `status`, `pausedAt`, and `resumeAt` to `Policy` ([#118](https://github.com/coinbase/cdp-sdk/pull/118))
+
 ## [1.2.0] - 2026-10-16
 
 ### 🚀 Features

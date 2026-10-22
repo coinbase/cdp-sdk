@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-10-22
+
+### 🚀 Features
+
+- Regenerate OpenAPI clients from `c3/cdp-api@68ac40d4`: add `pausePolicy` (`POST /v2/policy-engine/policies/{policyId}/pause`) and `resumePolicy` (`POST /v2/policy-engine/policies/{policyId}/resume`), add `status`, `pausedAt`, and `resumeAt` to `Policy`, and add the onramp mobile session and iOS attestation operations ([#118](https://github.com/coinbase/cdp-sdk/pull/118))
+- Regenerate the OpenAPI client to add the EOA and smart account vault redeem-fees operations (`redeemVaultFeesWithEvmAccount`, `redeemVaultFeesWithEvmSmartAccount`), and send `X-Wallet-Auth` for smart account lend requests ([#112](https://github.com/coinbase/cdp-sdk/pull/112))
+
 ## [0.9.0] - 2026-10-16
 
 ### 🚀 Features
