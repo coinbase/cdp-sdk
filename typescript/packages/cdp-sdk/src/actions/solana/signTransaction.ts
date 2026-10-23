@@ -50,7 +50,10 @@ export async function signTransaction(
     options.address,
     {
       transaction: options.transaction,
-    },
+      // The generated SignSolanaTransactionBody type doesn't declare `network` yet, but
+      // cdp-service's API accepts it; only ALT-referencing transactions require it.
+      ...(options.network ? { network: options.network } : {}),
+    } as Parameters<typeof apiClient.signSolanaTransaction>[1],
     options.idempotencyKey,
   );
 
