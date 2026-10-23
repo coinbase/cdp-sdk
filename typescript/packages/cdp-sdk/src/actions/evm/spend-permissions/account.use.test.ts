@@ -6,6 +6,8 @@ import { useSpendPermission } from "./account.use.js";
 import {
   SPEND_PERMISSION_MANAGER_ABI,
   SPEND_PERMISSION_MANAGER_ADDRESS,
+  SPEND_ROUTER_ABI,
+  SPEND_ROUTER_ADDRESS,
 } from "../../../spend-permissions/constants.js";
 import { serializeEIP1559Transaction } from "../../../utils/serializeTransaction.js";
 
@@ -93,6 +95,46 @@ describe("useSpendPermission", () => {
     // Verify the result
     expect(result).toEqual({
       transactionHash: mockTransactionHash,
+    });
+  });
+
+  it("dispatches to SpendRouter.spendAndRoute when the permission spender is the router", async () => {
+    const routedPermission: SpendPermission = {
+      ...mockSpendPermission,
+      spender: SPEND_ROUTER_ADDRESS as Address,
+    };
+
+    await useSpendPermission(mockClient, mockAddress, {
+      ...mockOptions,
+      spendPermission: routedPermission,
+    });
+
+    expect(encodeFunctionData).toHaveBeenCalledWith({
+      abi: SPEND_ROUTER_ABI,
+      functionName: "spendAndRoute",
+      args: [routedPermission, mockOptions.value],
+    });
+    expect(serializeEIP1559Transaction).toHaveBeenCalledWith({
+      to: SPEND_ROUTER_ADDRESS,
+      data: mockEncodedData,
+    });
+  });
+
+  it("matches the SpendRouter address case-insensitively", async () => {
+    const routedPermission: SpendPermission = {
+      ...mockSpendPermission,
+      spender: SPEND_ROUTER_ADDRESS.toLowerCase() as Address,
+    };
+
+    await useSpendPermission(mockClient, mockAddress, {
+      ...mockOptions,
+      spendPermission: routedPermission,
+    });
+
+    expect(encodeFunctionData).toHaveBeenCalledWith({
+      abi: SPEND_ROUTER_ABI,
+      functionName: "spendAndRoute",
+      args: [routedPermission, mockOptions.value],
     });
   });
 
