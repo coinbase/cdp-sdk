@@ -10,9 +10,11 @@ from pydantic import ValidationError
 # Import JWT utilities from the utils package
 from cdp.auth.utils.jwt import (
     JwtOptions,
+    WalletJwtOptions,
     _generate_nonce,
     _parse_private_key,
     generate_jwt,
+    generate_wallet_jwt,
 )
 
 
@@ -299,3 +301,42 @@ def test_generate_jwt_custom_expiry(ec_private_key_factory, jwt_options_factory)
     # Verify
     decoded = jwt_lib.decode(token, options={"verify_signature": False})
     assert decoded["exp"] - decoded["nbf"] == 300
+
+
+@pytest.mark.parametrize(
+    ("request_data", "expected_req_hash"),
+    [
+        # Expected values are sha256(JSON.stringify(sortKeys(data))) as computed by the TypeScript SDK.
+        (
+            {"message": "hello"},
+            "9b2d43affbf49a367028df2e1414f84c0e099ac98c3d54a8a80157fd7771af25",
+        ),
+        (
+            {"message": "héllo ✓"},
+            "dbfaddff039b6bbaba340438bfe0a9443e4737c9c38cd4fc5cbefa821afb1d7a",
+        ),
+    ],
+)
+def test_generate_wallet_jwt_req_hash_matches_typescript_sdk(request_data, expected_req_hash):
+    """Test that reqHash is computed over the same bytes as in the TypeScript SDK."""
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    wallet_auth_key = base64.b64encode(
+        private_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    ).decode()
+
+    token = generate_wallet_jwt(
+        WalletJwtOptions(
+            wallet_auth_key=wallet_auth_key,
+            request_method="POST",
+            request_host="api.cdp.coinbase.com",
+            request_path="/platform/v2/evm/accounts/0x1234/sign/message",
+            request_data=request_data,
+        )
+    )
+
+    claims = jwt_lib.decode(token, options={"verify_signature": False})
+    assert claims["reqHash"] == expected_req_hash
