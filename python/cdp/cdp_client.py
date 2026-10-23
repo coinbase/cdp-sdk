@@ -77,7 +77,7 @@ class CdpClient:
 
         if api_key_id and (
             os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true"
-            or os.getenv("DISABLE_CDP_USAGE_TRACKING") != "true"
+            and os.getenv("DISABLE_CDP_USAGE_TRACKING") != "true"
         ):
             Analytics["identifier"] = api_key_id
 
