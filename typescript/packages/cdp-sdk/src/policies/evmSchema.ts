@@ -1,4 +1,5 @@
-import { Abi, Address } from "abitype/zod";
+import { Abi } from "ox/zod/Abi";
+import { Address } from "ox/zod/Address";
 import { z } from "zod";
 
 /**
@@ -262,6 +263,7 @@ export const SignEvmTypedDataFieldCriterionSchema = z.object({
      * EIP-712 compliant map of model names to model definitions.
      */
     types: z.record(
+      z.string(),
       z.array(
         z.object({
           name: z.string(),
