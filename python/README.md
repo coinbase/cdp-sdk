@@ -715,10 +715,11 @@ Smart Accounts also have a `transfer` function:
 ```python
 from cdp import parse_units
 
+owner = await cdp.evm.create_account()
 sender = await cdp.evm.create_smart_account(
-    owner=privateKeyToAccount(generatePrivateKey()),
-);
-print("Created smart account", sender);
+    owner=owner,
+)
+print("Created smart account", sender)
 
 transfer_result = await sender.transfer(
     to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
@@ -823,7 +824,7 @@ tx_hash = await sender.transfer(
     to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
     amount=amount,
     token="usdc",
-    network="devet",
+    network="devnet",
 )
 ```
 
