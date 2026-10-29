@@ -234,10 +234,13 @@ async def create_swap_quote(
         value=tx_data.value if tx_data.value else "0",
         gas_limit=int(tx_data.gas) if hasattr(tx_data, "gas") and tx_data.gas else None,
         gas_price=tx_data.gas_price if hasattr(tx_data, "gas_price") else None,
-        max_fee_per_gas=tx_data.max_fee_per_gas if hasattr(tx_data, "max_fee_per_gas") else None,
-        max_priority_fee_per_gas=tx_data.max_priority_fee_per_gas
-        if hasattr(tx_data, "max_priority_fee_per_gas")
-        else None,
+        # OpenAPI models gasPrice as the EIP-1559 maxFeePerGas (no separate maxFeePerGas field).
+        max_fee_per_gas=(
+            tx_data.max_fee_per_gas
+            if getattr(tx_data, "max_fee_per_gas", None) is not None
+            else (tx_data.gas_price if hasattr(tx_data, "gas_price") else None)
+        ),
+        max_priority_fee_per_gas=getattr(tx_data, "max_priority_fee_per_gas", None),
         network=network,
         permit2_data=permit2_data,
         requires_signature=requires_signature,
