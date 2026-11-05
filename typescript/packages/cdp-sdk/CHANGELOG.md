@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.61.0
+
+### Minor Changes
+
+- 2246678: Added `cdp.lend.listVaults` and `cdp.lend.getVault` to read the Lend vaults a project created, including their APY and TVL metrics. Also added the generated `listVaults` and `getVault` client methods.
+
 ## 1.60.0
 
 ### Minor Changes

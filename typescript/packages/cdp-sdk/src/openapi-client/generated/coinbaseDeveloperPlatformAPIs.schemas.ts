@@ -5254,6 +5254,78 @@ export interface RevokeSpendPermissionRequest {
 }
 
 /**
+ * The globally unique ID of the catalog vault, which is a UUID prefixed with the string `cv_`.
+ * @pattern ^cv_[a-f0-9-]{36}$
+ */
+export type CatalogVaultId = string;
+
+/**
+ * The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.
+ */
+export type VaultStatus = (typeof VaultStatus)[keyof typeof VaultStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const VaultStatus = {
+  pending: "pending",
+  active: "active",
+  failed: "failed",
+} as const;
+
+/**
+ * The trailing 30-day net APY of a lend resource, along with the timestamp of observation.
+ */
+export interface ApyMetrics {
+  /** The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed. */
+  apyBps?: number;
+  /** The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present. */
+  apyUpdatedAt?: string;
+}
+
+export type VaultMetricsAllOf = {
+  /** The total value locked in the vault, equivalent to the amount of funds deposited. It is expressed as a decimal string in standard unit denomination of the underlying asset. For example, `1000` equates to 1000 USDC. Only present once a TVL snapshot has been observed for the vault. */
+  tvl?: NonNegativeDecimal;
+  /** The time the TVL metrics were last updated, in RFC 3339 format. Only present when `tvl` is present. */
+  tvlUpdatedAt?: string;
+};
+
+/**
+ * The current performance metrics of a vault.
+ */
+export type VaultMetrics = ApyMetrics & VaultMetricsAllOf;
+
+/**
+ * A vault created on top of a catalog vault.
+ */
+export interface Vault {
+  vaultId: VaultId;
+  /**
+   * The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  address: string;
+  catalogVaultId: CatalogVaultId;
+  /**
+   * Your performance fee, in basis points. CDP charges an additional fee equal to currently 10% (1000 bps) of your fee.
+   * @minimum 0
+   * @maximum 5000
+   */
+  performanceFeeBps: number;
+  /**
+   * The 0x-prefixed address that receives the vault's performance fees.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  feeRecipientAddress: string;
+  network: LendNetwork;
+  status: VaultStatus;
+  /** The time the vault was created, in RFC 3339 format. */
+  createdAt: string;
+  /** The symbol of the vault's underlying asset. */
+  underlyingAsset: Asset;
+  /** The vault's current metrics. Only present once at least one metrics snapshot has been observed for the vault. */
+  metrics?: VaultMetrics;
+}
+
+/**
  * The network on which to perform the swap.
  */
 export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetwork];
@@ -13914,6 +13986,22 @@ export type CustomersRequirementChangedEvent = CustomersEventBase &
 export type VaultId = string;
 
 /**
+ * The network on which the lend resource (catalog vault or vault) is deployed.
+ */
+export type LendNetwork = (typeof LendNetwork)[keyof typeof LendNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const LendNetwork = {
+  base: "base",
+} as const;
+
+/**
+ * A non-negative decimal string without scientific notation, whitespace, leading zeros, or a trailing dot. Zero is allowed.
+ * @pattern ^(0|[1-9][0-9]*)([.][0-9]+)?$
+ */
+export type NonNegativeDecimal = string;
+
+/**
  * Fields shared by vault fee redemption requests. Composed into `EoaVaultRedeemFeesRequest` and `SmartAccountVaultRedeemFeesRequest`, which add their account-specific fields on top.
  */
 export interface VaultRedeemFeesRequest {
@@ -15475,6 +15563,29 @@ export type ListSpendPermissions200AllOf = {
 };
 
 export type ListSpendPermissions200 = ListSpendPermissions200AllOf & ListResponse;
+
+export type ListVaultsParams = {
+  /**
+   * The number of vaults to return per page.
+   * @minimum 1
+   * @maximum 1000
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of resources, if any.
+   */
+  pageToken?: PageTokenParameter;
+};
+
+/**
+ * Response containing a list of vaults.
+ */
+export type ListVaults200AllOf = {
+  /** The list of vaults created by the project. */
+  vaults: Vault[];
+};
+
+export type ListVaults200 = ListVaults200AllOf & ListResponse;
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;

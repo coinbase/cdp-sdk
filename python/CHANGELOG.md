@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.52.0] - 2026-11-04
+
+### Features
+
+- Added `cdp.lend.list_vaults` and `cdp.lend.get_vault` to read the Lend vaults a project created, including their APY and TVL metrics. Also added the generated `LendApi.list_vaults` and `LendApi.get_vault` client methods.
+
+
 ## [1.51.0] - 2026-10-22
 
 ### Features

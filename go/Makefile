@@ -77,7 +77,7 @@ test: build_deps
 .PHONY: client
 client:
 	@ printf "\nGenerating client...\n"
-	@ python ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi-preprocessed.yaml
+	@ python ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi-preprocessed.yaml --go
 	@ oapi-codegen --config=client-config.yaml -o ./openapi/client.gen.go ../openapi-preprocessed.yaml
 	@ printf "\nGenerating public operations lookup table...\n"
 	@ python3 ../scripts/generate_public_operations.py ../openapi.yaml --language go

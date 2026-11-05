@@ -62,6 +62,13 @@ export type {
   WebhookEventType,
 } from "./actions/webhooks/index.js";
 
+export type {
+  ListVaultsOptions,
+  ListVaultsResult,
+  GetVaultOptions,
+} from "./client/lend/lend.types.js";
+export type { Vault, VaultMetrics, VaultStatus } from "./openapi-client/index.js";
+
 export { parseEther, parseUnits } from "viem";
 
 export type {

@@ -8,14 +8,38 @@
 import type {
   EoaVaultRedeemFeesRequest,
   EoaVaultRedeemFeesResponse,
+  ListVaults200,
+  ListVaultsParams,
   SmartAccountVaultRedeemFeesRequest,
   SmartAccountVaultRedeemFeesResponse,
+  Vault,
+  VaultId,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * Lists the vaults created by the project. Use `pageSize` and `pageToken` to page through the results. Each vault includes its current metrics, when a metrics snapshot has been observed for it.
+ * @summary List vaults
+ */
+export const listVaults = (
+  params?: ListVaultsParams,
+  options?: SecondParameter<typeof cdpApiClient<ListVaults200>>,
+) => {
+  return cdpApiClient<ListVaults200>({ url: `/v2/lend/vaults`, method: "GET", params }, options);
+};
+/**
+ * Retrieves a vault created by the project, including its current metrics such as APY and TVL.
+ * @summary Get a vault
+ */
+export const getVault = (
+  vaultId: VaultId,
+  options?: SecondParameter<typeof cdpApiClient<Vault>>,
+) => {
+  return cdpApiClient<Vault>({ url: `/v2/lend/vaults/${vaultId}`, method: "GET" }, options);
+};
 /**
  * Redeems every vault share held by the vault's fee recipient EVM account for the vault's underlying asset (e.g. USDC). The account must be the vault's fee recipient.
 CDP periodically distributes each vault's accrued fees to its fee recipient as vault shares. This API redeems the account's full share balance, including any shares from the account's own deposits into the vault, so use a dedicated fee recipient account.
@@ -60,6 +84,8 @@ export const redeemVaultFeesWithEvmSmartAccount = (
     options,
   );
 };
+export type ListVaultsResult = NonNullable<Awaited<ReturnType<typeof listVaults>>>;
+export type GetVaultResult = NonNullable<Awaited<ReturnType<typeof getVault>>>;
 export type RedeemVaultFeesWithEvmAccountResult = NonNullable<
   Awaited<ReturnType<typeof redeemVaultFeesWithEvmAccount>>
 >;
