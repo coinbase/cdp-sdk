@@ -117,6 +117,7 @@ from cdp.openapi_client.models.android_integrity_payload import AndroidIntegrity
 from cdp.openapi_client.models.approval import Approval
 from cdp.openapi_client.models.approval_payload import ApprovalPayload
 from cdp.openapi_client.models.approval_status import ApprovalStatus
+from cdp.openapi_client.models.apy_metrics import ApyMetrics
 from cdp.openapi_client.models.asset_type import AssetType
 from cdp.openapi_client.models.authentication_method import AuthenticationMethod
 from cdp.openapi_client.models.authorization import Authorization
@@ -340,6 +341,7 @@ from cdp.openapi_client.models.ios_attestation_registration_request import IosAt
 from cdp.openapi_client.models.ios_attestation_registration_response import IosAttestationRegistrationResponse
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
+from cdp.openapi_client.models.lend_network import LendNetwork
 from cdp.openapi_client.models.list_balances200_response import ListBalances200Response
 from cdp.openapi_client.models.list_borrow_positions_with_end_user_account200_response import ListBorrowPositionsWithEndUserAccount200Response
 from cdp.openapi_client.models.list_customers200_response import ListCustomers200Response
@@ -368,6 +370,7 @@ from cdp.openapi_client.models.list_solana_token_balances200_response import Lis
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
 from cdp.openapi_client.models.list_transfers200_response import ListTransfers200Response
+from cdp.openapi_client.models.list_vaults200_response import ListVaults200Response
 from cdp.openapi_client.models.lookup_end_user200_response import LookupEndUser200Response
 from cdp.openapi_client.models.mfa_methods import MFAMethods
 from cdp.openapi_client.models.mfa_methods_sms import MFAMethodsSms
@@ -724,7 +727,10 @@ from cdp.openapi_client.models.user_wallet_solana3 import UserWalletSolana3
 from cdp.openapi_client.models.user_wallet_solana4 import UserWalletSolana4
 from cdp.openapi_client.models.user_webhook_response_labels import UserWebhookResponseLabels
 from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
+from cdp.openapi_client.models.vault import Vault
+from cdp.openapi_client.models.vault_metrics import VaultMetrics
 from cdp.openapi_client.models.vault_redeem_fees_request import VaultRedeemFeesRequest
+from cdp.openapi_client.models.vault_status import VaultStatus
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
 from cdp.openapi_client.models.void import Void
 from cdp.openapi_client.models.wallet_activity_detected_event import WalletActivityDetectedEvent

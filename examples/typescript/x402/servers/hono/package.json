@@ -9,13 +9,13 @@
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
     "@hono/node-server": "^1.14.0",
-    "@x402/core": "^2.25.0",
-    "@x402/evm": "^2.25.0",
-    "@x402/extensions": "^2.25.0",
-    "@x402/hono": "^2.25.0",
-    "@x402/svm": "^2.25.0",
+    "@x402/core": "^2.29.0",
+    "@x402/evm": "^2.29.0",
+    "@x402/extensions": "^2.29.0",
+    "@x402/hono": "^2.29.0",
+    "@x402/svm": "^2.29.0",
     "dotenv": "^16.4.3",
-    "hono": "^4.7.1",
+    "hono": "^4.13.7",
     "tsx": "^4.21.0"
   },
   "devDependencies": {

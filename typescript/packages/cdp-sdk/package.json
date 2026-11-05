@@ -1,6 +1,6 @@
 {
   "name": "@coinbase/cdp-sdk",
-  "version": "1.60.0",
+  "version": "1.61.0",
   "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
   "type": "module",
   "main": "./_cjs/index.js",
@@ -42,9 +42,9 @@
     "test:watch": "vitest --config=./vitest.config.ts"
   },
   "dependencies": {
-    "@solana-program/system": "^0.10.0",
-    "@solana-program/token": "^0.9.0",
-    "@solana/kit": "^5.5.1",
+    "@solana-program/system": "^0.16.0",
+    "@solana-program/token": "^0.16.0",
+    "@solana/kit": "^8.6.0",
     "abitype": "1.0.6",
     "axios": "^1.18.0",
     "axios-retry": "^4.5.0",
@@ -56,10 +56,10 @@
     "zod": "^3.25.76"
   },
   "peerDependencies": {
-    "@x402/core": "^2.25.0",
-    "@x402/evm": "^2.25.0",
-    "@x402/extensions": "^2.25.0",
-    "@x402/svm": "^2.25.0"
+    "@x402/core": "^2.29.0",
+    "@x402/evm": "^2.29.0",
+    "@x402/extensions": "^2.29.0",
+    "@x402/svm": "^2.29.0"
   },
   "peerDependenciesMeta": {
     "@x402/core": {

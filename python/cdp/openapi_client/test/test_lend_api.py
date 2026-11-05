@@ -27,6 +27,20 @@ class TestLendApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_get_vault(self) -> None:
+        """Test case for get_vault
+
+        Get a vault
+        """
+        pass
+
+    async def test_list_vaults(self) -> None:
+        """Test case for list_vaults
+
+        List vaults
+        """
+        pass
+
     async def test_redeem_vault_fees_with_evm_account(self) -> None:
         """Test case for redeem_vault_fees_with_evm_account
 

@@ -6,6 +6,7 @@ from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
 from cdp.end_user_client import EndUserClient
 from cdp.evm_client import EvmClient
+from cdp.lend_client import LendClient
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.policies_client import PoliciesClient
 from cdp.solana_client import SolanaClient
@@ -73,6 +74,7 @@ class CdpClient:
         self._policies = PoliciesClient(self.api_clients)
         self._end_user = EndUserClient(self.api_clients)
         self._webhooks = WebhooksClient(self.api_clients)
+        self._lend = LendClient(self.api_clients)
         self._closed = False
 
         if api_key_id and (
@@ -110,6 +112,12 @@ class CdpClient:
         """Get the WebhooksClient instance."""
         self._check_closed()
         return self._webhooks
+
+    @property
+    def lend(self) -> LendClient:
+        """Get the LendClient instance."""
+        self._check_closed()
+        return self._lend
 
     def _check_closed(self) -> None:
         """Check if the client has been closed and raise an appropriate error."""

@@ -8263,6 +8263,69 @@ pub mod types {
                 })
         }
     }
+    ///The trailing 30-day net APY of a lend resource, along with the timestamp of observation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The trailing 30-day net APY of a lend resource, along with the timestamp of observation.",
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "apyBps": {
+    ///      "description": "The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed.",
+    ///      "examples": [
+    ///        500
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "apyUpdatedAt": {
+    ///      "description": "The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present.",
+    ///      "examples": [
+    ///        "2026-09-22T00:00:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ApyMetrics {
+        ///The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed.
+        #[serde(
+            rename = "apyBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub apy_bps: ::std::option::Option<i64>,
+        ///The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present.
+        #[serde(
+            rename = "apyUpdatedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub apy_updated_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    }
+    impl ::std::convert::From<&ApyMetrics> for ApyMetrics {
+        fn from(value: &ApyMetrics) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for ApyMetrics {
+        fn default() -> Self {
+            Self {
+                apy_bps: Default::default(),
+                apy_updated_at: Default::default(),
+            }
+        }
+    }
+    impl ApyMetrics {
+        pub fn builder() -> builder::ApyMetrics {
+            Default::default()
+        }
+    }
     ///The symbol of the asset (e.g., eth, usd, usdc, usdt).
     ///
     /// <details><summary>JSON schema</summary>
@@ -13149,6 +13212,85 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for CapturePaymentSessionXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The globally unique ID of the catalog vault, which is a UUID prefixed with the string `cv_`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The globally unique ID of the catalog vault, which is a UUID prefixed with the string `cv_`.",
+    ///  "examples": [
+    ///    "cv_019ee022-3586-7473-8354-b2c32c18221a"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^cv_[a-f0-9-]{36}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct CatalogVaultId(::std::string::String);
+    impl ::std::ops::Deref for CatalogVaultId {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<CatalogVaultId> for ::std::string::String {
+        fn from(value: CatalogVaultId) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&CatalogVaultId> for CatalogVaultId {
+        fn from(value: &CatalogVaultId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for CatalogVaultId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| ::regress::Regex::new("^cv_[a-f0-9-]{36}$").unwrap());
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^cv_[a-f0-9-]{36}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for CatalogVaultId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for CatalogVaultId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for CatalogVaultId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for CatalogVaultId {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -53194,6 +53336,82 @@ pub mod types {
             value.parse()
         }
     }
+    ///The network on which the lend resource (catalog vault or vault) is deployed.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The network on which the lend resource (catalog vault or vault) is deployed.",
+    ///  "examples": [
+    ///    "base"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum LendNetwork {
+        #[serde(rename = "base")]
+        Base,
+    }
+    impl ::std::convert::From<&Self> for LendNetwork {
+        fn from(value: &LendNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for LendNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Base => f.write_str("base"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for LendNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base" => Ok(Self::Base),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for LendNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for LendNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for LendNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///`ListBalancesResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -56338,6 +56556,58 @@ pub mod types {
                 .map_err(|e: self::error::ConversionError| {
                     <D::Error as ::serde::de::Error>::custom(e.to_string())
                 })
+        }
+    }
+    ///`ListVaultsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "description": "Response containing a list of vaults.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "vaults"
+    ///      ],
+    ///      "properties": {
+    ///        "vaults": {
+    ///          "description": "The list of vaults created by the project.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/Vault"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListVaultsResponse {
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+        ///The list of vaults created by the project.
+        pub vaults: ::std::vec::Vec<Vault>,
+    }
+    impl ::std::convert::From<&ListVaultsResponse> for ListVaultsResponse {
+        fn from(value: &ListVaultsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListVaultsResponse {
+        pub fn builder() -> builder::ListVaultsResponse {
+            Default::default()
         }
     }
     ///`LookupEndUserResponse`
@@ -60050,6 +60320,87 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///A non-negative decimal string without scientific notation, whitespace, leading zeros, or a trailing dot. Zero is allowed.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A non-negative decimal string without scientific notation, whitespace, leading zeros, or a trailing dot. Zero is allowed.",
+    ///  "examples": [
+    ///    "100.00"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0|[1-9][0-9]*)([.][0-9]+)?$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct NonNegativeDecimal(::std::string::String);
+    impl ::std::ops::Deref for NonNegativeDecimal {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<NonNegativeDecimal> for ::std::string::String {
+        fn from(value: NonNegativeDecimal) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&NonNegativeDecimal> for NonNegativeDecimal {
+        fn from(value: &NonNegativeDecimal) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for NonNegativeDecimal {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0|[1-9][0-9]*)([.][0-9]+)?$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^(0|[1-9][0-9]*)([.][0-9]+)?$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for NonNegativeDecimal {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for NonNegativeDecimal {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for NonNegativeDecimal {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for NonNegativeDecimal {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///Information about an end user who authenticates using a third-party provider.
@@ -120525,6 +120876,300 @@ pub mod types {
             Default::default()
         }
     }
+    ///A vault created on top of a catalog vault.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A vault created on top of a catalog vault.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "catalogVaultId",
+    ///    "createdAt",
+    ///    "feeRecipientAddress",
+    ///    "network",
+    ///    "performanceFeeBps",
+    ///    "status",
+    ///    "underlyingAsset",
+    ///    "vaultId"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.",
+    ///      "examples": [
+    ///        "0x15966F1582CAEFB56CDB4Fba1dC622E41F2Ad33D"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[a-fA-F0-9]{40}$"
+    ///    },
+    ///    "catalogVaultId": {
+    ///      "$ref": "#/components/schemas/CatalogVaultId"
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The time the vault was created, in RFC 3339 format.",
+    ///      "examples": [
+    ///        "2026-09-15T15:39:37Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "feeRecipientAddress": {
+    ///      "description": "The 0x-prefixed address that receives the vault's performance fees.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[a-fA-F0-9]{40}$"
+    ///    },
+    ///    "metrics": {
+    ///      "description": "The vault's current metrics. Only present once at least one metrics snapshot has been observed for the vault.",
+    ///      "examples": [
+    ///        {
+    ///          "apyBps": 500,
+    ///          "apyUpdatedAt": "2026-09-22T00:00:00Z",
+    ///          "tvl": "1000",
+    ///          "tvlUpdatedAt": "2026-09-22T00:00:00Z"
+    ///        }
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/VaultMetrics"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/LendNetwork"
+    ///    },
+    ///    "performanceFeeBps": {
+    ///      "description": "Your performance fee, in basis points. CDP charges an additional fee equal to currently 10% (1000 bps) of your fee.",
+    ///      "examples": [
+    ///        2000
+    ///      ],
+    ///      "type": "integer",
+    ///      "maximum": 5000.0,
+    ///      "minimum": 0.0
+    ///    },
+    ///    "status": {
+    ///      "$ref": "#/components/schemas/VaultStatus"
+    ///    },
+    ///    "underlyingAsset": {
+    ///      "description": "The symbol of the vault's underlying asset.",
+    ///      "examples": [
+    ///        "usdc"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Asset"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "vaultId": {
+    ///      "$ref": "#/components/schemas/VaultId"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct Vault {
+        ///The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.
+        pub address: VaultAddress,
+        #[serde(rename = "catalogVaultId")]
+        pub catalog_vault_id: CatalogVaultId,
+        ///The time the vault was created, in RFC 3339 format.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///The 0x-prefixed address that receives the vault's performance fees.
+        #[serde(rename = "feeRecipientAddress")]
+        pub fee_recipient_address: VaultFeeRecipientAddress,
+        ///The vault's current metrics. Only present once at least one metrics snapshot has been observed for the vault.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub metrics: ::std::option::Option<VaultMetrics>,
+        pub network: LendNetwork,
+        ///Your performance fee, in basis points. CDP charges an additional fee equal to currently 10% (1000 bps) of your fee.
+        #[serde(rename = "performanceFeeBps")]
+        pub performance_fee_bps: i64,
+        pub status: VaultStatus,
+        ///The symbol of the vault's underlying asset.
+        #[serde(rename = "underlyingAsset")]
+        pub underlying_asset: Asset,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+    }
+    impl ::std::convert::From<&Vault> for Vault {
+        fn from(value: &Vault) -> Self {
+            value.clone()
+        }
+    }
+    impl Vault {
+        pub fn builder() -> builder::Vault {
+            Default::default()
+        }
+    }
+    ///The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.",
+    ///  "examples": [
+    ///    "0x15966F1582CAEFB56CDB4Fba1dC622E41F2Ad33D"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[a-fA-F0-9]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct VaultAddress(::std::string::String);
+    impl ::std::ops::Deref for VaultAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultAddress> for ::std::string::String {
+        fn from(value: VaultAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultAddress> for VaultAddress {
+        fn from(value: &VaultAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for VaultAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[a-fA-F0-9]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[a-fA-F0-9]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for VaultAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for VaultAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for VaultAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The 0x-prefixed address that receives the vault's performance fees.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The 0x-prefixed address that receives the vault's performance fees.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[a-fA-F0-9]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct VaultFeeRecipientAddress(::std::string::String);
+    impl ::std::ops::Deref for VaultFeeRecipientAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultFeeRecipientAddress> for ::std::string::String {
+        fn from(value: VaultFeeRecipientAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultFeeRecipientAddress> for VaultFeeRecipientAddress {
+        fn from(value: &VaultFeeRecipientAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for VaultFeeRecipientAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[a-fA-F0-9]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[a-fA-F0-9]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultFeeRecipientAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for VaultFeeRecipientAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for VaultFeeRecipientAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for VaultFeeRecipientAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
     ///
     /// <details><summary>JSON schema</summary>
@@ -120606,6 +121251,93 @@ pub mod types {
                 })
         }
     }
+    ///The current performance metrics of a vault.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The current performance metrics of a vault.",
+    ///  "type": "object",
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/ApyMetrics"
+    ///    },
+    ///    {
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "tvl": {
+    ///          "description": "The total value locked in the vault, equivalent to the amount of funds deposited. It is expressed as a decimal string in standard unit denomination of the underlying asset. For example, `1000` equates to 1000 USDC. Only present once a TVL snapshot has been observed for the vault.",
+    ///          "examples": [
+    ///            "1000"
+    ///          ],
+    ///          "allOf": [
+    ///            {
+    ///              "$ref": "#/components/schemas/NonNegativeDecimal"
+    ///            }
+    ///          ]
+    ///        },
+    ///        "tvlUpdatedAt": {
+    ///          "description": "The time the TVL metrics were last updated, in RFC 3339 format. Only present when `tvl` is present.",
+    ///          "examples": [
+    ///            "2026-09-22T00:00:00Z"
+    ///          ],
+    ///          "type": "string",
+    ///          "format": "date-time"
+    ///        }
+    ///      }
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct VaultMetrics {
+        ///The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed.
+        #[serde(
+            rename = "apyBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub apy_bps: ::std::option::Option<i64>,
+        ///The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present.
+        #[serde(
+            rename = "apyUpdatedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub apy_updated_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        ///The total value locked in the vault, equivalent to the amount of funds deposited. It is expressed as a decimal string in standard unit denomination of the underlying asset. For example, `1000` equates to 1000 USDC. Only present once a TVL snapshot has been observed for the vault.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub tvl: ::std::option::Option<NonNegativeDecimal>,
+        ///The time the TVL metrics were last updated, in RFC 3339 format. Only present when `tvl` is present.
+        #[serde(
+            rename = "tvlUpdatedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub tvl_updated_at: ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+    }
+    impl ::std::convert::From<&VaultMetrics> for VaultMetrics {
+        fn from(value: &VaultMetrics) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for VaultMetrics {
+        fn default() -> Self {
+            Self {
+                apy_bps: Default::default(),
+                apy_updated_at: Default::default(),
+                tvl: Default::default(),
+                tvl_updated_at: Default::default(),
+            }
+        }
+    }
+    impl VaultMetrics {
+        pub fn builder() -> builder::VaultMetrics {
+            Default::default()
+        }
+    }
     ///Fields shared by vault fee redemption requests. Composed into `EoaVaultRedeemFeesRequest` and `SmartAccountVaultRedeemFeesRequest`, which add their account-specific fields on top.
     ///
     /// <details><summary>JSON schema</summary>
@@ -120654,6 +121386,92 @@ pub mod types {
     impl VaultRedeemFeesRequest {
         pub fn builder() -> builder::VaultRedeemFeesRequest {
             Default::default()
+        }
+    }
+    ///The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.",
+    ///  "examples": [
+    ///    "pending"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "pending",
+    ///    "active",
+    ///    "failed"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum VaultStatus {
+        #[serde(rename = "pending")]
+        Pending,
+        #[serde(rename = "active")]
+        Active,
+        #[serde(rename = "failed")]
+        Failed,
+    }
+    impl ::std::convert::From<&Self> for VaultStatus {
+        fn from(value: &VaultStatus) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for VaultStatus {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Pending => f.write_str("pending"),
+                Self::Active => f.write_str("active"),
+                Self::Failed => f.write_str("failed"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for VaultStatus {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "pending" => Ok(Self::Pending),
+                "active" => Ok(Self::Active),
+                "failed" => Ok(Self::Failed),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for VaultStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for VaultStatus {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     ///`VerifyX402PaymentBody`
@@ -145849,6 +146667,65 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct ApyMetrics {
+            apy_bps: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            apy_updated_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ApyMetrics {
+            fn default() -> Self {
+                Self {
+                    apy_bps: Ok(Default::default()),
+                    apy_updated_at: Ok(Default::default()),
+                }
+            }
+        }
+        impl ApyMetrics {
+            pub fn apy_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.apy_bps = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for apy_bps: {}", e));
+                self
+            }
+            pub fn apy_updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.apy_updated_at = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for apy_updated_at: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ApyMetrics> for super::ApyMetrics {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ApyMetrics,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    apy_bps: value.apy_bps?,
+                    apy_updated_at: value.apy_updated_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ApyMetrics> for ApyMetrics {
+            fn from(value: super::ApyMetrics) -> Self {
+                Self {
+                    apy_bps: Ok(value.apy_bps),
+                    apy_updated_at: Ok(value.apy_updated_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct Authorization {
             amount: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
@@ -164829,6 +165706,63 @@ pub mod types {
                 Self {
                     next_page_token: Ok(value.next_page_token),
                     transfers: Ok(value.transfers),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListVaultsResponse {
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            vaults: ::std::result::Result<::std::vec::Vec<super::Vault>, ::std::string::String>,
+        }
+        impl ::std::default::Default for ListVaultsResponse {
+            fn default() -> Self {
+                Self {
+                    next_page_token: Ok(Default::default()),
+                    vaults: Err("no value supplied for vaults".to_string()),
+                }
+            }
+        }
+        impl ListVaultsResponse {
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+            pub fn vaults<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::Vault>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vaults = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vaults: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListVaultsResponse> for super::ListVaultsResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListVaultsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    next_page_token: value.next_page_token?,
+                    vaults: value.vaults?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListVaultsResponse> for ListVaultsResponse {
+            fn from(value: super::ListVaultsResponse) -> Self {
+                Self {
+                    next_page_token: Ok(value.next_page_token),
+                    vaults: Ok(value.vaults),
                 }
             }
         }
@@ -189435,6 +190369,290 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct Vault {
+            address: ::std::result::Result<super::VaultAddress, ::std::string::String>,
+            catalog_vault_id: ::std::result::Result<super::CatalogVaultId, ::std::string::String>,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            fee_recipient_address:
+                ::std::result::Result<super::VaultFeeRecipientAddress, ::std::string::String>,
+            metrics: ::std::result::Result<
+                ::std::option::Option<super::VaultMetrics>,
+                ::std::string::String,
+            >,
+            network: ::std::result::Result<super::LendNetwork, ::std::string::String>,
+            performance_fee_bps: ::std::result::Result<i64, ::std::string::String>,
+            status: ::std::result::Result<super::VaultStatus, ::std::string::String>,
+            underlying_asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+        }
+        impl ::std::default::Default for Vault {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    catalog_vault_id: Err("no value supplied for catalog_vault_id".to_string()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    fee_recipient_address: Err(
+                        "no value supplied for fee_recipient_address".to_string()
+                    ),
+                    metrics: Ok(Default::default()),
+                    network: Err("no value supplied for network".to_string()),
+                    performance_fee_bps: Err(
+                        "no value supplied for performance_fee_bps".to_string()
+                    ),
+                    status: Err("no value supplied for status".to_string()),
+                    underlying_asset: Err("no value supplied for underlying_asset".to_string()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                }
+            }
+        }
+        impl Vault {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn catalog_vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::CatalogVaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.catalog_vault_id = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for catalog_vault_id: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn fee_recipient_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultFeeRecipientAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.fee_recipient_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for fee_recipient_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn metrics<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultMetrics>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.metrics = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for metrics: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::LendNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn performance_fee_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.performance_fee_bps = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for performance_fee_bps: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn status<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultStatus>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.status = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for status: {}", e));
+                self
+            }
+            pub fn underlying_asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.underlying_asset = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for underlying_asset: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<Vault> for super::Vault {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: Vault,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    catalog_vault_id: value.catalog_vault_id?,
+                    created_at: value.created_at?,
+                    fee_recipient_address: value.fee_recipient_address?,
+                    metrics: value.metrics?,
+                    network: value.network?,
+                    performance_fee_bps: value.performance_fee_bps?,
+                    status: value.status?,
+                    underlying_asset: value.underlying_asset?,
+                    vault_id: value.vault_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::Vault> for Vault {
+            fn from(value: super::Vault) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    catalog_vault_id: Ok(value.catalog_vault_id),
+                    created_at: Ok(value.created_at),
+                    fee_recipient_address: Ok(value.fee_recipient_address),
+                    metrics: Ok(value.metrics),
+                    network: Ok(value.network),
+                    performance_fee_bps: Ok(value.performance_fee_bps),
+                    status: Ok(value.status),
+                    underlying_asset: Ok(value.underlying_asset),
+                    vault_id: Ok(value.vault_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct VaultMetrics {
+            apy_bps: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
+            apy_updated_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            tvl: ::std::result::Result<
+                ::std::option::Option<super::NonNegativeDecimal>,
+                ::std::string::String,
+            >,
+            tvl_updated_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for VaultMetrics {
+            fn default() -> Self {
+                Self {
+                    apy_bps: Ok(Default::default()),
+                    apy_updated_at: Ok(Default::default()),
+                    tvl: Ok(Default::default()),
+                    tvl_updated_at: Ok(Default::default()),
+                }
+            }
+        }
+        impl VaultMetrics {
+            pub fn apy_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<i64>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.apy_bps = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for apy_bps: {}", e));
+                self
+            }
+            pub fn apy_updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.apy_updated_at = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for apy_updated_at: {}", e)
+                });
+                self
+            }
+            pub fn tvl<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::NonNegativeDecimal>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.tvl = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for tvl: {}", e));
+                self
+            }
+            pub fn tvl_updated_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.tvl_updated_at = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for tvl_updated_at: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<VaultMetrics> for super::VaultMetrics {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: VaultMetrics,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    apy_bps: value.apy_bps?,
+                    apy_updated_at: value.apy_updated_at?,
+                    tvl: value.tvl?,
+                    tvl_updated_at: value.tvl_updated_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::VaultMetrics> for VaultMetrics {
+            fn from(value: super::VaultMetrics) -> Self {
+                Self {
+                    apy_bps: Ok(value.apy_bps),
+                    apy_updated_at: Ok(value.apy_updated_at),
+                    tvl: Ok(value.tvl),
+                    tvl_updated_at: Ok(value.tvl_updated_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct VaultRedeemFeesRequest {
             max_slippage_bps:
                 ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
@@ -201051,6 +202269,42 @@ impl Client {
     ```*/
     pub fn list_evm_token_balances(&self) -> builder::ListEvmTokenBalances<'_> {
         builder::ListEvmTokenBalances::new(self)
+    }
+    /**List vaults
+
+    Lists the vaults created by the project in the CDP Portal. Use `pageSize` and `pageToken` to page through the results. Each vault includes its current metrics, when a metrics snapshot has been observed for it.
+
+    Sends a `GET` request to `/v2/lend/vaults`
+
+    Arguments:
+    - `page_size`: The number of vaults to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    ```ignore
+    let response = client.list_vaults()
+        .page_size(page_size)
+        .page_token(page_token)
+        .send()
+        .await;
+    ```*/
+    pub fn list_vaults(&self) -> builder::ListVaults<'_> {
+        builder::ListVaults::new(self)
+    }
+    /**Get a vault
+
+    Retrieves a vault created by the project in the CDP Portal, including its current metrics such as APY and TVL.
+
+    Sends a `GET` request to `/v2/lend/vaults/{vaultId}`
+
+    Arguments:
+    - `vault_id`: The ID of the vault to retrieve.
+    ```ignore
+    let response = client.get_vault()
+        .vault_id(vault_id)
+        .send()
+        .await;
+    ```*/
+    pub fn get_vault(&self) -> builder::GetVault<'_> {
+        builder::GetVault::new(self)
     }
     /**List mandates
 
@@ -216050,6 +217304,173 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_vaults`]
+
+    [`Client::list_vaults`]: super::Client::list_vaults*/
+    #[derive(Debug, Clone)]
+    pub struct ListVaults<'a> {
+        client: &'a super::Client,
+        page_size: Result<Option<::std::num::NonZeroU64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+    }
+    impl<'a> ListVaults<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                page_size: Ok(None),
+                page_token: Ok(None),
+            }
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::num::NonZeroU64>,
+        {
+            self.page_size = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: num :: NonZeroU64` for page_size failed".to_string()
+            });
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        ///Sends a `GET` request to `/v2/lend/vaults`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListVaultsResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                page_size,
+                page_token,
+            } = self;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/lend/vaults", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_vaults",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::get_vault`]
+
+    [`Client::get_vault`]: super::Client::get_vault*/
+    #[derive(Debug, Clone)]
+    pub struct GetVault<'a> {
+        client: &'a super::Client,
+        vault_id: Result<types::VaultId, String>,
+    }
+    impl<'a> GetVault<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                vault_id: Err("vault_id was not initialized".to_string()),
+            }
+        }
+        pub fn vault_id<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::VaultId>,
+        {
+            self.vault_id = value
+                .try_into()
+                .map_err(|_| "conversion to `VaultId` for vault_id failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/lend/vaults/{vaultId}`
+        pub async fn send(self) -> Result<ResponseValue<types::Vault>, Error<types::Error>> {
+            let Self { client, vault_id } = self;
+            let vault_id = vault_id.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/lend/vaults/{}",
+                client.baseurl,
+                encode_path(&vault_id.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "get_vault",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(

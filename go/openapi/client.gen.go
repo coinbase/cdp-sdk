@@ -688,6 +688,11 @@ const (
 	TokenProgram           KnownIdlType = "TokenProgram"
 )
 
+// Defines values for LendNetwork.
+const (
+	LendNetworkBase LendNetwork = "base"
+)
+
 // Defines values for ListEvmTokenBalancesNetwork.
 const (
 	ListEvmTokenBalancesNetworkArbitrum    ListEvmTokenBalancesNetwork = "arbitrum"
@@ -1492,6 +1497,13 @@ const (
 // Defines values for UsW9AttestationForm.
 const (
 	UsW9AttestationFormUsW9 UsW9AttestationForm = "us_w9"
+)
+
+// Defines values for VaultStatus.
+const (
+	VaultStatusActive  VaultStatus = "active"
+	VaultStatusFailed  VaultStatus = "failed"
+	VaultStatusPending VaultStatus = "pending"
 )
 
 // Defines values for WebhookEventResponseStatus.
@@ -2460,6 +2472,15 @@ type ApprovalPayload struct {
 //     moves it back to `approval_pending`).
 type ApprovalStatus string
 
+// ApyMetrics The trailing 30-day net APY of a lend resource, along with the timestamp of observation.
+type ApyMetrics struct {
+	// ApyBps The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed.
+	ApyBps *int `json:"apyBps,omitempty"`
+
+	// ApyUpdatedAt The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present.
+	ApyUpdatedAt *time.Time `json:"apyUpdatedAt,omitempty"`
+}
+
 // Asset The symbol of the asset (e.g., eth, usd, usdc, usdt).
 type Asset = string
 
@@ -2873,6 +2894,9 @@ type Capture struct {
 
 // CaptureId The ID of the capture, a UUID prefixed by `capture_`.
 type CaptureId = string
+
+// CatalogVaultId The globally unique ID of the catalog vault, which is a UUID prefixed with the string `cv_`.
+type CatalogVaultId = string
 
 // CloseBorrowPositionRequest A request to close an end user smart account's borrow position for the specified borrow product.
 // Closing fully repays the position's outstanding loan and withdraws all remaining collateral back to the smart account, broadcasting a single user operation to settle the position onchain. There is no partial close; use `adjustBorrowPositionWithEndUserAccount` to adjust a position without closing it.
@@ -5115,6 +5139,9 @@ type KnownAbiType string
 //   - [AssociatedTokenProgram](https://docs.rs/spl-associated-token-account/latest/spl_associated_token_account/instruction/index.html).
 type KnownIdlType string
 
+// LendNetwork The network on which the lend resource (catalog vault or vault) is deployed.
+type LendNetwork string
+
 // ListEvmTokenBalancesNetwork The name of the supported EVM networks in human-readable format.
 type ListEvmTokenBalancesNetwork string
 
@@ -5436,6 +5463,9 @@ type NetUSDChangeObservation struct {
 
 // Network The blockchain network for the payment. Supported networks depend on the account type.
 type Network string
+
+// NonNegativeDecimal A non-negative decimal string without scientific notation, whitespace, leading zeros, or a trailing dot. Zero is allowed.
+type NonNegativeDecimal = string
 
 // OAuth2Authentication Information about an end user who authenticates using a third-party provider.
 type OAuth2Authentication struct {
@@ -8825,8 +8855,56 @@ type UserOperationReceiptRevert struct {
 	Message string `json:"message"`
 }
 
+// Vault A vault created on top of a catalog vault.
+type Vault struct {
+	// Address The 0x-prefixed onchain address of the vault. The address is deterministic and known at creation; the vault deploys at this address once the deployment user operation is included onchain.
+	Address string `json:"address"`
+
+	// CatalogVaultId The globally unique ID of the catalog vault, which is a UUID prefixed with the string `cv_`.
+	CatalogVaultId CatalogVaultId `json:"catalogVaultId"`
+
+	// CreatedAt The time the vault was created, in RFC 3339 format.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// FeeRecipientAddress The 0x-prefixed address that receives the vault's performance fees.
+	FeeRecipientAddress string `json:"feeRecipientAddress"`
+
+	// Metrics The vault's current metrics. Only present once at least one metrics snapshot has been observed for the vault.
+	Metrics *VaultMetrics `json:"metrics,omitempty"`
+
+	// Network The network on which the lend resource (catalog vault or vault) is deployed.
+	Network LendNetwork `json:"network"`
+
+	// PerformanceFeeBps Your performance fee, in basis points. CDP charges an additional fee equal to currently 10% (1000 bps) of your fee.
+	PerformanceFeeBps int `json:"performanceFeeBps"`
+
+	// Status The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.
+	Status VaultStatus `json:"status"`
+
+	// UnderlyingAsset The symbol of the vault's underlying asset.
+	UnderlyingAsset Asset `json:"underlyingAsset"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+}
+
 // VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
 type VaultId = string
+
+// VaultMetrics defines model for VaultMetrics.
+type VaultMetrics struct {
+	// ApyBps The trailing 30-day net APY, in basis points, after all applicable performance fees. For example, `500` equates to 5%. Only present once sufficient history has been observed.
+	ApyBps *int `json:"apyBps,omitempty"`
+
+	// ApyUpdatedAt The time the APY metrics were last updated, in RFC 3339 format. Only present when `apyBps` is present.
+	ApyUpdatedAt *time.Time `json:"apyUpdatedAt,omitempty"`
+
+	// Tvl The total value locked in the vault, equivalent to the amount of funds deposited. It is expressed as a decimal string in standard unit denomination of the underlying asset. For example, `1000` equates to 1000 USDC. Only present once a TVL snapshot has been observed for the vault.
+	Tvl *NonNegativeDecimal `json:"tvl,omitempty"`
+
+	// TvlUpdatedAt The time the TVL metrics were last updated, in RFC 3339 format. Only present when `tvl` is present.
+	TvlUpdatedAt *time.Time `json:"tvlUpdatedAt,omitempty"`
+}
 
 // VaultRedeemFeesRequest Fields shared by vault fee redemption requests. Composed into `EoaVaultRedeemFeesRequest` and `SmartAccountVaultRedeemFeesRequest`, which add their account-specific fields on top.
 type VaultRedeemFeesRequest struct {
@@ -8836,6 +8914,9 @@ type VaultRedeemFeesRequest struct {
 	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
 	VaultId VaultId `json:"vaultId"`
 }
+
+// VaultStatus The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.
+type VaultStatus string
 
 // Void A release of uncaptured authorized funds back to the payer. Voids release all remaining capturable funds in a single operation, including after partial refunds as long as a capturableAmount remains.
 type Void struct {
@@ -11798,6 +11879,15 @@ type GetEvmSwapPriceParams struct {
 type ListEvmTokenBalancesParams struct {
 	// PageSize The number of resources to return per page.
 	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListVaultsParams defines parameters for ListVaults.
+type ListVaultsParams struct {
+	// PageSize The number of vaults to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
 	// PageToken The token for the next page of resources, if any.
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
@@ -21413,6 +21503,12 @@ type ClientInterface interface {
 	// ListEvmTokenBalances request
 	ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListVaults request
+	ListVaults(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVault request
+	GetVault(ctx context.Context, vaultId VaultId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListMandates request
 	ListMandates(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -23556,6 +23652,30 @@ func (c *CDPClient) GetEvmSwapPrice(ctx context.Context, params *GetEvmSwapPrice
 
 func (c *CDPClient) ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEvmTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListVaults(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListVaultsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetVault(ctx context.Context, vaultId VaultId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVaultRequest(c.Server, vaultId)
 	if err != nil {
 		return nil, err
 	}
@@ -31973,6 +32093,105 @@ func NewListEvmTokenBalancesRequest(server string, network ListEvmTokenBalancesN
 	return req, nil
 }
 
+// NewListVaultsRequest generates requests for ListVaults
+func NewListVaultsRequest(server string, params *ListVaultsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/lend/vaults")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVaultRequest generates requests for GetVault
+func NewGetVaultRequest(server string, vaultId VaultId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "vaultId", runtime.ParamLocationPath, vaultId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/lend/vaults/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListMandatesRequest generates requests for ListMandates
 func NewListMandatesRequest(server string, params *ListMandatesParams) (*http.Request, error) {
 	var err error
@@ -37361,6 +37580,12 @@ type ClientWithResponsesInterface interface {
 	// ListEvmTokenBalancesWithResponse request
 	ListEvmTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListEvmTokenBalancesResponse, error)
 
+	// ListVaultsWithResponse request
+	ListVaultsWithResponse(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*ListVaultsResponse, error)
+
+	// GetVaultWithResponse request
+	GetVaultWithResponse(ctx context.Context, vaultId VaultId, reqEditors ...RequestEditorFn) (*GetVaultResponse, error)
+
 	// ListMandatesWithResponse request
 	ListMandatesWithResponse(ctx context.Context, params *ListMandatesParams, reqEditors ...RequestEditorFn) (*ListMandatesResponse, error)
 
@@ -40561,6 +40786,64 @@ func (r ListEvmTokenBalancesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListEvmTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListVaultsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// Vaults The list of vaults created by the project.
+		Vaults []Vault `json:"vaults"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListVaultsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListVaultsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetVaultResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *Vault
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVaultResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVaultResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -44233,6 +44516,24 @@ func (c *ClientWithResponses) ListEvmTokenBalancesWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListEvmTokenBalancesResponse(rsp)
+}
+
+// ListVaultsWithResponse request returning *ListVaultsResponse
+func (c *ClientWithResponses) ListVaultsWithResponse(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*ListVaultsResponse, error) {
+	rsp, err := c.ListVaults(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListVaultsResponse(rsp)
+}
+
+// GetVaultWithResponse request returning *GetVaultResponse
+func (c *ClientWithResponses) GetVaultWithResponse(ctx context.Context, vaultId VaultId, reqEditors ...RequestEditorFn) (*GetVaultResponse, error) {
+	rsp, err := c.GetVault(ctx, vaultId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVaultResponse(rsp)
 }
 
 // ListMandatesWithResponse request returning *ListMandatesResponse
@@ -52161,6 +52462,120 @@ func ParseListEvmTokenBalancesResponse(rsp *http.Response) (*ListEvmTokenBalance
 			return nil, err
 		}
 		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListVaultsResponse parses an HTTP response from a ListVaultsWithResponse call
+func ParseListVaultsResponse(rsp *http.Response) (*ListVaultsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListVaultsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// Vaults The list of vaults created by the project.
+			Vaults []Vault `json:"vaults"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVaultResponse parses an HTTP response from a GetVaultWithResponse call
+func ParseGetVaultResponse(rsp *http.Response) (*GetVaultResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVaultResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Vault
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
 		var dest ServiceUnavailableError
