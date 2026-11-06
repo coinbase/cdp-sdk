@@ -83,6 +83,10 @@ def parse_units(value: str, decimals: int) -> int:
     if negative:
         integer = integer[1:]
 
+    # ".5" leaves the integer part empty. Later carries call int() on it.
+    if not integer:
+        integer = "0"
+
     # trim trailing zeros
     fraction = fraction.rstrip("0")
 
@@ -97,7 +101,14 @@ def parse_units(value: str, decimals: int) -> int:
         right = fraction[decimals:]
 
         rounded = round(float(f"{unit}.{right}"))
-        fraction = f"{int(left) + 1}0".zfill(len(left) + 1) if rounded > 9 else f"{left}{rounded}"
+        if rounded > 9 and left == "":
+            # The only kept fractional digit rounded up. Carry into the integer.
+            integer = str(int(integer) + 1)
+            fraction = "0"
+        else:
+            fraction = (
+                f"{int(left) + 1}0".zfill(len(left) + 1) if rounded > 9 else f"{left}{rounded}"
+            )
 
         if len(fraction) > decimals:
             fraction = fraction[1:]
