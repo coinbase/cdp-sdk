@@ -237,7 +237,9 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
 
     if options.request_data:
         sorted_data = sort_keys(options.request_data)
-        json_bytes = json.dumps(sorted_data, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        json_bytes = json.dumps(
+            sorted_data, separators=(",", ":"), sort_keys=True, ensure_ascii=False
+        ).encode("utf-8")
         claims["reqHash"] = hashlib.sha256(json_bytes).hexdigest()
 
     try:
