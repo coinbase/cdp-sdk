@@ -1,7 +1,12 @@
 import { getTransactionEncoder } from "@solana/kit";
 import { describe, expect, it, vi } from "vitest";
 
-import { cdpSolanaAccountToSvmSigner, resolveNetworkFromChainId } from "./account-signers.js";
+import {
+  cdpSolanaAccountToSvmSigner,
+  fromCdpEvmAccount,
+  fromCdpSmartWallet,
+  resolveNetworkFromChainId,
+} from "./account-signers.js";
 
 import type { CdpSolanaAccount } from "./account-signers.js";
 
@@ -125,5 +130,43 @@ describe("cdpSolanaAccountToSvmSigner", () => {
         },
       ]),
     ).rejects.toThrow("is out of bounds for 1 signatures");
+  });
+});
+
+
+describe("fromCdpEvmAccount", () => {
+  it("returns a ClientEvmSigner shape without calling into @x402/evm", async () => {
+    const signTypedData = vi.fn(async () => "0xsig");
+    const signer = fromCdpEvmAccount({
+      address: "0x1111111111111111111111111111111111111111",
+      signTypedData,
+    });
+    expect(signer.address).toBe("0x1111111111111111111111111111111111111111");
+    await signer.signTypedData({
+      domain: {},
+      types: {},
+      primaryType: "Mail",
+      message: {},
+    } as never);
+    expect(signTypedData).toHaveBeenCalled();
+  });
+});
+
+describe("fromCdpSmartWallet", () => {
+  it("derives network from domain.chainId when signing", async () => {
+    const signTypedData = vi.fn(async () => "0xsig");
+    const signer = fromCdpSmartWallet({
+      address: "0x2222222222222222222222222222222222222222",
+      signTypedData,
+    });
+    await signer.signTypedData({
+      domain: { chainId: 8453 },
+      types: {},
+      primaryType: "Mail",
+      message: {},
+    } as never);
+    expect(signTypedData).toHaveBeenCalledWith(
+      expect.objectContaining({ network: "base" }),
+    );
   });
 });
