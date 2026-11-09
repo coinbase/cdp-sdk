@@ -128,7 +128,8 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
     import re
 
     return (
-        "/accounts" in path
+        "/evm/accounts" in path
+        or "/solana/accounts" in path
         or "/spend-permissions" in path
         # Lend operations on smart accounts are signed by CDP with the owner's server wallet key.
         or bool(re.search(r"/evm/smart-accounts/[^/]+/lend/", path))
