@@ -6,6 +6,8 @@ import { useSpendPermission } from "./smartAccount.use.js";
 import {
   SPEND_PERMISSION_MANAGER_ABI,
   SPEND_PERMISSION_MANAGER_ADDRESS,
+  SPEND_ROUTER_ABI,
+  SPEND_ROUTER_ADDRESS,
 } from "../../../spend-permissions/constants.js";
 import { sendUserOperation } from "../sendUserOperation.js";
 
@@ -102,6 +104,35 @@ describe("useSpendPermission for smart accounts", () => {
       smartAccountAddress: mockSmartAccountAddress,
       status: "broadcast",
       userOpHash: mockUserOpHash,
+    });
+  });
+
+  it("dispatches to SpendRouter.spendAndRoute when the permission spender is the router", async () => {
+    const routedPermission: SpendPermission = {
+      ...mockSpendPermission,
+      spender: SPEND_ROUTER_ADDRESS as Address,
+    };
+
+    await useSpendPermission(mockClient, mockSmartAccount, {
+      ...mockOptions,
+      spendPermission: routedPermission,
+    });
+
+    expect(encodeFunctionData).toHaveBeenCalledWith({
+      abi: SPEND_ROUTER_ABI,
+      functionName: "spendAndRoute",
+      args: [routedPermission, mockOptions.value],
+    });
+    expect(sendUserOperation).toHaveBeenCalledWith(mockClient, {
+      smartAccount: mockSmartAccount,
+      network: "base",
+      calls: [
+        {
+          to: SPEND_ROUTER_ADDRESS,
+          data: mockEncodedData,
+          value: 0n,
+        },
+      ],
     });
   });
 

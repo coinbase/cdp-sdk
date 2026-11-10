@@ -1,9 +1,4 @@
-import { encodeFunctionData } from "viem";
-
-import {
-  SPEND_PERMISSION_MANAGER_ABI,
-  SPEND_PERMISSION_MANAGER_ADDRESS,
-} from "../../../spend-permissions/constants.js";
+import { buildSpendCalldata } from "../../../spend-permissions/utils.js";
 import { type SendUserOperationReturnType, sendUserOperation } from "../sendUserOperation.js";
 
 import type { UseSpendPermissionOptions } from "./types.js";
@@ -14,7 +9,9 @@ import type {
 } from "../../../openapi-client/index.js";
 
 /**
- * Use a spend permission to spend tokens.
+ * Use a spend permission to spend tokens. Dispatches automatically to either
+ * `SpendPermissionManager.spend` (legacy permissions) or `SpendRouter.spendAndRoute`
+ * (CDP-created permissions whose onchain spender is the SpendRouter contract).
  *
  * @param apiClient - The API client to use.
  * @param account - The smart account to use.
@@ -29,18 +26,14 @@ export function useSpendPermission(
 ): Promise<SendUserOperationReturnType> {
   const { spendPermission, value, network } = options;
 
-  const data = encodeFunctionData({
-    abi: SPEND_PERMISSION_MANAGER_ABI,
-    functionName: "spend",
-    args: [spendPermission, value],
-  });
+  const { to, data } = buildSpendCalldata(spendPermission, value);
 
   return sendUserOperation(apiClient, {
     smartAccount: account,
     network: network as EvmUserOperationNetwork,
     calls: [
       {
-        to: SPEND_PERMISSION_MANAGER_ADDRESS,
+        to,
         data,
         value: 0n,
       },
