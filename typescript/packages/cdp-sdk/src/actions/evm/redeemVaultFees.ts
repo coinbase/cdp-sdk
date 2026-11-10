@@ -1,8 +1,10 @@
+import { lendApiClient } from "../../client/vendored.js";
 import { EvmUserOperationStatus } from "../../openapi-client/index.js";
+import { convertBigIntsToStrings } from "../../utils/bigint.js";
 
 import type { TransactionResult } from "./sendTransaction.js";
 import type { SendUserOperationReturnType } from "./sendUserOperation.js";
-import type { CdpOpenApiClientType, PaymasterContext } from "../../openapi-client/index.js";
+import type { PaymasterContext } from "../../openapi-client/index.js";
 import type { Address, Hex } from "../../types/misc.js";
 
 /**
@@ -52,22 +54,21 @@ export interface SmartAccountRedeemVaultFeesOptions extends RedeemVaultFeesOptio
  * This redeems the account's full share balance, including any shares from the account's own
  * deposits into the vault, so use a dedicated fee recipient account.
  *
- * @param apiClient - The API client.
  * @param options - The options for redeeming the vault fees.
  *
  * @returns An object containing the broadcast redemption transaction hash.
  */
 export async function redeemVaultFees(
-  apiClient: CdpOpenApiClientType,
   options: AccountRedeemVaultFeesOptions,
 ): Promise<TransactionResult> {
   const { address, vaultId, maxSlippageBps, idempotencyKey } = options;
 
-  const result = await apiClient.redeemVaultFeesWithEvmAccount(
+  const result = await lendApiClient.redeemVaultFeesWithEvmAccount({
     address,
-    { vaultId, maxSlippageBps },
     idempotencyKey,
-  );
+    vaultId,
+    maxSlippageBps,
+  });
 
   return {
     transactionHash: result.transactionHash as Hex,
@@ -83,14 +84,12 @@ export async function redeemVaultFees(
  * Smart Account's full share balance, including any shares from its own deposits into the vault,
  * so use a dedicated fee recipient Smart Account.
  *
- * @param apiClient - The API client.
  * @param options - The options for redeeming the vault fees.
  *
  * @returns The broadcast user operation. Use `waitForUserOperation` with the returned
  * `userOpHash` to wait for it to complete.
  */
 export async function redeemVaultFeesWithSmartAccount(
-  apiClient: CdpOpenApiClientType,
   options: SmartAccountRedeemVaultFeesOptions,
 ): Promise<SendUserOperationReturnType> {
   const {
@@ -103,17 +102,16 @@ export async function redeemVaultFeesWithSmartAccount(
     idempotencyKey,
   } = options;
 
-  const result = await apiClient.redeemVaultFeesWithEvmSmartAccount(
+  const result = await lendApiClient.redeemVaultFeesWithEvmSmartAccount({
     address,
-    {
-      vaultId,
-      maxSlippageBps,
-      useCdpPaymaster,
-      paymasterUrl,
-      paymasterContext,
-    },
     idempotencyKey,
-  );
+    vaultId,
+    maxSlippageBps,
+    useCdpPaymaster,
+    paymasterUrl,
+    // The generated client serializes with JSON.stringify, which throws on bigints.
+    paymasterContext: convertBigIntsToStrings(paymasterContext),
+  });
 
   return {
     smartAccountAddress: address,

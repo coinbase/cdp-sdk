@@ -3816,6 +3816,54 @@ type DepositDestinationTargetOnchainAddress = OnchainAddress
 // DepositDestinationType The type of deposit destination.
 type DepositDestinationType = string
 
+// DepositToVaultBaseRequest Fields shared by the API-key requests that deposit into a vault from an EVM account or an EVM Smart Account. Composed into `DepositToVaultWithEvmAccountRequest` and `DepositToVaultWithEvmSmartAccountRequest`.
+type DepositToVaultBaseRequest struct {
+	// Amount The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC).
+	Amount *VaultDepositAmount `json:"amount,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the minted vault shares. Defaults to the depositing account given in the path.
+	Receiver *VaultDepositReceiver `json:"receiver,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId *VaultId `json:"vaultId,omitempty"`
+}
+
+// DepositToVaultWithEvmAccountRequest defines model for DepositToVaultWithEvmAccountRequest.
+type DepositToVaultWithEvmAccountRequest struct {
+	// Amount The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC).
+	Amount VaultDepositAmount `json:"amount"`
+
+	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. The deposit reverts if the vault's share price moves beyond this bound. A guard of 100 bps (i.e. 1%) is applied when omitted.
+	MaxSlippageBps *VaultDepositMaxSlippageBps `json:"maxSlippageBps,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the minted vault shares. Defaults to the depositing account given in the path.
+	Receiver *VaultDepositReceiver `json:"receiver,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+}
+
+// DepositToVaultWithEvmSmartAccountRequest defines model for DepositToVaultWithEvmSmartAccountRequest.
+type DepositToVaultWithEvmSmartAccountRequest struct {
+	// Amount The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC).
+	Amount VaultDepositAmount `json:"amount"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+	PaymasterUrl *VaultDepositPaymasterUrl `json:"paymasterUrl,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the minted vault shares. Defaults to the depositing account given in the path.
+	Receiver *VaultDepositReceiver `json:"receiver,omitempty"`
+
+	// UseCdpPaymaster Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to deposit without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+	UseCdpPaymaster *VaultDepositUseCdpPaymaster `json:"useCdpPaymaster,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+}
+
 // DepositTravelRuleBeneficiary Beneficiary information for a deposit travel rule submission.
 type DepositTravelRuleBeneficiary struct {
 	// Name Full name of the beneficiary.
@@ -4191,6 +4239,12 @@ type EndUserSolanaAccount struct {
 	ExportedAt *time.Time `json:"exportedAt"`
 }
 
+// EoaVaultDepositResponse The result of a vault deposit from an EOA after broadcast.
+type EoaVaultDepositResponse struct {
+	// TransactionHash The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.
+	TransactionHash string `json:"transactionHash"`
+}
+
 // EoaVaultRedeemFeesRequest defines model for EoaVaultRedeemFeesRequest.
 type EoaVaultRedeemFeesRequest struct {
 	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
@@ -4203,6 +4257,12 @@ type EoaVaultRedeemFeesRequest struct {
 // EoaVaultRedeemFeesResponse The result of a vault fee redemption from an EVM account after broadcast.
 type EoaVaultRedeemFeesResponse struct {
 	// TransactionHash The hash of the broadcast fee redemption transaction, as a 0x-prefixed hex string.
+	TransactionHash string `json:"transactionHash"`
+}
+
+// EoaVaultWithdrawResponse The result of a vault withdrawal from an EOA after broadcast.
+type EoaVaultWithdrawResponse struct {
+	// TransactionHash The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.
 	TransactionHash string `json:"transactionHash"`
 }
 
@@ -5141,6 +5201,24 @@ type KnownIdlType string
 
 // LendNetwork The network on which the lend resource (catalog vault or vault) is deployed.
 type LendNetwork string
+
+// LendPosition An account's current share balance and underlying asset value in a lend vault.
+type LendPosition struct {
+	// AssetBalance The current underlying asset value of the shares, in standard units of underlyingAsset.
+	AssetBalance NonNegativeDecimal `json:"assetBalance"`
+
+	// Network The network on which the lend resource (catalog vault or vault) is deployed.
+	Network LendNetwork `json:"network"`
+
+	// UnderlyingAsset The symbol of the vault's underlying asset.
+	UnderlyingAsset Asset `json:"underlyingAsset"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+
+	// VaultShares The account's vault share balance in standard units of the share token.
+	VaultShares NonNegativeDecimal `json:"vaultShares"`
+}
 
 // ListEvmTokenBalancesNetwork The name of the supported EVM networks in human-readable format.
 type ListEvmTokenBalancesNetwork string
@@ -7739,6 +7817,12 @@ type SiweAuthentication struct {
 // SiweAuthenticationType The type of authentication information.
 type SiweAuthenticationType string
 
+// SmartAccountVaultDepositResponse The result of a vault deposit from an EVM Smart Account after broadcast.
+type SmartAccountVaultDepositResponse struct {
+	// UserOpHash The hash of the user operation executing the deposit, as a 0x-prefixed hex string.
+	UserOpHash string `json:"userOpHash"`
+}
+
 // SmartAccountVaultRedeemFeesRequest defines model for SmartAccountVaultRedeemFeesRequest.
 type SmartAccountVaultRedeemFeesRequest struct {
 	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
@@ -7760,6 +7844,12 @@ type SmartAccountVaultRedeemFeesRequest struct {
 // SmartAccountVaultRedeemFeesResponse The result of a vault fee redemption from an EVM Smart Account after broadcast.
 type SmartAccountVaultRedeemFeesResponse struct {
 	// UserOpHash The hash of the user operation executing the fee redemption, as a 0x-prefixed hex string. Poll `getUserOperation` for the operation's status.
+	UserOpHash string `json:"userOpHash"`
+}
+
+// SmartAccountVaultWithdrawResponse The result of a vault withdrawal from an EVM Smart Account after broadcast.
+type SmartAccountVaultWithdrawResponse struct {
+	// UserOpHash The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.
 	UserOpHash string `json:"userOpHash"`
 }
 
@@ -8888,6 +8978,21 @@ type Vault struct {
 	VaultId VaultId `json:"vaultId"`
 }
 
+// VaultDepositAmount A positive decimal string without scientific notation or whitespace.
+type VaultDepositAmount = PositiveDecimal
+
+// VaultDepositMaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. The deposit reverts if the vault's share price moves beyond this bound. A guard of 100 bps (i.e. 1%) is applied when omitted.
+type VaultDepositMaxSlippageBps = int
+
+// VaultDepositPaymasterUrl A valid HTTP or HTTPS URL.
+type VaultDepositPaymasterUrl = Url
+
+// VaultDepositReceiver A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+type VaultDepositReceiver = BlockchainAddress
+
+// VaultDepositUseCdpPaymaster Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to deposit without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+type VaultDepositUseCdpPaymaster = bool
+
 // VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
 type VaultId = string
 
@@ -8917,6 +9022,24 @@ type VaultRedeemFeesRequest struct {
 
 // VaultStatus The lifecycle status of the vault. A vault is `pending` from creation until its deployment user operation succeeds onchain, then `active`. If the deployment user operation fails onchain, then the status is `failed`.
 type VaultStatus string
+
+// VaultWithdrawAll Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+type VaultWithdrawAll = bool
+
+// VaultWithdrawAmount A positive decimal string without scientific notation or whitespace.
+type VaultWithdrawAmount = PositiveDecimal
+
+// VaultWithdrawMaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+type VaultWithdrawMaxSlippageBps = int
+
+// VaultWithdrawPaymasterUrl A valid HTTP or HTTPS URL.
+type VaultWithdrawPaymasterUrl = Url
+
+// VaultWithdrawReceiver A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+type VaultWithdrawReceiver = BlockchainAddress
+
+// VaultWithdrawUseCdpPaymaster Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to withdraw without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+type VaultWithdrawUseCdpPaymaster = bool
 
 // Void A release of uncaptured authorized funds back to the payer. Voids release all remaining capturable funds in a single operation, including after partial refunds as long as a capturableAmount remains.
 type Void struct {
@@ -9314,6 +9437,70 @@ type WebhookTarget struct {
 	//
 	// If the URL is not publicly accessible or doesn't respond to HEAD requests with a 200 status code, the URL will be rejected with a 400.
 	Url Url `json:"url"`
+}
+
+// WithdrawFromVaultBaseRequest Fields shared by the API-key requests that withdraw from a vault with an EVM account or an EVM Smart Account. Composed into `WithdrawFromVaultWithEvmAccountRequest` and `WithdrawFromVaultWithEvmSmartAccountRequest`.
+// Provide either `amount` or `withdrawAll: true`. `withdrawAll: false` is treated as omitted. Requests that set both `amount` and `withdrawAll: true`, or neither, are rejected with `invalid_request`.
+type WithdrawFromVaultBaseRequest struct {
+	// Amount The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.
+	Amount *VaultWithdrawAmount `json:"amount,omitempty"`
+
+	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+	MaxSlippageBps *VaultWithdrawMaxSlippageBps `json:"maxSlippageBps,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the withdrawn underlying asset. Defaults to the withdrawing account given in the path.
+	Receiver *VaultWithdrawReceiver `json:"receiver,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+
+	// WithdrawAll Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+	WithdrawAll *VaultWithdrawAll `json:"withdrawAll,omitempty"`
+}
+
+// WithdrawFromVaultWithEvmAccountRequest defines model for WithdrawFromVaultWithEvmAccountRequest.
+type WithdrawFromVaultWithEvmAccountRequest struct {
+	// Amount The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.
+	Amount *VaultWithdrawAmount `json:"amount,omitempty"`
+
+	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+	MaxSlippageBps *VaultWithdrawMaxSlippageBps `json:"maxSlippageBps,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the withdrawn underlying asset. Defaults to the withdrawing account given in the path.
+	Receiver *VaultWithdrawReceiver `json:"receiver,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+
+	// WithdrawAll Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+	WithdrawAll *VaultWithdrawAll `json:"withdrawAll,omitempty"`
+}
+
+// WithdrawFromVaultWithEvmSmartAccountRequest defines model for WithdrawFromVaultWithEvmSmartAccountRequest.
+type WithdrawFromVaultWithEvmSmartAccountRequest struct {
+	// Amount The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.
+	Amount *VaultWithdrawAmount `json:"amount,omitempty"`
+
+	// MaxSlippageBps The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+	MaxSlippageBps *VaultWithdrawMaxSlippageBps `json:"maxSlippageBps,omitempty"`
+
+	// PaymasterContext The ERC-7677 `context` object forwarded to the paymaster service as part of the `paymasterService` capability. The fields in this object are defined by the paymaster service provider; CDP forwards them to the paymaster unchanged. This field is only valid when a paymaster is configured for the request. Providing `paymasterContext` without a paymaster configured results in an `invalid_request` error.
+	PaymasterContext *PaymasterContext `json:"paymasterContext,omitempty"`
+
+	// PaymasterUrl Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+	PaymasterUrl *VaultWithdrawPaymasterUrl `json:"paymasterUrl,omitempty"`
+
+	// Receiver The 0x-prefixed address that receives the withdrawn underlying asset. Defaults to the withdrawing account given in the path.
+	Receiver *VaultWithdrawReceiver `json:"receiver,omitempty"`
+
+	// UseCdpPaymaster Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to withdraw without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+	UseCdpPaymaster *VaultWithdrawUseCdpPaymaster `json:"useCdpPaymaster,omitempty"`
+
+	// VaultId The globally unique ID of the vault, which is a UUID prefixed with the string `vault_`.
+	VaultId VaultId `json:"vaultId"`
+
+	// WithdrawAll Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+	WithdrawAll *VaultWithdrawAll `json:"withdrawAll,omitempty"`
 }
 
 // X402V1Network The x402 v1 network identifier. x402 v1 uses human-readable network names. Supported networks: Base mainnet and testnet, Solana mainnet and devnet.
@@ -11566,8 +11753,34 @@ type ExportEvmAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// DepositToVaultWithEvmAccountParams defines parameters for DepositToVaultWithEvmAccount.
+type DepositToVaultWithEvmAccountParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // RedeemVaultFeesWithEvmAccountParams defines parameters for RedeemVaultFeesWithEvmAccount.
 type RedeemVaultFeesWithEvmAccountParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// WithdrawFromVaultWithEvmAccountParams defines parameters for WithdrawFromVaultWithEvmAccount.
+type WithdrawFromVaultWithEvmAccountParams struct {
 	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -11728,8 +11941,34 @@ type UpdateEvmSmartAccountJSONBody struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// DepositToVaultWithEvmSmartAccountParams defines parameters for DepositToVaultWithEvmSmartAccount.
+type DepositToVaultWithEvmSmartAccountParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // RedeemVaultFeesWithEvmSmartAccountParams defines parameters for RedeemVaultFeesWithEvmSmartAccount.
 type RedeemVaultFeesWithEvmSmartAccountParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional string request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// WithdrawFromVaultWithEvmSmartAccountParams defines parameters for WithdrawFromVaultWithEvmSmartAccount.
+type WithdrawFromVaultWithEvmSmartAccountParams struct {
 	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -11877,6 +12116,21 @@ type GetEvmSwapPriceParams struct {
 
 // ListEvmTokenBalancesParams defines parameters for ListEvmTokenBalances.
 type ListEvmTokenBalancesParams struct {
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListLendPositionsParams defines parameters for ListLendPositions.
+type ListLendPositionsParams struct {
+	// Address The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for.
+	Address string `form:"address" json:"address"`
+
+	// VaultIds Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.
+	VaultIds *[]VaultId `form:"vaultIds,omitempty" json:"vaultIds,omitempty"`
+
 	// PageSize The number of resources to return per page.
 	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
@@ -12873,8 +13127,14 @@ type CreateEvmEip7702DelegationJSONRequestBody CreateEvmEip7702DelegationJSONBod
 // ExportEvmAccountJSONRequestBody defines body for ExportEvmAccount for application/json ContentType.
 type ExportEvmAccountJSONRequestBody ExportEvmAccountJSONBody
 
+// DepositToVaultWithEvmAccountJSONRequestBody defines body for DepositToVaultWithEvmAccount for application/json ContentType.
+type DepositToVaultWithEvmAccountJSONRequestBody = DepositToVaultWithEvmAccountRequest
+
 // RedeemVaultFeesWithEvmAccountJSONRequestBody defines body for RedeemVaultFeesWithEvmAccount for application/json ContentType.
 type RedeemVaultFeesWithEvmAccountJSONRequestBody = EoaVaultRedeemFeesRequest
+
+// WithdrawFromVaultWithEvmAccountJSONRequestBody defines body for WithdrawFromVaultWithEvmAccount for application/json ContentType.
+type WithdrawFromVaultWithEvmAccountJSONRequestBody = WithdrawFromVaultWithEvmAccountRequest
 
 // SendEvmTransactionJSONRequestBody defines body for SendEvmTransaction for application/json ContentType.
 type SendEvmTransactionJSONRequestBody SendEvmTransactionJSONBody
@@ -12900,8 +13160,14 @@ type CreateEvmSmartAccountJSONRequestBody CreateEvmSmartAccountJSONBody
 // UpdateEvmSmartAccountJSONRequestBody defines body for UpdateEvmSmartAccount for application/json ContentType.
 type UpdateEvmSmartAccountJSONRequestBody UpdateEvmSmartAccountJSONBody
 
+// DepositToVaultWithEvmSmartAccountJSONRequestBody defines body for DepositToVaultWithEvmSmartAccount for application/json ContentType.
+type DepositToVaultWithEvmSmartAccountJSONRequestBody = DepositToVaultWithEvmSmartAccountRequest
+
 // RedeemVaultFeesWithEvmSmartAccountJSONRequestBody defines body for RedeemVaultFeesWithEvmSmartAccount for application/json ContentType.
 type RedeemVaultFeesWithEvmSmartAccountJSONRequestBody = SmartAccountVaultRedeemFeesRequest
+
+// WithdrawFromVaultWithEvmSmartAccountJSONRequestBody defines body for WithdrawFromVaultWithEvmSmartAccount for application/json ContentType.
+type WithdrawFromVaultWithEvmSmartAccountJSONRequestBody = WithdrawFromVaultWithEvmSmartAccountRequest
 
 // CreateSpendPermissionJSONRequestBody defines body for CreateSpendPermission for application/json ContentType.
 type CreateSpendPermissionJSONRequestBody = CreateSpendPermissionRequest
@@ -21399,10 +21665,20 @@ type ClientInterface interface {
 
 	ExportEvmAccount(ctx context.Context, address string, params *ExportEvmAccountParams, body ExportEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DepositToVaultWithEvmAccountWithBody request with any body
+	DepositToVaultWithEvmAccountWithBody(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DepositToVaultWithEvmAccount(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, body DepositToVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RedeemVaultFeesWithEvmAccountWithBody request with any body
 	RedeemVaultFeesWithEvmAccountWithBody(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RedeemVaultFeesWithEvmAccount(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, body RedeemVaultFeesWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// WithdrawFromVaultWithEvmAccountWithBody request with any body
+	WithdrawFromVaultWithEvmAccountWithBody(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	WithdrawFromVaultWithEvmAccount(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, body WithdrawFromVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SendEvmTransactionWithBody request with any body
 	SendEvmTransactionWithBody(ctx context.Context, address string, params *SendEvmTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -21456,10 +21732,20 @@ type ClientInterface interface {
 
 	UpdateEvmSmartAccount(ctx context.Context, address string, body UpdateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DepositToVaultWithEvmSmartAccountWithBody request with any body
+	DepositToVaultWithEvmSmartAccountWithBody(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	DepositToVaultWithEvmSmartAccount(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, body DepositToVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RedeemVaultFeesWithEvmSmartAccountWithBody request with any body
 	RedeemVaultFeesWithEvmSmartAccountWithBody(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RedeemVaultFeesWithEvmSmartAccount(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, body RedeemVaultFeesWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// WithdrawFromVaultWithEvmSmartAccountWithBody request with any body
+	WithdrawFromVaultWithEvmSmartAccountWithBody(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	WithdrawFromVaultWithEvmSmartAccount(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, body WithdrawFromVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateSpendPermissionWithBody request with any body
 	CreateSpendPermissionWithBody(ctx context.Context, address string, params *CreateSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -21502,6 +21788,9 @@ type ClientInterface interface {
 
 	// ListEvmTokenBalances request
 	ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListLendPositions request
+	ListLendPositions(ctx context.Context, params *ListLendPositionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListVaults request
 	ListVaults(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -23182,6 +23471,30 @@ func (c *CDPClient) ExportEvmAccount(ctx context.Context, address string, params
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) DepositToVaultWithEvmAccountWithBody(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDepositToVaultWithEvmAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) DepositToVaultWithEvmAccount(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, body DepositToVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDepositToVaultWithEvmAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) RedeemVaultFeesWithEvmAccountWithBody(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRedeemVaultFeesWithEvmAccountRequestWithBody(c.Server, address, params, contentType, body)
 	if err != nil {
@@ -23196,6 +23509,30 @@ func (c *CDPClient) RedeemVaultFeesWithEvmAccountWithBody(ctx context.Context, a
 
 func (c *CDPClient) RedeemVaultFeesWithEvmAccount(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, body RedeemVaultFeesWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRedeemVaultFeesWithEvmAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) WithdrawFromVaultWithEvmAccountWithBody(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewWithdrawFromVaultWithEvmAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) WithdrawFromVaultWithEvmAccount(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, body WithdrawFromVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewWithdrawFromVaultWithEvmAccountRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -23446,6 +23783,30 @@ func (c *CDPClient) UpdateEvmSmartAccount(ctx context.Context, address string, b
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) DepositToVaultWithEvmSmartAccountWithBody(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDepositToVaultWithEvmSmartAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) DepositToVaultWithEvmSmartAccount(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, body DepositToVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDepositToVaultWithEvmSmartAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) RedeemVaultFeesWithEvmSmartAccountWithBody(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRedeemVaultFeesWithEvmSmartAccountRequestWithBody(c.Server, address, params, contentType, body)
 	if err != nil {
@@ -23460,6 +23821,30 @@ func (c *CDPClient) RedeemVaultFeesWithEvmSmartAccountWithBody(ctx context.Conte
 
 func (c *CDPClient) RedeemVaultFeesWithEvmSmartAccount(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, body RedeemVaultFeesWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRedeemVaultFeesWithEvmSmartAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) WithdrawFromVaultWithEvmSmartAccountWithBody(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewWithdrawFromVaultWithEvmSmartAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) WithdrawFromVaultWithEvmSmartAccount(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, body WithdrawFromVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewWithdrawFromVaultWithEvmSmartAccountRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -23652,6 +24037,18 @@ func (c *CDPClient) GetEvmSwapPrice(ctx context.Context, params *GetEvmSwapPrice
 
 func (c *CDPClient) ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEvmTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListLendPositions(ctx context.Context, params *ListLendPositionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListLendPositionsRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -30565,6 +30962,79 @@ func NewExportEvmAccountRequestWithBody(server string, address string, params *E
 	return req, nil
 }
 
+// NewDepositToVaultWithEvmAccountRequest calls the generic DepositToVaultWithEvmAccount builder with application/json body
+func NewDepositToVaultWithEvmAccountRequest(server string, address string, params *DepositToVaultWithEvmAccountParams, body DepositToVaultWithEvmAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDepositToVaultWithEvmAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewDepositToVaultWithEvmAccountRequestWithBody generates requests for DepositToVaultWithEvmAccount with any type of body
+func NewDepositToVaultWithEvmAccountRequestWithBody(server string, address string, params *DepositToVaultWithEvmAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/lend/deposit", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewRedeemVaultFeesWithEvmAccountRequest calls the generic RedeemVaultFeesWithEvmAccount builder with application/json body
 func NewRedeemVaultFeesWithEvmAccountRequest(server string, address string, params *RedeemVaultFeesWithEvmAccountParams, body RedeemVaultFeesWithEvmAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -30593,6 +31063,79 @@ func NewRedeemVaultFeesWithEvmAccountRequestWithBody(server string, address stri
 	}
 
 	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/lend/redeem-fees", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewWithdrawFromVaultWithEvmAccountRequest calls the generic WithdrawFromVaultWithEvmAccount builder with application/json body
+func NewWithdrawFromVaultWithEvmAccountRequest(server string, address string, params *WithdrawFromVaultWithEvmAccountParams, body WithdrawFromVaultWithEvmAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewWithdrawFromVaultWithEvmAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewWithdrawFromVaultWithEvmAccountRequestWithBody generates requests for WithdrawFromVaultWithEvmAccount with any type of body
+func NewWithdrawFromVaultWithEvmAccountRequestWithBody(server string, address string, params *WithdrawFromVaultWithEvmAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/lend/withdraw", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -31312,6 +31855,79 @@ func NewUpdateEvmSmartAccountRequestWithBody(server string, address string, cont
 	return req, nil
 }
 
+// NewDepositToVaultWithEvmSmartAccountRequest calls the generic DepositToVaultWithEvmSmartAccount builder with application/json body
+func NewDepositToVaultWithEvmSmartAccountRequest(server string, address string, params *DepositToVaultWithEvmSmartAccountParams, body DepositToVaultWithEvmSmartAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewDepositToVaultWithEvmSmartAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewDepositToVaultWithEvmSmartAccountRequestWithBody generates requests for DepositToVaultWithEvmSmartAccount with any type of body
+func NewDepositToVaultWithEvmSmartAccountRequestWithBody(server string, address string, params *DepositToVaultWithEvmSmartAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/lend/deposit", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewRedeemVaultFeesWithEvmSmartAccountRequest calls the generic RedeemVaultFeesWithEvmSmartAccount builder with application/json body
 func NewRedeemVaultFeesWithEvmSmartAccountRequest(server string, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, body RedeemVaultFeesWithEvmSmartAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -31340,6 +31956,79 @@ func NewRedeemVaultFeesWithEvmSmartAccountRequestWithBody(server string, address
 	}
 
 	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/lend/redeem-fees", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewWithdrawFromVaultWithEvmSmartAccountRequest calls the generic WithdrawFromVaultWithEvmSmartAccount builder with application/json body
+func NewWithdrawFromVaultWithEvmSmartAccountRequest(server string, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, body WithdrawFromVaultWithEvmSmartAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewWithdrawFromVaultWithEvmSmartAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewWithdrawFromVaultWithEvmSmartAccountRequestWithBody generates requests for WithdrawFromVaultWithEvmSmartAccount with any type of body
+func NewWithdrawFromVaultWithEvmSmartAccountRequestWithBody(server string, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/lend/withdraw", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -32049,6 +32738,99 @@ func NewListEvmTokenBalancesRequest(server string, network ListEvmTokenBalancesN
 
 	if params != nil {
 		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListLendPositionsRequest generates requests for ListLendPositions
+func NewListLendPositionsRequest(server string, params *ListLendPositionsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/lend/positions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "address", runtime.ParamLocationQuery, params.Address); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		if params.VaultIds != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "vaultIds", runtime.ParamLocationQuery, *params.VaultIds); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
 
 		if params.PageSize != nil {
 
@@ -37476,10 +38258,20 @@ type ClientWithResponsesInterface interface {
 
 	ExportEvmAccountWithResponse(ctx context.Context, address string, params *ExportEvmAccountParams, body ExportEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*ExportEvmAccountResponse, error)
 
+	// DepositToVaultWithEvmAccountWithBodyWithResponse request with any body
+	DepositToVaultWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmAccountResponse, error)
+
+	DepositToVaultWithEvmAccountWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, body DepositToVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmAccountResponse, error)
+
 	// RedeemVaultFeesWithEvmAccountWithBodyWithResponse request with any body
 	RedeemVaultFeesWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmAccountResponse, error)
 
 	RedeemVaultFeesWithEvmAccountWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, body RedeemVaultFeesWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmAccountResponse, error)
+
+	// WithdrawFromVaultWithEvmAccountWithBodyWithResponse request with any body
+	WithdrawFromVaultWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmAccountResponse, error)
+
+	WithdrawFromVaultWithEvmAccountWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, body WithdrawFromVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmAccountResponse, error)
 
 	// SendEvmTransactionWithBodyWithResponse request with any body
 	SendEvmTransactionWithBodyWithResponse(ctx context.Context, address string, params *SendEvmTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmTransactionResponse, error)
@@ -37533,10 +38325,20 @@ type ClientWithResponsesInterface interface {
 
 	UpdateEvmSmartAccountWithResponse(ctx context.Context, address string, body UpdateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmSmartAccountResponse, error)
 
+	// DepositToVaultWithEvmSmartAccountWithBodyWithResponse request with any body
+	DepositToVaultWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmSmartAccountResponse, error)
+
+	DepositToVaultWithEvmSmartAccountWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, body DepositToVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmSmartAccountResponse, error)
+
 	// RedeemVaultFeesWithEvmSmartAccountWithBodyWithResponse request with any body
 	RedeemVaultFeesWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmSmartAccountResponse, error)
 
 	RedeemVaultFeesWithEvmSmartAccountWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, body RedeemVaultFeesWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmSmartAccountResponse, error)
+
+	// WithdrawFromVaultWithEvmSmartAccountWithBodyWithResponse request with any body
+	WithdrawFromVaultWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmSmartAccountResponse, error)
+
+	WithdrawFromVaultWithEvmSmartAccountWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, body WithdrawFromVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmSmartAccountResponse, error)
 
 	// CreateSpendPermissionWithBodyWithResponse request with any body
 	CreateSpendPermissionWithBodyWithResponse(ctx context.Context, address string, params *CreateSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateSpendPermissionResponse, error)
@@ -37579,6 +38381,9 @@ type ClientWithResponsesInterface interface {
 
 	// ListEvmTokenBalancesWithResponse request
 	ListEvmTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListEvmTokenBalancesResponse, error)
+
+	// ListLendPositionsWithResponse request
+	ListLendPositionsWithResponse(ctx context.Context, params *ListLendPositionsParams, reqEditors ...RequestEditorFn) (*ListLendPositionsResponse, error)
 
 	// ListVaultsWithResponse request
 	ListVaultsWithResponse(ctx context.Context, params *ListVaultsParams, reqEditors ...RequestEditorFn) (*ListVaultsResponse, error)
@@ -40066,6 +40871,38 @@ func (r ExportEvmAccountResponse) StatusCode() int {
 	return 0
 }
 
+type DepositToVaultWithEvmAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EoaVaultDepositResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *ForbiddenError
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r DepositToVaultWithEvmAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DepositToVaultWithEvmAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RedeemVaultFeesWithEvmAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -40092,6 +40929,38 @@ func (r RedeemVaultFeesWithEvmAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RedeemVaultFeesWithEvmAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type WithdrawFromVaultWithEvmAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EoaVaultWithdrawResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *ForbiddenError
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r WithdrawFromVaultWithEvmAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r WithdrawFromVaultWithEvmAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -40468,6 +41337,38 @@ func (r UpdateEvmSmartAccountResponse) StatusCode() int {
 	return 0
 }
 
+type DepositToVaultWithEvmSmartAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SmartAccountVaultDepositResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *ForbiddenError
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r DepositToVaultWithEvmSmartAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DepositToVaultWithEvmSmartAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RedeemVaultFeesWithEvmSmartAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -40494,6 +41395,38 @@ func (r RedeemVaultFeesWithEvmSmartAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RedeemVaultFeesWithEvmSmartAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type WithdrawFromVaultWithEvmSmartAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SmartAccountVaultWithdrawResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *ForbiddenError
+	JSON404      *Error
+	JSON409      *Error
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r WithdrawFromVaultWithEvmSmartAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r WithdrawFromVaultWithEvmSmartAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -40786,6 +41719,42 @@ func (r ListEvmTokenBalancesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListEvmTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListLendPositionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// LendPositions The lend positions on this page. Empty when no matching positions remain.
+		LendPositions []LendPosition `json:"lendPositions"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON403 *ForbiddenError
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+	JSON504 *TimedOutError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListLendPositionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListLendPositionsResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -44174,6 +45143,23 @@ func (c *ClientWithResponses) ExportEvmAccountWithResponse(ctx context.Context, 
 	return ParseExportEvmAccountResponse(rsp)
 }
 
+// DepositToVaultWithEvmAccountWithBodyWithResponse request with arbitrary body returning *DepositToVaultWithEvmAccountResponse
+func (c *ClientWithResponses) DepositToVaultWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmAccountResponse, error) {
+	rsp, err := c.DepositToVaultWithEvmAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDepositToVaultWithEvmAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) DepositToVaultWithEvmAccountWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmAccountParams, body DepositToVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmAccountResponse, error) {
+	rsp, err := c.DepositToVaultWithEvmAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDepositToVaultWithEvmAccountResponse(rsp)
+}
+
 // RedeemVaultFeesWithEvmAccountWithBodyWithResponse request with arbitrary body returning *RedeemVaultFeesWithEvmAccountResponse
 func (c *ClientWithResponses) RedeemVaultFeesWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmAccountResponse, error) {
 	rsp, err := c.RedeemVaultFeesWithEvmAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
@@ -44189,6 +45175,23 @@ func (c *ClientWithResponses) RedeemVaultFeesWithEvmAccountWithResponse(ctx cont
 		return nil, err
 	}
 	return ParseRedeemVaultFeesWithEvmAccountResponse(rsp)
+}
+
+// WithdrawFromVaultWithEvmAccountWithBodyWithResponse request with arbitrary body returning *WithdrawFromVaultWithEvmAccountResponse
+func (c *ClientWithResponses) WithdrawFromVaultWithEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmAccountResponse, error) {
+	rsp, err := c.WithdrawFromVaultWithEvmAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseWithdrawFromVaultWithEvmAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) WithdrawFromVaultWithEvmAccountWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmAccountParams, body WithdrawFromVaultWithEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmAccountResponse, error) {
+	rsp, err := c.WithdrawFromVaultWithEvmAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseWithdrawFromVaultWithEvmAccountResponse(rsp)
 }
 
 // SendEvmTransactionWithBodyWithResponse request with arbitrary body returning *SendEvmTransactionResponse
@@ -44363,6 +45366,23 @@ func (c *ClientWithResponses) UpdateEvmSmartAccountWithResponse(ctx context.Cont
 	return ParseUpdateEvmSmartAccountResponse(rsp)
 }
 
+// DepositToVaultWithEvmSmartAccountWithBodyWithResponse request with arbitrary body returning *DepositToVaultWithEvmSmartAccountResponse
+func (c *ClientWithResponses) DepositToVaultWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmSmartAccountResponse, error) {
+	rsp, err := c.DepositToVaultWithEvmSmartAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDepositToVaultWithEvmSmartAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) DepositToVaultWithEvmSmartAccountWithResponse(ctx context.Context, address string, params *DepositToVaultWithEvmSmartAccountParams, body DepositToVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*DepositToVaultWithEvmSmartAccountResponse, error) {
+	rsp, err := c.DepositToVaultWithEvmSmartAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDepositToVaultWithEvmSmartAccountResponse(rsp)
+}
+
 // RedeemVaultFeesWithEvmSmartAccountWithBodyWithResponse request with arbitrary body returning *RedeemVaultFeesWithEvmSmartAccountResponse
 func (c *ClientWithResponses) RedeemVaultFeesWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *RedeemVaultFeesWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RedeemVaultFeesWithEvmSmartAccountResponse, error) {
 	rsp, err := c.RedeemVaultFeesWithEvmSmartAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
@@ -44378,6 +45398,23 @@ func (c *ClientWithResponses) RedeemVaultFeesWithEvmSmartAccountWithResponse(ctx
 		return nil, err
 	}
 	return ParseRedeemVaultFeesWithEvmSmartAccountResponse(rsp)
+}
+
+// WithdrawFromVaultWithEvmSmartAccountWithBodyWithResponse request with arbitrary body returning *WithdrawFromVaultWithEvmSmartAccountResponse
+func (c *ClientWithResponses) WithdrawFromVaultWithEvmSmartAccountWithBodyWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmSmartAccountResponse, error) {
+	rsp, err := c.WithdrawFromVaultWithEvmSmartAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseWithdrawFromVaultWithEvmSmartAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) WithdrawFromVaultWithEvmSmartAccountWithResponse(ctx context.Context, address string, params *WithdrawFromVaultWithEvmSmartAccountParams, body WithdrawFromVaultWithEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*WithdrawFromVaultWithEvmSmartAccountResponse, error) {
+	rsp, err := c.WithdrawFromVaultWithEvmSmartAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseWithdrawFromVaultWithEvmSmartAccountResponse(rsp)
 }
 
 // CreateSpendPermissionWithBodyWithResponse request with arbitrary body returning *CreateSpendPermissionResponse
@@ -44516,6 +45553,15 @@ func (c *ClientWithResponses) ListEvmTokenBalancesWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListEvmTokenBalancesResponse(rsp)
+}
+
+// ListLendPositionsWithResponse request returning *ListLendPositionsResponse
+func (c *ClientWithResponses) ListLendPositionsWithResponse(ctx context.Context, params *ListLendPositionsParams, reqEditors ...RequestEditorFn) (*ListLendPositionsResponse, error) {
+	rsp, err := c.ListLendPositions(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListLendPositionsResponse(rsp)
 }
 
 // ListVaultsWithResponse request returning *ListVaultsResponse
@@ -50687,6 +51733,102 @@ func ParseExportEvmAccountResponse(rsp *http.Response) (*ExportEvmAccountRespons
 	return response, nil
 }
 
+// ParseDepositToVaultWithEvmAccountResponse parses an HTTP response from a DepositToVaultWithEvmAccountWithResponse call
+func ParseDepositToVaultWithEvmAccountResponse(rsp *http.Response) (*DepositToVaultWithEvmAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DepositToVaultWithEvmAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EoaVaultDepositResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRedeemVaultFeesWithEvmAccountResponse parses an HTTP response from a RedeemVaultFeesWithEvmAccountWithResponse call
 func ParseRedeemVaultFeesWithEvmAccountResponse(rsp *http.Response) (*RedeemVaultFeesWithEvmAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -50703,6 +51845,102 @@ func ParseRedeemVaultFeesWithEvmAccountResponse(rsp *http.Response) (*RedeemVaul
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest EoaVaultRedeemFeesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseWithdrawFromVaultWithEvmAccountResponse parses an HTTP response from a WithdrawFromVaultWithEvmAccountWithResponse call
+func ParseWithdrawFromVaultWithEvmAccountResponse(rsp *http.Response) (*WithdrawFromVaultWithEvmAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &WithdrawFromVaultWithEvmAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EoaVaultWithdrawResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -51687,6 +52925,102 @@ func ParseUpdateEvmSmartAccountResponse(rsp *http.Response) (*UpdateEvmSmartAcco
 	return response, nil
 }
 
+// ParseDepositToVaultWithEvmSmartAccountResponse parses an HTTP response from a DepositToVaultWithEvmSmartAccountWithResponse call
+func ParseDepositToVaultWithEvmSmartAccountResponse(rsp *http.Response) (*DepositToVaultWithEvmSmartAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DepositToVaultWithEvmSmartAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SmartAccountVaultDepositResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRedeemVaultFeesWithEvmSmartAccountResponse parses an HTTP response from a RedeemVaultFeesWithEvmSmartAccountWithResponse call
 func ParseRedeemVaultFeesWithEvmSmartAccountResponse(rsp *http.Response) (*RedeemVaultFeesWithEvmSmartAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -51703,6 +53037,102 @@ func ParseRedeemVaultFeesWithEvmSmartAccountResponse(rsp *http.Response) (*Redee
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest SmartAccountVaultRedeemFeesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseWithdrawFromVaultWithEvmSmartAccountResponse parses an HTTP response from a WithdrawFromVaultWithEvmSmartAccountWithResponse call
+func ParseWithdrawFromVaultWithEvmSmartAccountResponse(rsp *http.Response) (*WithdrawFromVaultWithEvmSmartAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &WithdrawFromVaultWithEvmSmartAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SmartAccountVaultWithdrawResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -52469,6 +53899,94 @@ func ParseListEvmTokenBalancesResponse(rsp *http.Response) (*ListEvmTokenBalance
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListLendPositionsResponse parses an HTTP response from a ListLendPositionsWithResponse call
+func ParseListLendPositionsResponse(rsp *http.Response) (*ListLendPositionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListLendPositionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// LendPositions The lend positions on this page. Empty when no matching positions remain.
+			LendPositions []LendPosition `json:"lendPositions"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ForbiddenError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest TimedOutError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
 
 	}
 

@@ -1,5 +1,14 @@
 # CDP SDK Changelog
 
+## 1.62.0
+
+### Minor Changes
+
+- c60906d: Added `cdp.lend.depositToVaultWithEvmAccount` and `cdp.lend.depositToVaultWithEvmSmartAccount` to deposit a Lend vault's underlying asset into the vault.
+- f2e2e94: Generated the Lend API client with Fern. `cdp.lend` is now the generated client, like `cdp.accounts`. `listVaults` and `getVault` take the same arguments and return the same fields, and `cdp.lend` also has `redeemVaultFeesWithEvmAccount` and `redeemVaultFeesWithEvmSmartAccount`. Failed `cdp.lend` requests and the account `redeemVaultFees` methods now throw `CoinbaseApiError` instead of `APIError` or `NetworkError`, an invalid `vaultId` is rejected by the API instead of the SDK, and the `ListVaultsOptions`, `ListVaultsResult` and `GetVaultOptions` types are no longer exported. The account `redeemVaultFees` methods keep their arguments and return types.
+- 6306666: Added `cdp.lend.listLendPositions` to list the Lend vault positions of an EVM account or EVM smart account in the project.
+- 491a0dc: Added `cdp.lend.withdrawFromVaultWithEvmAccount` and `cdp.lend.withdrawFromVaultWithEvmSmartAccount` to withdraw a Lend vault's underlying asset from a vault position, either by amount or with `withdrawAll: true`.
+
 ## 1.61.0
 
 ### Minor Changes

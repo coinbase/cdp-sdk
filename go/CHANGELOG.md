@@ -4,6 +4,9 @@
 
 ### Features
 
+- Regenerate the OpenAPI client to add the Lend `listLendPositions` (`GET /v2/lend/positions`) operation.
+- Regenerate the OpenAPI client to add the Lend `withdrawFromVaultWithEvmAccount` (`POST /v2/evm/accounts/{address}/lend/withdraw`) and `withdrawFromVaultWithEvmSmartAccount` (`POST /v2/evm/smart-accounts/{address}/lend/withdraw`) operations.
+- Regenerate the OpenAPI client to add the Lend `depositToVaultWithEvmAccount` (`POST /v2/evm/accounts/{address}/lend/deposit`) and `depositToVaultWithEvmSmartAccount` (`POST /v2/evm/smart-accounts/{address}/lend/deposit`) operations.
 - Regenerate the OpenAPI client to add the Lend `listVaults` (`GET /v2/lend/vaults`) and `getVault` (`GET /v2/lend/vaults/{vaultId}`) operations. The new `VaultStatus` and `LendNetwork` constants are type-prefixed, and existing enum constant names are unchanged.
 - Regenerate OpenAPI clients from `c3/cdp-api@68ac40d4`: add `pausePolicy` (`POST /v2/policy-engine/policies/{policyId}/pause`) and `resumePolicy` (`POST /v2/policy-engine/policies/{policyId}/resume`), add `status`, `pausedAt`, and `resumeAt` to `Policy`, and add the onramp mobile session and iOS attestation operations.
 - Regenerate OpenAPI clients from `c3/cdp-api@3312048b`: add `simulatePolicies` (`POST /v2/policy-engine/simulate`) and `createTopUpLink`, add top-up-link and customer-requirement webhook schemas, update disbursement `customerDisplay`, and remove `listCoinbaseAccountBalances`.

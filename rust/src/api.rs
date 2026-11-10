@@ -29143,6 +29143,523 @@ pub mod types {
             value.parse()
         }
     }
+    ///Fields shared by the API-key requests that deposit into a vault from an EVM account or an EVM Smart Account. Composed into `DepositToVaultWithEvmAccountRequest` and `DepositToVaultWithEvmSmartAccountRequest`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Fields shared by the API-key requests that deposit into a vault from an EVM account or an EVM Smart Account. Composed into `DepositToVaultWithEvmAccountRequest` and `DepositToVaultWithEvmSmartAccountRequest`.",
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "amount": {
+    ///      "$ref": "#/components/schemas/VaultDepositAmount"
+    ///    },
+    ///    "receiver": {
+    ///      "$ref": "#/components/schemas/VaultDepositReceiver"
+    ///    },
+    ///    "vaultId": {
+    ///      "$ref": "#/components/schemas/VaultId"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct DepositToVaultBaseRequest {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub amount: ::std::option::Option<VaultDepositAmount>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub receiver: ::std::option::Option<VaultDepositReceiver>,
+        #[serde(
+            rename = "vaultId",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub vault_id: ::std::option::Option<VaultId>,
+    }
+    impl ::std::convert::From<&DepositToVaultBaseRequest> for DepositToVaultBaseRequest {
+        fn from(value: &DepositToVaultBaseRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for DepositToVaultBaseRequest {
+        fn default() -> Self {
+            Self {
+                amount: Default::default(),
+                receiver: Default::default(),
+                vault_id: Default::default(),
+            }
+        }
+    }
+    impl DepositToVaultBaseRequest {
+        pub fn builder() -> builder::DepositToVaultBaseRequest {
+            Default::default()
+        }
+    }
+    ///`DepositToVaultWithEvmAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DepositToVaultWithEvmAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for DepositToVaultWithEvmAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DepositToVaultWithEvmAccountAddress> for ::std::string::String {
+        fn from(value: DepositToVaultWithEvmAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmAccountAddress>
+        for DepositToVaultWithEvmAccountAddress
+    {
+        fn from(value: &DepositToVaultWithEvmAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DepositToVaultWithEvmAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DepositToVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for DepositToVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for DepositToVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DepositToVaultWithEvmAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`DepositToVaultWithEvmAccountRequest`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/DepositToVaultBaseRequest"
+    ///    },
+    ///    {
+    ///      "description": "A request to deposit the vault's underlying asset (e.g. USDC) into a vault from an EVM account. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction.",
+    ///      "examples": [
+    ///        {
+    ///          "amount": "25.50",
+    ///          "vaultId": "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "required": [
+    ///        "amount",
+    ///        "vaultId"
+    ///      ],
+    ///      "properties": {
+    ///        "maxSlippageBps": {
+    ///          "$ref": "#/components/schemas/VaultDepositMaxSlippageBps"
+    ///        }
+    ///      }
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct DepositToVaultWithEvmAccountRequest {
+        pub amount: VaultDepositAmount,
+        #[serde(
+            rename = "maxSlippageBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub max_slippage_bps: ::std::option::Option<VaultDepositMaxSlippageBps>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub receiver: ::std::option::Option<VaultDepositReceiver>,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmAccountRequest>
+        for DepositToVaultWithEvmAccountRequest
+    {
+        fn from(value: &DepositToVaultWithEvmAccountRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl DepositToVaultWithEvmAccountRequest {
+        pub fn builder() -> builder::DepositToVaultWithEvmAccountRequest {
+            Default::default()
+        }
+    }
+    ///`DepositToVaultWithEvmAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DepositToVaultWithEvmAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for DepositToVaultWithEvmAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DepositToVaultWithEvmAccountXIdempotencyKey> for ::std::string::String {
+        fn from(value: DepositToVaultWithEvmAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmAccountXIdempotencyKey>
+        for DepositToVaultWithEvmAccountXIdempotencyKey
+    {
+        fn from(value: &DepositToVaultWithEvmAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DepositToVaultWithEvmAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DepositToVaultWithEvmAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for DepositToVaultWithEvmAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for DepositToVaultWithEvmAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DepositToVaultWithEvmAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`DepositToVaultWithEvmSmartAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DepositToVaultWithEvmSmartAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for DepositToVaultWithEvmSmartAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DepositToVaultWithEvmSmartAccountAddress> for ::std::string::String {
+        fn from(value: DepositToVaultWithEvmSmartAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmSmartAccountAddress>
+        for DepositToVaultWithEvmSmartAccountAddress
+    {
+        fn from(value: &DepositToVaultWithEvmSmartAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DepositToVaultWithEvmSmartAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DepositToVaultWithEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for DepositToVaultWithEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for DepositToVaultWithEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DepositToVaultWithEvmSmartAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`DepositToVaultWithEvmSmartAccountRequest`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/DepositToVaultBaseRequest"
+    ///    },
+    ///    {
+    ///      "description": "A request to deposit the vault's underlying asset (e.g. USDC) into a vault from an EVM Smart Account. The token approval and deposit are batched into a single user operation.",
+    ///      "examples": [
+    ///        {
+    ///          "amount": "25.50",
+    ///          "useCdpPaymaster": true,
+    ///          "vaultId": "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "required": [
+    ///        "amount",
+    ///        "vaultId"
+    ///      ],
+    ///      "properties": {
+    ///        "paymasterContext": {
+    ///          "$ref": "#/components/schemas/PaymasterContext"
+    ///        },
+    ///        "paymasterUrl": {
+    ///          "$ref": "#/components/schemas/VaultDepositPaymasterUrl"
+    ///        },
+    ///        "useCdpPaymaster": {
+    ///          "$ref": "#/components/schemas/VaultDepositUseCdpPaymaster"
+    ///        }
+    ///      }
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct DepositToVaultWithEvmSmartAccountRequest {
+        pub amount: VaultDepositAmount,
+        #[serde(
+            rename = "paymasterContext",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_context: ::std::option::Option<PaymasterContext>,
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<VaultDepositPaymasterUrl>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub receiver: ::std::option::Option<VaultDepositReceiver>,
+        #[serde(
+            rename = "useCdpPaymaster",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_paymaster: ::std::option::Option<VaultDepositUseCdpPaymaster>,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmSmartAccountRequest>
+        for DepositToVaultWithEvmSmartAccountRequest
+    {
+        fn from(value: &DepositToVaultWithEvmSmartAccountRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl DepositToVaultWithEvmSmartAccountRequest {
+        pub fn builder() -> builder::DepositToVaultWithEvmSmartAccountRequest {
+            Default::default()
+        }
+    }
+    ///`DepositToVaultWithEvmSmartAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct DepositToVaultWithEvmSmartAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for DepositToVaultWithEvmSmartAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<DepositToVaultWithEvmSmartAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: DepositToVaultWithEvmSmartAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&DepositToVaultWithEvmSmartAccountXIdempotencyKey>
+        for DepositToVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        fn from(value: &DepositToVaultWithEvmSmartAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for DepositToVaultWithEvmSmartAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for DepositToVaultWithEvmSmartAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for DepositToVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for DepositToVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for DepositToVaultWithEvmSmartAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///Beneficiary information for a deposit travel rule submission.
     ///
     /// <details><summary>JSON schema</summary>
@@ -33247,6 +33764,129 @@ pub mod types {
             Default::default()
         }
     }
+    ///The result of a vault deposit from an EOA after broadcast.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result of a vault deposit from an EOA after broadcast.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionHash"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionHash": {
+    ///      "description": "The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EoaVaultDepositResponse {
+        ///The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.
+        #[serde(rename = "transactionHash")]
+        pub transaction_hash: EoaVaultDepositResponseTransactionHash,
+    }
+    impl ::std::convert::From<&EoaVaultDepositResponse> for EoaVaultDepositResponse {
+        fn from(value: &EoaVaultDepositResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl EoaVaultDepositResponse {
+        pub fn builder() -> builder::EoaVaultDepositResponse {
+            Default::default()
+        }
+    }
+    ///The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.",
+    ///  "examples": [
+    ///    "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EoaVaultDepositResponseTransactionHash(::std::string::String);
+    impl ::std::ops::Deref for EoaVaultDepositResponseTransactionHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EoaVaultDepositResponseTransactionHash> for ::std::string::String {
+        fn from(value: EoaVaultDepositResponseTransactionHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EoaVaultDepositResponseTransactionHash>
+        for EoaVaultDepositResponseTransactionHash
+    {
+        fn from(value: &EoaVaultDepositResponseTransactionHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EoaVaultDepositResponseTransactionHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EoaVaultDepositResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EoaVaultDepositResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EoaVaultDepositResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EoaVaultDepositResponseTransactionHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`EoaVaultRedeemFeesRequest`
     ///
     /// <details><summary>JSON schema</summary>
@@ -33393,6 +34033,129 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for EoaVaultRedeemFeesResponseTransactionHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The result of a vault withdrawal from an EOA after broadcast.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result of a vault withdrawal from an EOA after broadcast.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transactionHash"
+    ///  ],
+    ///  "properties": {
+    ///    "transactionHash": {
+    ///      "description": "The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EoaVaultWithdrawResponse {
+        ///The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.
+        #[serde(rename = "transactionHash")]
+        pub transaction_hash: EoaVaultWithdrawResponseTransactionHash,
+    }
+    impl ::std::convert::From<&EoaVaultWithdrawResponse> for EoaVaultWithdrawResponse {
+        fn from(value: &EoaVaultWithdrawResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl EoaVaultWithdrawResponse {
+        pub fn builder() -> builder::EoaVaultWithdrawResponse {
+            Default::default()
+        }
+    }
+    ///The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.",
+    ///  "examples": [
+    ///    "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EoaVaultWithdrawResponseTransactionHash(::std::string::String);
+    impl ::std::ops::Deref for EoaVaultWithdrawResponseTransactionHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EoaVaultWithdrawResponseTransactionHash> for ::std::string::String {
+        fn from(value: EoaVaultWithdrawResponseTransactionHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EoaVaultWithdrawResponseTransactionHash>
+        for EoaVaultWithdrawResponseTransactionHash
+    {
+        fn from(value: &EoaVaultWithdrawResponseTransactionHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EoaVaultWithdrawResponseTransactionHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EoaVaultWithdrawResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EoaVaultWithdrawResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EoaVaultWithdrawResponseTransactionHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EoaVaultWithdrawResponseTransactionHash {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -53412,6 +54175,90 @@ pub mod types {
             value.parse()
         }
     }
+    ///An account's current share balance and underlying asset value in a lend vault.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An account's current share balance and underlying asset value in a lend vault.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "assetBalance",
+    ///    "network",
+    ///    "underlyingAsset",
+    ///    "vaultId",
+    ///    "vaultShares"
+    ///  ],
+    ///  "properties": {
+    ///    "assetBalance": {
+    ///      "description": "The current underlying asset value of the shares, in standard units of underlyingAsset.",
+    ///      "examples": [
+    ///        "1.025"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/NonNegativeDecimal"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "network": {
+    ///      "$ref": "#/components/schemas/LendNetwork"
+    ///    },
+    ///    "underlyingAsset": {
+    ///      "description": "The symbol of the vault's underlying asset.",
+    ///      "examples": [
+    ///        "usdc"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Asset"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "vaultId": {
+    ///      "$ref": "#/components/schemas/VaultId"
+    ///    },
+    ///    "vaultShares": {
+    ///      "description": "The account's vault share balance in standard units of the share token.",
+    ///      "examples": [
+    ///        "1"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/NonNegativeDecimal"
+    ///        }
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct LendPosition {
+        ///The current underlying asset value of the shares, in standard units of underlyingAsset.
+        #[serde(rename = "assetBalance")]
+        pub asset_balance: NonNegativeDecimal,
+        pub network: LendNetwork,
+        ///The symbol of the vault's underlying asset.
+        #[serde(rename = "underlyingAsset")]
+        pub underlying_asset: Asset,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+        ///The account's vault share balance in standard units of the share token.
+        #[serde(rename = "vaultShares")]
+        pub vault_shares: NonNegativeDecimal,
+    }
+    impl ::std::convert::From<&LendPosition> for LendPosition {
+        fn from(value: &LendPosition) -> Self {
+            value.clone()
+        }
+    }
+    impl LendPosition {
+        pub fn builder() -> builder::LendPosition {
+            Default::default()
+        }
+    }
     ///`ListBalancesResponse`
     ///
     /// <details><summary>JSON schema</summary>
@@ -54877,6 +55724,136 @@ pub mod types {
     }
     impl ListFoundationAccountsResponse {
         pub fn builder() -> builder::ListFoundationAccountsResponse {
+            Default::default()
+        }
+    }
+    ///`ListLendPositionsAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ListLendPositionsAddress(::std::string::String);
+    impl ::std::ops::Deref for ListLendPositionsAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ListLendPositionsAddress> for ::std::string::String {
+        fn from(value: ListLendPositionsAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ListLendPositionsAddress> for ListLendPositionsAddress {
+        fn from(value: &ListLendPositionsAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ListLendPositionsAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ListLendPositionsAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ListLendPositionsAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ListLendPositionsAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ListLendPositionsAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`ListLendPositionsResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "description": "Non-zero positions in the vaults discovered for the address, or in the vaults named by `vaultIds`.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "lendPositions"
+    ///      ],
+    ///      "properties": {
+    ///        "lendPositions": {
+    ///          "description": "The lend positions on this page. Empty when no matching positions remain.",
+    ///          "type": "array",
+    ///          "items": {
+    ///            "$ref": "#/components/schemas/LendPosition"
+    ///          }
+    ///        }
+    ///      }
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ListResponse"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ListLendPositionsResponse {
+        ///The lend positions on this page. Empty when no matching positions remain.
+        #[serde(rename = "lendPositions")]
+        pub lend_positions: ::std::vec::Vec<LendPosition>,
+        ///The token for the next page of items, if any.
+        #[serde(
+            rename = "nextPageToken",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub next_page_token: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&ListLendPositionsResponse> for ListLendPositionsResponse {
+        fn from(value: &ListLendPositionsResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl ListLendPositionsResponse {
+        pub fn builder() -> builder::ListLendPositionsResponse {
             Default::default()
         }
     }
@@ -107513,6 +108490,131 @@ pub mod types {
             self.0.fmt(f)
         }
     }
+    ///The result of a vault deposit from an EVM Smart Account after broadcast.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result of a vault deposit from an EVM Smart Account after broadcast.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "userOpHash"
+    ///  ],
+    ///  "properties": {
+    ///    "userOpHash": {
+    ///      "description": "The hash of the user operation executing the deposit, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SmartAccountVaultDepositResponse {
+        ///The hash of the user operation executing the deposit, as a 0x-prefixed hex string.
+        #[serde(rename = "userOpHash")]
+        pub user_op_hash: SmartAccountVaultDepositResponseUserOpHash,
+    }
+    impl ::std::convert::From<&SmartAccountVaultDepositResponse> for SmartAccountVaultDepositResponse {
+        fn from(value: &SmartAccountVaultDepositResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SmartAccountVaultDepositResponse {
+        pub fn builder() -> builder::SmartAccountVaultDepositResponse {
+            Default::default()
+        }
+    }
+    ///The hash of the user operation executing the deposit, as a 0x-prefixed hex string.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the user operation executing the deposit, as a 0x-prefixed hex string.",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SmartAccountVaultDepositResponseUserOpHash(::std::string::String);
+    impl ::std::ops::Deref for SmartAccountVaultDepositResponseUserOpHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SmartAccountVaultDepositResponseUserOpHash> for ::std::string::String {
+        fn from(value: SmartAccountVaultDepositResponseUserOpHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SmartAccountVaultDepositResponseUserOpHash>
+        for SmartAccountVaultDepositResponseUserOpHash
+    {
+        fn from(value: &SmartAccountVaultDepositResponseUserOpHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SmartAccountVaultDepositResponseUserOpHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SmartAccountVaultDepositResponseUserOpHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SmartAccountVaultDepositResponseUserOpHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SmartAccountVaultDepositResponseUserOpHash {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SmartAccountVaultDepositResponseUserOpHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///`SmartAccountVaultRedeemFeesRequest`
     ///
     /// <details><summary>JSON schema</summary>
@@ -107722,6 +108824,135 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for SmartAccountVaultRedeemFeesResponseUserOpHash {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The result of a vault withdrawal from an EVM Smart Account after broadcast.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The result of a vault withdrawal from an EVM Smart Account after broadcast.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "userOpHash"
+    ///  ],
+    ///  "properties": {
+    ///    "userOpHash": {
+    ///      "description": "The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.",
+    ///      "examples": [
+    ///        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SmartAccountVaultWithdrawResponse {
+        ///The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.
+        #[serde(rename = "userOpHash")]
+        pub user_op_hash: SmartAccountVaultWithdrawResponseUserOpHash,
+    }
+    impl ::std::convert::From<&SmartAccountVaultWithdrawResponse>
+        for SmartAccountVaultWithdrawResponse
+    {
+        fn from(value: &SmartAccountVaultWithdrawResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl SmartAccountVaultWithdrawResponse {
+        pub fn builder() -> builder::SmartAccountVaultWithdrawResponse {
+            Default::default()
+        }
+    }
+    ///The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{64}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct SmartAccountVaultWithdrawResponseUserOpHash(::std::string::String);
+    impl ::std::ops::Deref for SmartAccountVaultWithdrawResponseUserOpHash {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SmartAccountVaultWithdrawResponseUserOpHash> for ::std::string::String {
+        fn from(value: SmartAccountVaultWithdrawResponseUserOpHash) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SmartAccountVaultWithdrawResponseUserOpHash>
+        for SmartAccountVaultWithdrawResponseUserOpHash
+    {
+        fn from(value: &SmartAccountVaultWithdrawResponseUserOpHash) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for SmartAccountVaultWithdrawResponseUserOpHash {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{64}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{64}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SmartAccountVaultWithdrawResponseUserOpHash {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for SmartAccountVaultWithdrawResponseUserOpHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for SmartAccountVaultWithdrawResponseUserOpHash
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for SmartAccountVaultWithdrawResponseUserOpHash {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -121089,6 +122320,347 @@ pub mod types {
                 })
         }
     }
+    ///The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. \"25.50\" for 25.50 USDC).",
+    ///  "examples": [
+    ///    "25.50"
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/PositiveDecimal"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultDepositAmount(pub PositiveDecimal);
+    impl ::std::ops::Deref for VaultDepositAmount {
+        type Target = PositiveDecimal;
+        fn deref(&self) -> &PositiveDecimal {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultDepositAmount> for PositiveDecimal {
+        fn from(value: VaultDepositAmount) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultDepositAmount> for VaultDepositAmount {
+        fn from(value: &VaultDepositAmount) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<PositiveDecimal> for VaultDepositAmount {
+        fn from(value: PositiveDecimal) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultDepositAmount {
+        type Err = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultDepositAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultDepositAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultDepositAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultDepositAmount {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. The deposit reverts if the vault's share price moves beyond this bound. A guard of 100 bps (i.e. 1%) is applied when omitted.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. The deposit reverts if the vault's share price moves beyond this bound. A guard of 100 bps (i.e. 1%) is applied when omitted.",
+    ///  "examples": [
+    ///    100
+    ///  ],
+    ///  "type": "integer",
+    ///  "maximum": 9999.0,
+    ///  "minimum": 0.0
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultDepositMaxSlippageBps(pub i64);
+    impl ::std::ops::Deref for VaultDepositMaxSlippageBps {
+        type Target = i64;
+        fn deref(&self) -> &i64 {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultDepositMaxSlippageBps> for i64 {
+        fn from(value: VaultDepositMaxSlippageBps) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultDepositMaxSlippageBps> for VaultDepositMaxSlippageBps {
+        fn from(value: &VaultDepositMaxSlippageBps) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<i64> for VaultDepositMaxSlippageBps {
+        fn from(value: i64) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultDepositMaxSlippageBps {
+        type Err = <i64 as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultDepositMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultDepositMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultDepositMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultDepositMaxSlippageBps {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.",
+    ///  "examples": [
+    ///    "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Url"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultDepositPaymasterUrl(pub Url);
+    impl ::std::ops::Deref for VaultDepositPaymasterUrl {
+        type Target = Url;
+        fn deref(&self) -> &Url {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultDepositPaymasterUrl> for Url {
+        fn from(value: VaultDepositPaymasterUrl) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultDepositPaymasterUrl> for VaultDepositPaymasterUrl {
+        fn from(value: &VaultDepositPaymasterUrl) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<Url> for VaultDepositPaymasterUrl {
+        fn from(value: Url) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultDepositPaymasterUrl {
+        type Err = <Url as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultDepositPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultDepositPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultDepositPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultDepositPaymasterUrl {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///`VaultDepositReceiver`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "$ref": "#/components/schemas/BlockchainAddress"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultDepositReceiver(pub BlockchainAddress);
+    impl ::std::ops::Deref for VaultDepositReceiver {
+        type Target = BlockchainAddress;
+        fn deref(&self) -> &BlockchainAddress {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultDepositReceiver> for BlockchainAddress {
+        fn from(value: VaultDepositReceiver) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultDepositReceiver> for VaultDepositReceiver {
+        fn from(value: &VaultDepositReceiver) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<BlockchainAddress> for VaultDepositReceiver {
+        fn from(value: BlockchainAddress) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultDepositReceiver {
+        type Err = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultDepositReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultDepositReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultDepositReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultDepositReceiver {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to deposit without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to deposit without holding native gas tokens. Cannot be used together with `paymasterUrl`.",
+    ///  "examples": [
+    ///    true
+    ///  ],
+    ///  "type": "boolean"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultDepositUseCdpPaymaster(pub bool);
+    impl ::std::ops::Deref for VaultDepositUseCdpPaymaster {
+        type Target = bool;
+        fn deref(&self) -> &bool {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultDepositUseCdpPaymaster> for bool {
+        fn from(value: VaultDepositUseCdpPaymaster) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultDepositUseCdpPaymaster> for VaultDepositUseCdpPaymaster {
+        fn from(value: &VaultDepositUseCdpPaymaster) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<bool> for VaultDepositUseCdpPaymaster {
+        fn from(value: bool) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultDepositUseCdpPaymaster {
+        type Err = <bool as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultDepositUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultDepositUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultDepositUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultDepositUseCdpPaymaster {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
     ///The 0x-prefixed address that receives the vault's performance fees.
     ///
     /// <details><summary>JSON schema</summary>
@@ -121472,6 +123044,414 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.",
+    ///  "examples": [
+    ///    true
+    ///  ],
+    ///  "type": "boolean"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawAll(pub bool);
+    impl ::std::ops::Deref for VaultWithdrawAll {
+        type Target = bool;
+        fn deref(&self) -> &bool {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawAll> for bool {
+        fn from(value: VaultWithdrawAll) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawAll> for VaultWithdrawAll {
+        fn from(value: &VaultWithdrawAll) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<bool> for VaultWithdrawAll {
+        fn from(value: bool) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawAll {
+        type Err = <bool as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawAll {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawAll {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawAll {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawAll {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. \"25.50\" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.",
+    ///  "examples": [
+    ///    "25.50"
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/PositiveDecimal"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawAmount(pub PositiveDecimal);
+    impl ::std::ops::Deref for VaultWithdrawAmount {
+        type Target = PositiveDecimal;
+        fn deref(&self) -> &PositiveDecimal {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawAmount> for PositiveDecimal {
+        fn from(value: VaultWithdrawAmount) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawAmount> for VaultWithdrawAmount {
+        fn from(value: &VaultWithdrawAmount) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<PositiveDecimal> for VaultWithdrawAmount {
+        fn from(value: PositiveDecimal) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawAmount {
+        type Err = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawAmount {
+        type Error = <PositiveDecimal as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawAmount {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.",
+    ///  "examples": [
+    ///    100
+    ///  ],
+    ///  "type": "integer",
+    ///  "maximum": 9999.0,
+    ///  "minimum": 0.0
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawMaxSlippageBps(pub i64);
+    impl ::std::ops::Deref for VaultWithdrawMaxSlippageBps {
+        type Target = i64;
+        fn deref(&self) -> &i64 {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawMaxSlippageBps> for i64 {
+        fn from(value: VaultWithdrawMaxSlippageBps) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawMaxSlippageBps> for VaultWithdrawMaxSlippageBps {
+        fn from(value: &VaultWithdrawMaxSlippageBps) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<i64> for VaultWithdrawMaxSlippageBps {
+        fn from(value: i64) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawMaxSlippageBps {
+        type Err = <i64 as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawMaxSlippageBps {
+        type Error = <i64 as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawMaxSlippageBps {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.",
+    ///  "examples": [
+    ///    "https://api.developer.coinbase.com/rpc/v1/base/AbCdEf123456"
+    ///  ],
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/Url"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawPaymasterUrl(pub Url);
+    impl ::std::ops::Deref for VaultWithdrawPaymasterUrl {
+        type Target = Url;
+        fn deref(&self) -> &Url {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawPaymasterUrl> for Url {
+        fn from(value: VaultWithdrawPaymasterUrl) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawPaymasterUrl> for VaultWithdrawPaymasterUrl {
+        fn from(value: &VaultWithdrawPaymasterUrl) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<Url> for VaultWithdrawPaymasterUrl {
+        fn from(value: Url) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawPaymasterUrl {
+        type Err = <Url as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawPaymasterUrl {
+        type Error = <Url as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawPaymasterUrl {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///`VaultWithdrawReceiver`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "$ref": "#/components/schemas/BlockchainAddress"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawReceiver(pub BlockchainAddress);
+    impl ::std::ops::Deref for VaultWithdrawReceiver {
+        type Target = BlockchainAddress;
+        fn deref(&self) -> &BlockchainAddress {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawReceiver> for BlockchainAddress {
+        fn from(value: VaultWithdrawReceiver) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawReceiver> for VaultWithdrawReceiver {
+        fn from(value: &VaultWithdrawReceiver) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<BlockchainAddress> for VaultWithdrawReceiver {
+        fn from(value: BlockchainAddress) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawReceiver {
+        type Err = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawReceiver {
+        type Error = <BlockchainAddress as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawReceiver {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+    ///Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to withdraw without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to withdraw without holding native gas tokens. Cannot be used together with `paymasterUrl`.",
+    ///  "examples": [
+    ///    true
+    ///  ],
+    ///  "type": "boolean"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct VaultWithdrawUseCdpPaymaster(pub bool);
+    impl ::std::ops::Deref for VaultWithdrawUseCdpPaymaster {
+        type Target = bool;
+        fn deref(&self) -> &bool {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<VaultWithdrawUseCdpPaymaster> for bool {
+        fn from(value: VaultWithdrawUseCdpPaymaster) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&VaultWithdrawUseCdpPaymaster> for VaultWithdrawUseCdpPaymaster {
+        fn from(value: &VaultWithdrawUseCdpPaymaster) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<bool> for VaultWithdrawUseCdpPaymaster {
+        fn from(value: bool) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for VaultWithdrawUseCdpPaymaster {
+        type Err = <bool as ::std::str::FromStr>::Err;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.parse()?))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for VaultWithdrawUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&String> for VaultWithdrawUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<String> for VaultWithdrawUseCdpPaymaster {
+        type Error = <bool as ::std::str::FromStr>::Err;
+        fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+            value.parse()
+        }
+    }
+    impl ::std::fmt::Display for VaultWithdrawUseCdpPaymaster {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
         }
     }
     ///`VerifyX402PaymentBody`
@@ -128125,6 +130105,524 @@ pub mod types {
     impl WebhookTarget {
         pub fn builder() -> builder::WebhookTarget {
             Default::default()
+        }
+    }
+    /**Fields shared by the API-key requests that withdraw from a vault with an EVM account or an EVM Smart Account. Composed into `WithdrawFromVaultWithEvmAccountRequest` and `WithdrawFromVaultWithEvmSmartAccountRequest`.
+    Provide either `amount` or `withdrawAll: true`. `withdrawAll: false` is treated as omitted. Requests that set both `amount` and `withdrawAll: true`, or neither, are rejected with `invalid_request`.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Fields shared by the API-key requests that withdraw from a vault with an EVM account or an EVM Smart Account. Composed into `WithdrawFromVaultWithEvmAccountRequest` and `WithdrawFromVaultWithEvmSmartAccountRequest`.\nProvide either `amount` or `withdrawAll: true`. `withdrawAll: false` is treated as omitted. Requests that set both `amount` and `withdrawAll: true`, or neither, are rejected with `invalid_request`.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "vaultId"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "$ref": "#/components/schemas/VaultWithdrawAmount"
+    ///    },
+    ///    "maxSlippageBps": {
+    ///      "$ref": "#/components/schemas/VaultWithdrawMaxSlippageBps"
+    ///    },
+    ///    "receiver": {
+    ///      "$ref": "#/components/schemas/VaultWithdrawReceiver"
+    ///    },
+    ///    "vaultId": {
+    ///      "$ref": "#/components/schemas/VaultId"
+    ///    },
+    ///    "withdrawAll": {
+    ///      "$ref": "#/components/schemas/VaultWithdrawAll"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WithdrawFromVaultBaseRequest {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub amount: ::std::option::Option<VaultWithdrawAmount>,
+        #[serde(
+            rename = "maxSlippageBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub max_slippage_bps: ::std::option::Option<VaultWithdrawMaxSlippageBps>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub receiver: ::std::option::Option<VaultWithdrawReceiver>,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+        #[serde(
+            rename = "withdrawAll",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub withdraw_all: ::std::option::Option<VaultWithdrawAll>,
+    }
+    impl ::std::convert::From<&WithdrawFromVaultBaseRequest> for WithdrawFromVaultBaseRequest {
+        fn from(value: &WithdrawFromVaultBaseRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl WithdrawFromVaultBaseRequest {
+        pub fn builder() -> builder::WithdrawFromVaultBaseRequest {
+            Default::default()
+        }
+    }
+    ///`WithdrawFromVaultWithEvmAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WithdrawFromVaultWithEvmAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for WithdrawFromVaultWithEvmAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultWithEvmAccountAddress> for ::std::string::String {
+        fn from(value: WithdrawFromVaultWithEvmAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmAccountAddress>
+        for WithdrawFromVaultWithEvmAccountAddress
+    {
+        fn from(value: &WithdrawFromVaultWithEvmAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WithdrawFromVaultWithEvmAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WithdrawFromVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for WithdrawFromVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for WithdrawFromVaultWithEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WithdrawFromVaultWithEvmAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`WithdrawFromVaultWithEvmAccountRequest`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "$ref": "#/components/schemas/WithdrawFromVaultBaseRequest"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct WithdrawFromVaultWithEvmAccountRequest(pub WithdrawFromVaultBaseRequest);
+    impl ::std::ops::Deref for WithdrawFromVaultWithEvmAccountRequest {
+        type Target = WithdrawFromVaultBaseRequest;
+        fn deref(&self) -> &WithdrawFromVaultBaseRequest {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultWithEvmAccountRequest> for WithdrawFromVaultBaseRequest {
+        fn from(value: WithdrawFromVaultWithEvmAccountRequest) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmAccountRequest>
+        for WithdrawFromVaultWithEvmAccountRequest
+    {
+        fn from(value: &WithdrawFromVaultWithEvmAccountRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultBaseRequest> for WithdrawFromVaultWithEvmAccountRequest {
+        fn from(value: WithdrawFromVaultBaseRequest) -> Self {
+            Self(value)
+        }
+    }
+    ///`WithdrawFromVaultWithEvmAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WithdrawFromVaultWithEvmAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for WithdrawFromVaultWithEvmAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultWithEvmAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: WithdrawFromVaultWithEvmAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmAccountXIdempotencyKey>
+        for WithdrawFromVaultWithEvmAccountXIdempotencyKey
+    {
+        fn from(value: &WithdrawFromVaultWithEvmAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WithdrawFromVaultWithEvmAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WithdrawFromVaultWithEvmAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WithdrawFromVaultWithEvmAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WithdrawFromVaultWithEvmAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WithdrawFromVaultWithEvmAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`WithdrawFromVaultWithEvmSmartAccountAddress`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WithdrawFromVaultWithEvmSmartAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for WithdrawFromVaultWithEvmSmartAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultWithEvmSmartAccountAddress> for ::std::string::String {
+        fn from(value: WithdrawFromVaultWithEvmSmartAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmSmartAccountAddress>
+        for WithdrawFromVaultWithEvmSmartAccountAddress
+    {
+        fn from(value: &WithdrawFromVaultWithEvmSmartAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WithdrawFromVaultWithEvmSmartAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WithdrawFromVaultWithEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WithdrawFromVaultWithEvmSmartAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WithdrawFromVaultWithEvmSmartAccountAddress
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WithdrawFromVaultWithEvmSmartAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///`WithdrawFromVaultWithEvmSmartAccountRequest`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "allOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/WithdrawFromVaultBaseRequest"
+    ///    },
+    ///    {
+    ///      "description": "A request to withdraw the vault's underlying asset (e.g. USDC) from a vault position held by an EVM Smart Account. The share approval and withdrawal are batched into a single user operation.",
+    ///      "examples": [
+    ///        {
+    ///          "useCdpPaymaster": true,
+    ///          "vaultId": "vault_019f5f10-096a-7a23-86df-f479650d813f",
+    ///          "withdrawAll": true
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "properties": {
+    ///        "paymasterContext": {
+    ///          "$ref": "#/components/schemas/PaymasterContext"
+    ///        },
+    ///        "paymasterUrl": {
+    ///          "$ref": "#/components/schemas/VaultWithdrawPaymasterUrl"
+    ///        },
+    ///        "useCdpPaymaster": {
+    ///          "$ref": "#/components/schemas/VaultWithdrawUseCdpPaymaster"
+    ///        }
+    ///      }
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct WithdrawFromVaultWithEvmSmartAccountRequest {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub amount: ::std::option::Option<VaultWithdrawAmount>,
+        #[serde(
+            rename = "maxSlippageBps",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub max_slippage_bps: ::std::option::Option<VaultWithdrawMaxSlippageBps>,
+        #[serde(
+            rename = "paymasterContext",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_context: ::std::option::Option<PaymasterContext>,
+        #[serde(
+            rename = "paymasterUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub paymaster_url: ::std::option::Option<VaultWithdrawPaymasterUrl>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub receiver: ::std::option::Option<VaultWithdrawReceiver>,
+        #[serde(
+            rename = "useCdpPaymaster",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub use_cdp_paymaster: ::std::option::Option<VaultWithdrawUseCdpPaymaster>,
+        #[serde(rename = "vaultId")]
+        pub vault_id: VaultId,
+        #[serde(
+            rename = "withdrawAll",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub withdraw_all: ::std::option::Option<VaultWithdrawAll>,
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmSmartAccountRequest>
+        for WithdrawFromVaultWithEvmSmartAccountRequest
+    {
+        fn from(value: &WithdrawFromVaultWithEvmSmartAccountRequest) -> Self {
+            value.clone()
+        }
+    }
+    impl WithdrawFromVaultWithEvmSmartAccountRequest {
+        pub fn builder() -> builder::WithdrawFromVaultWithEvmSmartAccountRequest {
+            Default::default()
+        }
+    }
+    ///`WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "string",
+    ///  "maxLength": 128,
+    ///  "minLength": 1
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey(::std::string::String);
+    impl ::std::ops::Deref for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey>
+        for ::std::string::String
+    {
+        fn from(value: WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey>
+        for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        fn from(value: &WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 128usize {
+                return Err("longer than 128 characters".into());
+            }
+            if value.chars().count() < 1usize {
+                return Err("shorter than 1 characters".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String>
+        for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String>
+        for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey
+    {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///Immutable configuration for an x402 batch-settlement payment channel. The EIP-712 hash of this struct produces the `channelId` used by all batch-settlement payloads.
@@ -155344,6 +157842,312 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct DepositToVaultBaseRequest {
+            amount: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositAmount>,
+                ::std::string::String,
+            >,
+            receiver: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositReceiver>,
+                ::std::string::String,
+            >,
+            vault_id:
+                ::std::result::Result<::std::option::Option<super::VaultId>, ::std::string::String>,
+        }
+        impl ::std::default::Default for DepositToVaultBaseRequest {
+            fn default() -> Self {
+                Self {
+                    amount: Ok(Default::default()),
+                    receiver: Ok(Default::default()),
+                    vault_id: Ok(Default::default()),
+                }
+            }
+        }
+        impl DepositToVaultBaseRequest {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultDepositAmount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn receiver<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultDepositReceiver>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.receiver = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for receiver: {}", e));
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultId>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<DepositToVaultBaseRequest> for super::DepositToVaultBaseRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: DepositToVaultBaseRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    receiver: value.receiver?,
+                    vault_id: value.vault_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::DepositToVaultBaseRequest> for DepositToVaultBaseRequest {
+            fn from(value: super::DepositToVaultBaseRequest) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    receiver: Ok(value.receiver),
+                    vault_id: Ok(value.vault_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct DepositToVaultWithEvmAccountRequest {
+            amount: ::std::result::Result<super::VaultDepositAmount, ::std::string::String>,
+            max_slippage_bps: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositMaxSlippageBps>,
+                ::std::string::String,
+            >,
+            receiver: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositReceiver>,
+                ::std::string::String,
+            >,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+        }
+        impl ::std::default::Default for DepositToVaultWithEvmAccountRequest {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    max_slippage_bps: Ok(Default::default()),
+                    receiver: Ok(Default::default()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                }
+            }
+        }
+        impl DepositToVaultWithEvmAccountRequest {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultDepositAmount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn max_slippage_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::VaultDepositMaxSlippageBps>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_slippage_bps = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_slippage_bps: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn receiver<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultDepositReceiver>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.receiver = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for receiver: {}", e));
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<DepositToVaultWithEvmAccountRequest>
+            for super::DepositToVaultWithEvmAccountRequest
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: DepositToVaultWithEvmAccountRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    max_slippage_bps: value.max_slippage_bps?,
+                    receiver: value.receiver?,
+                    vault_id: value.vault_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::DepositToVaultWithEvmAccountRequest>
+            for DepositToVaultWithEvmAccountRequest
+        {
+            fn from(value: super::DepositToVaultWithEvmAccountRequest) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    max_slippage_bps: Ok(value.max_slippage_bps),
+                    receiver: Ok(value.receiver),
+                    vault_id: Ok(value.vault_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct DepositToVaultWithEvmSmartAccountRequest {
+            amount: ::std::result::Result<super::VaultDepositAmount, ::std::string::String>,
+            paymaster_context: ::std::result::Result<
+                ::std::option::Option<super::PaymasterContext>,
+                ::std::string::String,
+            >,
+            paymaster_url: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositPaymasterUrl>,
+                ::std::string::String,
+            >,
+            receiver: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositReceiver>,
+                ::std::string::String,
+            >,
+            use_cdp_paymaster: ::std::result::Result<
+                ::std::option::Option<super::VaultDepositUseCdpPaymaster>,
+                ::std::string::String,
+            >,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+        }
+        impl ::std::default::Default for DepositToVaultWithEvmSmartAccountRequest {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    paymaster_context: Ok(Default::default()),
+                    paymaster_url: Ok(Default::default()),
+                    receiver: Ok(Default::default()),
+                    use_cdp_paymaster: Ok(Default::default()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                }
+            }
+        }
+        impl DepositToVaultWithEvmSmartAccountRequest {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultDepositAmount>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn paymaster_context<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymasterContext>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_context = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for paymaster_context: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultDepositPaymasterUrl>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn receiver<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultDepositReceiver>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.receiver = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for receiver: {}", e));
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::VaultDepositUseCdpPaymaster>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<DepositToVaultWithEvmSmartAccountRequest>
+            for super::DepositToVaultWithEvmSmartAccountRequest
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: DepositToVaultWithEvmSmartAccountRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    paymaster_context: value.paymaster_context?,
+                    paymaster_url: value.paymaster_url?,
+                    receiver: value.receiver?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    vault_id: value.vault_id?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::DepositToVaultWithEvmSmartAccountRequest>
+            for DepositToVaultWithEvmSmartAccountRequest
+        {
+            fn from(value: super::DepositToVaultWithEvmSmartAccountRequest) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    paymaster_context: Ok(value.paymaster_context),
+                    paymaster_url: Ok(value.paymaster_url),
+                    receiver: Ok(value.receiver),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    vault_id: Ok(value.vault_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct DepositTravelRuleBeneficiary {
             name: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
@@ -157410,6 +160214,52 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct EoaVaultDepositResponse {
+            transaction_hash: ::std::result::Result<
+                super::EoaVaultDepositResponseTransactionHash,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EoaVaultDepositResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_hash: Err("no value supplied for transaction_hash".to_string()),
+                }
+            }
+        }
+        impl EoaVaultDepositResponse {
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EoaVaultDepositResponseTransactionHash>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EoaVaultDepositResponse> for super::EoaVaultDepositResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EoaVaultDepositResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_hash: value.transaction_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EoaVaultDepositResponse> for EoaVaultDepositResponse {
+            fn from(value: super::EoaVaultDepositResponse) -> Self {
+                Self {
+                    transaction_hash: Ok(value.transaction_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct EoaVaultRedeemFeesResponse {
             transaction_hash: ::std::result::Result<
                 super::EoaVaultRedeemFeesResponseTransactionHash,
@@ -157450,6 +160300,52 @@ pub mod types {
         }
         impl ::std::convert::From<super::EoaVaultRedeemFeesResponse> for EoaVaultRedeemFeesResponse {
             fn from(value: super::EoaVaultRedeemFeesResponse) -> Self {
+                Self {
+                    transaction_hash: Ok(value.transaction_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EoaVaultWithdrawResponse {
+            transaction_hash: ::std::result::Result<
+                super::EoaVaultWithdrawResponseTransactionHash,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EoaVaultWithdrawResponse {
+            fn default() -> Self {
+                Self {
+                    transaction_hash: Err("no value supplied for transaction_hash".to_string()),
+                }
+            }
+        }
+        impl EoaVaultWithdrawResponse {
+            pub fn transaction_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EoaVaultWithdrawResponseTransactionHash>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction_hash = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for transaction_hash: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EoaVaultWithdrawResponse> for super::EoaVaultWithdrawResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EoaVaultWithdrawResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction_hash: value.transaction_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EoaVaultWithdrawResponse> for EoaVaultWithdrawResponse {
+            fn from(value: super::EoaVaultWithdrawResponse) -> Self {
                 Self {
                     transaction_hash: Ok(value.transaction_hash),
                 }
@@ -164098,6 +166994,105 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct LendPosition {
+            asset_balance: ::std::result::Result<super::NonNegativeDecimal, ::std::string::String>,
+            network: ::std::result::Result<super::LendNetwork, ::std::string::String>,
+            underlying_asset: ::std::result::Result<super::Asset, ::std::string::String>,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+            vault_shares: ::std::result::Result<super::NonNegativeDecimal, ::std::string::String>,
+        }
+        impl ::std::default::Default for LendPosition {
+            fn default() -> Self {
+                Self {
+                    asset_balance: Err("no value supplied for asset_balance".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    underlying_asset: Err("no value supplied for underlying_asset".to_string()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                    vault_shares: Err("no value supplied for vault_shares".to_string()),
+                }
+            }
+        }
+        impl LendPosition {
+            pub fn asset_balance<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::NonNegativeDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset_balance = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for asset_balance: {}", e)
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::LendNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn underlying_asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Asset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.underlying_asset = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for underlying_asset: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+            pub fn vault_shares<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::NonNegativeDecimal>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_shares = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for vault_shares: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<LendPosition> for super::LendPosition {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: LendPosition,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    asset_balance: value.asset_balance?,
+                    network: value.network?,
+                    underlying_asset: value.underlying_asset?,
+                    vault_id: value.vault_id?,
+                    vault_shares: value.vault_shares?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::LendPosition> for LendPosition {
+            fn from(value: super::LendPosition) -> Self {
+                Self {
+                    asset_balance: Ok(value.asset_balance),
+                    network: Ok(value.network),
+                    underlying_asset: Ok(value.underlying_asset),
+                    vault_id: Ok(value.vault_id),
+                    vault_shares: Ok(value.vault_shares),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct ListBalancesResponse {
             balances: ::std::result::Result<::std::vec::Vec<super::Balance>, ::std::string::String>,
             next_page_token: ::std::result::Result<
@@ -164817,6 +167812,64 @@ pub mod types {
             fn from(value: super::ListFoundationAccountsResponse) -> Self {
                 Self {
                     accounts: Ok(value.accounts),
+                    next_page_token: Ok(value.next_page_token),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ListLendPositionsResponse {
+            lend_positions:
+                ::std::result::Result<::std::vec::Vec<super::LendPosition>, ::std::string::String>,
+            next_page_token: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for ListLendPositionsResponse {
+            fn default() -> Self {
+                Self {
+                    lend_positions: Err("no value supplied for lend_positions".to_string()),
+                    next_page_token: Ok(Default::default()),
+                }
+            }
+        }
+        impl ListLendPositionsResponse {
+            pub fn lend_positions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::LendPosition>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.lend_positions = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for lend_positions: {}", e)
+                });
+                self
+            }
+            pub fn next_page_token<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.next_page_token = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for next_page_token: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ListLendPositionsResponse> for super::ListLendPositionsResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ListLendPositionsResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    lend_positions: value.lend_positions?,
+                    next_page_token: value.next_page_token?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ListLendPositionsResponse> for ListLendPositionsResponse {
+            fn from(value: super::ListLendPositionsResponse) -> Self {
+                Self {
+                    lend_positions: Ok(value.lend_positions),
                     next_page_token: Ok(value.next_page_token),
                 }
             }
@@ -184624,6 +187677,53 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SmartAccountVaultDepositResponse {
+            user_op_hash: ::std::result::Result<
+                super::SmartAccountVaultDepositResponseUserOpHash,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SmartAccountVaultDepositResponse {
+            fn default() -> Self {
+                Self {
+                    user_op_hash: Err("no value supplied for user_op_hash".to_string()),
+                }
+            }
+        }
+        impl SmartAccountVaultDepositResponse {
+            pub fn user_op_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SmartAccountVaultDepositResponseUserOpHash>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_op_hash = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for user_op_hash: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SmartAccountVaultDepositResponse>
+            for super::SmartAccountVaultDepositResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SmartAccountVaultDepositResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    user_op_hash: value.user_op_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SmartAccountVaultDepositResponse>
+            for SmartAccountVaultDepositResponse
+        {
+            fn from(value: super::SmartAccountVaultDepositResponse) -> Self {
+                Self {
+                    user_op_hash: Ok(value.user_op_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SmartAccountVaultRedeemFeesRequest {
             max_slippage_bps:
                 ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
@@ -184780,6 +187880,53 @@ pub mod types {
             for SmartAccountVaultRedeemFeesResponse
         {
             fn from(value: super::SmartAccountVaultRedeemFeesResponse) -> Self {
+                Self {
+                    user_op_hash: Ok(value.user_op_hash),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SmartAccountVaultWithdrawResponse {
+            user_op_hash: ::std::result::Result<
+                super::SmartAccountVaultWithdrawResponseUserOpHash,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for SmartAccountVaultWithdrawResponse {
+            fn default() -> Self {
+                Self {
+                    user_op_hash: Err("no value supplied for user_op_hash".to_string()),
+                }
+            }
+        }
+        impl SmartAccountVaultWithdrawResponse {
+            pub fn user_op_hash<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SmartAccountVaultWithdrawResponseUserOpHash>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.user_op_hash = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for user_op_hash: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SmartAccountVaultWithdrawResponse>
+            for super::SmartAccountVaultWithdrawResponse
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SmartAccountVaultWithdrawResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    user_op_hash: value.user_op_hash?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SmartAccountVaultWithdrawResponse>
+            for SmartAccountVaultWithdrawResponse
+        {
+            fn from(value: super::SmartAccountVaultWithdrawResponse) -> Self {
                 Self {
                     user_op_hash: Ok(value.user_op_hash),
                 }
@@ -194533,6 +197680,295 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct WithdrawFromVaultBaseRequest {
+            amount: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawAmount>,
+                ::std::string::String,
+            >,
+            max_slippage_bps: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawMaxSlippageBps>,
+                ::std::string::String,
+            >,
+            receiver: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawReceiver>,
+                ::std::string::String,
+            >,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+            withdraw_all: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawAll>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WithdrawFromVaultBaseRequest {
+            fn default() -> Self {
+                Self {
+                    amount: Ok(Default::default()),
+                    max_slippage_bps: Ok(Default::default()),
+                    receiver: Ok(Default::default()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                    withdraw_all: Ok(Default::default()),
+                }
+            }
+        }
+        impl WithdrawFromVaultBaseRequest {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawAmount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn max_slippage_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::VaultWithdrawMaxSlippageBps>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_slippage_bps = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_slippage_bps: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn receiver<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawReceiver>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.receiver = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for receiver: {}", e));
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+            pub fn withdraw_all<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawAll>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.withdraw_all = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for withdraw_all: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WithdrawFromVaultBaseRequest> for super::WithdrawFromVaultBaseRequest {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WithdrawFromVaultBaseRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    max_slippage_bps: value.max_slippage_bps?,
+                    receiver: value.receiver?,
+                    vault_id: value.vault_id?,
+                    withdraw_all: value.withdraw_all?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WithdrawFromVaultBaseRequest> for WithdrawFromVaultBaseRequest {
+            fn from(value: super::WithdrawFromVaultBaseRequest) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    max_slippage_bps: Ok(value.max_slippage_bps),
+                    receiver: Ok(value.receiver),
+                    vault_id: Ok(value.vault_id),
+                    withdraw_all: Ok(value.withdraw_all),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct WithdrawFromVaultWithEvmSmartAccountRequest {
+            amount: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawAmount>,
+                ::std::string::String,
+            >,
+            max_slippage_bps: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawMaxSlippageBps>,
+                ::std::string::String,
+            >,
+            paymaster_context: ::std::result::Result<
+                ::std::option::Option<super::PaymasterContext>,
+                ::std::string::String,
+            >,
+            paymaster_url: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawPaymasterUrl>,
+                ::std::string::String,
+            >,
+            receiver: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawReceiver>,
+                ::std::string::String,
+            >,
+            use_cdp_paymaster: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawUseCdpPaymaster>,
+                ::std::string::String,
+            >,
+            vault_id: ::std::result::Result<super::VaultId, ::std::string::String>,
+            withdraw_all: ::std::result::Result<
+                ::std::option::Option<super::VaultWithdrawAll>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for WithdrawFromVaultWithEvmSmartAccountRequest {
+            fn default() -> Self {
+                Self {
+                    amount: Ok(Default::default()),
+                    max_slippage_bps: Ok(Default::default()),
+                    paymaster_context: Ok(Default::default()),
+                    paymaster_url: Ok(Default::default()),
+                    receiver: Ok(Default::default()),
+                    use_cdp_paymaster: Ok(Default::default()),
+                    vault_id: Err("no value supplied for vault_id".to_string()),
+                    withdraw_all: Ok(Default::default()),
+                }
+            }
+        }
+        impl WithdrawFromVaultWithEvmSmartAccountRequest {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawAmount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn max_slippage_bps<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::VaultWithdrawMaxSlippageBps>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_slippage_bps = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_slippage_bps: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_context<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::PaymasterContext>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_context = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for paymaster_context: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn paymaster_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawPaymasterUrl>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.paymaster_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for paymaster_url: {}", e)
+                });
+                self
+            }
+            pub fn receiver<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawReceiver>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.receiver = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for receiver: {}", e));
+                self
+            }
+            pub fn use_cdp_paymaster<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::VaultWithdrawUseCdpPaymaster>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.use_cdp_paymaster = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for use_cdp_paymaster: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn vault_id<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::VaultId>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.vault_id = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for vault_id: {}", e));
+                self
+            }
+            pub fn withdraw_all<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::VaultWithdrawAll>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.withdraw_all = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for withdraw_all: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<WithdrawFromVaultWithEvmSmartAccountRequest>
+            for super::WithdrawFromVaultWithEvmSmartAccountRequest
+        {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: WithdrawFromVaultWithEvmSmartAccountRequest,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    max_slippage_bps: value.max_slippage_bps?,
+                    paymaster_context: value.paymaster_context?,
+                    paymaster_url: value.paymaster_url?,
+                    receiver: value.receiver?,
+                    use_cdp_paymaster: value.use_cdp_paymaster?,
+                    vault_id: value.vault_id?,
+                    withdraw_all: value.withdraw_all?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::WithdrawFromVaultWithEvmSmartAccountRequest>
+            for WithdrawFromVaultWithEvmSmartAccountRequest
+        {
+            fn from(value: super::WithdrawFromVaultWithEvmSmartAccountRequest) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    max_slippage_bps: Ok(value.max_slippage_bps),
+                    paymaster_context: Ok(value.paymaster_context),
+                    paymaster_url: Ok(value.paymaster_url),
+                    receiver: Ok(value.receiver),
+                    use_cdp_paymaster: Ok(value.use_cdp_paymaster),
+                    vault_id: Ok(value.vault_id),
+                    withdraw_all: Ok(value.withdraw_all),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402BatchSettlementChannelConfig {
             payer: ::std::result::Result<
                 super::X402BatchSettlementChannelConfigPayer,
@@ -201641,6 +205077,37 @@ impl Client {
     pub fn export_evm_account(&self) -> builder::ExportEvmAccount<'_> {
         builder::ExportEvmAccount::new(self)
     }
+    /**Deposit into a vault with an EVM account
+
+    Deposits the vault's underlying asset (e.g. USDC) from an EVM account into a vault. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction. The transaction hash is returned in the response.
+    For deposits from EVM Smart Accounts, use `depositToVaultWithEvmSmartAccount` instead.
+    The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50") in the standard unit denomination of the vault's underlying asset.
+
+    Sends a `POST` request to `/v2/evm/accounts/{address}/lend/deposit`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM account to deposit from.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.deposit_to_vault_with_evm_account()
+        .address(address)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn deposit_to_vault_with_evm_account(&self) -> builder::DepositToVaultWithEvmAccount<'_> {
+        builder::DepositToVaultWithEvmAccount::new(self)
+    }
     /**Redeem vault fees with an EVM account
 
     Redeems every vault share held by the vault's fee recipient EVM account for the vault's underlying asset (e.g. USDC). The account must be the vault's fee recipient.
@@ -201672,6 +205139,39 @@ impl Client {
     ```*/
     pub fn redeem_vault_fees_with_evm_account(&self) -> builder::RedeemVaultFeesWithEvmAccount<'_> {
         builder::RedeemVaultFeesWithEvmAccount::new(self)
+    }
+    /**Withdraw from a vault with an EVM account
+
+    Withdraws the vault's underlying asset (e.g. USDC) from an EVM account's position in a vault. The account signs an EIP-2612 permit over its vault shares authorizing the withdrawal, and the share approval and withdrawal are executed in a single transaction. The transaction hash is returned in the response.
+    For withdrawals from EVM Smart Accounts, use `withdrawFromVaultWithEvmSmartAccount` instead.
+    Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+    Sends a `POST` request to `/v2/evm/accounts/{address}/lend/withdraw`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM account to withdraw from.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.withdraw_from_vault_with_evm_account()
+        .address(address)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn withdraw_from_vault_with_evm_account(
+        &self,
+    ) -> builder::WithdrawFromVaultWithEvmAccount<'_> {
+        builder::WithdrawFromVaultWithEvmAccount::new(self)
     }
     /**Send transaction
 
@@ -201991,6 +205491,41 @@ impl Client {
     pub fn update_evm_smart_account(&self) -> builder::UpdateEvmSmartAccount<'_> {
         builder::UpdateEvmSmartAccount::new(self)
     }
+    /**Deposit into a vault with an EVM Smart Account
+
+    Deposits the vault's underlying asset (e.g. USDC) from an EVM Smart Account into a vault. The Smart Account's owner must be a CDP EVM account. The token approval and deposit are batched into a single user operation, whose hash is returned in `userOpHash`.
+    Because the approval and deposit execute atomically in a single user operation, no share-price guard is required.
+    Poll `getUserOperation` until the user operation reaches a terminal status.
+    For deposits from EVM accounts, use `depositToVaultWithEvmAccount` instead.
+    The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50") in the standard unit denomination of the vault's underlying asset.
+
+    Sends a `POST` request to `/v2/evm/smart-accounts/{address}/lend/deposit`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM Smart Account to deposit from.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.deposit_to_vault_with_evm_smart_account()
+        .address(address)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn deposit_to_vault_with_evm_smart_account(
+        &self,
+    ) -> builder::DepositToVaultWithEvmSmartAccount<'_> {
+        builder::DepositToVaultWithEvmSmartAccount::new(self)
+    }
     /**Redeem vault fees with an EVM Smart Account
 
     Redeems every vault share held by the vault's fee recipient EVM Smart Account for the vault's underlying asset (e.g. USDC). The Smart Account must be the vault's fee recipient, and its owner must be a CDP EVM account.
@@ -202024,6 +205559,41 @@ impl Client {
         &self,
     ) -> builder::RedeemVaultFeesWithEvmSmartAccount<'_> {
         builder::RedeemVaultFeesWithEvmSmartAccount::new(self)
+    }
+    /**Withdraw from a vault with an EVM Smart Account
+
+    Withdraws the vault's underlying asset (e.g. USDC) from an EVM Smart Account's position in a vault. The Smart Account's owner must be a CDP EVM account. The share approval and withdrawal are batched into a single user operation, whose hash is returned in `userOpHash`.
+    The withdrawal reverts if the vault's share price moves beyond `maxSlippageBps` before the user operation is included onchain.
+    Poll `getUserOperation` until the user operation reaches a terminal status.
+    For withdrawals from EVM accounts, use `withdrawFromVaultWithEvmAccount` instead.
+    Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., "1.5", "25.50") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+    Sends a `POST` request to `/v2/evm/smart-accounts/{address}/lend/withdraw`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM Smart Account to withdraw from.
+    - `x_idempotency_key`: An optional string request header for making requests safely retryable.
+    When included, duplicate requests with the same key will return identical responses.
+    Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+
+    - `x_wallet_auth`: A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+    [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+    section of our Authentication docs for more details on how to generate your Wallet Token.
+
+    - `body`
+    ```ignore
+    let response = client.withdraw_from_vault_with_evm_smart_account()
+        .address(address)
+        .x_idempotency_key(x_idempotency_key)
+        .x_wallet_auth(x_wallet_auth)
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn withdraw_from_vault_with_evm_smart_account(
+        &self,
+    ) -> builder::WithdrawFromVaultWithEvmSmartAccount<'_> {
+        builder::WithdrawFromVaultWithEvmSmartAccount::new(self)
     }
     /**Create spend permission
 
@@ -202270,9 +205840,34 @@ impl Client {
     pub fn list_evm_token_balances(&self) -> builder::ListEvmTokenBalances<'_> {
         builder::ListEvmTokenBalances::new(self)
     }
+    /**List lend positions
+
+    Lists non-zero lend positions for an EVM account or EVM Smart Account in the project. Each position reports the account's vault share balance and its current value in the vault's underlying asset.
+    When `vaultIds` is omitted, only vaults where the address received shares through a Lend deposit are listed. Shares received any other way are not discovered, including transfers, deposits made outside the Lend deposit APIs, and fee shares CDP distributes to a vault's fee recipient, so an empty list does not mean the address holds no shares. Supply `vaultIds` to read specific project-owned vaults.
+    Positions are ordered by vault ID. `pageSize` defaults to 20 and must be between 1 and 100. Keep the address and vault filter unchanged when following `nextPageToken`. Each page fetches fresh balances, so positions and balances may change between page requests as deposits, withdrawals, or yield accrual occur.
+
+    Sends a `GET` request to `/v2/lend/positions`
+
+    Arguments:
+    - `address`: The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for.
+    - `page_size`: The number of resources to return per page.
+    - `page_token`: The token for the next page of resources, if any.
+    - `vault_ids`: Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.
+    ```ignore
+    let response = client.list_lend_positions()
+        .address(address)
+        .page_size(page_size)
+        .page_token(page_token)
+        .vault_ids(vault_ids)
+        .send()
+        .await;
+    ```*/
+    pub fn list_lend_positions(&self) -> builder::ListLendPositions<'_> {
+        builder::ListLendPositions::new(self)
+    }
     /**List vaults
 
-    Lists the vaults created by the project in the CDP Portal. Use `pageSize` and `pageToken` to page through the results. Each vault includes its current metrics, when a metrics snapshot has been observed for it.
+    Lists the vaults created by the project. Use `pageSize` and `pageToken` to page through the results. Each vault includes its current metrics, when a metrics snapshot has been observed for it.
 
     Sends a `GET` request to `/v2/lend/vaults`
 
@@ -202291,7 +205886,7 @@ impl Client {
     }
     /**Get a vault
 
-    Retrieves a vault created by the project in the CDP Portal, including its current metrics such as APY and TVL.
+    Retrieves a vault created by the project, including its current metrics such as APY and TVL.
 
     Sends a `GET` request to `/v2/lend/vaults/{vaultId}`
 
@@ -214234,6 +217829,170 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::deposit_to_vault_with_evm_account`]
+
+    [`Client::deposit_to_vault_with_evm_account`]: super::Client::deposit_to_vault_with_evm_account*/
+    #[derive(Debug, Clone)]
+    pub struct DepositToVaultWithEvmAccount<'a> {
+        client: &'a super::Client,
+        address: Result<types::DepositToVaultWithEvmAccountAddress, String>,
+        x_idempotency_key:
+            Result<Option<types::DepositToVaultWithEvmAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::DepositToVaultWithEvmAccountRequest, String>,
+    }
+    impl<'a> DepositToVaultWithEvmAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `DepositToVaultWithEvmAccountAddress` for address failed".to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `DepositToVaultWithEvmAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmAccountRequest>,
+            <V as std::convert::TryInto<types::DepositToVaultWithEvmAccountRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `DepositToVaultWithEvmAccountRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::DepositToVaultWithEvmAccountRequest,
+            ) -> types::builder::DepositToVaultWithEvmAccountRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/evm/accounts/{address}/lend/deposit`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EoaVaultDepositResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                address,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::DepositToVaultWithEvmAccountRequest::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/accounts/{}/lend/deposit",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "deposit_to_vault_with_evm_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::redeem_vault_fees_with_evm_account`]
 
     [`Client::redeem_vault_fees_with_evm_account`]: super::Client::redeem_vault_fees_with_evm_account*/
@@ -214339,6 +218098,152 @@ pub mod builder {
                 .build()?;
             let info = OperationInfo {
                 operation_id: "redeem_vault_fees_with_evm_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::withdraw_from_vault_with_evm_account`]
+
+    [`Client::withdraw_from_vault_with_evm_account`]: super::Client::withdraw_from_vault_with_evm_account*/
+    #[derive(Debug, Clone)]
+    pub struct WithdrawFromVaultWithEvmAccount<'a> {
+        client: &'a super::Client,
+        address: Result<types::WithdrawFromVaultWithEvmAccountAddress, String>,
+        x_idempotency_key:
+            Result<Option<types::WithdrawFromVaultWithEvmAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::WithdrawFromVaultWithEvmAccountRequest, String>,
+    }
+    impl<'a> WithdrawFromVaultWithEvmAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Err("body was not initialized".to_string()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `WithdrawFromVaultWithEvmAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `WithdrawFromVaultWithEvmAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmAccountRequest>,
+        {
+            self.body = value.try_into().map_err(|_| {
+                "conversion to `WithdrawFromVaultWithEvmAccountRequest` for body failed".to_string()
+            });
+            self
+        }
+        ///Sends a `POST` request to `/v2/evm/accounts/{address}/lend/withdraw`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::EoaVaultWithdrawResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                address,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body.map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/accounts/{}/lend/withdraw",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "withdraw_from_vault_with_evm_account",
             };
             client.pre(&mut request, &info).await?;
             let result = client.exec(request, &info).await;
@@ -215793,6 +219698,173 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`Client::deposit_to_vault_with_evm_smart_account`]
+
+    [`Client::deposit_to_vault_with_evm_smart_account`]: super::Client::deposit_to_vault_with_evm_smart_account*/
+    #[derive(Debug, Clone)]
+    pub struct DepositToVaultWithEvmSmartAccount<'a> {
+        client: &'a super::Client,
+        address: Result<types::DepositToVaultWithEvmSmartAccountAddress, String>,
+        x_idempotency_key:
+            Result<Option<types::DepositToVaultWithEvmSmartAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::DepositToVaultWithEvmSmartAccountRequest, String>,
+    }
+    impl<'a> DepositToVaultWithEvmSmartAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmSmartAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `DepositToVaultWithEvmSmartAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmSmartAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `DepositToVaultWithEvmSmartAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::DepositToVaultWithEvmSmartAccountRequest>,
+            <V as std::convert::TryInto<types::DepositToVaultWithEvmSmartAccountRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `DepositToVaultWithEvmSmartAccountRequest` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::DepositToVaultWithEvmSmartAccountRequest,
+            )
+                -> types::builder::DepositToVaultWithEvmSmartAccountRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/evm/smart-accounts/{address}/lend/deposit`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::SmartAccountVaultDepositResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                address,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::DepositToVaultWithEvmSmartAccountRequest::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/smart-accounts/{}/lend/deposit",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "deposit_to_vault_with_evm_smart_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`Client::redeem_vault_fees_with_evm_smart_account`]
 
     [`Client::redeem_vault_fees_with_evm_smart_account`]: super::Client::redeem_vault_fees_with_evm_smart_account*/
@@ -215918,6 +219990,176 @@ pub mod builder {
                 .build()?;
             let info = OperationInfo {
                 operation_id: "redeem_vault_fees_with_evm_smart_account",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                409u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                422u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::withdraw_from_vault_with_evm_smart_account`]
+
+    [`Client::withdraw_from_vault_with_evm_smart_account`]: super::Client::withdraw_from_vault_with_evm_smart_account*/
+    #[derive(Debug, Clone)]
+    pub struct WithdrawFromVaultWithEvmSmartAccount<'a> {
+        client: &'a super::Client,
+        address: Result<types::WithdrawFromVaultWithEvmSmartAccountAddress, String>,
+        x_idempotency_key:
+            Result<Option<types::WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey>, String>,
+        x_wallet_auth: Result<::std::string::String, String>,
+        body: Result<types::builder::WithdrawFromVaultWithEvmSmartAccountRequest, String>,
+    }
+    impl<'a> WithdrawFromVaultWithEvmSmartAccount<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                x_idempotency_key: Ok(None),
+                x_wallet_auth: Err("x_wallet_auth was not initialized".to_string()),
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmSmartAccountAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `WithdrawFromVaultWithEvmSmartAccountAddress` for address failed"
+                    .to_string()
+            });
+            self
+        }
+        pub fn x_idempotency_key<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey>,
+        {
+            self.x_idempotency_key = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| {
+                    "conversion to `WithdrawFromVaultWithEvmSmartAccountXIdempotencyKey` for x_idempotency_key failed"
+                        .to_string()
+                });
+            self
+        }
+        pub fn x_wallet_auth<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.x_wallet_auth = value.try_into().map_err(|_| {
+                "conversion to `:: std :: string :: String` for x_wallet_auth failed".to_string()
+            });
+            self
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::WithdrawFromVaultWithEvmSmartAccountRequest>,
+            <V as std::convert::TryInto<types::WithdrawFromVaultWithEvmSmartAccountRequest>>::Error:
+                std::fmt::Display,
+        {
+            self.body = value
+                .try_into()
+                .map(From::from)
+                .map_err(|s| {
+                    format!(
+                        "conversion to `WithdrawFromVaultWithEvmSmartAccountRequest` for body failed: {}",
+                        s
+                    )
+                });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::WithdrawFromVaultWithEvmSmartAccountRequest,
+            )
+                -> types::builder::WithdrawFromVaultWithEvmSmartAccountRequest,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/evm/smart-accounts/{address}/lend/withdraw`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::SmartAccountVaultWithdrawResponse>, Error<types::Error>>
+        {
+            let Self {
+                client,
+                address,
+                x_idempotency_key,
+                x_wallet_auth,
+                body,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let x_idempotency_key = x_idempotency_key.map_err(Error::InvalidRequest)?;
+            let x_wallet_auth = x_wallet_auth.map_err(Error::InvalidRequest)?;
+            let body = body
+                .and_then(|v| {
+                    types::WithdrawFromVaultWithEvmSmartAccountRequest::try_from(v)
+                        .map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!(
+                "{}/v2/evm/smart-accounts/{}/lend/withdraw",
+                client.baseurl,
+                encode_path(&address.to_string()),
+            );
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(3usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            if let Some(value) = x_idempotency_key {
+                header_map.append("X-Idempotency-Key", value.to_string().try_into()?);
+            }
+            header_map.append("X-Wallet-Auth", x_wallet_auth.to_string().try_into()?);
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "withdraw_from_vault_with_evm_smart_account",
             };
             client.pre(&mut request, &info).await?;
             let result = client.exec(request, &info).await;
@@ -217307,6 +221549,146 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::list_lend_positions`]
+
+    [`Client::list_lend_positions`]: super::Client::list_lend_positions*/
+    #[derive(Debug, Clone)]
+    pub struct ListLendPositions<'a> {
+        client: &'a super::Client,
+        address: Result<types::ListLendPositionsAddress, String>,
+        page_size: Result<Option<i64>, String>,
+        page_token: Result<Option<::std::string::String>, String>,
+        vault_ids: Result<Option<Vec<types::VaultId>>, String>,
+    }
+    impl<'a> ListLendPositions<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                address: Err("address was not initialized".to_string()),
+                page_size: Ok(None),
+                page_token: Ok(None),
+                vault_ids: Ok(None),
+            }
+        }
+        pub fn address<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::ListLendPositionsAddress>,
+        {
+            self.address = value.try_into().map_err(|_| {
+                "conversion to `ListLendPositionsAddress` for address failed".to_string()
+            });
+            self
+        }
+        pub fn page_size<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<i64>,
+        {
+            self.page_size = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `i64` for page_size failed".to_string());
+            self
+        }
+        pub fn page_token<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<::std::string::String>,
+        {
+            self.page_token = value.try_into().map(Some).map_err(|_| {
+                "conversion to `:: std :: string :: String` for page_token failed".to_string()
+            });
+            self
+        }
+        pub fn vault_ids<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<Vec<types::VaultId>>,
+        {
+            self.vault_ids = value
+                .try_into()
+                .map(Some)
+                .map_err(|_| "conversion to `Vec < VaultId >` for vault_ids failed".to_string());
+            self
+        }
+        ///Sends a `GET` request to `/v2/lend/positions`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::ListLendPositionsResponse>, Error<types::Error>> {
+            let Self {
+                client,
+                address,
+                page_size,
+                page_token,
+                vault_ids,
+            } = self;
+            let address = address.map_err(Error::InvalidRequest)?;
+            let page_size = page_size.map_err(Error::InvalidRequest)?;
+            let page_token = page_token.map_err(Error::InvalidRequest)?;
+            let vault_ids = vault_ids.map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/lend/positions", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .get(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "address", &address,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageToken",
+                    &page_token,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "vaultIds", &vault_ids,
+                ))
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "list_lend_positions",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response::<types::Error>(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                403u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                404u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                502u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                503u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                504u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

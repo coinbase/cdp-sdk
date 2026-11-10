@@ -303,7 +303,7 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.52.0"
+version = "1.53.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

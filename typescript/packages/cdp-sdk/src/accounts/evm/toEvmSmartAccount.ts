@@ -308,7 +308,7 @@ export function toEvmSmartAccount(
         accountType: "evm_smart",
       });
       try {
-        return await redeemVaultFeesWithSmartAccount(apiClient, {
+        return await redeemVaultFeesWithSmartAccount({
           ...options,
           address: account.address,
         });

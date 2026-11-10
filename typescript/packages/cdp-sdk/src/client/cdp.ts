@@ -3,7 +3,6 @@ import { CdpOpenApiClient } from "../openapi-client/index.js";
 import { version } from "../version.js";
 import { EndUserClient } from "./end-user/endUser.js";
 import { EvmClient } from "./evm/evm.js";
-import { LendClient } from "./lend/lend.js";
 import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
 import { VendoredClient } from "./vendored.js";
@@ -40,9 +39,6 @@ export class CdpClient extends VendoredClient {
 
   /** Namespace containing all webhook methods. */
   public webhooks: WebhooksClient;
-
-  /** Namespace containing all Lend methods. */
-  public lend: LendClient;
 
   /**
    * The CdpClient is the main class for interacting with the CDP API.
@@ -137,6 +133,5 @@ We recommend using https://github.com/Schniz/fnm for managing your Node.js versi
     this.policies = new PoliciesClient();
     this.endUser = new EndUserClient();
     this.webhooks = new WebhooksClient();
-    this.lend = new LendClient();
   }
 }

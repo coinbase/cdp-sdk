@@ -527,3 +527,60 @@ async def test_redeem_vault_fees_reraises_original_error(server_account_model_fa
         )
 
     assert exc_info.value is error
+
+
+@pytest.mark.asyncio
+async def test_deposit_to_vault(server_account_model_factory):
+    """Test deposit_to_vault method."""
+    address = "0x1234567890123456789012345678901234567890"
+    server_account_model = server_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.deposit_to_vault_with_evm_account = AsyncMock(
+        return_value=AsyncMock(transaction_hash="0x123")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    result = await server_account.deposit_to_vault(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        amount="25.50",
+        idempotency_key="idem-key",
+    )
+
+    call = mock_api_instance.lend.deposit_to_vault_with_evm_account.call_args.kwargs
+    assert call["address"] == address
+    request = call["deposit_to_vault_with_evm_account_request"]
+    assert request.vault_id == "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    assert request.amount == "25.50"
+    assert request.receiver is None
+    assert call["x_idempotency_key"] == "idem-key"
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
+async def test_withdraw_from_vault(server_account_model_factory):
+    """Test withdraw_from_vault method."""
+    address = "0x1234567890123456789012345678901234567890"
+    server_account_model = server_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.withdraw_from_vault_with_evm_account = AsyncMock(
+        return_value=AsyncMock(transaction_hash="0x123")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    result = await server_account.withdraw_from_vault(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        withdraw_all=True,
+        idempotency_key="idem-key",
+    )
+
+    call = mock_api_instance.lend.withdraw_from_vault_with_evm_account.call_args.kwargs
+    assert call["address"] == address
+    request = call["withdraw_from_vault_with_evm_account_request"]
+    assert request.vault_id == "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    assert request.amount is None
+    assert request.withdraw_all is True
+    assert request.receiver is None
+    assert call["x_idempotency_key"] == "idem-key"
+    assert result == "0x123"

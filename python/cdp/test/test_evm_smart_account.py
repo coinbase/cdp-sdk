@@ -792,3 +792,74 @@ async def test_redeem_vault_fees_reraises_original_error(smart_account_model_fac
         await smart_account.redeem_vault_fees(vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f")
 
     assert exc_info.value is error
+
+
+@pytest.mark.asyncio
+async def test_deposit_to_vault(smart_account_model_factory):
+    """Test deposit_to_vault method."""
+    address = "0x1234567890123456789012345678901234567890"
+    smart_account_model = smart_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.deposit_to_vault_with_evm_smart_account = AsyncMock(
+        return_value=AsyncMock(user_op_hash="0xabc")
+    )
+    smart_account = EvmSmartAccount(
+        smart_account_model.address,
+        smart_account_model.owners[0],
+        smart_account_model.name,
+        None,
+        mock_api_instance,
+    )
+
+    result = await smart_account.deposit_to_vault(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        amount="25.50",
+        use_cdp_paymaster=True,
+    )
+
+    call = mock_api_instance.lend.deposit_to_vault_with_evm_smart_account.call_args.kwargs
+    assert call["address"] == address
+    request = call["deposit_to_vault_with_evm_smart_account_request"]
+    assert request.vault_id == "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    assert request.amount == "25.50"
+    assert request.use_cdp_paymaster is True
+    assert request.paymaster_url is None
+    assert call["x_idempotency_key"] is None
+    assert result == "0xabc"
+
+
+@pytest.mark.asyncio
+async def test_withdraw_from_vault(smart_account_model_factory):
+    """Test withdraw_from_vault method."""
+    address = "0x1234567890123456789012345678901234567890"
+    smart_account_model = smart_account_model_factory(address, "test-account")
+
+    mock_api_instance = AsyncMock()
+    mock_api_instance.lend.withdraw_from_vault_with_evm_smart_account = AsyncMock(
+        return_value=AsyncMock(user_op_hash="0xabc")
+    )
+    smart_account = EvmSmartAccount(
+        smart_account_model.address,
+        smart_account_model.owners[0],
+        smart_account_model.name,
+        None,
+        mock_api_instance,
+    )
+
+    result = await smart_account.withdraw_from_vault(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        amount="25.50",
+        use_cdp_paymaster=True,
+    )
+
+    call = mock_api_instance.lend.withdraw_from_vault_with_evm_smart_account.call_args.kwargs
+    assert call["address"] == address
+    request = call["withdraw_from_vault_with_evm_smart_account_request"]
+    assert request.vault_id == "vault_019f5f10-096a-7a23-86df-f479650d813f"
+    assert request.amount == "25.50"
+    assert request.withdraw_all is None
+    assert request.use_cdp_paymaster is True
+    assert request.paymaster_url is None
+    assert call["x_idempotency_key"] is None
+    assert result == "0xabc"
