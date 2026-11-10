@@ -4,6 +4,7 @@ from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
+from cdp.actions.evm.deposit_to_vault import deposit_to_vault_with_smart_account
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.redeem_vault_fees import redeem_vault_fees_with_smart_account
 from cdp.actions.evm.request_faucet import request_faucet
@@ -17,6 +18,7 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapResult,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
+from cdp.actions.evm.withdraw_from_vault import withdraw_from_vault_with_smart_account
 from cdp.analytics import track_action, track_error
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -776,6 +778,135 @@ class EvmSmartAccount(BaseModel):
             )
         except Exception as error:
             track_error(error, "redeem_vault_fees")
+            raise
+
+    async def deposit_to_vault(
+        self,
+        vault_id: str,
+        amount: str,
+        receiver: str | None = None,
+        use_cdp_paymaster: bool | None = None,
+        paymaster_url: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Deposit a vault's underlying asset from this smart account into the vault.
+
+        The smart account's owner must be a CDP EVM account. The token approval and deposit are
+        batched into a single user operation.
+
+        Args:
+            vault_id (str): The ID of the vault to deposit into.
+            amount (str): The amount to deposit, as a decimal string in the asset's standard
+                unit, e.g. "25.50" for 25.50 USDC.
+            receiver (str, optional): The address that receives the minted vault shares.
+                Defaults to this smart account.
+            use_cdp_paymaster (bool, optional): Whether to sponsor gas with the CDP Paymaster.
+                Only supported on Base and Base Sepolia. Cannot be combined with `paymaster_url`.
+            paymaster_url (str, optional): A custom Paymaster URL. Cannot be combined with
+                `use_cdp_paymaster`.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context.
+                Requires a paymaster.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The hash of the broadcast user operation. Pass it to
+            `wait_for_user_operation` to wait for the deposit to complete.
+
+        Examples:
+            >>> user_op_hash = await smart_account.deposit_to_vault(
+            ...     vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+            ...     amount="25.50",
+            ...     use_cdp_paymaster=True,
+            ... )
+            >>> await smart_account.wait_for_user_operation(user_op_hash=user_op_hash)
+
+        """
+        track_action(action="deposit_to_vault", account_type="evm_smart")
+
+        try:
+            return await deposit_to_vault_with_smart_account(
+                lend=self.__api_clients.lend,
+                address=self.address,
+                vault_id=vault_id,
+                amount=amount,
+                receiver=receiver,
+                use_cdp_paymaster=use_cdp_paymaster,
+                paymaster_url=paymaster_url,
+                paymaster_context=paymaster_context,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "deposit_to_vault")
+            raise
+
+    async def withdraw_from_vault(
+        self,
+        vault_id: str,
+        amount: str | None = None,
+        withdraw_all: bool | None = None,
+        receiver: str | None = None,
+        max_slippage_bps: int | None = None,
+        use_cdp_paymaster: bool | None = None,
+        paymaster_url: str | None = None,
+        paymaster_context: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Withdraw a vault's underlying asset from this smart account's position in the vault.
+
+        Provide either `amount` or `withdraw_all=True`. The smart account's owner must be a CDP
+        EVM account. The share approval and withdrawal are batched into a single user operation.
+
+        Args:
+            vault_id (str): The ID of the vault to withdraw from.
+            amount (str, optional): The amount to withdraw, as a decimal string in the asset's
+                standard unit, e.g. "25.50" for 25.50 USDC. Cannot be combined with
+                `withdraw_all=True`.
+            withdraw_all (bool, optional): Whether to withdraw the entire position by redeeming
+                every vault share the smart account holds.
+            receiver (str, optional): The address that receives the withdrawn asset. Defaults to
+                this smart account.
+            max_slippage_bps (int, optional): The maximum share-price slippage in basis points.
+                Defaults to 100 bps (1%) when omitted.
+            use_cdp_paymaster (bool, optional): Whether to sponsor gas with the CDP Paymaster.
+                Only supported on Base and Base Sepolia. Cannot be combined with `paymaster_url`.
+            paymaster_url (str, optional): A custom Paymaster URL. Cannot be combined with
+                `use_cdp_paymaster`.
+            paymaster_context (dict[str, Any], optional): The ERC-7677 paymaster context.
+                Requires a paymaster.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The hash of the broadcast user operation. Pass it to
+            `wait_for_user_operation` to wait for the withdrawal to complete.
+
+        Examples:
+            >>> user_op_hash = await smart_account.withdraw_from_vault(
+            ...     vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+            ...     withdraw_all=True,
+            ...     use_cdp_paymaster=True,
+            ... )
+            >>> await smart_account.wait_for_user_operation(user_op_hash=user_op_hash)
+
+        """
+        track_action(action="withdraw_from_vault", account_type="evm_smart")
+
+        try:
+            return await withdraw_from_vault_with_smart_account(
+                lend=self.__api_clients.lend,
+                address=self.address,
+                vault_id=vault_id,
+                amount=amount,
+                withdraw_all=withdraw_all,
+                receiver=receiver,
+                max_slippage_bps=max_slippage_bps,
+                use_cdp_paymaster=use_cdp_paymaster,
+                paymaster_url=paymaster_url,
+                paymaster_context=paymaster_context,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            track_error(error, "withdraw_from_vault")
             raise
 
     def __str__(self) -> str:

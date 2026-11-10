@@ -1,9 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { redeemVaultFees, redeemVaultFeesWithSmartAccount } from "./redeemVaultFees.js";
+import { lendApiClient } from "../../client/vendored.js";
 
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address } from "../../types/misc.js";
+
+vi.mock("../../client/vendored.js", async importOriginal => {
+  return {
+    ...(await importOriginal<typeof import("../../client/vendored.js")>()),
+    lendApiClient: {
+      redeemVaultFeesWithEvmAccount: vi.fn(),
+      redeemVaultFeesWithEvmSmartAccount: vi.fn(),
+    },
+  };
+});
 
 const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
 const vaultId = "vault_019f5f10-096a-7a23-86df-f479650d813f";
@@ -11,45 +21,48 @@ const transactionHash = "0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335
 const userOpHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
 
 describe("redeemVaultFees", () => {
-  let apiClient: CdpOpenApiClientType;
-
   beforeEach(() => {
-    apiClient = {
-      redeemVaultFeesWithEvmAccount: vi.fn().mockResolvedValue({ transactionHash }),
-      redeemVaultFeesWithEvmSmartAccount: vi.fn().mockResolvedValue({ userOpHash }),
-    } as unknown as CdpOpenApiClientType;
+    vi.clearAllMocks();
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmAccount).mockResolvedValue({
+      transactionHash,
+    } as never);
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmSmartAccount).mockResolvedValue({
+      userOpHash,
+    } as never);
   });
 
   it("redeems fees with an EVM account", async () => {
-    const result = await redeemVaultFees(apiClient, {
+    const result = await redeemVaultFees({
       address,
       vaultId,
       maxSlippageBps: 50,
       idempotencyKey: "idem-key",
     });
 
-    expect(apiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith(
+    expect(lendApiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith({
       address,
-      { vaultId, maxSlippageBps: 50 },
-      "idem-key",
-    );
+      idempotencyKey: "idem-key",
+      vaultId,
+      maxSlippageBps: 50,
+    });
     expect(result).toEqual({ transactionHash });
   });
 
   it("omits optional fields for an EVM account", async () => {
-    await redeemVaultFees(apiClient, { address, vaultId });
+    await redeemVaultFees({ address, vaultId });
 
-    expect(apiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith(
+    expect(lendApiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith({
       address,
-      { vaultId, maxSlippageBps: undefined },
-      undefined,
-    );
+      idempotencyKey: undefined,
+      vaultId,
+      maxSlippageBps: undefined,
+    });
   });
 
   it("redeems fees with an EVM smart account", async () => {
     const paymasterContext = { policyId: "policy-123" };
 
-    const result = await redeemVaultFeesWithSmartAccount(apiClient, {
+    const result = await redeemVaultFeesWithSmartAccount({
       address,
       vaultId,
       maxSlippageBps: 25,
@@ -58,17 +71,15 @@ describe("redeemVaultFees", () => {
       idempotencyKey: "idem-key",
     });
 
-    expect(apiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith(
+    expect(lendApiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith({
       address,
-      {
-        vaultId,
-        maxSlippageBps: 25,
-        useCdpPaymaster: undefined,
-        paymasterUrl: "https://paymaster.example.com",
-        paymasterContext,
-      },
-      "idem-key",
-    );
+      idempotencyKey: "idem-key",
+      vaultId,
+      maxSlippageBps: 25,
+      useCdpPaymaster: undefined,
+      paymasterUrl: "https://paymaster.example.com",
+      paymasterContext,
+    });
     expect(result).toEqual({
       smartAccountAddress: address,
       status: "broadcast",
@@ -77,34 +88,30 @@ describe("redeemVaultFees", () => {
   });
 
   it("passes useCdpPaymaster for an EVM smart account", async () => {
-    await redeemVaultFeesWithSmartAccount(apiClient, { address, vaultId, useCdpPaymaster: true });
+    await redeemVaultFeesWithSmartAccount({ address, vaultId, useCdpPaymaster: true });
 
-    expect(apiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith(
+    expect(lendApiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith({
       address,
-      {
-        vaultId,
-        maxSlippageBps: undefined,
-        useCdpPaymaster: true,
-        paymasterUrl: undefined,
-        paymasterContext: undefined,
-      },
-      undefined,
-    );
+      idempotencyKey: undefined,
+      vaultId,
+      maxSlippageBps: undefined,
+      useCdpPaymaster: true,
+      paymasterUrl: undefined,
+      paymasterContext: undefined,
+    });
   });
 
   it("propagates API errors", async () => {
     const error = new Error("No fee shares to redeem.");
-    vi.mocked(apiClient.redeemVaultFeesWithEvmAccount).mockRejectedValueOnce(error);
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmAccount).mockRejectedValueOnce(error);
 
-    await expect(redeemVaultFees(apiClient, { address, vaultId })).rejects.toThrow(error);
+    await expect(redeemVaultFees({ address, vaultId })).rejects.toThrow(error);
   });
 
   it("propagates API errors for an EVM smart account", async () => {
     const error = new Error("No fee shares to redeem.");
-    vi.mocked(apiClient.redeemVaultFeesWithEvmSmartAccount).mockRejectedValueOnce(error);
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmSmartAccount).mockRejectedValueOnce(error);
 
-    await expect(redeemVaultFeesWithSmartAccount(apiClient, { address, vaultId })).rejects.toBe(
-      error,
-    );
+    await expect(redeemVaultFeesWithSmartAccount({ address, vaultId })).rejects.toBe(error);
   });
 });

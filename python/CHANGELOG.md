@@ -2,6 +2,15 @@
 
 <!-- towncrier release notes start -->
 
+## [1.53.0] - 2026-11-10
+
+### Features
+
+- Added `deposit_to_vault` to EVM server accounts and EVM smart accounts to deposit a Lend vault's underlying asset into the vault. Also added the generated `LendApi.deposit_to_vault_with_evm_account` and `LendApi.deposit_to_vault_with_evm_smart_account` client methods.
+- Added `withdraw_from_vault` to EVM server accounts and EVM smart accounts to withdraw a Lend vault's underlying asset from the account's vault position, either by amount or with `withdraw_all=True`. Also added the generated `LendApi.withdraw_from_vault_with_evm_account` and `LendApi.withdraw_from_vault_with_evm_smart_account` client methods.
+- Added `cdp.lend.list_lend_positions` to list the Lend vault positions of an EVM account or EVM smart account in the project. Also added the generated `LendApi.list_lend_positions` client method.
+
+
 ## [1.52.0] - 2026-11-04
 
 ### Features

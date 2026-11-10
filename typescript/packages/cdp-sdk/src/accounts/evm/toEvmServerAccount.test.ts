@@ -13,6 +13,14 @@ import { AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import { useSpendPermission } from "../../actions/evm/spend-permissions/account.use.js";
 import { signEvmX402Payment } from "../../actions/x402/signX402Payment.js";
 import type { PaymentRequired } from "@x402/core/types";
+import { lendApiClient } from "../../client/vendored.js";
+
+vi.mock("../../client/vendored.js", () => ({
+  lendApiClient: {
+    redeemVaultFeesWithEvmAccount: vi.fn(),
+    redeemVaultFeesWithEvmSmartAccount: vi.fn(),
+  },
+}));
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -114,9 +122,9 @@ describe("toEvmServerAccount", () => {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       signEvmTypedData: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
     } as unknown as CdpOpenApiClientType;
-    mockApiClient.redeemVaultFeesWithEvmAccount = vi
-      .fn()
-      .mockResolvedValue({ transactionHash: "0xmocktransactionhash" });
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmAccount).mockResolvedValue({
+      transactionHash: "0xmocktransactionhash",
+    } as never);
 
     mockAccount = {
       address: mockAddress,
@@ -163,7 +171,7 @@ describe("toEvmServerAccount", () => {
   });
 
   describe("redeemVaultFees", () => {
-    it("should call apiClient.redeemVaultFeesWithEvmAccount with the account address", async () => {
+    it("should call lendApiClient.redeemVaultFeesWithEvmAccount with the account address", async () => {
       const vaultId = "vault_019f5f10-096a-7a23-86df-f479650d813f";
 
       const result = await serverAccount.redeemVaultFees({
@@ -172,18 +180,19 @@ describe("toEvmServerAccount", () => {
         idempotencyKey: "idem-key",
       });
 
-      expect(mockApiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith(
-        mockAddress,
-        { vaultId, maxSlippageBps: 50 },
-        "idem-key",
-      );
+      expect(lendApiClient.redeemVaultFeesWithEvmAccount).toHaveBeenCalledWith({
+        address: mockAddress,
+        idempotencyKey: "idem-key",
+        vaultId,
+        maxSlippageBps: 50,
+      });
       expect(result).toEqual({ transactionHash: "0xmocktransactionhash" });
     });
   });
 
   it("redeemVaultFees should rethrow the original API error", async () => {
     const error = new Error("No fee shares to redeem.");
-    vi.mocked(mockApiClient.redeemVaultFeesWithEvmAccount).mockRejectedValueOnce(error);
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmAccount).mockRejectedValueOnce(error);
 
     await expect(
       serverAccount.redeemVaultFees({ vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f" }),

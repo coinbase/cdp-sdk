@@ -298,7 +298,7 @@ export function toEvmServerAccount(
         accountType: "evm_server",
       });
       try {
-        return await redeemVaultFees(apiClient, {
+        return await redeemVaultFees({
           ...options,
           address: this.address,
         });

@@ -7,7 +7,7 @@ from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
-from cdp.lend_client import ListVaultsResult
+from cdp.lend_client import ListLendPositionsResult, ListVaultsResult
 from cdp.openapi_client import SpendPermissionNetwork
 from cdp.openapi_client.errors import HttpErrorType, NetworkError
 from cdp.openapi_client.models import (
@@ -43,6 +43,7 @@ __all__ = [
     "FunctionCall",
     "HttpErrorType",
     "ListEndUsersResult",
+    "ListLendPositionsResult",
     "ListVaultsResult",
     "NetworkError",
     "SpendPermissionNetwork",

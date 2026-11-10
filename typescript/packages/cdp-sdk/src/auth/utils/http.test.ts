@@ -117,18 +117,20 @@ describe("http utils", () => {
     expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
   });
 
-  it("should require wallet auth for smart account lend operations", async () => {
-    const headers = await getAuthHeaders({
-      ...defaultOptions,
-      requestMethod: "POST",
-      requestPath:
-        "/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/redeem-fees",
-      walletSecret: "test-wallet-secret",
-    });
+  it.each(["redeem-fees", "deposit", "withdraw"])(
+    "should require wallet auth for the smart account lend %s operation",
+    async operation => {
+      const headers = await getAuthHeaders({
+        ...defaultOptions,
+        requestMethod: "POST",
+        requestPath: `/v2/evm/smart-accounts/0x1234567890123456789012345678901234567890/lend/${operation}`,
+        walletSecret: "test-wallet-secret",
+      });
 
-    expect(generateWalletJwt).toHaveBeenCalled();
-    expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
-  });
+      expect(generateWalletJwt).toHaveBeenCalled();
+      expect(headers["X-Wallet-Auth"]).toBe(mockWalletAuthToken);
+    },
+  );
 
   it("should not require wallet auth for other smart account writes", async () => {
     const headers = await getAuthHeaders({

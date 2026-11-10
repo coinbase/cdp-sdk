@@ -17,15 +17,24 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, field_validator
-from typing import Optional
+from pydantic import Field, StrictInt, StrictStr, field_validator
+from typing import List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.deposit_to_vault_with_evm_account_request import DepositToVaultWithEvmAccountRequest
+from cdp.openapi_client.models.deposit_to_vault_with_evm_smart_account_request import DepositToVaultWithEvmSmartAccountRequest
+from cdp.openapi_client.models.eoa_vault_deposit_response import EoaVaultDepositResponse
 from cdp.openapi_client.models.eoa_vault_redeem_fees_request import EoaVaultRedeemFeesRequest
 from cdp.openapi_client.models.eoa_vault_redeem_fees_response import EoaVaultRedeemFeesResponse
+from cdp.openapi_client.models.eoa_vault_withdraw_response import EoaVaultWithdrawResponse
+from cdp.openapi_client.models.list_lend_positions200_response import ListLendPositions200Response
 from cdp.openapi_client.models.list_vaults200_response import ListVaults200Response
+from cdp.openapi_client.models.smart_account_vault_deposit_response import SmartAccountVaultDepositResponse
 from cdp.openapi_client.models.smart_account_vault_redeem_fees_request import SmartAccountVaultRedeemFeesRequest
 from cdp.openapi_client.models.smart_account_vault_redeem_fees_response import SmartAccountVaultRedeemFeesResponse
+from cdp.openapi_client.models.smart_account_vault_withdraw_response import SmartAccountVaultWithdrawResponse
 from cdp.openapi_client.models.vault import Vault
+from cdp.openapi_client.models.withdraw_from_vault_with_evm_account_request import WithdrawFromVaultWithEvmAccountRequest
+from cdp.openapi_client.models.withdraw_from_vault_with_evm_smart_account_request import WithdrawFromVaultWithEvmSmartAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -43,6 +52,704 @@ class LendApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to deposit from.")],
+        deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EoaVaultDepositResponse:
+        """Deposit into a vault with an EVM account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM account into a vault. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction. The transaction hash is returned in the response. For deposits from EVM Smart Accounts, use `depositToVaultWithEvmSmartAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_account_request: (required)
+        :type deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_account_request=deposit_to_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to deposit from.")],
+        deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EoaVaultDepositResponse]:
+        """Deposit into a vault with an EVM account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM account into a vault. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction. The transaction hash is returned in the response. For deposits from EVM Smart Accounts, use `depositToVaultWithEvmSmartAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_account_request: (required)
+        :type deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_account_request=deposit_to_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to deposit from.")],
+        deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Deposit into a vault with an EVM account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM account into a vault. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction. The transaction hash is returned in the response. For deposits from EVM Smart Accounts, use `depositToVaultWithEvmSmartAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_account_request: (required)
+        :type deposit_to_vault_with_evm_account_request: DepositToVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_account_request=deposit_to_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _deposit_to_vault_with_evm_account_serialize(
+        self,
+        address,
+        deposit_to_vault_with_evm_account_request,
+        x_wallet_auth,
+        x_idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if deposit_to_vault_with_evm_account_request is not None:
+            _body_params = deposit_to_vault_with_evm_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/evm/accounts/{address}/lend/deposit',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_smart_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to deposit from.")],
+        deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SmartAccountVaultDepositResponse:
+        """Deposit into a vault with an EVM Smart Account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM Smart Account into a vault. The Smart Account's owner must be a CDP EVM account. The token approval and deposit are batched into a single user operation, whose hash is returned in `userOpHash`. Because the approval and deposit execute atomically in a single user operation, no share-price guard is required. Poll `getUserOperation` until the user operation reaches a terminal status. For deposits from EVM accounts, use `depositToVaultWithEvmAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_smart_account_request: (required)
+        :type deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_smart_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_smart_account_request=deposit_to_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_smart_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to deposit from.")],
+        deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SmartAccountVaultDepositResponse]:
+        """Deposit into a vault with an EVM Smart Account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM Smart Account into a vault. The Smart Account's owner must be a CDP EVM account. The token approval and deposit are batched into a single user operation, whose hash is returned in `userOpHash`. Because the approval and deposit execute atomically in a single user operation, no share-price guard is required. Poll `getUserOperation` until the user operation reaches a terminal status. For deposits from EVM accounts, use `depositToVaultWithEvmAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_smart_account_request: (required)
+        :type deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_smart_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_smart_account_request=deposit_to_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def deposit_to_vault_with_evm_smart_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to deposit from.")],
+        deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Deposit into a vault with an EVM Smart Account
+
+        Deposits the vault's underlying asset (e.g. USDC) from an EVM Smart Account into a vault. The Smart Account's owner must be a CDP EVM account. The token approval and deposit are batched into a single user operation, whose hash is returned in `userOpHash`. Because the approval and deposit execute atomically in a single user operation, no share-price guard is required. Poll `getUserOperation` until the user operation reaches a terminal status. For deposits from EVM accounts, use `depositToVaultWithEvmAccount` instead. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to deposit from. (required)
+        :type address: str
+        :param deposit_to_vault_with_evm_smart_account_request: (required)
+        :type deposit_to_vault_with_evm_smart_account_request: DepositToVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deposit_to_vault_with_evm_smart_account_serialize(
+            address=address,
+            deposit_to_vault_with_evm_smart_account_request=deposit_to_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultDepositResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _deposit_to_vault_with_evm_smart_account_serialize(
+        self,
+        address,
+        deposit_to_vault_with_evm_smart_account_request,
+        x_wallet_auth,
+        x_idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if deposit_to_vault_with_evm_smart_account_request is not None:
+            _body_params = deposit_to_vault_with_evm_smart_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/evm/smart-accounts/{address}/lend/deposit',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -303,6 +1010,345 @@ class LendApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/lend/vaults/{vaultId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_lend_positions(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for.")],
+        vault_ids: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=1, max_length=100)]], Field(description="Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListLendPositions200Response:
+        """List lend positions
+
+        Lists non-zero lend positions for an EVM account or EVM Smart Account in the project. Each position reports the account's vault share balance and its current value in the vault's underlying asset. When `vaultIds` is omitted, only vaults where the address received shares through a Lend deposit are listed. Shares received any other way are not discovered, including transfers, deposits made outside the Lend deposit APIs, and fee shares CDP distributes to a vault's fee recipient, so an empty list does not mean the address holds no shares. Supply `vaultIds` to read specific project-owned vaults. Positions are ordered by vault ID. `pageSize` defaults to 20 and must be between 1 and 100. Keep the address and vault filter unchanged when following `nextPageToken`. Each page fetches fresh balances, so positions and balances may change between page requests as deposits, withdrawals, or yield accrual occur.
+
+        :param address: The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for. (required)
+        :type address: str
+        :param vault_ids: Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.
+        :type vault_ids: List[str]
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_lend_positions_serialize(
+            address=address,
+            vault_ids=vault_ids,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListLendPositions200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+            '504': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_lend_positions_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for.")],
+        vault_ids: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=1, max_length=100)]], Field(description="Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListLendPositions200Response]:
+        """List lend positions
+
+        Lists non-zero lend positions for an EVM account or EVM Smart Account in the project. Each position reports the account's vault share balance and its current value in the vault's underlying asset. When `vaultIds` is omitted, only vaults where the address received shares through a Lend deposit are listed. Shares received any other way are not discovered, including transfers, deposits made outside the Lend deposit APIs, and fee shares CDP distributes to a vault's fee recipient, so an empty list does not mean the address holds no shares. Supply `vaultIds` to read specific project-owned vaults. Positions are ordered by vault ID. `pageSize` defaults to 20 and must be between 1 and 100. Keep the address and vault filter unchanged when following `nextPageToken`. Each page fetches fresh balances, so positions and balances may change between page requests as deposits, withdrawals, or yield accrual occur.
+
+        :param address: The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for. (required)
+        :type address: str
+        :param vault_ids: Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.
+        :type vault_ids: List[str]
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_lend_positions_serialize(
+            address=address,
+            vault_ids=vault_ids,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListLendPositions200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+            '504': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_lend_positions_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for.")],
+        vault_ids: Annotated[Optional[Annotated[List[Annotated[str, Field(strict=True)]], Field(min_length=1, max_length=100)]], Field(description="Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List lend positions
+
+        Lists non-zero lend positions for an EVM account or EVM Smart Account in the project. Each position reports the account's vault share balance and its current value in the vault's underlying asset. When `vaultIds` is omitted, only vaults where the address received shares through a Lend deposit are listed. Shares received any other way are not discovered, including transfers, deposits made outside the Lend deposit APIs, and fee shares CDP distributes to a vault's fee recipient, so an empty list does not mean the address holds no shares. Supply `vaultIds` to read specific project-owned vaults. Positions are ordered by vault ID. `pageSize` defaults to 20 and must be between 1 and 100. Keep the address and vault filter unchanged when following `nextPageToken`. Each page fetches fresh balances, so positions and balances may change between page requests as deposits, withdrawals, or yield accrual occur.
+
+        :param address: The 0x-prefixed address of the EVM account or EVM Smart Account to list lend positions for. (required)
+        :type address: str
+        :param vault_ids: Filter positions to these project-owned vaults. Provide 1 to 100 unique, comma-separated vault IDs. Omit to list positions in the vaults discovered for the address.
+        :type vault_ids: List[str]
+        :param page_size: The number of resources to return per page.
+        :type page_size: int
+        :param page_token: The token for the next page of resources, if any.
+        :type page_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_lend_positions_serialize(
+            address=address,
+            vault_ids=vault_ids,
+            page_size=page_size,
+            page_token=page_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListLendPositions200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+            '504': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_lend_positions_serialize(
+        self,
+        address,
+        vault_ids,
+        page_size,
+        page_token,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+            'vaultIds': 'csv',
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if address is not None:
+            
+            _query_params.append(('address', address))
+            
+        if vault_ids is not None:
+            
+            _query_params.append(('vaultIds', vault_ids))
+            
+        if page_size is not None:
+            
+            _query_params.append(('pageSize', page_size))
+            
+        if page_token is not None:
+            
+            _query_params.append(('pageToken', page_token))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/lend/positions',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1293,6 +2339,704 @@ class LendApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/evm/smart-accounts/{address}/lend/redeem-fees',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to withdraw from.")],
+        withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EoaVaultWithdrawResponse:
+        """Withdraw from a vault with an EVM account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM account's position in a vault. The account signs an EIP-2612 permit over its vault shares authorizing the withdrawal, and the share approval and withdrawal are executed in a single transaction. The transaction hash is returned in the response. For withdrawals from EVM Smart Accounts, use `withdrawFromVaultWithEvmSmartAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_account_request: (required)
+        :type withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_account_request=withdraw_from_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to withdraw from.")],
+        withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EoaVaultWithdrawResponse]:
+        """Withdraw from a vault with an EVM account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM account's position in a vault. The account signs an EIP-2612 permit over its vault shares authorizing the withdrawal, and the share approval and withdrawal are executed in a single transaction. The transaction hash is returned in the response. For withdrawals from EVM Smart Accounts, use `withdrawFromVaultWithEvmSmartAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_account_request: (required)
+        :type withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_account_request=withdraw_from_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account to withdraw from.")],
+        withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Withdraw from a vault with an EVM account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM account's position in a vault. The account signs an EIP-2612 permit over its vault shares authorizing the withdrawal, and the share approval and withdrawal are executed in a single transaction. The transaction hash is returned in the response. For withdrawals from EVM Smart Accounts, use `withdrawFromVaultWithEvmSmartAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_account_request: (required)
+        :type withdraw_from_vault_with_evm_account_request: WithdrawFromVaultWithEvmAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_account_request=withdraw_from_vault_with_evm_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EoaVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _withdraw_from_vault_with_evm_account_serialize(
+        self,
+        address,
+        withdraw_from_vault_with_evm_account_request,
+        x_wallet_auth,
+        x_idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if withdraw_from_vault_with_evm_account_request is not None:
+            _body_params = withdraw_from_vault_with_evm_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/evm/accounts/{address}/lend/withdraw',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_smart_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to withdraw from.")],
+        withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SmartAccountVaultWithdrawResponse:
+        """Withdraw from a vault with an EVM Smart Account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM Smart Account's position in a vault. The Smart Account's owner must be a CDP EVM account. The share approval and withdrawal are batched into a single user operation, whose hash is returned in `userOpHash`. The withdrawal reverts if the vault's share price moves beyond `maxSlippageBps` before the user operation is included onchain. Poll `getUserOperation` until the user operation reaches a terminal status. For withdrawals from EVM accounts, use `withdrawFromVaultWithEvmAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_smart_account_request: (required)
+        :type withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_smart_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_smart_account_request=withdraw_from_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_smart_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to withdraw from.")],
+        withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SmartAccountVaultWithdrawResponse]:
+        """Withdraw from a vault with an EVM Smart Account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM Smart Account's position in a vault. The Smart Account's owner must be a CDP EVM account. The share approval and withdrawal are batched into a single user operation, whose hash is returned in `userOpHash`. The withdrawal reverts if the vault's share price moves beyond `maxSlippageBps` before the user operation is included onchain. Poll `getUserOperation` until the user operation reaches a terminal status. For withdrawals from EVM accounts, use `withdrawFromVaultWithEvmAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_smart_account_request: (required)
+        :type withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_smart_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_smart_account_request=withdraw_from_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def withdraw_from_vault_with_evm_smart_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM Smart Account to withdraw from.")],
+        withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]], Field(description="An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Withdraw from a vault with an EVM Smart Account
+
+        Withdraws the vault's underlying asset (e.g. USDC) from an EVM Smart Account's position in a vault. The Smart Account's owner must be a CDP EVM account. The share approval and withdrawal are batched into a single user operation, whose hash is returned in `userOpHash`. The withdrawal reverts if the vault's share price moves beyond `maxSlippageBps` before the user operation is included onchain. Poll `getUserOperation` until the user operation reaches a terminal status. For withdrawals from EVM accounts, use `withdrawFromVaultWithEvmAccount` instead. Provide either `amount` or `withdrawAll: true`. The `amount` field accepts human-readable amounts as decimal strings (e.g., \"1.5\", \"25.50\") in the standard unit denomination of the vault's underlying asset. Set `withdrawAll` to `true` to withdraw the entire position: every vault share held by the account is redeemed, so no residual shares remain from interest that accrues before execution.
+
+        :param address: The 0x-prefixed address of the EVM Smart Account to withdraw from. (required)
+        :type address: str
+        :param withdraw_from_vault_with_evm_smart_account_request: (required)
+        :type withdraw_from_vault_with_evm_smart_account_request: WithdrawFromVaultWithEvmSmartAccountRequest
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional string request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses. Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._withdraw_from_vault_with_evm_smart_account_serialize(
+            address=address,
+            withdraw_from_vault_with_evm_smart_account_request=withdraw_from_vault_with_evm_smart_account_request,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SmartAccountVaultWithdrawResponse",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _withdraw_from_vault_with_evm_smart_account_serialize(
+        self,
+        address,
+        withdraw_from_vault_with_evm_smart_account_request,
+        x_wallet_auth,
+        x_idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if withdraw_from_vault_with_evm_smart_account_request is not None:
+            _body_params = withdraw_from_vault_with_evm_smart_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/evm/smart-accounts/{address}/lend/withdraw',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

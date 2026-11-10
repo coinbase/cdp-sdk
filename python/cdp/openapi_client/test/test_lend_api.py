@@ -27,10 +27,31 @@ class TestLendApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_deposit_to_vault_with_evm_account(self) -> None:
+        """Test case for deposit_to_vault_with_evm_account
+
+        Deposit into a vault with an EVM account
+        """
+        pass
+
+    async def test_deposit_to_vault_with_evm_smart_account(self) -> None:
+        """Test case for deposit_to_vault_with_evm_smart_account
+
+        Deposit into a vault with an EVM Smart Account
+        """
+        pass
+
     async def test_get_vault(self) -> None:
         """Test case for get_vault
 
         Get a vault
+        """
+        pass
+
+    async def test_list_lend_positions(self) -> None:
+        """Test case for list_lend_positions
+
+        List lend positions
         """
         pass
 
@@ -52,6 +73,20 @@ class TestLendApi(unittest.IsolatedAsyncioTestCase):
         """Test case for redeem_vault_fees_with_evm_smart_account
 
         Redeem vault fees with an EVM Smart Account
+        """
+        pass
+
+    async def test_withdraw_from_vault_with_evm_account(self) -> None:
+        """Test case for withdraw_from_vault_with_evm_account
+
+        Withdraw from a vault with an EVM account
+        """
+        pass
+
+    async def test_withdraw_from_vault_with_evm_smart_account(self) -> None:
+        """Test case for withdraw_from_vault_with_evm_smart_account
+
+        Withdraw from a vault with an EVM Smart Account
         """
         pass
 

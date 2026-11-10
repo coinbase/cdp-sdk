@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import copy
 import re
 import sys
 
@@ -36,6 +37,32 @@ def add_go_explicit_enum_varnames(data):
         print(f"Pinned Go enum constant names for {name}")
 
 
+PRIMITIVE_TYPES = {"string", "integer", "number", "boolean"}
+
+
+def inline_primitive_allof_aliases(data):
+    """Inline schemas that are a lone allOf $ref to a primitive schema.
+
+    The Python generator (openapi-generator 7.11.0) turns a schema like
+    `VaultDepositAmount: {allOf: [$ref: PositiveDecimal], description: ...}` into an
+    `object`-typed field and imports a `cdp.openapi_client.models.object` module that
+    does not exist, which makes the package un-importable. Copying the referenced
+    primitive into the alias, keeping the alias's own keywords, avoids that.
+    """
+    schemas = data.get("components", {}).get("schemas", {})
+    for name, schema in schemas.items():
+        all_of = schema.get("allOf")
+        if not all_of or len(all_of) != 1 or set(all_of[0]) != {"$ref"}:
+            continue
+        target = schemas.get(all_of[0]["$ref"].split("/")[-1], {})
+        if target.get("type") not in PRIMITIVE_TYPES or "allOf" in target:
+            continue
+        inlined = copy.deepcopy(target)
+        inlined.update({key: value for key, value in schema.items() if key != "allOf"})
+        schemas[name] = inlined
+        print(f"Inlined primitive allOf alias {name}")
+
+
 def update_xwalletauth_parameter(input_file, output_file, go=False):
     """
     Update the X-Wallet-Auth parameter to be optional in an OpenAPI YAML file.
@@ -43,7 +70,8 @@ def update_xwalletauth_parameter(input_file, output_file, go=False):
     Args:
         input_file (str): Path to the input YAML file
         output_file (str): Path to save the modified YAML file
-        go (bool): Whether to apply the Go-only enum constant name pinning
+        go (bool): Whether to apply the Go-only enum constant name pinning instead of the
+            Python-only primitive alias inlining
     """
     # Load the YAML file
     with open(input_file, "r") as file:
@@ -71,6 +99,8 @@ def update_xwalletauth_parameter(input_file, output_file, go=False):
 
     if go:
         add_go_explicit_enum_varnames(data)
+    else:
+        inline_primitive_allof_aliases(data)
 
     # Save the modified YAML to the output file
     with open(output_file, "w") as file:

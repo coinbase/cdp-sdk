@@ -15,6 +15,7 @@ import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWr
 import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
 import { signEvmSmartAccountX402Payment } from "../../actions/x402/signX402Payment.js";
 import type { PaymentRequired } from "@x402/core/types";
+import { lendApiClient } from "../../client/vendored.js";
 
 const ERC6492_MAGIC_SUFFIX = "6492649264926492649264926492649264926492649264926492649264926492";
 
@@ -51,6 +52,13 @@ vi.mock("../../actions/x402/signX402Payment.js", () => ({
   signSolanaX402Payment: vi.fn().mockResolvedValue({ x402Version: 2, payload: {}, accepted: {} }),
 }));
 
+vi.mock("../../client/vendored.js", () => ({
+  lendApiClient: {
+    redeemVaultFeesWithEvmAccount: vi.fn(),
+    redeemVaultFeesWithEvmSmartAccount: vi.fn(),
+  },
+}));
+
 describe("toEvmSmartAccount", () => {
   let mockApiClient: CdpOpenApiClientType;
   let mockOwner: EvmAccount;
@@ -70,10 +78,10 @@ describe("toEvmSmartAccount", () => {
     mockApiClient = {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       getUserOperation: vi.fn().mockResolvedValue(mockUserOp),
-      redeemVaultFeesWithEvmSmartAccount: vi
-        .fn()
-        .mockResolvedValue({ userOpHash: "0xmockuserophash" }),
     } as unknown as CdpOpenApiClientType;
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmSmartAccount).mockResolvedValue({
+      userOpHash: "0xmockuserophash",
+    } as never);
 
     mockAddress = "0x123456789abcdef" as Address;
     mockOwner = {
@@ -141,17 +149,15 @@ describe("toEvmSmartAccount", () => {
 
     const result = await smartAccount.redeemVaultFees({ vaultId, useCdpPaymaster: true });
 
-    expect(mockApiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith(
-      mockAddress,
-      {
-        vaultId,
-        maxSlippageBps: undefined,
-        useCdpPaymaster: true,
-        paymasterUrl: undefined,
-        paymasterContext: undefined,
-      },
-      undefined,
-    );
+    expect(lendApiClient.redeemVaultFeesWithEvmSmartAccount).toHaveBeenCalledWith({
+      address: mockAddress,
+      idempotencyKey: undefined,
+      vaultId,
+      maxSlippageBps: undefined,
+      useCdpPaymaster: true,
+      paymasterUrl: undefined,
+      paymasterContext: undefined,
+    });
     expect(result).toEqual({
       smartAccountAddress: mockAddress,
       status: "broadcast",
@@ -165,7 +171,7 @@ describe("toEvmSmartAccount", () => {
       owner: mockOwner,
     });
     const error = new Error("No fee shares to redeem.");
-    vi.mocked(mockApiClient.redeemVaultFeesWithEvmSmartAccount).mockRejectedValueOnce(error);
+    vi.mocked(lendApiClient.redeemVaultFeesWithEvmSmartAccount).mockRejectedValueOnce(error);
 
     await expect(
       smartAccount.redeemVaultFees({ vaultId: "vault_019f5f10-096a-7a23-86df-f479650d813f" }),

@@ -6,6 +6,7 @@
 
 import { AccountsClient } from "./api/resources/accounts/client/Client.js";
 import { DepositDestinationsClient } from "./api/resources/depositDestinations/client/Client.js";
+import { LendClient } from "./api/resources/lend/client/Client.js";
 import { PaymentMethodsClient } from "./api/resources/paymentMethods/client/Client.js";
 import { TransfersClient } from "./api/resources/transfers/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
@@ -23,6 +24,7 @@ export class CoinbaseApiClient {
     protected _accounts: AccountsClient | undefined;
     protected _depositDestinations: DepositDestinationsClient | undefined;
     protected _transfers: TransfersClient | undefined;
+    protected _lend: LendClient | undefined;
     protected _paymentMethods: PaymentMethodsClient | undefined;
 
     constructor(options: CoinbaseApiClient.Options) {
@@ -39,6 +41,10 @@ export class CoinbaseApiClient {
 
     public get transfers(): TransfersClient {
         return (this._transfers ??= new TransfersClient(this._options));
+    }
+
+    public get lend(): LendClient {
+        return (this._lend ??= new LendClient(this._options));
     }
 
     public get paymentMethods(): PaymentMethodsClient {

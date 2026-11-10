@@ -30,6 +30,11 @@ console.log("Sent vault fee redemption, waiting for it to complete...");
 
 const result = await smartAccount.waitForUserOperation({ userOpHash });
 
+if (result.status === "failed") {
+  console.error(`Fee redemption failed: ${userOpHash}`);
+  process.exit(1);
+}
+
 console.log(`Redeemed vault fees for smart account: ${smartAccount.address}`);
 console.log(`User operation status: ${result.status}`);
 if (result.status === "complete") {

@@ -3,8 +3,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from cdp.lend_client import LendClient, ListVaultsResult
+from cdp.lend_client import LendClient, ListLendPositionsResult, ListVaultsResult
 from cdp.openapi_client.models.lend_network import LendNetwork
+from cdp.openapi_client.models.lend_position import LendPosition
+from cdp.openapi_client.models.list_lend_positions200_response import (
+    ListLendPositions200Response,
+)
 from cdp.openapi_client.models.list_vaults200_response import ListVaults200Response
 from cdp.openapi_client.models.vault import Vault
 from cdp.openapi_client.models.vault_status import VaultStatus
@@ -24,10 +28,21 @@ def _vault() -> Vault:
     )
 
 
+def _lend_position() -> LendPosition:
+    return LendPosition(
+        vault_id="vault_019f5f10-096a-7a23-86df-f479650d813f",
+        network=LendNetwork.BASE,
+        underlying_asset="usdc",
+        vault_shares="1",
+        asset_balance="1.025",
+    )
+
+
 def _client() -> tuple[LendClient, MagicMock]:
     lend_api = MagicMock()
     lend_api.list_vaults = AsyncMock()
     lend_api.get_vault = AsyncMock()
+    lend_api.list_lend_positions = AsyncMock()
     api_clients = MagicMock()
     api_clients.lend = lend_api
     return LendClient(api_clients=api_clients), lend_api
@@ -105,3 +120,67 @@ async def test_get_vault_tracks_and_reraises_errors():
         await client.get_vault("vault_019f5f10-096a-7a23-86df-f479650d813f")
 
     track_error.assert_called_once_with(error, "get_vault")
+
+
+@pytest.mark.asyncio
+async def test_list_lend_positions_with_defaults():
+    """List lend positions for an address with server defaults."""
+    client, lend_api = _client()
+    position = _lend_position()
+    lend_api.list_lend_positions.return_value = ListLendPositions200Response(
+        lend_positions=[position]
+    )
+
+    result = await client.list_lend_positions("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+
+    lend_api.list_lend_positions.assert_called_once_with(
+        address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        vault_ids=None,
+        page_size=None,
+        page_token=None,
+    )
+    assert isinstance(result, ListLendPositionsResult)
+    assert result.lend_positions == [position]
+    assert result.next_page_token is None
+
+
+@pytest.mark.asyncio
+async def test_list_lend_positions_with_filter_and_pagination():
+    """List lend positions passes the vault filter and pagination through."""
+    client, lend_api = _client()
+    position = _lend_position()
+    lend_api.list_lend_positions.return_value = ListLendPositions200Response(
+        lend_positions=[position], next_page_token="next-page"
+    )
+
+    result = await client.list_lend_positions(
+        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        vault_ids=[position.vault_id],
+        page_size=1,
+        page_token="this-page",
+    )
+
+    lend_api.list_lend_positions.assert_called_once_with(
+        address="0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        vault_ids=[position.vault_id],
+        page_size=1,
+        page_token="this-page",
+    )
+    assert result.lend_positions == [position]
+    assert result.next_page_token == "next-page"
+
+
+@pytest.mark.asyncio
+async def test_list_lend_positions_tracks_and_reraises_errors():
+    """List lend positions tracks the error and re-raises it."""
+    client, lend_api = _client()
+    error = Exception("list failed")
+    lend_api.list_lend_positions.side_effect = error
+
+    with (
+        patch("cdp.lend_client.track_error") as track_error,
+        pytest.raises(Exception, match="list failed"),
+    ):
+        await client.list_lend_positions("0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
+
+    track_error.assert_called_once_with(error, "list_lend_positions")

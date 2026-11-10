@@ -1,3 +1,4 @@
+import { LendClient } from "../_vendor/api/resources/lend/client/Client.js";
 import { CoinbaseApiClient } from "../_vendor/index.js";
 import { CdpOpenApiClient } from "../openapi-client/index.js";
 
@@ -76,6 +77,19 @@ export function createAxiosFetch(): typeof fetch {
     });
   }) as typeof fetch;
 }
+
+/**
+ * The generated Lend API client used by the Lend account actions, which have no `CdpClient` to
+ * reach `cdp.lend` through.
+ */
+export const lendApiClient = new LendClient({
+  baseUrl: () => CdpOpenApiClient.getAxiosInstance().getUri(),
+  // Auth is injected by the axios interceptor inside the custom fetch implementation.
+  auth: false,
+  fetch: createAxiosFetch(),
+  // Retries are already handled by axios-retry in the legacy axios instance.
+  maxRetries: 0,
+} as unknown as LendClient.Options);
 
 /**
  * Options for constructing a {@link VendoredClient}.

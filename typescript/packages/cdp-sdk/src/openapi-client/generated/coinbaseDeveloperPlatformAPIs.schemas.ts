@@ -13996,6 +13996,20 @@ export const LendNetwork = {
 } as const;
 
 /**
+ * An account's current share balance and underlying asset value in a lend vault.
+ */
+export interface LendPosition {
+  vaultId: VaultId;
+  network: LendNetwork;
+  /** The symbol of the vault's underlying asset. */
+  underlyingAsset: Asset;
+  /** The account's vault share balance in standard units of the share token. */
+  vaultShares: NonNegativeDecimal;
+  /** The current underlying asset value of the shares, in standard units of underlyingAsset. */
+  assetBalance: NonNegativeDecimal;
+}
+
+/**
  * A non-negative decimal string without scientific notation, whitespace, leading zeros, or a trailing dot. Zero is allowed.
  * @pattern ^(0|[1-9][0-9]*)([.][0-9]+)?$
  */
@@ -14056,6 +14070,183 @@ export interface SmartAccountVaultRedeemFeesResponse {
    */
   userOpHash: string;
 }
+
+/**
+ * Fields shared by the API-key requests that deposit into a vault from an EVM account or an EVM Smart Account. Composed into `DepositToVaultWithEvmAccountRequest` and `DepositToVaultWithEvmSmartAccountRequest`.
+ */
+export interface DepositToVaultBaseRequest {
+  vaultId?: VaultId;
+  amount?: VaultDepositAmount;
+  receiver?: VaultDepositReceiver;
+}
+
+/**
+ * A request to deposit the vault's underlying asset (e.g. USDC) into a vault from an EVM account. The account signs an EIP-2612 permit authorizing the deposit, and the token approval and deposit are executed in a single transaction.
+ */
+export type DepositToVaultWithEvmAccountRequestAllOf = {
+  maxSlippageBps?: VaultDepositMaxSlippageBps;
+};
+
+export type DepositToVaultWithEvmAccountRequest = DepositToVaultBaseRequest &
+  DepositToVaultWithEvmAccountRequestAllOf &
+  Required<
+    Pick<DepositToVaultBaseRequest & DepositToVaultWithEvmAccountRequestAllOf, "vaultId" | "amount">
+  >;
+
+/**
+ * A request to deposit the vault's underlying asset (e.g. USDC) into a vault from an EVM Smart Account. The token approval and deposit are batched into a single user operation.
+ */
+export type DepositToVaultWithEvmSmartAccountRequestAllOf = {
+  useCdpPaymaster?: VaultDepositUseCdpPaymaster;
+  paymasterUrl?: VaultDepositPaymasterUrl;
+  paymasterContext?: PaymasterContext;
+};
+
+export type DepositToVaultWithEvmSmartAccountRequest = DepositToVaultBaseRequest &
+  DepositToVaultWithEvmSmartAccountRequestAllOf &
+  Required<
+    Pick<
+      DepositToVaultBaseRequest & DepositToVaultWithEvmSmartAccountRequestAllOf,
+      "vaultId" | "amount"
+    >
+  >;
+
+/**
+ * The result of a vault deposit from an EOA after broadcast.
+ */
+export interface EoaVaultDepositResponse {
+  /**
+   * The hash of the broadcast deposit transaction, as a 0x-prefixed hex string.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  transactionHash: string;
+}
+
+/**
+ * The result of a vault deposit from an EVM Smart Account after broadcast.
+ */
+export interface SmartAccountVaultDepositResponse {
+  /**
+   * The hash of the user operation executing the deposit, as a 0x-prefixed hex string.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  userOpHash: string;
+}
+
+/**
+ * The amount of the vault's underlying asset to deposit, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC).
+ */
+export type VaultDepositAmount = PositiveDecimal;
+
+/**
+ * The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. The deposit reverts if the vault's share price moves beyond this bound. A guard of 100 bps (i.e. 1%) is applied when omitted.
+ * @minimum 0
+ * @maximum 9999
+ */
+export type VaultDepositMaxSlippageBps = number;
+
+/**
+ * Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+ */
+export type VaultDepositPaymasterUrl = Url;
+
+/**
+ * The 0x-prefixed address that receives the minted vault shares. Defaults to the depositing account given in the path.
+ * @pattern ^0x[0-9a-fA-F]{40}$
+ */
+export type VaultDepositReceiver = BlockchainAddress;
+
+/**
+ * Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to deposit without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+ */
+export type VaultDepositUseCdpPaymaster = boolean;
+
+/**
+ * The result of a vault withdrawal from an EOA after broadcast.
+ */
+export interface EoaVaultWithdrawResponse {
+  /**
+   * The hash of the broadcast withdrawal transaction, as a 0x-prefixed hex string.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  transactionHash: string;
+}
+
+/**
+ * The result of a vault withdrawal from an EVM Smart Account after broadcast.
+ */
+export interface SmartAccountVaultWithdrawResponse {
+  /**
+   * The hash of the user operation executing the withdrawal, as a 0x-prefixed hex string.
+   * @pattern ^0x[0-9a-fA-F]{64}$
+   */
+  userOpHash: string;
+}
+
+/**
+ * Whether to withdraw the account's entire position in the vault. When true, every vault share held by the account is redeemed for the underlying asset (e.g. USDC). Cannot be `true` when `amount` is set.
+ */
+export type VaultWithdrawAll = boolean;
+
+/**
+ * The amount of the vault's underlying asset to withdraw, as a decimal string in standard unit denomination of the asset (i.e. "25.50" for 25.50 USDC). Cannot be used when `withdrawAll` is `true`.
+ */
+export type VaultWithdrawAmount = PositiveDecimal;
+
+/**
+ * The maximum share-price movement tolerated between calldata construction and onchain execution, in basis points. Defaults to 100 bps (1%) when omitted.
+ * @minimum 0
+ * @maximum 9999
+ */
+export type VaultWithdrawMaxSlippageBps = number;
+
+/**
+ * Optional custom Paymaster URL to use for gas sponsorship. This allows you to use your own Paymaster service instead of CDP's Paymaster. Cannot be used together with `useCdpPaymaster`.
+ */
+export type VaultWithdrawPaymasterUrl = Url;
+
+/**
+ * The 0x-prefixed address that receives the withdrawn underlying asset. Defaults to the withdrawing account given in the path.
+ * @pattern ^0x[0-9a-fA-F]{40}$
+ */
+export type VaultWithdrawReceiver = BlockchainAddress;
+
+/**
+ * Whether to use CDP Paymaster to sponsor gas fees. When true, the user operation gas will be paid by the Paymaster, allowing the account to withdraw without holding native gas tokens. Cannot be used together with `paymasterUrl`.
+ */
+export type VaultWithdrawUseCdpPaymaster = boolean;
+
+/**
+ * Fields shared by the API-key requests that withdraw from a vault with an EVM account or an EVM Smart Account. Composed into `WithdrawFromVaultWithEvmAccountRequest` and `WithdrawFromVaultWithEvmSmartAccountRequest`.
+Provide either `amount` or `withdrawAll: true`. `withdrawAll: false` is treated as omitted. Requests that set both `amount` and `withdrawAll: true`, or neither, are rejected with `invalid_request`.
+ */
+export interface WithdrawFromVaultBaseRequest {
+  vaultId: VaultId;
+  amount?: VaultWithdrawAmount;
+  withdrawAll?: VaultWithdrawAll;
+  receiver?: VaultWithdrawReceiver;
+  maxSlippageBps?: VaultWithdrawMaxSlippageBps;
+}
+
+/**
+ * A request to withdraw the vault's underlying asset (e.g. USDC) from a vault position held by an EVM account. The account signs an EIP-2612 permit over its vault shares authorizing the withdrawal, and the share approval and withdrawal are executed in a single transaction.
+ */
+export type WithdrawFromVaultWithEvmAccountRequestAllOf = { [key: string]: unknown };
+
+export type WithdrawFromVaultWithEvmAccountRequest = WithdrawFromVaultBaseRequest &
+  WithdrawFromVaultWithEvmAccountRequestAllOf;
+
+/**
+ * A request to withdraw the vault's underlying asset (e.g. USDC) from a vault position held by an EVM Smart Account. The share approval and withdrawal are batched into a single user operation.
+ */
+export type WithdrawFromVaultWithEvmSmartAccountRequestAllOf = {
+  useCdpPaymaster?: VaultWithdrawUseCdpPaymaster;
+  paymasterUrl?: VaultWithdrawPaymasterUrl;
+  paymasterContext?: PaymasterContext;
+};
+
+export type WithdrawFromVaultWithEvmSmartAccountRequest = WithdrawFromVaultBaseRequest &
+  WithdrawFromVaultWithEvmSmartAccountRequestAllOf;
 
 /**
  * Idempotency key conflict.
@@ -15563,29 +15754,6 @@ export type ListSpendPermissions200AllOf = {
 };
 
 export type ListSpendPermissions200 = ListSpendPermissions200AllOf & ListResponse;
-
-export type ListVaultsParams = {
-  /**
-   * The number of vaults to return per page.
-   * @minimum 1
-   * @maximum 1000
-   */
-  pageSize?: number;
-  /**
-   * The token for the next page of resources, if any.
-   */
-  pageToken?: PageTokenParameter;
-};
-
-/**
- * Response containing a list of vaults.
- */
-export type ListVaults200AllOf = {
-  /** The list of vaults created by the project. */
-  vaults: Vault[];
-};
-
-export type ListVaults200 = ListVaults200AllOf & ListResponse;
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;

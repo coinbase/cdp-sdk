@@ -26,6 +26,10 @@ async def main(vault_id: str, fee_recipient_address: str, owner_address: str) ->
 
         result = await smart_account.wait_for_user_operation(user_op_hash=user_op_hash)
 
+        if result.status == "failed":
+            print(f"Fee redemption failed: {user_op_hash}", file=sys.stderr)
+            sys.exit(1)
+
         print(f"Redeemed vault fees for smart account: {smart_account.address}")
         print(f"User operation status: {result.status}")
         if result.status == "complete":
