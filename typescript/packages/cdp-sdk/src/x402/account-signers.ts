@@ -3,8 +3,6 @@
  */
 
 import { address as toSolanaAddress, getTransactionEncoder } from "@solana/kit";
-import { toClientEvmSigner } from "@x402/evm";
-
 import { CHAIN_ID_TO_CDP_NETWORK } from "./constants.js";
 
 import type { EvmAccount } from "../accounts/evm/types.js";
@@ -27,7 +25,14 @@ export type CdpEvmAccount = Pick<EvmAccount, "address" | "signTypedData">;
  * @returns A `ClientEvmSigner` compatible with `@x402/evm`'s `registerExactEvmScheme`
  */
 export function fromCdpEvmAccount(account: CdpEvmAccount): ClientEvmSigner {
-  return toClientEvmSigner(account);
+  // Inline the thin `@x402/evm` `toClientEvmSigner` shape so this module has no
+  // static value import from the optional peer. Bundlers otherwise follow the
+  // dynamic import of this file from `signX402Payment` and fail when `@x402/evm`
+  // is not installed (see #864).
+  return {
+    address: account.address,
+    signTypedData: (msg) => account.signTypedData(msg),
+  };
 }
 
 // ─── Smart Contract Wallet Adapter ────────────────────────────────────────────
@@ -77,7 +82,9 @@ export function resolveNetworkFromChainId(chainId: number | undefined): string {
  * @returns A `ClientEvmSigner` compatible with `@x402/evm`'s `registerExactEvmScheme`
  */
 export function fromCdpSmartWallet(account: CdpSmartAccount): ClientEvmSigner {
-  const signerShape = {
+  // Same optional-peer concern as `fromCdpEvmAccount`: build the ClientEvmSigner
+  // shape locally instead of statically importing `toClientEvmSigner`.
+  return {
     address: account.address,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signTypedData({ domain, types, primaryType, message }: any): Promise<Hex> {
@@ -86,7 +93,6 @@ export function fromCdpSmartWallet(account: CdpSmartAccount): ClientEvmSigner {
       return account.signTypedData({ domain, types, primaryType, message, network });
     },
   };
-  return toClientEvmSigner(signerShape);
 }
 
 // ─── Solana Account Adapter ───────────────────────────────────────────────────
