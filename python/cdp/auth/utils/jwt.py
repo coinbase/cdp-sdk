@@ -193,10 +193,14 @@ def generate_jwt(options: JwtOptions) -> str:
         claims = {
             "sub": options.api_key_id,
             "iss": "cdp",
-            "aud": options.audience,
             "nbf": now,
             "exp": now + expires_in,
         }
+
+        # The Go, Rust, TypeScript and Java generators omit an audience nobody
+        # set, and `null` is not a StringOrURI (RFC 7519 4.1.3).
+        if options.audience is not None:
+            claims["aud"] = options.audience
 
         # Add the uris claim only for JWTs intended for REST API requests, not for websocket connections
         if has_all_uri_params:
