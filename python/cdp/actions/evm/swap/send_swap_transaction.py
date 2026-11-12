@@ -170,9 +170,11 @@ async def send_swap_transaction(
         gas=swap_data.gas_limit,
     )
 
-    # Set gas parameters if provided
-    if swap_data.max_fee_per_gas:
-        tx_request.maxFeePerGas = int(swap_data.max_fee_per_gas)
+    # Set gas parameters if provided.
+    # Quotes expose API gasPrice as max_fee_per_gas; keep gas_price as a fallback.
+    max_fee = swap_data.max_fee_per_gas or swap_data.gas_price
+    if max_fee:
+        tx_request.maxFeePerGas = int(max_fee)
     if swap_data.max_priority_fee_per_gas:
         tx_request.maxPriorityFeePerGas = int(swap_data.max_priority_fee_per_gas)
 

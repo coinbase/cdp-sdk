@@ -591,3 +591,42 @@ class TestCreateSwapQuote:
         # max_fee_per_gas and max_priority_fee_per_gas are extracted from response
         assert result.max_fee_per_gas == "30000000000"
         assert result.max_priority_fee_per_gas == "2000000000"
+
+    @pytest.mark.asyncio
+    async def test_create_swap_quote_gas_price_as_max_fee(self, mock_api_clients):
+        """API gasPrice (EIP-1559 maxFeePerGas) must populate quote.max_fee_per_gas."""
+        response_data = {
+            "liquidityAvailable": True,
+            "toAmount": "2000000000",
+            "minToAmount": "1980000000",
+            "transaction": {
+                "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+                "data": "0xabc123def456",
+                "value": "1000000000000000",
+                "gas": "250000",
+                # Real OpenAPI transaction only exposes gasPrice (as maxFeePerGas).
+                "gasPrice": "20000000000",
+            },
+            "permit2": None,
+            "issues": {"simulationIncomplete": False},
+        }
+
+        mock_response = AsyncMock()
+        mock_response.read = AsyncMock(return_value=json.dumps(response_data).encode())
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
+            return_value=mock_response
+        )
+
+        result = await create_swap_quote(
+            api_clients=mock_api_clients,
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            from_amount="1000000000000000",
+            network="base",
+            taker="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
+        )
+
+        assert result.gas_price == "20000000000"
+        assert result.max_fee_per_gas == "20000000000"
+        assert result.max_priority_fee_per_gas is None
+
